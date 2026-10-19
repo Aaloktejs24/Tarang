@@ -549,17 +549,11 @@ export default function CourseModal({ open, onClose, onSuccess, initialData, onD
     };
 
     if (!parentId) {
-      newNode.title = `${t('courseDashboard.modal.nodeModule')} ${modules.length + 1}: ${t('courseDashboard.modal.newModule')}`;
+      newNode.title = '';
       setModules([...modules, newNode]);
       setExpandedNodes(prev => ({ ...prev, [newNode.id]: true }));
     } else {
-      const details = getNewNodeDetails(modules, parentId);
-      if (details) {
-        newNode.title = `${t('courseDashboard.modal.nodeTopic')} ${details.prefix}: ${t('courseDashboard.modal.newTopic')}`;
-      } else {
-        newNode.title = t('courseDashboard.modal.newTopic');
-      }
-
+      newNode.title = '';
       setModules(updateTree(modules, parentId, (node) => ({
         ...node,
         children: [...(node.children || []), newNode]

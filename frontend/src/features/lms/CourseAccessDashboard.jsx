@@ -30,6 +30,8 @@ import TarangButton from '../../components/common/TarangButton';
 import { useBreadcrumbs } from '../../contexts/BreadcrumbContext';
 import Loader from '../../components/common/Loader';
 import ShakaPlayerComponent from '../../components/viewer/ShakaPlayerComponent';
+import TopicOtherContent from './components/TopicOtherContent';
+import TopicComments from './components/TopicComments';
 
 const getItemIcon = (type) => {
   switch (type) {
@@ -206,10 +208,36 @@ export default function CourseAccessDashboard({ courseId }) {
 
   const handleTopicClick = (topic) => {
     setActiveTopic(topic);
-    if (topic && topic.id) {
+    if (topic && topic.id && !String(topic.id).startsWith('dummy_')) {
       router.replace(window.location.pathname + `?topic=${topic.id}`, { scroll: false });
     }
   };
+
+  const matchedNode = React.useMemo(() => {
+    if (!course?.modules || !activeTopic) return null;
+    const findNode = (nodes) => {
+      for (const node of nodes) {
+        if (node.id === activeTopic.id) return node;
+        if (node.items && node.items.some((item) => item.id === activeTopic.id)) return node;
+        if (node.children) {
+          const res = findNode(node.children);
+          if (res) return res;
+        }
+      }
+      return null;
+    };
+    return findNode(course.modules);
+  }, [course, activeTopic]);
+
+  const [lastActiveNode, setLastActiveNode] = useState(null);
+
+  useEffect(() => {
+    if (matchedNode) {
+      setLastActiveNode(matchedNode);
+    }
+  }, [matchedNode]);
+
+  const activeNode = matchedNode || lastActiveNode;
 
   if (loading) {
     return (
@@ -458,7 +486,7 @@ export default function CourseAccessDashboard({ courseId }) {
 
                     if (isImage && url) {
                       return (
-                        <Box sx={{ width: '100%', height: '70vh', bgcolor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <Box sx={{ width: '100%', aspectRatio: '16/9', bgcolor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                           <img
                             src={url}
                             alt={activeTopic.title}
@@ -493,7 +521,7 @@ export default function CourseAccessDashboard({ courseId }) {
 
                     if (isDocument && url) {
                       return (
-                        <Box sx={{ width: '100%', height: '70vh', bgcolor: 'var(--color-slate-100)', flexShrink: 0 }}>
+                        <Box sx={{ width: '100%', aspectRatio: '16/9', bgcolor: 'var(--color-slate-100)', position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
                           <iframe
                             src={`${url}#toolbar=0`}
                             style={{ width: '100%', height: '100%', border: 'none' }}
@@ -505,28 +533,116 @@ export default function CourseAccessDashboard({ courseId }) {
 
                     if (isAudio && url) {
                       return (
-                        <Box sx={{ p: 4, display: 'flex', justifyContent: 'center', bgcolor: 'var(--color-slate-50)', flexShrink: 0, borderBottom: 'var(--border-thin) solid var(--card-border)' }}>
-                          <audio controls src={url} style={{ width: '100%', maxWidth: '400px' }}>
+                        <Box
+                          sx={{
+                            width: '100%',
+                            aspectRatio: '16/9',
+                            position: 'relative',
+                            overflow: 'hidden',
+                            flexShrink: 0,
+                            bgcolor: '#0f172a',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            p: 3,
+                            background: 'radial-gradient(circle at center, rgba(30, 79, 163, 0.45) 0%, #070b16 100%)',
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              width: { xs: 60, sm: 80 },
+                              height: { xs: 60, sm: 80 },
+                              borderRadius: '50%',
+                              bgcolor: 'rgba(255, 255, 255, 0.08)',
+                              border: '2px solid rgba(255, 255, 255, 0.15)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              mb: 2,
+                              boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+                            }}
+                          >
+                            <AudioFileOutlinedIcon sx={{ fontSize: { xs: 30, sm: 42 }, color: '#a78bfa' }} />
+                          </Box>
+
+                          <Typography
+                            sx={{
+                              color: '#ffffff',
+                              fontWeight: 700,
+                              fontSize: { xs: '15px', sm: '18px' },
+                              mb: 0.5,
+                              textAlign: 'center',
+                              maxWidth: '85%',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            {activeTopic.title}
+                          </Typography>
+                          <Typography sx={{ color: 'rgba(255, 255, 255, 0.65)', fontSize: '12px', mb: 2 }}>
+                            {activeTopic.description || (language === 'en' ? 'Audio Track' : 'ऑडियो ट्रैक')}
+                          </Typography>
+
+                          <audio
+                            controls
+                            autoPlay
+                            src={url}
+                            style={{
+                              width: '100%',
+                              maxWidth: '460px',
+                              borderRadius: '24px',
+                              filter: 'invert(0.9) hue-rotate(180deg)',
+                            }}
+                          >
                             Your browser does not support the audio element.
                           </audio>
                         </Box>
                       );
                     }
 
-                    if (isLinkBased && url) {
+                    if (type === 'article' || isLinkBased) {
                       return (
-                        <Box sx={{ p: 6, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
-                          <Typography variant="h6" sx={{ color: 'var(--color-slate-700)', mb: 2 }}>
-                            {language === 'en' ? 'External Content' : 'बाहरी सामग्री'}
-                          </Typography>
-                          <TarangButton
-                            variant="contained"
-                            href={url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {language === 'en' ? 'Open in new tab' : 'नए टैब में खोलें'}
-                          </TarangButton>
+                        <Box
+                          sx={{
+                            width: '100%',
+                            aspectRatio: '16/9',
+                            position: 'relative',
+                            borderRadius: 0,
+                            overflowY: 'auto',
+                            bgcolor: '#ffffff',
+                            p: { xs: 2.5, sm: 4 },
+                            flexShrink: 0,
+                          }}
+                        >
+                          <Box sx={{ maxWidth: '720px', mx: 'auto' }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                              <Chip label="DOC" size="small" sx={{ bgcolor: 'rgba(32, 201, 151, 0.12)', color: '#20c997', fontWeight: 700, borderRadius: '4px', height: 20 }} />
+                              <Typography variant="caption" sx={{ color: 'var(--color-slate-500)', fontWeight: 600 }}>
+                                {language === 'en' ? 'Study & Practice Material' : 'अभ्यास सामग्री व नोट्स'}
+                              </Typography>
+                            </Box>
+                            <Typography variant="h5" sx={{ fontWeight: 700, color: 'var(--color-slate-900)', mb: 1.5, fontSize: { xs: '18px', sm: '22px' } }}>
+                              {activeTopic.title}
+                            </Typography>
+                            <Typography sx={{ color: 'var(--color-slate-700)', lineHeight: 1.7, mb: 2.5, fontSize: '13.5px' }}>
+                              {activeTopic.description || (language === 'en'
+                                ? 'Key practice problems, summary notes, and reflection questions for this topic.'
+                                : 'इस विषय से जुड़े प्रमुख अभ्यास प्रश्न, सारांश नोट्स और विचारणीय प्रश्न।')}
+                            </Typography>
+
+                            <Box sx={{ p: 2, bgcolor: 'var(--color-slate-50)', borderRadius: 'var(--radius-md)', border: '1px solid var(--card-border)' }}>
+                              <Typography sx={{ fontWeight: 600, fontSize: '13px', color: 'var(--color-slate-800)', mb: 0.75 }}>
+                                {language === 'en' ? 'Practice Exercise #1' : 'अभ्यास प्रश्न #1'}
+                              </Typography>
+                              <Typography sx={{ fontSize: '12.5px', color: 'var(--color-slate-600)', lineHeight: 1.6 }}>
+                                {language === 'en'
+                                  ? 'Review the lecture concepts and summarize the core steps discussed in this section.'
+                                  : 'व्याख्यान की मुख्य अवधारणाओं की समीक्षा करें और इस भाग में चर्चा किए गए चरणों का सारांश लिखें।'}
+                              </Typography>
+                            </Box>
+                          </Box>
                         </Box>
                       );
                     }
@@ -539,15 +655,67 @@ export default function CourseAccessDashboard({ courseId }) {
                     );
                   })()}
 
-                  {(activeTopic.url || activeTopic.video_url || activeTopic.document_url) && (
-                    <Box sx={{ p: { xs: 2.5, md: 3 }, flexShrink: 0 }}>
-                      <Typography variant="h5" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', mb: 1, fontSize: { xs: '20px', md: '24px' } }}>
+                  {activeTopic && (
+                    <Box sx={{ px: { xs: 2, sm: 2.5, md: 3 }, pt: { xs: 1.5, sm: 2, md: 2.5 }, pb: 0, flexShrink: 0 }}>
+                      <Typography variant="h5" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', mb: 0.5, fontSize: { xs: '20px', md: '24px' } }}>
                         {activeTopic.title}
                       </Typography>
 
-                      <Typography sx={{ color: 'var(--color-slate-700)', fontSize: '14.5px', whiteSpace: 'pre-wrap', lineHeight: 1.6, mt: 1 }}>
+                      <Typography sx={{ color: 'var(--color-slate-700)', fontSize: '14.5px', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
                         {activeTopic.description || (language === 'en' ? 'No description available.' : 'कोई विवरण उपलब्ध नहीं है।')}
                       </Typography>
+                    </Box>
+                  )}
+
+                  {activeTopic && (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: { xs: 'column', lg: 'row' },
+                        gap: 2.5,
+                        px: { xs: 2, sm: 2.5, md: 3 },
+                        pt: 1.5,
+                        pb: 3,
+                        alignItems: 'stretch',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {/* Left Column: Comments & Discussions */}
+                      <Box
+                        sx={{
+                          flex: { xs: '1 1 auto', lg: '1 1 58%', xl: '1 1 60%' },
+                          display: 'flex',
+                          flexDirection: 'column',
+                          minHeight: { xs: '280px', sm: '320px', lg: '360px' },
+                          maxHeight: { xs: '380px', sm: '420px', lg: '420px' },
+                        }}
+                      >
+                        <TopicComments
+                          key={activeNode?.id || activeTopic?.id || 'default'}
+                          courseId={courseId}
+                          topicId={activeNode?.id || activeTopic?.id}
+                          topicTitle={activeNode?.title || activeTopic?.title}
+                          language={language}
+                        />
+                      </Box>
+
+                      {/* Right Column: Resources */}
+                      <Box
+                        sx={{
+                          flex: { xs: '1 1 auto', lg: '0 0 42%', xl: '0 0 40%' },
+                          display: 'flex',
+                          flexDirection: 'column',
+                          minHeight: { xs: '280px', sm: '320px', lg: '360px' },
+                          maxHeight: { xs: '380px', sm: '420px', lg: '420px' },
+                        }}
+                      >
+                        <TopicOtherContent
+                          activeTopic={activeTopic}
+                          activeNode={activeNode}
+                          onSelectContent={(item) => handleTopicClick(item)}
+                          language={language}
+                        />
+                      </Box>
                     </Box>
                   )}
                 </Box>
@@ -666,7 +834,7 @@ export default function CourseAccessDashboard({ courseId }) {
                                           {node.items.map((item, iIdx) => (
                                             <Box
                                               key={item.id || iIdx}
-                                              onClick={() => setActiveTopic(item)}
+                                              onClick={() => handleTopicClick(item)}
                                               sx={{
                                                 display: 'flex', alignItems: 'center', gap: 1.5,
                                                 cursor: 'pointer',
