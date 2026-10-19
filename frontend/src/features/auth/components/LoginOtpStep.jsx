@@ -6,7 +6,6 @@ import OtpInput from "./OtpInput";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
 import TarangButton from "../../../components/common/TarangButton";
-import AuthMessage from "./AuthMessage";
 import { FormLoadingProvider } from '../../../contexts/FormLoadingContext';
 
 export default function LoginOtpStep({ setStep, formData, updateFormData, handleFinalSubmit, isLoading, error, setError, onResendOtp, resendTimer, success, setSuccess, maskedEmail, mfaType }) {
@@ -19,99 +18,89 @@ export default function LoginOtpStep({ setStep, formData, updateFormData, handle
 
     return (
         <FormLoadingProvider isLoading={isLoading}>
-        <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 2 }}>
-            <Box>
-                <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)' }}>
-                    {isTotp ? "सुरक्षा कोड" : "अकाउंट वेरीफाई करें"}
-                </Typography>
-                <Typography variant="body2" sx={{ color: "var(--color-slate-500)", fontSize: 'var(--font-base)' }}>
-                    {isTotp
-                        ? "जारी रखने के लिए अपने ऑथेंटिकेटर ऐप से 6-अंकों का कोड डालें।"
-                        : <>हमने <span style={{ color: "var(--color-slate-900)", fontWeight: 'var(--font-bold)' }}>{getMaskedEmail(maskedEmail || formData.email)}</span> पर एक वेरिफिकेशन कोड भेजा है</>
-                    }
-                </Typography>
-            </Box>
-
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-                <AnimatePresence mode="wait">
-                    {(error || success) && (
-                        <motion.div key={error ? "error" : "success"} initial={{ opacity: 0, height: 0, marginTop: 0 }} animate={{ opacity: 1, height: "auto", marginTop: 8 }} exit={{ opacity: 0, height: 0, marginTop: 0 }} style={{ textAlign: "center", width: "100%" }}>
-                            {error ? (
-                                <AuthMessage type="error" message={error} />
-                            ) : (
-                                <AuthMessage type="success" message={success} />
-                            )}
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </Box>
-
-            <Box>
-                <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
-                    {isTotp ? "ऑथेंटिकेटर कोड" : "वेरिफिकेशन कोड"}
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <OtpInput
-                        value={formData.otp}
-                        onChange={(val) => {
-                            updateFormData({ otp: val });
-                            if (error) setError("");
-                        }}
-                        isLoading={isLoading}
-                        error={!!error}
-                    />
-                    {!isTotp && (
-                        <TarangButton
-                            variant="text"
-                            size="sm"
-                            disabled={isLoading || resendTimer > 0}
-                            onClick={() => {
-                                if (resendTimer === 0 && !isLoading) {
-                                    onResendOtp();
-                                }
-                            }}
-                            sx={{ color: resendTimer > 0 ? '#64748b' : 'var(--color-primary)', p: 0, minWidth: 'auto', minHeight: 'auto', '&:hover': { background: 'transparent', textDecoration: 'underline' }, whiteSpace: 'nowrap' }}
-                        >
-                            {resendTimer > 0 ? (
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                    <AccessTimeIcon sx={{ fontSize: 'var(--font-sm)' }} />
-                                    <Box component="div" sx={{ fontSize: '13px', fontWeight: 'var(--font-semibold)' }}>
-                                        {resendTimer.toString().padStart(2, '0')}s फिर से भेजें
-                                    </Box>
-                                </Box>
-                            ) : "फिर से भेजें"}
-                        </TarangButton>
-                    )}
+            <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 1.5 }}>
+                <Box>
+                    <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)' }}>
+                        {isTotp ? "सुरक्षा कोड" : "अकाउंट वेरीफाई करें"}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: "var(--color-slate-500)", fontSize: 'var(--font-base)' }}>
+                        {isTotp
+                            ? "जारी रखने के लिए अपने ऑथेंटिकेटर ऐप से 6-अंकों का कोड डालें।"
+                            : <>हमने <span style={{ color: "var(--color-slate-900)", fontWeight: 'var(--font-bold)' }}>{getMaskedEmail(maskedEmail || formData.email)}</span> पर एक वेरिफिकेशन कोड भेजा है</>
+                        }
+                    </Typography>
                 </Box>
+
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+
+                </Box>
+
+                <Box>
+                    <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
+                        {isTotp ? "ऑथेंटिकेटर कोड" : "वेरिफिकेशन कोड"}
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <OtpInput
+                            value={formData.otp}
+                            onChange={(val) => {
+                                updateFormData({ otp: val });
+                                if (error) setError("");
+                            }}
+                            isLoading={isLoading}
+                            error={!!error}
+                        />
+                        {!isTotp && (
+                            <TarangButton
+                                variant="text"
+                                size="sm"
+                                disabled={isLoading || resendTimer > 0}
+                                onClick={() => {
+                                    if (resendTimer === 0 && !isLoading) {
+                                        onResendOtp();
+                                    }
+                                }}
+                                sx={{ color: 'var(--color-primary)', p: 0, minWidth: 'auto', minHeight: 'auto', '&.Mui-disabled': { color: 'var(--color-primary)', opacity: 0.8 }, '&:hover': { background: 'transparent', textDecoration: 'underline' }, whiteSpace: 'nowrap' }}
+                            >
+                                {resendTimer > 0 ? (
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                        <AccessTimeIcon sx={{ fontSize: 'var(--font-sm)' }} />
+                                        <Box component="div" sx={{ fontSize: '13px', fontWeight: 'var(--font-semibold)' }}>
+                                            {resendTimer.toString().padStart(2, '0')}s फिर से भेजें
+                                        </Box>
+                                    </Box>
+                                ) : "फिर से भेजें"}
+                            </TarangButton>
+                        )}
+                    </Box>
+                </Box>
+
+                <Box sx={{ display: "flex", gap: 1.5, mt: 1 }}>
+                    <TarangButton
+                        variant="outlined"
+                        disabled={isLoading}
+                        onClick={() => {
+                            setError("");
+                            setSuccess("");
+                            updateFormData({ otp: "", password: "" });
+                            setStep(1);
+                        }}
+                        sx={{ flex: 1, height: 'var(--box-height)' }}
+                    >
+                        वापस जाएं
+                    </TarangButton>
+
+                    <TarangButton
+                        loading={isLoading}
+                        disabled={isLoading || formData.otp.length < 6}
+                        onClick={handleFinalSubmit}
+                        sx={{ flex: 1, height: 'var(--box-height)' }}
+                    >
+                        वेरीफाई करें
+                    </TarangButton>
+                </Box>
+
+
             </Box>
-
-            <Box sx={{ display: "flex", gap: 1.5, mt: 1 }}>
-                <TarangButton
-                    variant="outlined"
-                    disabled={isLoading}
-                    onClick={() => {
-                        setError("");
-                        setSuccess("");
-                        updateFormData({ otp: "", password: "" });
-                        setStep(1);
-                    }}
-                    sx={{ flex: 1, height: 'var(--box-height)' }}
-                >
-                    वापस जाएं
-                </TarangButton>
-
-                <TarangButton
-                    loading={isLoading}
-                    disabled={isLoading || formData.otp.length < 6}
-                    onClick={handleFinalSubmit}
-                    sx={{ flex: 1, height: 'var(--box-height)' }}
-                >
-                    वेरीफाई करें
-                </TarangButton>
-            </Box>
-
-
-        </Box>
         </FormLoadingProvider>
     );
 }

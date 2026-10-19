@@ -15,14 +15,11 @@ export default function RegisterSuccessStep({ onProceedTo2fa, onSkipToLogin }) {
         transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.1 }}
       >
         <Box sx={{ 
-          width: 80, 
-          height: 80, 
           borderRadius: 'var(--radius-full)', 
-          bgcolor: "rgba(16, 185, 129, 0.1)", 
+          bgcolor: 'transparent',
           display: "flex", 
           alignItems: "center", 
           justifyContent: "center",
-          mb: 1
         }}>
           <CheckCircleOutlineIcon sx={{ fontSize: 50, color: "var(--color-success)" }} />
         </Box>

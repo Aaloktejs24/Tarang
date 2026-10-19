@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Box, Typography, Grid, Card, CardContent, Avatar, Button, Container, alpha, Breadcrumbs, Link, Skeleton, CircularProgress } from "@mui/material";
+import { Box, Typography, Grid, Card, CardContent, Avatar, Button, Container, alpha, Breadcrumbs, Link, Skeleton, CircularProgress, Tooltip } from "@mui/material";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import CampaignOutlinedIcon from "@mui/icons-material/CampaignOutlined";
 import LocalLibraryOutlinedIcon from "@mui/icons-material/LocalLibraryOutlined";
@@ -31,20 +31,21 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { useSearchParams, usePathname } from 'next/navigation';
 
-import InstituteSetupModal from "../auth/components/InstituteSetupModal";
+import InstituteUpdateModal from "../profile/components/InstituteUpdateModal";
 
 import { useAppRouter as useRouter } from '../../hooks/useAppRouter';
 import { useProfile } from "../../hooks/useProfile";
-import { useAccessibility } from "../../contexts/AccessibilityContext";
+import { useAccessibility } from '../../contexts/AccessibilityContext';
+
+import { DASHBOARD_PAGE_WRAPPER_SX, DASHBOARD_CONTAINER_SX } from '../../constants/layout';
 import { useTranslation } from "../../hooks/useTranslation";
 import UniversalHero from '../../components/hero/UniversalHero';
-import { formatBreadcrumbName, getNoNamePlaceholder, parseBilingualName } from "../../utils/stringUtils";
+import { formatBreadcrumbName } from "../../utils/stringUtils";
 import { getHeroPropsFromProfile } from '../../utils/heroUtils';
 import { useBreadcrumbs } from "../../contexts/BreadcrumbContext";
 import { getUserApplications } from "../admission/admissionService";
 import { apiClient } from "../../lib/apiClient";
 import Chip from '@mui/material/Chip';
-import gazeteer from "../../data/formated/gazeteer.json";
 const instituteModules = [
   {
     id: "academic", title: "शैक्षणिक / Academic", subTitle: "Classes & Curriculum", icon: <SchoolOutlinedIcon />, color: "var(--color-primary)",
@@ -112,6 +113,16 @@ const managementModules = [
   }
 ];
 
+const studentSubModules = {
+  academic: [
+    { id: "courses", title: "पाठ्यक्रम / Courses", subTitle: "My Courses & Subjects", icon: <SchoolOutlinedIcon />, color: "var(--color-primary)" },
+    { id: "timetable", title: "समय सारणी / Timetable", subTitle: "Class Schedule", icon: <DomainOutlinedIcon />, color: "var(--color-primary)" },
+    { id: "calendar", title: "कैलेंडर / Academic Calendar", subTitle: "Events & Holidays", icon: <AnalyticsOutlinedIcon />, color: "var(--color-primary)" },
+    { id: "attendance", title: "उपस्थिति / Attendance", subTitle: "My Records", icon: <FactCheckOutlinedIcon />, color: "var(--color-primary)" },
+    { id: "exams", title: "परीक्षा / Exams", subTitle: "Results & Admit Cards", icon: <AssignmentTurnedInOutlinedIcon />, color: "var(--color-primary)" },
+  ]
+};
+
 const managementSubModules = {
   student_affairs: [
     { id: "admissions", title: "नामांकन / Admissions", subTitle: "नए नामांकन / New Enrollments", icon: <PeopleOutlinedIcon />, color: "var(--color-primary)" },
@@ -140,7 +151,7 @@ const managementSubModules = {
 };
 
 export default function InstitutePage() {
-  const { profile, loading: actualProfileLoading } = useProfile();
+  const { profile, loading: actualProfileLoading, refreshProfile } = useProfile();
 
   const profileLoading = actualProfileLoading;
 
@@ -174,30 +185,33 @@ export default function InstitutePage() {
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  const isManagement = profile?.role === 'institute' || profile?.role === 'organisation';
+  const isManagement = profile?.role === 'institute' || profile?.role === 'admin';
 
   const [userApplications, setUserApplications] = React.useState([]);
   const [loadingApps, setLoadingApps] = React.useState(false);
   const [dynamicInstitute, setDynamicInstitute] = React.useState(null);
 
   React.useEffect(() => {
-    const approvedApp = userApplications?.find(app => app.status === 'approved' || app.status === 'enrolled');
-    if (approvedApp && !profile?.institution_name) {
+    const activeApp = userApplications?.find(app => app.status !== 'rejected' && app.status !== 'withdrawn');
+    if (activeApp && !profile?.primary_name) {
       apiClient.get(`/public/institutes`).then(res => {
         const institutes = res.data?.institutes || res.data || [];
-        const matchedInstitute = institutes.find(inst => inst.id === (approvedApp.institute_id || approvedApp.instituteId)) || institutes[0];
+        const matchedInstitute = institutes.find(inst => inst.id === (activeApp.institute_id || activeApp.instituteId)) || institutes[0];
         if (matchedInstitute) setDynamicInstitute(matchedInstitute);
       }).catch(err => console.error(err));
     }
-  }, [userApplications, profile?.institution_name]);
+  }, [userApplications, profile?.primary_name]);
 
+  const hasActiveApp = userApplications?.some(app => app.status !== 'rejected' && app.status !== 'withdrawn');
   const hasApprovedApp = userApplications?.some(app => app.status === 'approved' || app.status === 'enrolled');
-  const hasJoinedInstitute = !!profile?.institution_name || hasApprovedApp;
 
-  // An organisation is only set up if it has an institution_name. The admin's personal full_name doesn't count.
-  const hasSetupOrganization = !!profile?.institution_name;
+  const hasJoinedInstituteForHero = !!profile?.primary_name || hasActiveApp;
+  const hasJoinedInstituteForModules = !!profile?.primary_name || hasApprovedApp;
 
-  const showStudentEmptyState = !profileLoading && !isManagement && !hasJoinedInstitute;
+  // An institute is only set up if it has an institution_name. The admin's personal full_name doesn't count.
+  const hasSetupOrganization = !!profile?.primary_name;
+
+  const showStudentEmptyState = !profileLoading && !isManagement && !hasJoinedInstituteForModules;
   const showManagementEmptyState = !profileLoading && isManagement && !hasSetupOrganization;
   const showEmptyState = showStudentEmptyState || showManagementEmptyState;
 
@@ -218,8 +232,8 @@ export default function InstitutePage() {
   }, [profile?.id, isManagement]);
 
   const modulesToShow = isManagement
-    ? (activeCategory ? managementSubModules[activeCategory] : managementModules)
-    : instituteModules;
+    ? (activeCategory && managementSubModules[activeCategory] ? managementSubModules[activeCategory] : managementModules)
+    : (activeCategory && studentSubModules[activeCategory] ? studentSubModules[activeCategory] : instituteModules);
 
   let displayTitle = "";
   let displaySubtitle = "";
@@ -227,43 +241,22 @@ export default function InstitutePage() {
   if (showManagementEmptyState) {
     displayTitle = language === 'en' ? "Organization Setup" : "संस्थान सेटअप";
     displaySubtitle = language === 'en' ? "Complete your profile" : "अपनी प्रोफ़ाइल पूरी करें";
-  } else if (showStudentEmptyState) {
+  } else if (!isManagement && !hasJoinedInstituteForHero) {
     displayTitle = profile?.full_name || profile?.username || "Student Portal";
     displaySubtitle = language === 'en' ? "Welcome to Tarang Portal" : "तरंग पोर्टल में आपका स्वागत है";
   } else {
-    const rawName = profile?.institution_name || dynamicInstitute?.institution_name || dynamicInstitute?.full_name || dynamicInstitute?.name || dynamicInstitute?.username || "";
-    const { localName, englishName } = parseBilingualName(rawName);
+    const primaryName = profile?.primary_name || dynamicInstitute?.primary_name || dynamicInstitute?.full_name || dynamicInstitute?.name || dynamicInstitute?.username || "";
+    const secondaryName = profile?.secondary_name || dynamicInstitute?.secondary_name || "";
 
-    const locationParts = profile?.location ? profile.location.split(', ') : [];
-    const country = locationParts.length > 1 ? locationParts[locationParts.length - 1] : "भारत";
-    const countryData = gazeteer.Countries.find(c => c.name.toLowerCase() === country.toLowerCase() || (country === "भारत" && c.code === "IN"));
-    const nationalLang = countryData ? (Array.isArray(countryData.officialLang) ? countryData.officialLang[0] : countryData.officialLang) : "hi";
-
-    const stateLang = language || 'en';
-
-    const defaultLang1 = getNoNamePlaceholder(stateLang);
-    let defaultLang2 = getNoNamePlaceholder(nationalLang);
-
-    if (defaultLang1 === defaultLang2) {
-      defaultLang2 = stateLang === 'en' ? getNoNamePlaceholder('hi') : getNoNamePlaceholder('en');
-    }
-
-    if (localName && englishName) {
-      displayTitle = localName;
-      displaySubtitle = englishName;
-    } else if (localName || englishName) {
-      const nameStr = localName || englishName;
-      const isEnglish = /^[A-Za-z0-9\s.,&'()\-]+$/.test(nameStr);
-      if (isEnglish && stateLang !== 'en' && nationalLang === 'en') {
-        displayTitle = defaultLang1;
-        displaySubtitle = nameStr;
-      } else {
-        displayTitle = nameStr;
-        displaySubtitle = defaultLang2;
-      }
+    if (primaryName && secondaryName) {
+      displayTitle = primaryName;
+      displaySubtitle = secondaryName;
+    } else if (primaryName || secondaryName) {
+      displayTitle = primaryName || secondaryName;
+      displaySubtitle = "";
     } else {
-      displayTitle = defaultLang1;
-      displaySubtitle = defaultLang2;
+      displayTitle = "";
+      displaySubtitle = "";
     }
   }
 
@@ -274,7 +267,7 @@ export default function InstitutePage() {
     return parts[0].trim();
   };
 
-  const rawInstituteName = profile?.institution_name || profile?.full_name || profile?.username || "Institute";
+  const rawInstituteName = profile?.primary_name || profile?.full_name || profile?.username || "Institute";
   const breadcrumbInstituteName = formatBreadcrumbName(rawInstituteName);
   const baseBreadcrumbs = [
     {
@@ -284,8 +277,9 @@ export default function InstitutePage() {
     }
   ];
 
-  const dynamicBreadcrumbs = isManagement && activeCategory ? (() => {
-    const title = managementModules.find(m => m.id === activeCategory)?.title || "";
+  const dynamicBreadcrumbs = activeCategory ? (() => {
+    const sourceModules = isManagement ? managementModules : instituteModules;
+    const title = sourceModules.find(m => m.id === activeCategory)?.title || "";
     const parts = title.split(/\s*\/\s*/);
     return [
       ...baseBreadcrumbs,
@@ -300,53 +294,52 @@ export default function InstitutePage() {
 
   const isTrulyEmpty = showManagementEmptyState || (showStudentEmptyState && userApplications.length === 0);
 
+  const getAvatarUrl = () => {
+    if (showManagementEmptyState || (!isManagement && !hasJoinedInstituteForHero)) return undefined;
+    if (isManagement) return profile?.institute_profile?.logo_url || undefined;
+    return dynamicInstitute?.profile_pic_url || profile?.institute_profile?.logo_url || undefined;
+  };
+
+  const getBannerUrl = () => {
+    if (profileLoading) return '';
+    if (showManagementEmptyState || (!isManagement && !hasJoinedInstituteForHero)) return "https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=2000";
+    if (isManagement) return profile?.institute_profile?.banner_url || "https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=2000";
+    return dynamicInstitute?.banner_url || profile?.institute_profile?.banner_url || "https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=2000";
+  };
+
   return (
-    <Box sx={{ position: "relative", minHeight: "calc(100vh - 72px)", overflowX: "hidden", overflowY: "auto", bgcolor: "transparent", mt: "-1px" }}>
+    <Box sx={DASHBOARD_PAGE_WRAPPER_SX}>
       <UniversalHero
         {...getHeroPropsFromProfile(profile, language)}
         title={displayTitle}
-        subtitle={displaySubtitle}
-        bannerUrl={(!showEmptyState && (dynamicInstitute?.banner_url || profile?.banner_url)) || "https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=2000"}
-        avatarUrl={!showEmptyState ? (dynamicInstitute?.profile_pic_url || profile?.profile_pic_url || undefined) : undefined}
+        subtitle={(() => {
+          const sub = displaySubtitle || "";
+          const isPlaceholder = sub === "कोई नाम नहीं" || sub.toLowerCase() === "no name" || sub === "नाम नास्ति" || sub === "কোন নাম নেই" || sub === "పేరు లేదు" || sub === "नाव नाही" || sub === "பெயர் இல்லை" || sub === "کوئی نام نہیں" || sub === "કોઈ નામ નથી" || sub === "ಹೆಸರಿಲ್ಲ" || sub === "କୌଣସି ନାମ ନାହିଁ" || sub === "പേരില്ല" || !sub;
+          return isPlaceholder ? "" : sub;
+        })()}
+        bannerUrl={getBannerUrl()}
+        avatarUrl={getAvatarUrl()}
         loading={profileLoading}
-        hideAvatar={isTrulyEmpty}
-        hideContent={isTrulyEmpty}
+        hideContent={!profileLoading && isTrulyEmpty}
+        showSpacer={profileLoading || !isTrulyEmpty}
         fadeAnchorRef={cardsRef}
-        showSpacer={!isTrulyEmpty}
       />
 
-      <Container maxWidth="xl" sx={{
-        position: "relative",
-        zIndex: 1,
+      <Container maxWidth={false} sx={{
+        ...DASHBOARD_CONTAINER_SX,
         pb: isTrulyEmpty ? 0 : 10,
-        px: { xs: 3, md: 6, lg: 8 },
-        ...(isTrulyEmpty && {
-          minHeight: "calc(100vh - 72px)",
+        ...(!profileLoading && isTrulyEmpty && {
+          height: "calc(100vh - 72px)",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
-          py: 6
+          justifyContent: "center"
         })
       }}>
         {/* ─── MODULE GRID ─── */}
         {showEmptyState ? (
           <Box ref={cardsRef} sx={{ width: 'var(--size-full)', display: 'flex', flexDirection: 'column' }}>
-            {showManagementEmptyState ? (
-              <Box sx={{ display: 'flex', justifyContent: 'center', width: 'var(--size-full)' }}>
-                <EmptyState
-                  title={language === 'en' ? "Setup Your Organization" : "अपना संस्थान सेट करें"}
-                  subtitle={language === 'en'
-                    ? "Your organization profile is not set up yet. Create your institute profile to get started."
-                    : "आपके संस्थान की प्रोफ़ाइल अभी सेट नहीं हुई है। शुरू करने के लिए अपना संस्थान बनाएं।"}
-                  actionLabel={language === 'en' ? "Create Institute" : "संस्थान बनाएं"}
-                  actionIcon={
-                    <AddCircleOutlineIcon sx={{ fontSize: 20 }} />
-                  }
-                  onAction={() => setInstituteModalOpen(true)}
-                />
-              </Box>
-            ) : showStudentEmptyState && userApplications.length === 0 ? (
+            {showStudentEmptyState && userApplications.length === 0 ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', width: 'var(--size-full)' }}>
                 <EmptyState
                   title={language === 'en' ? "No Institute Joined" : "कोई संस्थान नहीं जुड़ा"}
@@ -362,51 +355,67 @@ export default function InstitutePage() {
               </Box>
             ) : (
               <Box sx={{ width: 'var(--size-full)' }}>
-                <Grid container spacing={3}>
-                  {userApplications.map((app) => (
-                    <Grid item xs={12} sm={6} md={4} key={app.id}>
-                      <PremiumCard
-                        onClick={() => {
-                          const url = `/dashboard/explore/${app.institute_username || 'institute'}/admission/${app.program_id}?appId=${app.id}`;
-                          router.push(url);
-                        }}
-                        sx={{
-                          cursor: "pointer",
-                        }}
-                      >
-                        <CardContent sx={{ p: 3, "&:last-child": { pb: 3 } }}>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2.5 }}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 2.5 }}>
+                  {(() => {
+                    if (!userApplications || userApplications.length === 0) return null;
+                    const sortedApps = [...userApplications].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                    const appToDisplay = sortedApps.find(app => app.status !== 'rejected' && app.status !== 'withdrawn') || sortedApps[0];
+                    const app = appToDisplay;
+                    return (
+                      <Box key={app.id}>
+                        <PremiumCard
+                          onClick={() => {
+                            const url = `/dashboard/explore/${app.institute_username || app.institute_id || 'institute'}/admission/${app.program_id}?appId=${app.id}`;
+                            router.push(url);
+                          }}
+                          sx={{
+                            cursor: "pointer",
+                            height: "var(--size-full)",
+                            width: "var(--size-full)",
+                            display: "flex",
+                            alignItems: "center"
+                          }}
+                        >
+                          <CardContent sx={{ p: 2.5, "&:last-child": { pb: 2.5 }, width: '100%' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                              <Avatar sx={{ bgcolor: 'rgba(0, 86, 179, 0.1)', color: 'var(--color-primary)', width: 48, height: 48 }}>
+                              <Box sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: 48,
+                                height: 48,
+                                borderRadius: 'var(--radius-lg)',
+                                bgcolor: 'transparent',
+                                color: 'var(--color-primary)',
+                                flexShrink: 0
+                              }}>
                                 <AssignmentTurnedInOutlinedIcon />
-                              </Avatar>
-                              <Box>
-                                <Typography variant="subtitle1" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)', lineHeight: 1.2, mb: 0.5 }}>
-                                  Application #{app.id ? (parseInt(app.id.substring(0, 8), 16) % 90000 + 10000) : '00000'}
-                                </Typography>
+                              </Box>
+                              <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, flexWrap: 'wrap' }}>
+                                  <Typography variant="subtitle1" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)', lineHeight: 1.2 }}>
+                                    {app.id ? app.id.substring(0, 8).toUpperCase() : '00000000'}
+                                  </Typography>
+                                  <Tooltip title={app.status?.replace(/_/g, ' ')} placement="top">
+                                    <Box sx={{ 
+                                      width: 8, height: 8, borderRadius: '50%', 
+                                      bgcolor: app.status === 'approved' ? 'var(--color-success)' : 
+                                               (app.status === 'rejected' || app.status === 'withdrawn') ? 'var(--color-error)' : 
+                                               '#d97706'
+                                    }} />
+                                  </Tooltip>
+                                </Box>
                                 <Typography variant="caption" sx={{ color: 'var(--color-slate-500)', fontWeight: 'var(--font-semibold)' }}>
                                   {new Date(app.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                                 </Typography>
                               </Box>
                             </Box>
-                            <Chip
-                              label={app.status?.replace(/_/g, ' ')}
-                              size="small"
-                              sx={{
-                                fontWeight: 'var(--font-bold)',
-                                textTransform: 'capitalize',
-                                bgcolor: app.status === 'approved' ? 'var(--color-slate-200)' : app.status === 'rejected' ? 'var(--color-slate-200)' : 'var(--color-slate-200)',
-                                color: app.status === 'approved' ? 'var(--color-slate-900)' : app.status === 'rejected' ? 'var(--color-error)' : 'var(--color-error)',
-                                px: 1,
-                                height: 26
-                              }}
-                            />
-                          </Box>
-                        </CardContent>
-                      </PremiumCard>
-                    </Grid>
-                  ))}
-                </Grid>
+                          </CardContent>
+                        </PremiumCard>
+                      </Box>
+                    );
+                  })()}
+                </Box>
               </Box>
             )}
           </Box>
@@ -473,6 +482,15 @@ export default function InstitutePage() {
                           } else if (module.id === 'admissions') {
                             setNavigatingTo(module.id);
                             router.push('/dashboard/home/institute/admissions');
+                          }
+                        } else if (!isManagement && !activeCategory) {
+                          if (module.id === 'academic') {
+                            setActiveCategory(module.id);
+                          }
+                        } else if (!isManagement && activeCategory) {
+                          if (module.id === 'courses') {
+                            setNavigatingTo(module.id);
+                            router.push('/dashboard/home/student/courses');
                           }
                         }
                       }}
@@ -553,9 +571,10 @@ export default function InstitutePage() {
       </Container>
 
       {isInstituteModalOpen && profile && (
-        <InstituteSetupModal
+        <InstituteUpdateModal
           profile={profile}
           onClose={() => setInstituteModalOpen(false)}
+          onSuccess={refreshProfile}
         />
       )}
     </Box>

@@ -18,9 +18,9 @@ export default function ExploreLoading() {
   ]);
 
   return (
-    <Box sx={{ minHeight: "calc(100vh - 64px)", pt: { xs: 8, md: 10 }, pb: 10, position: "relative", zIndex: 1 }}>
-      <Container maxWidth="xl" sx={{ mt: 4, px: { xs: 2, sm: 4, md: 8, lg: 12, xl: 16 } }}>
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2, mb: 6, alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none' }}>
+    <Box sx={{ minHeight: "calc(100vh - 64px)", pt: { xs: 8, md: 10 }, position: "relative", zIndex: 1 }}>
+      <Container maxWidth={false} sx={{ mt: 4, px: { xs: 2, sm: 4, md: 8, lg: 12, xl: 16 } }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 1.5, mb: 6, alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none' }}>
           <TextField
             fullWidth
             placeholder={language === 'en' ? "Search institutes by name or location..." : "नाम या स्थान से संस्थान खोजें..."}
@@ -37,7 +37,7 @@ export default function ExploreLoading() {
               flex: 1,
               '& .MuiOutlinedInput-root': {
                 borderRadius: 'var(--radius-md)',
-                backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                backgroundColor: 'var(--glass-bg)',
                 backdropFilter: 'blur(30px)',
                 WebkitBackdropFilter: 'blur(30px)',
                 height: 'var(--box-height, 48px)',
@@ -56,7 +56,7 @@ export default function ExploreLoading() {
               }
             }}
           />
-          <Box sx={{ display: 'flex', gap: 2, width: { xs: 'var(--size-full)', md: 'auto' } }}>
+          <Box sx={{ display: 'flex', gap: 1.5, width: { xs: 'var(--size-full)', md: 'auto' } }}>
             <Box sx={{ minWidth: 160, flex: 1 }}>
               <CentralDropdown
                 value="all"

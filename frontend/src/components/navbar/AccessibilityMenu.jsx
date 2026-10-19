@@ -9,17 +9,24 @@ const getFontsForLanguage = (lang) => {
 };
 
 import React, { useState } from 'react';
-import { Box, Typography, Fab, Popover } from '@mui/material';
+import { Box, Typography, Fab } from '@mui/material';
 import SettingsAccessibilityIcon from '@mui/icons-material/SettingsAccessibility';
 import { useAccessibility } from '../../contexts/AccessibilityContext';
 import { useTranslation } from '../../hooks/useTranslation';
 import { buildSortedLanguages } from '../../lib/languages';
 import CentralDropdown from '../common/CentralDropdown';
+import { usePathname } from 'next/navigation';
+import { GlassPopover } from '../common/GlassPopover';
 
 export default function AccessibilityMenu() {
   const { fontFamily, setFontFamily, language, setLanguage, userLocation } = useAccessibility();
   const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = useState(null);
+  const pathname = usePathname();
+
+  if (pathname && pathname.includes('/viewer')) {
+    return null;
+  }
 
   const languageList = React.useMemo(() => buildSortedLanguages(userLocation), [userLocation]);
 
@@ -51,37 +58,27 @@ export default function AccessibilityMenu() {
           height: { xs: 56, md: 64 },
           bgcolor: 'var(--color-primary)',
           border: '1.5px solid var(--color-warning)',
-          '&:hover, &:focus, &:active': { bgcolor: '#004494' }
+          '&:hover, &:focus, &:active': {
+            bgcolor: 'var(--color-primary)'
+          }
         }}
       >
         <SettingsAccessibilityIcon />
       </Fab>
 
-      <Popover
+      <GlassPopover
         id={id}
-        elevation={0}
         open={open}
         anchorEl={anchorEl}
         onClose={handleClose}
         style={{ zIndex: 1600 }}
         anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-        PaperProps={{
-          sx: {
-            mt: -2, ml: 2,
-            p: { xs: 3, sm: 4 },
-            background: `
-              radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.25) 0, transparent 50%), 
-              radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.2) 0, transparent 50%), 
-              radial-gradient(at 80% 100%, rgba(40, 167, 69, 0.15) 0, transparent 50%),
-              radial-gradient(at 20% 100%, rgba(0, 86, 179, 0.1) 0, transparent 50%),
-              #ffffff
-            `,
-            borderRadius: 'var(--radius-lg)',
-            border: 'var(--border-thin) solid var(--color-slate-200)',
-            minWidth: 320, maxWidth: 380,
-            width: 'var(--size-full)',
-          }
+        sx={{
+          mt: -2, ml: 2,
+          p: { xs: 3, sm: 4 },
+          minWidth: 320, maxWidth: 380,
+          width: 'var(--size-full)',
         }}
       >
         {/* FONT SELECTOR */}
@@ -90,7 +87,7 @@ export default function AccessibilityMenu() {
             label={t('accessibilityMenu.fontStyle')}
             value={safeFontFamily}
             options={fontOptions}
-            onChange={setFontFamily}
+            onChange={(e) => setFontFamily(e.target.value)}
           />
         </Box>
 
@@ -100,10 +97,10 @@ export default function AccessibilityMenu() {
             label="Language"
             value={language}
             options={langOptions}
-            onChange={setLanguage}
+            onChange={(e) => setLanguage(e.target.value)}
           />
         </Box>
-      </Popover>
+      </GlassPopover>
     </>
   );
 }

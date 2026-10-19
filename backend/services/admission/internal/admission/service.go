@@ -1,7 +1,14 @@
 package admission
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
 	"backend/proto/admissionpb"
 	"backend/shared/config"
 	"github.com/google/uuid"
@@ -26,6 +33,10 @@ type Service interface {
 	GetApplicationHistory(ctx context.Context, req *admissionpb.HistoryRequest) (*admissionpb.HistoryResponse, error)
 	GetUserApplications(ctx context.Context, req *admissionpb.UserApplicationsRequest) (*admissionpb.ApplicationListResponse, error)
 	GetInstituteApplications(ctx context.Context, req *admissionpb.InstituteApplicationsRequest) (*admissionpb.ApplicationListResponse, error)
+	DeleteApplication(ctx context.Context, appID string) error
+
+	// Background Jobs
+	CleanAbandonedData(ctx context.Context, cutoffTime time.Time) error
 }
 
 type service struct {
@@ -43,8 +54,8 @@ func (s *service) CreateProgram(ctx context.Context, req *admissionpb.CreateProg
 	prog := &admissionpb.Program{
 		Id:            programID,
 		InstituteId:   req.InstituteId,
-		WorkflowTitle: req.WorkflowTitle,
-		WorkflowDesc:  req.WorkflowDesc,
+		FormTitle: req.FormTitle,
+		FormDesc:  req.FormDesc,
 		ImageUrl:      req.ImageUrl,
 		LastDate:      req.LastDate,
 		Seats:         req.Seats,
@@ -75,8 +86,8 @@ func (s *service) UpdateProgram(ctx context.Context, req *admissionpb.UpdateProg
 	prog := &admissionpb.Program{
 		Id:            req.Id,
 		InstituteId:   req.InstituteId,
-		WorkflowTitle: req.WorkflowTitle,
-		WorkflowDesc:  req.WorkflowDesc,
+		FormTitle: req.FormTitle,
+		FormDesc:  req.FormDesc,
 		ImageUrl:      req.ImageUrl,
 		LastDate:      req.LastDate,
 		Seats:         req.Seats,
@@ -165,10 +176,21 @@ func (s *service) DeleteDraft(ctx context.Context, req *admissionpb.DeleteDraftR
 
 // Applications & Progress Tracking Implementations
 func (s *service) ApplyForProgram(ctx context.Context, req *admissionpb.ApplyRequest) (*admissionpb.TransactionResponse, error) {
+	// Business Rule: Only one active application allowed per user at any time.
+	existingApps, err := s.repo.GetUserApplications(ctx, req.UserId)
+	if err == nil {
+		for _, a := range existingApps {
+			if a.Status != "withdrawn" && a.Status != "rejected" {
+				return nil, fmt.Errorf("user already has an active application")
+			}
+		}
+	}
+
 	txID := uuid.New().String()
+	appID := uuid.New().String()
 
 	app := &admissionpb.Application{
-		Id:                "", // The DB will generate this using a sequence
+		Id:                appID,
 		UserId:            req.UserId,
 		InstituteId:       req.InstituteId,
 		ProgramId:         req.ProgramId,
@@ -178,13 +200,13 @@ func (s *service) ApplyForProgram(ctx context.Context, req *admissionpb.ApplyReq
 
 	tx := &admissionpb.Transaction{
 		Id:            txID,
-		ApplicationId: "", // The repo will fill this in after generating the app ID
-		ActorId:       req.UserId, // User applies, so they are the actor
+		ApplicationId: appID,
+		ActorId:       req.UserId,
 		ActionType:    "APPLICATION_STARTED",
 		Metadata:      req.Metadata,
 	}
 
-	err := s.repo.ApplyForProgram(ctx, app, tx)
+	err = s.repo.ApplyForProgram(ctx, app, tx)
 	if err != nil {
 		return nil, err
 	}
@@ -209,6 +231,11 @@ func (s *service) UpdateApplicationProgress(ctx context.Context, req *admissionp
 	err := s.repo.UpdateApplicationProgress(ctx, req.ApplicationId, req.NewStageIndex, req.NewStatus, tx)
 	if err != nil {
 		return nil, err
+	}
+
+	// Cascade: if application is rejected, delete files from MinIO
+	if req.NewStatus == "rejected" {
+		go s.cascadeDeleteFiles(req.ApplicationId)
 	}
 
 	// Fetch updated state to return to client
@@ -262,6 +289,12 @@ func (s *service) GetUserApplications(ctx context.Context, req *admissionpb.User
 	return &admissionpb.ApplicationListResponse{Applications: apps}, nil
 }
 
+func (s *service) DeleteApplication(ctx context.Context, appID string) error {
+	// Cascade delete files first
+	go s.cascadeDeleteFiles(appID)
+	return s.repo.DeleteApplication(ctx, appID)
+}
+
 func (s *service) GetInstituteApplications(ctx context.Context, req *admissionpb.InstituteApplicationsRequest) (*admissionpb.ApplicationListResponse, error) {
 	apps, err := s.repo.GetInstituteApplications(ctx, req.InstituteId)
 	if err != nil {
@@ -280,3 +313,119 @@ func (s *service) GetInstituteApplications(ctx context.Context, req *admissionpb
 	return &admissionpb.ApplicationListResponse{Applications: apps}, nil
 }
 
+// cascadeDeleteFiles extracts all file URLs from an application's transactions
+// and calls user-service /s3/delete to remove them from MinIO.
+func (s *service) cascadeDeleteFiles(appID string) {
+	ctx := context.Background()
+
+	txs, _, err := s.repo.GetApplicationHistory(ctx, appID)
+	if err != nil {
+		fmt.Printf("[cascade] Failed to get transactions for app %s: %v\n", appID, err)
+		return
+	}
+
+	var allURLs []string
+	for _, tx := range txs {
+		if tx.Metadata == "" {
+			continue
+		}
+		urls := extractURLsFromJSON(tx.Metadata)
+		allURLs = append(allURLs, urls...)
+	}
+
+	if len(allURLs) == 0 {
+		fmt.Printf("[cascade] No file URLs found for app %s\n", appID)
+		return
+	}
+
+	// Deduplicate
+	seen := make(map[string]bool)
+	var uniqueURLs []string
+	for _, u := range allURLs {
+		if !seen[u] {
+			seen[u] = true
+			uniqueURLs = append(uniqueURLs, u)
+		}
+	}
+
+	// Call user-service /s3/delete
+	payload, _ := json.Marshal(map[string]interface{}{
+		"file_urls": uniqueURLs,
+	})
+
+	userServiceURL := "http://user-service:8081/api/v1/user/s3/delete"
+	resp, err := http.Post(userServiceURL, "application/json", bytes.NewReader(payload))
+	if err != nil {
+		fmt.Printf("[cascade] Failed to call user-service for cleanup: %v\n", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	fmt.Printf("[cascade] Cleanup for app %s: sent %d file URLs, status: %s\n", appID, len(uniqueURLs), resp.Status)
+}
+
+// extractURLsFromJSON recursively finds all string values that look like MinIO URLs
+func extractURLsFromJSON(jsonStr string) []string {
+	var urls []string
+	var data interface{}
+	if err := json.Unmarshal([]byte(jsonStr), &data); err != nil {
+		return urls
+	}
+	findURLs(data, &urls)
+	return urls
+}
+
+func findURLs(data interface{}, urls *[]string) {
+	switch v := data.(type) {
+	case string:
+		if strings.Contains(v, "tarang-user-service") && (strings.Contains(v, "http://") || strings.Contains(v, "https://")) {
+			*urls = append(*urls, v)
+		}
+	case map[string]interface{}:
+		for _, val := range v {
+			findURLs(val, urls)
+		}
+	case []interface{}:
+		for _, val := range v {
+			findURLs(val, urls)
+		}
+	}
+}
+
+// ---------------------------------------------------------
+// Background Cleanup
+// ---------------------------------------------------------
+
+// CleanAbandonedData handles 30-day abandoned program drafts and student applications.
+func (s *service) CleanAbandonedData(ctx context.Context, cutoffTime time.Time) error {
+	// 1. Delete abandoned program drafts
+	deletedCount, err := s.repo.DeleteOldDrafts(ctx, cutoffTime)
+	if err != nil {
+		fmt.Printf("[cleanup] Failed to delete old drafts: %v\n", err)
+	} else if deletedCount > 0 {
+		fmt.Printf("[cleanup] Deleted %d abandoned program drafts older than 30 days\n", deletedCount)
+	}
+
+	// 2. Auto-delete abandoned applications
+	apps, err := s.repo.GetAbandonedApplications(ctx, cutoffTime)
+	if err != nil {
+		fmt.Printf("[cleanup] Failed to fetch abandoned applications: %v\n", err)
+		return err
+	}
+
+	if len(apps) == 0 {
+		return nil
+	}
+
+	fmt.Printf("[cleanup] Found %d abandoned applications. Auto-deleting...\n", len(apps))
+
+	for _, app := range apps {
+		err := s.DeleteApplication(ctx, app.Id)
+		if err != nil {
+			fmt.Printf("[cleanup] Failed to auto-delete app %s: %v\n", app.Id, err)
+		} else {
+			fmt.Printf("[cleanup] Auto-deleted application %s\n", app.Id)
+		}
+	}
+	return nil
+}

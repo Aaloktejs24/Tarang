@@ -11,7 +11,8 @@
             "method": "GET",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "input_query_strings": [
                 "*"
@@ -19,6 +20,29 @@
             "backend": [
                 {
                     "url_pattern": "/api/v1/user/s3/sign",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "GET",
+                    "host": [
+                        "http://user-service:8081"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/s3/get",
+            "method": "GET",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "Authorization",
+                "Idempotency-Key"
+            ],
+            "input_query_strings": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/user/s3/get",
                     "encoding": "no-op",
                     "sd": "static",
                     "method": "GET",
@@ -42,6 +66,9 @@
                         "http://auth-service:8080"
                     ]
                 }
+            ],
+            "input_headers": [
+                "Idempotency-Key"
             ]
         },
         {
@@ -58,6 +85,9 @@
                         "http://auth-service:8080"
                     ]
                 }
+            ],
+            "input_headers": [
+                "Idempotency-Key"
             ]
         },
         {
@@ -65,7 +95,8 @@
             "method": "GET",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -84,7 +115,8 @@
             "method": "POST",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -112,6 +144,9 @@
                         "http://auth-service:8080"
                     ]
                 }
+            ],
+            "input_headers": [
+                "Idempotency-Key"
             ]
         },
         {
@@ -128,6 +163,9 @@
                         "http://auth-service:8080"
                     ]
                 }
+            ],
+            "input_headers": [
+                "Idempotency-Key"
             ]
         },
         {
@@ -144,6 +182,9 @@
                         "http://auth-service:8080"
                     ]
                 }
+            ],
+            "input_headers": [
+                "Idempotency-Key"
             ]
         },
         {
@@ -160,6 +201,9 @@
                         "http://auth-service:8080"
                     ]
                 }
+            ],
+            "input_headers": [
+                "Idempotency-Key"
             ]
         },
         {
@@ -176,6 +220,9 @@
                         "http://auth-service:8080"
                     ]
                 }
+            ],
+            "input_headers": [
+                "Idempotency-Key"
             ]
         },
         {
@@ -192,6 +239,9 @@
                         "http://auth-service:8080"
                     ]
                 }
+            ],
+            "input_headers": [
+                "Idempotency-Key"
             ]
         },
         {
@@ -211,6 +261,9 @@
                         "username"
                     ]
                 }
+            ],
+            "input_headers": [
+                "Idempotency-Key"
             ]
         },
         {
@@ -227,6 +280,9 @@
                         "http://auth-service:8080"
                     ]
                 }
+            ],
+            "input_headers": [
+                "Idempotency-Key"
             ]
         },
         {
@@ -246,6 +302,9 @@
                         "email"
                     ]
                 }
+            ],
+            "input_headers": [
+                "Idempotency-Key"
             ]
         },
         {
@@ -262,6 +321,9 @@
                         "http://auth-service:8080"
                     ]
                 }
+            ],
+            "input_headers": [
+                "Idempotency-Key"
             ]
         },
         {
@@ -278,6 +340,9 @@
                         "http://auth-service:8080"
                     ]
                 }
+            ],
+            "input_headers": [
+                "Idempotency-Key"
             ]
         },
         {
@@ -294,6 +359,9 @@
                         "http://auth-service:8080"
                     ]
                 }
+            ],
+            "input_headers": [
+                "Idempotency-Key"
             ]
         },
         {
@@ -310,6 +378,9 @@
                         "http://auth-service:8080"
                     ]
                 }
+            ],
+            "input_headers": [
+                "Idempotency-Key"
             ]
         },
         {
@@ -317,7 +388,8 @@
             "method": "POST",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -336,7 +408,8 @@
             "method": "POST",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -356,7 +429,8 @@
             "output_encoding": "no-op",
             "input_headers": [
                 "Authorization",
-                "Cookie"
+                "Cookie",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -371,11 +445,32 @@
             ]
         },
         {
+            "endpoint": "/api/v1/institute/profile",
+            "method": "GET",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "Authorization",
+                "Idempotency-Key"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/user/profile",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "GET",
+                    "host": [
+                        "http://user-service:8081"
+                    ]
+                }
+            ]
+        },
+        {
             "endpoint": "/api/v1/user/profile",
             "method": "GET",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -394,7 +489,8 @@
             "method": "POST",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -413,7 +509,8 @@
             "method": "POST",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -432,7 +529,8 @@
             "method": "POST",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -451,7 +549,8 @@
             "method": "POST",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -479,6 +578,9 @@
                         "http://user-service:8081"
                     ]
                 }
+            ],
+            "input_headers": [
+                "Idempotency-Key"
             ]
         },
         {
@@ -486,7 +588,8 @@
             "method": "POST",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -505,7 +608,8 @@
             "method": "POST",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -524,7 +628,8 @@
             "method": "POST",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -544,7 +649,8 @@
             "output_encoding": "no-op",
             "input_headers": [
                 "Authorization",
-                "Cookie"
+                "Cookie",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -563,7 +669,8 @@
             "method": "POST",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -582,7 +689,8 @@
             "method": "POST",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -601,7 +709,8 @@
             "method": "GET",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "input_query_strings": [
                 "user_id"
@@ -623,7 +732,8 @@
             "method": "GET",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "input_query_strings": [
                 "user_id",
@@ -659,6 +769,9 @@
                         "http://user-service:8081"
                     ]
                 }
+            ],
+            "input_headers": [
+                "Idempotency-Key"
             ]
         },
         {
@@ -667,7 +780,8 @@
             "output_encoding": "no-op",
             "input_headers": [
                 "Authorization",
-                "Content-Type"
+                "Content-Type",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -687,7 +801,8 @@
             "output_encoding": "no-op",
             "input_headers": [
                 "Authorization",
-                "Content-Type"
+                "Content-Type",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -706,7 +821,8 @@
             "method": "GET",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -725,7 +841,8 @@
             "method": "DELETE",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -745,7 +862,8 @@
             "output_encoding": "no-op",
             "input_headers": [
                 "Authorization",
-                "Content-Type"
+                "Content-Type",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -764,7 +882,8 @@
             "method": "GET",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "input_query_strings": [
                 "institute_id"
@@ -786,7 +905,8 @@
             "method": "DELETE",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "input_query_strings": [
                 "institute_id",
@@ -810,7 +930,8 @@
             "output_encoding": "no-op",
             "input_headers": [
                 "Authorization",
-                "Content-Type"
+                "Content-Type",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -830,7 +951,8 @@
             "output_encoding": "no-op",
             "input_headers": [
                 "Authorization",
-                "Content-Type"
+                "Content-Type",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -849,7 +971,8 @@
             "method": "GET",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -868,7 +991,8 @@
             "method": "GET",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -887,7 +1011,8 @@
             "method": "GET",
             "output_encoding": "no-op",
             "input_headers": [
-                "Authorization"
+                "Authorization",
+                "Idempotency-Key"
             ],
             "backend": [
                 {
@@ -1032,6 +1157,166 @@
                     ]
                 }
             ]
+        },
+        {
+            "endpoint": "/api/v1/lms/courses",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "Authorization",
+                "Content-Type",
+                "Idempotency-Key"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/lms/courses",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://lms-service:8085"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/lms/courses",
+            "method": "GET",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "Authorization",
+                "Idempotency-Key"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/lms/courses",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "GET",
+                    "host": [
+                        "http://lms-service:8085"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/lms/courses/{id}",
+            "method": "GET",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "Authorization",
+                "Idempotency-Key"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/lms/courses/{id}",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "GET",
+                    "host": [
+                        "http://lms-service:8085"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/lms/courses/{id}",
+            "method": "PUT",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "Authorization",
+                "Content-Type",
+                "Idempotency-Key"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/lms/courses/{id}",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "PUT",
+                    "host": [
+                        "http://lms-service:8085"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/lms/courses/{id}",
+            "method": "DELETE",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "Authorization",
+                "Idempotency-Key"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/lms/courses/{id}",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "DELETE",
+                    "host": [
+                        "http://lms-service:8085"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/lms/courses/{id}/enroll",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "Authorization",
+                "Content-Type"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/lms/courses/{id}/enroll",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://lms-service:8085"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/lms/students/{studentId}/courses",
+            "method": "GET",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "Authorization"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/lms/students/{studentId}/courses",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "GET",
+                    "host": [
+                        "http://lms-service:8085"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/lms/courses/{id}/students",
+            "method": "GET",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "Authorization"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/lms/courses/{id}/students",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "GET",
+                    "host": [
+                        "http://lms-service:8085"
+                    ]
+                }
+            ]
         }
     ],
     "extra_config": {
@@ -1052,7 +1337,8 @@
             "allow_headers": [
                 "Content-Type",
                 "Authorization",
-                "Accept"
+                "Accept",
+                "Idempotency-Key"
             ],
             "expose_headers": [
                 "Content-Length",

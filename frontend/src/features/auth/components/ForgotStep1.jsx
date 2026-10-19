@@ -7,7 +7,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { validateEmail, validateUsername } from "../../../utils/validationUtils";
 import TarangButton from "../../../components/common/TarangButton";
-import AuthMessage from "./AuthMessage";
 import { FormLoadingProvider } from '../../../contexts/FormLoadingContext';
 
 export default function ForgotStep1({ setMode, onStartRecovery, isLoading, error, setError, success }) {
@@ -24,22 +23,7 @@ export default function ForgotStep1({ setMode, onStartRecovery, isLoading, error
                 <Typography variant="body2" sx={{ color: "var(--color-slate-500)", fontSize: 'var(--font-base)', lineHeight: 1.5 }}>
                     पंजीकृत ईमेल दर्ज करें। OTP भेजा जाएगा।
                 </Typography>
-                <AnimatePresence mode="wait">
-                    {(error || success) && (
-                        <motion.div
-                            initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                            animate={{ opacity: 1, height: "auto", marginTop: 12 }}
-                            exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                            style={{ overflow: "hidden", textAlign: "center" }}
-                        >
-                            {error ? (
-                                <AuthMessage type="error" message={error} />
-                            ) : (
-                                <AuthMessage type="success" message={success} />
-                            )}
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                
             </Box>
 
             <Box sx={{ mb: 1 }}>

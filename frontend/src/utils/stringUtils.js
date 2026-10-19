@@ -79,12 +79,15 @@ export const getAcronym = (str) => {
  */
 export const formatBreadcrumbName = (str) => {
   if (!str || typeof str !== 'string') return "";
-  const trimmed = str.trim();
+  
+  const targetStr = str;
+  
+  const trimmed = targetStr.trim();
   // If it's a single word (no spaces), just uppercase it instead of returning a single letter
   if (!trimmed.includes(' ')) {
     return trimmed.toUpperCase();
   }
-  return getAcronym(str);
+  return getAcronym(targetStr);
 };
 
 export const getNoNamePlaceholder = (langCode) => {
@@ -108,29 +111,4 @@ export const getNoNamePlaceholder = (langCode) => {
   return translations[langCode] || "No Name";
 };
 
-/**
- * Parses a dual-language name string separated by "/" (e.g., from DB).
- * Format is typically "Hindi Name / English Name".
- * 
- * @param {string} str - The raw string from DB.
- * @returns {object} { localName: string, englishName: string }
- */
-export const parseBilingualName = (str) => {
-  if (!str || typeof str !== 'string') {
-    return { localName: '', englishName: '' };
-  }
 
-  const trimmed = str.trim();
-  const parts = trimmed.split(/\s*\/\s*/).map(part => part.trim()).filter(Boolean);
-  if (parts.length >= 2) {
-    return { localName: parts[0], englishName: parts.slice(1).join(' / ') };
-  }
-
-  // If only one part exists, determine if it's Hindi or English
-  const isDevanagari = /[\u0900-\u097F]/.test(trimmed);
-  if (isDevanagari) {
-    return { localName: trimmed, englishName: '' };
-  }
-
-  return { localName: '', englishName: trimmed };
-};

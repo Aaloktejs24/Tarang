@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { apiClient } from '../../../../../lib/apiClient';
+import { preserveSignedUrls } from '../../../../../utils/imageUtils';
 import { styled } from '@mui/material/styles';
 import { tooltipClasses } from '@mui/material/Tooltip';
 import { Box, Typography, Container, Paper, Card, Button, Grid, Stepper, Step, StepLabel, Divider, Tooltip, Skeleton, CircularProgress } from '@mui/material';
@@ -19,6 +20,7 @@ import { useProfile } from '../../../../../hooks/useProfile';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import AdmissionSkeleton from '../../../../../features/admission/AdmissionSkeleton';
+import { DASHBOARD_PAGE_WRAPPER_SX, DASHBOARD_CONTAINER_SX } from '../../../../../constants/layout';
 
 import EventOutlinedIcon from '@mui/icons-material/EventOutlined';
 import EventSeatOutlinedIcon from '@mui/icons-material/EventSeatOutlined';
@@ -32,6 +34,19 @@ import { useBreadcrumbs } from "../../../../../contexts/BreadcrumbContext";
 import { applyForProgram } from '../../../../../features/admission/admissionService';
 
 import { CustomTooltip } from '../../../../../components/common/CustomTooltip';
+
+const formatDateWithTime = (dateStr) => {
+  if (!dateStr || dateStr === 'N/A') return 'N/A';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d)) return dateStr;
+    const datePart = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    const timePart = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    return `${datePart}, ${timePart.toUpperCase()}`;
+  } catch (e) {
+    return dateStr;
+  }
+};
 
 export default function AdmissionPage() {
   const router = useRouter();
@@ -55,7 +70,7 @@ export default function AdmissionPage() {
   const [userApplications, setUserApplications] = useState([]);
 
   // Auto-manage breadcrumbs lifecycle for this page
-  const rawInstituteName = instituteProfile?.institution_name || instituteProfile?.full_name || instituteProfile?.username || username;
+  const rawInstituteName = instituteProfile?.primary_name || instituteProfile?.full_name || instituteProfile?.username || username;
   const breadcrumbInstituteName = formatBreadcrumbName(rawInstituteName);
 
   useBreadcrumbs([
@@ -80,7 +95,12 @@ export default function AdmissionPage() {
           img.onerror = resolve;
         });
 
-        setInstituteProfile(apiProfile);
+        setInstituteProfile(prev => preserveSignedUrls(prev, apiProfile, [
+          'profile_pic_url',
+          'banner_url',
+          'institute_profile.logo_url',
+          'institute_profile.banner_url'
+        ]));
       } catch {
         setInstituteProfile(null);
       } finally {
@@ -92,17 +112,20 @@ export default function AdmissionPage() {
 
   React.useEffect(() => {
     const fetchPrograms = async () => {
+      if (!instituteProfile?.id) return;
       setLoadingPrograms(true);
       try {
-        const progRes = await apiClient.get(`/admissions/institutes/${username}/programs`);
+        const progRes = await apiClient.get(`/admissions/institutes/${instituteProfile.id}/programs`);
         console.log('[Admission Page] API Response:', progRes.data);
         const data = Array.isArray(progRes.data) ? progRes.data : (progRes.data?.programs || []);
         console.log('[Admission Page] Programs data:', data);
 
         const mappedPrograms = data.map(p => ({
           id: p.id,
-          workflowTitle: p.workflow_title || p.workflowTitle || 'Untitled Program',
-          workflowDesc: p.workflow_desc || p.workflowDesc || '',
+          workflowTitle: p.form_title || p.formTitle || p.workflow_title || p.workflowTitle || 'Untitled Program',
+          workflowDesc: p.form_desc || p.formDesc || p.workflow_desc || p.workflowDesc || '',
+          publishDateRaw: p.publish_date || p.created_at || new Date().toISOString(),
+          lastDateRaw: p.last_date || new Date().toISOString(),
           lastDate: p.last_date ? new Date(p.last_date).toLocaleDateString() : 'N/A',
           seats: p.seats || 'N/A',
           academicYear: p.academic_year || 'N/A',
@@ -121,11 +144,8 @@ export default function AdmissionPage() {
         setLoadingPrograms(false);
       }
     };
-
-    if (username) {
-      fetchPrograms();
-    }
-  }, [username]);
+    fetchPrograms();
+  }, [instituteProfile]);
 
   React.useEffect(() => {
     const fetchUserApplications = async () => {
@@ -141,11 +161,13 @@ export default function AdmissionPage() {
     }
   }, [profile?.id]);
 
+  const isApplyingRef = React.useRef(false);
+
   const handleApply = async (prog) => {
-    if (!profile?.id) {
-      // Typically shouldn't happen if user is logged in
+    if (!profile?.id || isApplyingRef.current) {
       return;
     }
+    isApplyingRef.current = true;
     setApplyingTo(prog.id);
     try {
       const response = await applyForProgram(prog.id, profile.id, instituteProfile.id, {
@@ -165,6 +187,7 @@ export default function AdmissionPage() {
       router.push(`/dashboard/explore/${username}/admission/${prog.id}`);
     } finally {
       setApplyingTo(null);
+      isApplyingRef.current = false;
     }
   };
 
@@ -175,25 +198,24 @@ export default function AdmissionPage() {
   }
 
   return (
-    <Box sx={{ position: "relative", minHeight: "calc(100vh - 72px)", overflowX: "hidden", bgcolor: "transparent", mt: "-1px" }}>
+    <Box sx={DASHBOARD_PAGE_WRAPPER_SX}>
       <UniversalHero
         {...getHeroPropsFromProfile(instituteProfile, language)}
-        loading={false}
-        hideContent={showEmptyState}
-        showSpacer={!showEmptyState}
+        loading={loadingInstitute}
+        hideContent={!loadingInstitute && showEmptyState}
+        showSpacer={loadingInstitute || !showEmptyState}
         fadeAnchorRef={cardsRef}
       />
 
-      <Container ref={cardsRef} maxWidth="xl" sx={{
-        position: "relative",
-        zIndex: 1,
-        px: { xs: 3, md: 6, lg: 8 },
+      <Container ref={cardsRef} maxWidth={false} sx={{
+        ...DASHBOARD_CONTAINER_SX,
         pb: showEmptyState ? 0 : 10,
-        ...(showEmptyState && {
+        ...(!loadingInstitute && showEmptyState && {
           height: "calc(100vh - 72px)",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "center"
         })
       }}>
         <Box sx={{ width: 'var(--size-full)' }}>
@@ -212,7 +234,7 @@ export default function AdmissionPage() {
           <Box
             sx={{
               display: 'grid',
-              gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)' },
+              gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
               gap: 3
             }}
           >
@@ -274,40 +296,32 @@ export default function AdmissionPage() {
                       </Typography>
                     )}
 
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 'auto', pt: 2 }}>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2.5 }}>
-                        <CustomTooltip
-                          title={
-                            <Box sx={{ p: 0.5 }}>
-                              <Typography sx={{ fontSize: '0.7rem', color: 'var(--color-slate-200)', fontWeight: 'var(--font-semibold)', textTransform: 'uppercase', mb: 0.5 }}>
-                                {language === 'en' ? 'Last Date' : 'अंतिम तिथि'}
-                              </Typography>
-                              <Typography sx={{ fontSize: 'var(--font-sm)', color: 'var(--color-white)', fontWeight: 'var(--font-semibold)' }}>
-                                {prog.lastDate}
-                              </Typography>
-                            </Box>
-                          }
-                          arrow placement="top-start"
-                        >
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', transition: 'all var(--transition-base)', cursor: 'pointer', '&:hover': { color: 'var(--color-primary)', transform: 'scale(1.1)' } }}>
-                            <EventOutlinedIcon sx={{ fontSize: '1.4rem' }} />
-                          </Box>
-                        </CustomTooltip>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2, mt: 'auto', flexWrap: 'wrap' }}>
+                      <Typography sx={{ color: 'var(--color-slate-500)', fontSize: 'var(--font-xs)', fontWeight: 'var(--font-semibold)', display: 'flex', alignItems: 'center', gap: 0.5, whiteSpace: 'nowrap' }}>
+                        <AccessTimeOutlinedIcon sx={{ fontSize: 16, mb: '2px', color: 'var(--color-success)' }} /> {formatDateWithTime(prog.publishDateRaw)}
+                      </Typography>
+                      <Box component="span" sx={{ color: 'var(--color-slate-200)', display: { xs: 'none', sm: 'block' } }}>|</Box>
+                      <Typography sx={{ color: 'var(--color-slate-500)', fontSize: 'var(--font-xs)', fontWeight: 'var(--font-semibold)', display: 'flex', alignItems: 'center', gap: 0.5, whiteSpace: 'nowrap' }}>
+                        <AccessTimeOutlinedIcon sx={{ fontSize: 16, mb: '2px', color: 'var(--color-error)' }} /> {formatDateWithTime(prog.lastDateRaw)}
+                      </Typography>
+                    </Box>
 
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 2, borderTop: '1px solid var(--color-slate-100)' }}>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
                         <CustomTooltip
                           title={
                             <Box sx={{ p: 0.5 }}>
-                              <Typography sx={{ fontSize: '0.7rem', color: 'var(--color-slate-200)', fontWeight: 'var(--font-semibold)', textTransform: 'uppercase', mb: 0.5 }}>
+                              <Typography sx={{ fontSize: '0.7rem', color: 'inherit', fontWeight: 'var(--font-semibold)', textTransform: 'uppercase', mb: 0.5 }}>
                                 {language === 'en' ? 'Seats' : 'सीटें'}
                               </Typography>
-                              <Typography sx={{ fontSize: 'var(--font-sm)', color: 'var(--color-white)', fontWeight: 'var(--font-semibold)' }}>
+                              <Typography sx={{ fontSize: 'var(--font-sm)', color: 'inherit', fontWeight: 'var(--font-semibold)' }}>
                                 {prog.seats}
                               </Typography>
                             </Box>
                           }
                           arrow placement="top-start"
                         >
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', transition: 'all var(--transition-base)', cursor: 'pointer', '&:hover': { color: 'var(--color-primary)', transform: 'scale(1.1)' } }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', cursor: 'pointer' }}>
                             <EventSeatOutlinedIcon sx={{ fontSize: '1.4rem' }} />
                           </Box>
                         </CustomTooltip>
@@ -315,17 +329,17 @@ export default function AdmissionPage() {
                         <CustomTooltip
                           title={
                             <Box sx={{ p: 0.5 }}>
-                              <Typography sx={{ fontSize: '0.7rem', color: 'var(--color-slate-200)', fontWeight: 'var(--font-semibold)', textTransform: 'uppercase', mb: 0.5 }}>
+                              <Typography sx={{ fontSize: '0.7rem', color: 'inherit', fontWeight: 'var(--font-semibold)', textTransform: 'uppercase', mb: 0.5 }}>
                                 {language === 'en' ? 'Academic Year' : 'शैक्षणिक वर्ष'}
                               </Typography>
-                              <Typography sx={{ fontSize: 'var(--font-sm)', color: 'var(--color-white)', fontWeight: 'var(--font-semibold)' }}>
+                              <Typography sx={{ fontSize: 'var(--font-sm)', color: 'inherit', fontWeight: 'var(--font-semibold)' }}>
                                 {prog.academicYear}
                               </Typography>
                             </Box>
                           }
                           arrow placement="top-start"
                         >
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', transition: 'all var(--transition-base)', cursor: 'pointer', '&:hover': { color: 'var(--color-primary)', transform: 'scale(1.1)' } }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', cursor: 'pointer' }}>
                             <SchoolOutlinedIcon sx={{ fontSize: '1.4rem' }} />
                           </Box>
                         </CustomTooltip>
@@ -333,17 +347,17 @@ export default function AdmissionPage() {
                         <CustomTooltip
                           title={
                             <Box sx={{ p: 0.5 }}>
-                              <Typography sx={{ fontSize: '0.7rem', color: 'var(--color-slate-200)', fontWeight: 'var(--font-semibold)', textTransform: 'uppercase', mb: 0.5 }}>
+                              <Typography sx={{ fontSize: '0.7rem', color: 'inherit', fontWeight: 'var(--font-semibold)', textTransform: 'uppercase', mb: 0.5 }}>
                                 {language === 'en' ? 'Eligibility' : 'योग्यता'}
                               </Typography>
-                              <Typography sx={{ fontSize: 'var(--font-sm)', color: 'var(--color-white)', fontWeight: 'var(--font-semibold)' }}>
+                              <Typography sx={{ fontSize: 'var(--font-sm)', color: 'inherit', fontWeight: 'var(--font-semibold)' }}>
                                 {prog.eligibility}
                               </Typography>
                             </Box>
                           }
                           arrow placement="top-start"
                         >
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', transition: 'all var(--transition-base)', cursor: 'pointer', '&:hover': { color: 'var(--color-primary)', transform: 'scale(1.1)' } }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', cursor: 'pointer' }}>
                             <InfoOutlinedIcon sx={{ fontSize: '1.4rem' }} />
                           </Box>
                         </CustomTooltip>
@@ -351,17 +365,17 @@ export default function AdmissionPage() {
                         <CustomTooltip
                           title={
                             <Box sx={{ p: 0.5 }}>
-                              <Typography sx={{ fontSize: '0.7rem', color: 'var(--color-slate-200)', fontWeight: 'var(--font-semibold)', textTransform: 'uppercase', mb: 0.5 }}>
+                              <Typography sx={{ fontSize: '0.7rem', color: 'inherit', fontWeight: 'var(--font-semibold)', textTransform: 'uppercase', mb: 0.5 }}>
                                 {language === 'en' ? 'Fees' : 'फीस'}
                               </Typography>
-                              <Typography sx={{ fontSize: 'var(--font-sm)', color: 'var(--color-white)', fontWeight: 'var(--font-semibold)' }}>
+                              <Typography sx={{ fontSize: 'var(--font-sm)', color: 'inherit', fontWeight: 'var(--font-semibold)' }}>
                                 {prog.fees}
                               </Typography>
                             </Box>
                           }
                           arrow placement="top-start"
                         >
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', transition: 'all var(--transition-base)', cursor: 'pointer', '&:hover': { color: 'var(--color-primary)', transform: 'scale(1.1)' } }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', cursor: 'pointer' }}>
                             <AccountBalanceWalletOutlinedIcon sx={{ fontSize: '1.4rem' }} />
                           </Box>
                         </CustomTooltip>
@@ -369,17 +383,17 @@ export default function AdmissionPage() {
                         <CustomTooltip
                           title={
                             <Box sx={{ p: 0.5 }}>
-                              <Typography sx={{ fontSize: '0.7rem', color: 'var(--color-slate-200)', fontWeight: 'var(--font-semibold)', textTransform: 'uppercase', mb: 0.5 }}>
+                              <Typography sx={{ fontSize: '0.7rem', color: 'inherit', fontWeight: 'var(--font-semibold)', textTransform: 'uppercase', mb: 0.5 }}>
                                 {language === 'en' ? 'Duration' : 'अवधि'}
                               </Typography>
-                              <Typography sx={{ fontSize: 'var(--font-sm)', color: 'var(--color-white)', fontWeight: 'var(--font-semibold)' }}>
+                              <Typography sx={{ fontSize: 'var(--font-sm)', color: 'inherit', fontWeight: 'var(--font-semibold)' }}>
                                 {prog.duration}
                               </Typography>
                             </Box>
                           }
                           arrow placement="top-start"
                         >
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', transition: 'all var(--transition-base)', cursor: 'pointer', '&:hover': { color: 'var(--color-primary)', transform: 'scale(1.1)' } }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', cursor: 'pointer' }}>
                             <AccessTimeOutlinedIcon sx={{ fontSize: '1.4rem' }} />
                           </Box>
                         </CustomTooltip>
@@ -396,14 +410,14 @@ export default function AdmissionPage() {
                         </Button>
                       ) : (
                         (() => {
-                          // Ignore withdrawn applications so they can apply again
-                          const appForProg = userApplications.find(app => app.program_id === prog.id && app.status !== 'withdrawn');
+                          const appForProg = userApplications.find(app => app.program_id?.toString() === prog.id?.toString());
                           const isApplied = !!appForProg;
                           const isIncomplete = isApplied && (appForProg.status === 'pending' || appForProg.status === 'in_progress');
 
                           return (
                             <Button
-                              variant="outlined"
+                              variant="contained"
+                              disableElevation
                               size="small"
                               disabled={applyingTo === prog.id}
                               onClick={() => {
@@ -413,7 +427,7 @@ export default function AdmissionPage() {
                                   handleApply(prog);
                                 }
                               }}
-                              sx={{ textTransform: 'none', fontWeight: 'var(--font-bold)', height: 32, fontSize: 'var(--font-xs)', position: 'relative', minWidth: '100px' }}
+                              sx={{ textTransform: 'none', fontWeight: 'var(--font-bold)', height: 32, fontSize: 'var(--font-xs)', position: 'relative', minWidth: '100px', borderRadius: 'var(--radius-sm)' }}
                             >
                               {applyingTo === prog.id ? <CircularProgress size={16} color="inherit" /> : (
                                 isApplied

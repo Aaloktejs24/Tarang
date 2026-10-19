@@ -319,3 +319,40 @@ func (r *Repository) UpdateAccountMFAPreference(ctx context.Context, id uuid.UUI
 	_, err := r.db.Exec(ctx, `UPDATE accounts SET mfa_preference=$1 WHERE id=$2`, preference, id)
 	return err
 }
+
+// ---------------------------------------------------------
+// Background Cleanup
+// ---------------------------------------------------------
+
+// CleanExpiredTokensAndSessions removes expired tokens and registration/login sessions
+func (r *Repository) CleanExpiredTokensAndSessions(ctx context.Context) error {
+	// Delete expired registration sessions
+	_, err := r.db.Exec(ctx, `DELETE FROM registration_sessions WHERE expires_at < now()`)
+	if err != nil {
+		return err
+	}
+
+	// Delete expired login sessions
+	_, err = r.db.Exec(ctx, `DELETE FROM auth_login_sessions WHERE expires_at < now()`)
+	if err != nil {
+		return err
+	}
+
+	// Delete expired tokens
+	_, err = r.db.Exec(ctx, `DELETE FROM user_tokens WHERE expires_at < now()`)
+	return err
+}
+
+// CleanUnverifiedAccounts removes accounts older than 7 days that are not verified
+func (r *Repository) CleanUnverifiedAccounts(ctx context.Context) (int64, error) {
+	tag, err := r.db.Exec(ctx, `
+		DELETE FROM accounts
+		WHERE email_verified_at IS NULL
+		  AND phone_verified_at IS NULL
+		  AND created_at < (now() - interval '7 days')
+	`)
+	if err != nil {
+		return 0, err
+	}
+	return tag.RowsAffected(), nil
+}

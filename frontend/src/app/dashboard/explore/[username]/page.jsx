@@ -7,6 +7,7 @@ import {
 } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiClient } from "../../../../lib/apiClient";
+import { preserveSignedUrls } from "../../../../utils/imageUtils";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import SendIcon from '@mui/icons-material/Send';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -23,6 +24,9 @@ import ApartmentOutlinedIcon from '@mui/icons-material/ApartmentOutlined';
 import Diversity3OutlinedIcon from '@mui/icons-material/Diversity3Outlined';
 import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
 import { useAccessibility } from '../../../../contexts/AccessibilityContext';
+import { useTranslation } from '../../../../hooks/useTranslation';
+import EmptyState from '../../../../components/ui/EmptyState';
+import { DASHBOARD_PAGE_WRAPPER_SX, DASHBOARD_CONTAINER_SX } from '../../../../constants/layout';
 import { formatBreadcrumbName } from '../../../../utils/stringUtils';
 import UniversalHero from '../../../../components/hero/UniversalHero';
 import { getHeroPropsFromProfile } from '../../../../utils/heroUtils';
@@ -41,7 +45,7 @@ export default function InstituteDetails() {
 
   const cardsRef = React.useRef(null);
 
-  const rawInstituteName = profile?.institution_name || profile?.full_name || profile?.username || username;
+  const rawInstituteName = profile?.primary_name || profile?.full_name || profile?.username || username;
   const breadcrumbInstituteName = formatBreadcrumbName(rawInstituteName);
 
   // Auto-manage breadcrumbs
@@ -66,7 +70,12 @@ export default function InstituteDetails() {
           img.onerror = resolve;
         });
 
-        setProfile(apiProfile);
+        setProfile(prev => preserveSignedUrls(prev, apiProfile, [
+          'profile_pic_url',
+          'banner_url',
+          'institute_profile.logo_url',
+          'institute_profile.banner_url'
+        ]));
       } catch {
         setError("Institute not found.");
       } finally {
@@ -110,14 +119,14 @@ export default function InstituteDetails() {
   }
 
   return (
-    <Box sx={{ position: "relative", minHeight: "calc(100vh - 72px)", overflowX: "hidden", bgcolor: "transparent" }}>
+    <Box sx={DASHBOARD_PAGE_WRAPPER_SX}>
       <UniversalHero
         {...getHeroPropsFromProfile(profile, language)}
         loading={loading}
         fadeAnchorRef={cardsRef}
       />
 
-      <Container maxWidth="xl" sx={{ position: "relative", zIndex: 1, pb: 10, px: { xs: 3, md: 6, lg: 8 } }}>
+      <Container maxWidth={false} sx={DASHBOARD_CONTAINER_SX}>
         {/* ─── MODULE GRID ─── */}
         <Box
           ref={cardsRef}
@@ -137,8 +146,7 @@ export default function InstituteDetails() {
               {Array.from(new Array(8)).map((_, idx) => (
                 <Card key={idx} sx={{
                   height: "var(--size-full)", width: "var(--size-full)", borderRadius: 'var(--radius-lg)',
-                  background: "rgba(255, 255, 255, 0.3)", backdropFilter: "blur(30px)",
-                  border: "var(--border-thin) solid rgba(30, 79, 163, 0.2)",
+                  background: 'var(--card-bg)', border: 'var(--border-thin) solid var(--card-border)',
                   display: "flex", alignItems: "center", p: 2, gap: 2
                 }}>
                   <Box className="MuiSkeleton-root" sx={{ width: 48, height: 48, borderRadius: 'var(--radius-lg)', flexShrink: 0 }} />
@@ -170,7 +178,7 @@ export default function InstituteDetails() {
                       height: "var(--size-full)",
                       width: "var(--size-full)",
                       borderRadius: 'var(--radius-lg)',
-                      background: "rgba(255, 255, 255, 0.3)",
+                      background: "var(--glass-bg)",
                       backdropFilter: "blur(30px)",
                       WebkitBackdropFilter: "blur(30px)",
                       border: "var(--border-thin) solid rgba(30, 79, 163, 0.2)",
@@ -181,7 +189,7 @@ export default function InstituteDetails() {
                       p: 2,
                       "&:hover": {
                         border: "var(--border-thin) solid rgba(30, 79, 163, 0.5)",
-                        background: "rgba(255, 255, 255, 0.45)",
+                        background: "var(--glass-bg)",
                         "& .module-icon": {
                           bgcolor: "transparent",
                           color: module.color,

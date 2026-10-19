@@ -1,0 +1,12 @@
+{
+  "durationOptions": [
+    { "value": "1 Month", "label": "1 Month" },
+    { "value": "3 Months", "label": "3 Months" },
+    { "value": "6 Months", "label": "6 Months" },
+    { "value": "1 Year", "label": "1 Year" },
+    { "value": "2 Years", "label": "2 Years" },
+    { "value": "3 Years", "label": "3 Years" },
+    { "value": "4 Years", "label": "4 Years" },
+    { "value": "5 Years", "label": "5 Years" }
+  ]
+}

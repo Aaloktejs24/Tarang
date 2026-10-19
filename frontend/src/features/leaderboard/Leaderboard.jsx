@@ -10,7 +10,7 @@ export default function Leaderboard() {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
         <EmojiEventsIcon sx={{ fontSize: 32, color: "var(--color-warning)" }} />
         <Typography variant="h5" fontWeight="bold" color="var(--color-primary)">उत्कृष्ठता तालिका</Typography>
       </Box>

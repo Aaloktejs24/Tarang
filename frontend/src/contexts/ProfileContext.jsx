@@ -20,10 +20,24 @@ export const ProfileProvider = ({ children }) => {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const data = await getProfile();
+      // First try /user/profile to get the role
+      const userData = await getProfile();
+      let data = userData;
+      
+      // If institute/admin, re-fetch from /institute/profile for full institute_profile data
+      if (data && (data.role === 'institute' || data.role === 'admin')) {
+        try {
+          const { apiClient } = await import('../lib/apiClient');
+          const instResp = await apiClient.get("/institute/profile");
+          data = instResp.data;
+        } catch (e) {
+          // fallback: use the /user/profile data
+        }
+      }
+      
       if (data) {
-        if (data.role === 'institute' || data.role === 'organisation') {
-          data.is_profile_completed = !!(data.institution_name && data.location);
+        if (data.role === 'institute' || data.role === 'admin') {
+          data.is_profile_completed = !!(data.primary_name && data.location);
         } else {
           data.is_profile_completed = !!(data.full_name && data.location && data.dob);
         }
@@ -49,6 +63,40 @@ export const ProfileProvider = ({ children }) => {
     }
 
     fetchProfile();
+
+    // Auto-update mechanism: listen for global mutations
+    const handleProfileMutated = async (e) => {
+      const forceUpdate = e?.detail?.forceUpdate;
+      try {
+        // Fetch profile silently without triggering the global loading state
+        let data = await getProfile();
+        
+        // If institute/admin, re-fetch from /institute/profile for full data
+        if (data && (data.role === 'institute' || data.role === 'admin')) {
+          try {
+            const { apiClient } = await import('../lib/apiClient');
+            const instResp = await apiClient.get("/institute/profile");
+            data = instResp.data;
+          } catch (err) {
+            // fallback: use the /user/profile data
+          }
+        }
+        
+        if (data) {
+          if (data.role === 'institute' || data.role === 'admin') {
+            data.is_profile_completed = !!(data.primary_name && data.location);
+          } else {
+            data.is_profile_completed = !!(data.full_name && data.location && data.dob);
+          }
+          setProfile(data);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    window.addEventListener("tarang:profile-mutated", handleProfileMutated);
+    return () => window.removeEventListener("tarang:profile-mutated", handleProfileMutated);
   }, [isAuthenticated, authLoading]);
 
   return (

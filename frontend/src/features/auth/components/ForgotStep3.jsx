@@ -13,7 +13,6 @@ import { getPasswordStrength, RULES } from "../../../utils/validationUtils";
 import { validatePassword } from "../../../utils/validationUtils";
 import { RuleRow, PasswordStrengthBars } from "../../../components/common/PasswordStrength";
 import TarangButton from "../../../components/common/TarangButton";
-import AuthMessage from "./AuthMessage";
 import { FormLoadingProvider } from '../../../contexts/FormLoadingContext';
 
 
@@ -44,7 +43,7 @@ export default function ForgotStep3({ formData, onResetPassword, isLoading, erro
 
     if (success) {
         return (
-            <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 2, textAlign: "center", py: 4 }}>
+            <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 1.5, textAlign: "center", py: 4 }}>
                 <Box sx={{
                     width: 80,
                     height: 80,
@@ -88,20 +87,10 @@ export default function ForgotStep3({ formData, onResetPassword, isLoading, erro
                 <Typography variant="body2" sx={{ color: "var(--color-slate-500)", fontSize: 'var(--font-base)', lineHeight: 1.5 }}>
                     अपने अकाउंट के लिए एक मज़बूत नया पासवर्ड चुनें।
                 </Typography>
-                <AnimatePresence mode="wait">
-                    {(error || success) && (
-                        <Motion.div key={error ? "error" : "success"} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ textAlign: "center" }}>
-                            {error ? (
-                                <AuthMessage type="error" message={error} />
-                            ) : (
-                                <AuthMessage type="success" message={success} />
-                            )}
-                        </Motion.div>
-                    )}
-                </AnimatePresence>
+                
             </Box>
 
-            <Box sx={{ display: "flex", gap: 2, flexDirection: { xs: "column", sm: "row" } }}>
+            <Box sx={{ display: "flex", gap: 1.5, flexDirection: { xs: "column", sm: "row" } }}>
                 <Box sx={{ flex: 1 }}>
                     <CustomFloatingInput
                         label="नया पासवर्ड"
@@ -161,7 +150,7 @@ export default function ForgotStep3({ formData, onResetPassword, isLoading, erro
 
 
 
-            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2, mt: 1 }}>
+            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 1.5, mt: 1 }}>
                 <TarangButton
                     variant="outlined"
                     disabled={isLoading}

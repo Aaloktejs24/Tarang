@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Box, Typography, IconButton, Dialog, DialogTitle, DialogContent, SpeedDial, SpeedDialIcon, SpeedDialAction, Popover, Button } from '@mui/material';
+import { Box, Typography, IconButton, Dialog, DialogTitle, DialogContent, SpeedDial, SpeedDialIcon, SpeedDialAction, Button } from '@mui/material';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import MathExtension from '@aarkue/tiptap-math-extension';
@@ -17,6 +17,7 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import FormatColorTextIcon from '@mui/icons-material/FormatColorText';
 import TarangButton from './common/TarangButton';
 import FormatSizeIcon from '@mui/icons-material/FormatSize';
+import { GlassPopover } from './common/GlassPopover';
 
 import 'katex/dist/katex.min.css';
 import '../styles/tiptap.css';
@@ -181,7 +182,21 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
         <Box sx={{ flexGrow: 1, overflowX: 'auto' }}>
           {renderPreview()}
         </Box>
-        <EditOutlinedIcon className="edit-icon" sx={{ opacity: 0, color: 'var(--color-primary)', transition: 'opacity var(--transition-base)', ml: 2, fontSize: 'var(--font-lg)' }} />
+        <IconButton
+          className="edit-icon"
+          size="small"
+          sx={{
+            opacity: 0,
+            ml: 2,
+            transition: 'opacity var(--transition-base), transform var(--transition-base)',
+            bgcolor: 'var(--card-bg)', color: 'var(--color-primary)',
+            boxShadow: 'var(--shadow-sm)',
+            backdropFilter: 'var(--card-blur)',
+            '&:hover': { bgcolor: 'var(--color-slate-50)', transform: 'scale(1.05)' }
+          }}
+        >
+          <EditOutlinedIcon fontSize="small" />
+        </IconButton>
       </Box>
 
       <Dialog
@@ -202,7 +217,7 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
         <DialogTitle component="div" sx={{ 
           display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '72px',
           background: 'linear-gradient(135deg, rgba(0, 86, 179, 0.15) 0%, rgba(40, 167, 69, 0.15) 100%)',
-          bgcolor: 'rgba(255, 255, 255, 0.75)',
+          bgcolor: 'var(--glass-bg)',
           backdropFilter: 'blur(16px)', color: 'var(--color-slate-900)', py: 0, px: { xs: 3, md: 6 }, 
           borderBottom: 'var(--border-thick) solid transparent', 
           borderImage: 'linear-gradient(90deg, var(--color-primary) 0%, var(--color-success) 50%, var(--color-warning) 100%) 1',
@@ -211,7 +226,7 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
           <Typography variant="h6" component="div" sx={{ fontWeight: 800, letterSpacing: '-1px', fontSize: '22px' }}>
             {label ? `${label}` : 'Rich Editor'}
           </Typography>
-          <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
             <TarangButton 
               onClick={handleClose} variant="outlined" 
               sx={{ px: 3, py: 1 }}
@@ -261,10 +276,11 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
               sx: {
                 width: { xs: 56, md: 64 }, 
                 height: { xs: 56, md: 64 },
-                backgroundColor: 'var(--color-primary)',
-                color: 'var(--color-white)',
-                border: '1.5px solid var(--color-warning)',
-                '&:hover, &:focus, &:active': { backgroundColor: '#004494', }
+                bgcolor: 'var(--card-bg)', 
+                color: 'var(--color-primary)',
+                boxShadow: 'var(--shadow-sm)',
+                backdropFilter: 'var(--card-blur)',
+                '&:hover, &:focus, &:active': { bgcolor: 'var(--color-slate-50)', transform: 'scale(1.05)' }
               }
             }}
             icon={<EditOutlinedIcon />}
@@ -325,13 +341,13 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
             onChange={handleImageUpload}
           />
 
-          <Popover
+          <GlassPopover
             open={Boolean(colorAnchorEl)}
             anchorEl={colorAnchorEl}
             onClose={handleColorClose}
             anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
             transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-            sx={{ '& .MuiPopover-paper': { p: 1, display: 'flex', gap: 1, mb: 1, borderRadius: 'var(--radius-md)', border: 'var(--border-thin) solid var(--color-slate-200)', } }}
+            sx={{ p: 1, display: 'flex', gap: 1, mb: 1, minWidth: 'auto', borderRadius: 'var(--radius-md)', border: 'var(--border-thin) solid var(--color-slate-200)' }}
           >
             {['var(--color-slate-900)', 'var(--color-error)', 'var(--color-primary)', 'var(--color-success)', 'var(--color-warning)', 'var(--color-slate-500)'].map(color => (
               <Box 
@@ -340,15 +356,15 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
                 sx={{ width: 28, height: 28, bgcolor: color, borderRadius: 'var(--radius-full)', cursor: 'pointer', border: '1.5px solid var(--color-slate-200)', '&:hover': { transform: 'scale(1.1)', transition: 'transform var(--transition-fast)' } }} 
               />
             ))}
-          </Popover>
+          </GlassPopover>
 
-          <Popover
+          <GlassPopover
             open={Boolean(sizeAnchorEl)}
             anchorEl={sizeAnchorEl}
             onClose={handleSizeClose}
             anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
             transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-            sx={{ '& .MuiPopover-paper': { p: 1, mb: 1, display: 'flex', flexDirection: 'column', borderRadius: 'var(--radius-md)', border: 'var(--border-thin) solid var(--color-slate-200)', minWidth: '120px' } }}
+            sx={{ p: 1, mb: 1, display: 'flex', flexDirection: 'column', borderRadius: 'var(--radius-md)', border: 'var(--border-thin) solid var(--color-slate-200)', minWidth: '120px' }}
           >
             {[
               { label: 'Small', value: '12px' },
@@ -364,7 +380,7 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
                 {size.label}
               </Button>
             ))}
-          </Popover>
+          </GlassPopover>
         </DialogContent>
       </Dialog>
     </Box>

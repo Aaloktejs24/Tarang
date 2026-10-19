@@ -20,6 +20,7 @@ const theme = createTheme({
 });
 
 export default function SuperAdminPage() {
+  const isSubmitting = React.useRef(false);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
@@ -46,6 +47,8 @@ export default function SuperAdminPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
     setLoading(true);
     setError('');
     try {
@@ -73,6 +76,7 @@ export default function SuperAdminPage() {
     } catch (err) {
       setError(err.message);
     } finally {
+      isSubmitting.current = false;
       setLoading(false);
     }
   };
@@ -100,6 +104,8 @@ export default function SuperAdminPage() {
 
   const handleVerifyOtpSetup = async (e) => {
     e.preventDefault();
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
     setLoading(true);
     setError('');
     try {
@@ -119,12 +125,15 @@ export default function SuperAdminPage() {
     } catch (err) {
       setError(err.message);
     } finally {
+      isSubmitting.current = false;
       setLoading(false);
     }
   };
 
   const handleVerifyOtpLogin = async (e) => {
     e.preventDefault();
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
     setLoading(true);
     setError('');
     try {
@@ -144,6 +153,7 @@ export default function SuperAdminPage() {
     } catch (err) {
       setError(err.message);
     } finally {
+      isSubmitting.current = false;
       setLoading(false);
     }
   };
@@ -179,6 +189,8 @@ export default function SuperAdminPage() {
 
   const handleSendEmail = async (e) => {
     e.preventDefault();
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
     setLoading(true);
     setError('');
     setSuccessMsg('');
@@ -198,6 +210,7 @@ export default function SuperAdminPage() {
     } catch (err) {
       setError(err.message);
     } finally {
+      isSubmitting.current = false;
       setLoading(false);
     }
   };
@@ -234,7 +247,7 @@ export default function SuperAdminPage() {
             }}
           >
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <Box component="img" src="/logo.svg" alt="Tarang Logo" sx={{ width: 48, height: 48, objectFit: 'contain' }} />
                 <Typography variant="h5" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', letterSpacing: '-1px', fontSize: '26px' }}>
                   Tarang
@@ -318,7 +331,7 @@ export default function SuperAdminPage() {
                     "&.Mui-disabled": { background: "var(--color-slate-200)", color: "var(--color-slate-500)" }
                   }}
                 >
-                  {loading ? <CircularProgress size={24} color="inherit" /> : 'Log In'}
+                  {loading ? <CircularProgress size={24} sx={{ color: 'var(--color-primary)' }} /> : 'Log In'}
                 </Button>
               </form>
             )}
@@ -336,7 +349,7 @@ export default function SuperAdminPage() {
                   display: "flex",
                   flexDirection: { xs: "column", sm: "row" },
                   alignItems: { xs: "center", sm: "stretch" },
-                  gap: 2,
+                  gap: 1.5,
                   width: "var(--size-full)",
                   mb: 4
               }}>
@@ -447,7 +460,7 @@ export default function SuperAdminPage() {
                   "&.Mui-disabled": { background: "var(--color-slate-200)", color: "var(--color-slate-500)", WebkitTextFillColor: "var(--color-slate-500)" }
                 }}
               >
-                {loading ? <CircularProgress size={24} color="inherit" /> : 'Verify & Continue'}
+                {loading ? <CircularProgress size={24} sx={{ color: 'var(--color-primary)' }} /> : 'Verify & Continue'}
               </Button>
             </form>
             )}
@@ -503,7 +516,7 @@ export default function SuperAdminPage() {
                     "&.Mui-disabled": { background: "var(--color-slate-200)", color: "var(--color-slate-500)", WebkitTextFillColor: "var(--color-slate-500)" }
                   }}
                 >
-                  {loading ? <CircularProgress size={24} color="inherit" /> : 'Verify Code'}
+                  {loading ? <CircularProgress size={24} sx={{ color: 'var(--color-primary)' }} /> : 'Verify Code'}
                 </Button>
               </form>
             )}
@@ -597,7 +610,7 @@ export default function SuperAdminPage() {
               Send an email to an admin with the secure link.
             </Typography>
             
-            <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', sm: 'row' } }}>
+            <Box sx={{ display: 'flex', gap: 1.5, flexDirection: { xs: 'column', sm: 'row' } }}>
               <TextField 
                 fullWidth 
                 placeholder="admin@example.com" 
@@ -621,7 +634,7 @@ export default function SuperAdminPage() {
                   "&.Mui-disabled": { background: "var(--color-slate-200)", color: "var(--color-slate-500)" }
                 }}
               >
-                {loading ? <CircularProgress size={24} color="inherit" /> : 'Send Invite'}
+                {loading ? <CircularProgress size={24} sx={{ color: 'var(--color-primary)' }} /> : 'Send Invite'}
               </Button>
             </Box>
             

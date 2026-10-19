@@ -384,8 +384,8 @@ type Program struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	InstituteId   string                 `protobuf:"bytes,2,opt,name=institute_id,json=instituteId,proto3" json:"institute_id,omitempty"`
-	WorkflowTitle string                 `protobuf:"bytes,3,opt,name=workflow_title,json=workflowTitle,proto3" json:"workflow_title,omitempty"`
-	WorkflowDesc  string                 `protobuf:"bytes,4,opt,name=workflow_desc,json=workflowDesc,proto3" json:"workflow_desc,omitempty"`
+	FormTitle     string                 `protobuf:"bytes,3,opt,name=form_title,json=formTitle,proto3" json:"form_title,omitempty"`
+	FormDesc      string                 `protobuf:"bytes,4,opt,name=form_desc,json=formDesc,proto3" json:"form_desc,omitempty"`
 	ImageUrl      string                 `protobuf:"bytes,5,opt,name=image_url,json=imageUrl,proto3" json:"image_url,omitempty"`
 	LastDate      string                 `protobuf:"bytes,6,opt,name=last_date,json=lastDate,proto3" json:"last_date,omitempty"`
 	Seats         int32                  `protobuf:"varint,7,opt,name=seats,proto3" json:"seats,omitempty"`
@@ -443,16 +443,16 @@ func (x *Program) GetInstituteId() string {
 	return ""
 }
 
-func (x *Program) GetWorkflowTitle() string {
+func (x *Program) GetFormTitle() string {
 	if x != nil {
-		return x.WorkflowTitle
+		return x.FormTitle
 	}
 	return ""
 }
 
-func (x *Program) GetWorkflowDesc() string {
+func (x *Program) GetFormDesc() string {
 	if x != nil {
-		return x.WorkflowDesc
+		return x.FormDesc
 	}
 	return ""
 }
@@ -568,8 +568,8 @@ func (x *DeleteProgramRequest) GetId() string {
 type CreateProgramRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	InstituteId   string                 `protobuf:"bytes,1,opt,name=institute_id,json=instituteId,proto3" json:"institute_id,omitempty"`
-	WorkflowTitle string                 `protobuf:"bytes,2,opt,name=workflow_title,json=workflowTitle,proto3" json:"workflow_title,omitempty"`
-	WorkflowDesc  string                 `protobuf:"bytes,3,opt,name=workflow_desc,json=workflowDesc,proto3" json:"workflow_desc,omitempty"`
+	FormTitle     string                 `protobuf:"bytes,2,opt,name=form_title,json=formTitle,proto3" json:"form_title,omitempty"`
+	FormDesc      string                 `protobuf:"bytes,3,opt,name=form_desc,json=formDesc,proto3" json:"form_desc,omitempty"`
 	ImageUrl      string                 `protobuf:"bytes,4,opt,name=image_url,json=imageUrl,proto3" json:"image_url,omitempty"`
 	LastDate      string                 `protobuf:"bytes,5,opt,name=last_date,json=lastDate,proto3" json:"last_date,omitempty"`
 	Seats         int32                  `protobuf:"varint,6,opt,name=seats,proto3" json:"seats,omitempty"`
@@ -620,16 +620,16 @@ func (x *CreateProgramRequest) GetInstituteId() string {
 	return ""
 }
 
-func (x *CreateProgramRequest) GetWorkflowTitle() string {
+func (x *CreateProgramRequest) GetFormTitle() string {
 	if x != nil {
-		return x.WorkflowTitle
+		return x.FormTitle
 	}
 	return ""
 }
 
-func (x *CreateProgramRequest) GetWorkflowDesc() string {
+func (x *CreateProgramRequest) GetFormDesc() string {
 	if x != nil {
-		return x.WorkflowDesc
+		return x.FormDesc
 	}
 	return ""
 }
@@ -701,8 +701,8 @@ type UpdateProgramRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	InstituteId   string                 `protobuf:"bytes,2,opt,name=institute_id,json=instituteId,proto3" json:"institute_id,omitempty"`
-	WorkflowTitle string                 `protobuf:"bytes,3,opt,name=workflow_title,json=workflowTitle,proto3" json:"workflow_title,omitempty"`
-	WorkflowDesc  string                 `protobuf:"bytes,4,opt,name=workflow_desc,json=workflowDesc,proto3" json:"workflow_desc,omitempty"`
+	FormTitle     string                 `protobuf:"bytes,3,opt,name=form_title,json=formTitle,proto3" json:"form_title,omitempty"`
+	FormDesc      string                 `protobuf:"bytes,4,opt,name=form_desc,json=formDesc,proto3" json:"form_desc,omitempty"`
 	ImageUrl      string                 `protobuf:"bytes,5,opt,name=image_url,json=imageUrl,proto3" json:"image_url,omitempty"`
 	LastDate      string                 `protobuf:"bytes,6,opt,name=last_date,json=lastDate,proto3" json:"last_date,omitempty"`
 	Seats         int32                  `protobuf:"varint,7,opt,name=seats,proto3" json:"seats,omitempty"`
@@ -760,16 +760,16 @@ func (x *UpdateProgramRequest) GetInstituteId() string {
 	return ""
 }
 
-func (x *UpdateProgramRequest) GetWorkflowTitle() string {
+func (x *UpdateProgramRequest) GetFormTitle() string {
 	if x != nil {
-		return x.WorkflowTitle
+		return x.FormTitle
 	}
 	return ""
 }
 
-func (x *UpdateProgramRequest) GetWorkflowDesc() string {
+func (x *UpdateProgramRequest) GetFormDesc() string {
 	if x != nil {
-		return x.WorkflowDesc
+		return x.FormDesc
 	}
 	return ""
 }
@@ -2019,12 +2019,13 @@ const file_proto_admissionpb_admission_proto_rawDesc = "" +
 	"\n" +
 	"Attachment\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
-	"\x04size\x18\x02 \x01(\tR\x04size\"\x9c\x03\n" +
+	"\x04size\x18\x02 \x01(\tR\x04size\"\x8c\x03\n" +
 	"\aProgram\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12!\n" +
-	"\finstitute_id\x18\x02 \x01(\tR\vinstituteId\x12%\n" +
-	"\x0eworkflow_title\x18\x03 \x01(\tR\rworkflowTitle\x12#\n" +
-	"\rworkflow_desc\x18\x04 \x01(\tR\fworkflowDesc\x12\x1b\n" +
+	"\finstitute_id\x18\x02 \x01(\tR\vinstituteId\x12\x1d\n" +
+	"\n" +
+	"form_title\x18\x03 \x01(\tR\tformTitle\x12\x1b\n" +
+	"\tform_desc\x18\x04 \x01(\tR\bformDesc\x12\x1b\n" +
 	"\timage_url\x18\x05 \x01(\tR\bimageUrl\x12\x1b\n" +
 	"\tlast_date\x18\x06 \x01(\tR\blastDate\x12\x14\n" +
 	"\x05seats\x18\a \x01(\x05R\x05seats\x12#\n" +
@@ -2036,11 +2037,12 @@ const file_proto_admissionpb_admission_proto_rawDesc = "" +
 	"\x06stages\x18\f \x03(\v2\x10.admission.StageR\x06stages\x12!\n" +
 	"\fpublish_date\x18\r \x01(\tR\vpublishDate\"&\n" +
 	"\x14DeleteProgramRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x99\x03\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\x89\x03\n" +
 	"\x14CreateProgramRequest\x12!\n" +
-	"\finstitute_id\x18\x01 \x01(\tR\vinstituteId\x12%\n" +
-	"\x0eworkflow_title\x18\x02 \x01(\tR\rworkflowTitle\x12#\n" +
-	"\rworkflow_desc\x18\x03 \x01(\tR\fworkflowDesc\x12\x1b\n" +
+	"\finstitute_id\x18\x01 \x01(\tR\vinstituteId\x12\x1d\n" +
+	"\n" +
+	"form_title\x18\x02 \x01(\tR\tformTitle\x12\x1b\n" +
+	"\tform_desc\x18\x03 \x01(\tR\bformDesc\x12\x1b\n" +
 	"\timage_url\x18\x04 \x01(\tR\bimageUrl\x12\x1b\n" +
 	"\tlast_date\x18\x05 \x01(\tR\blastDate\x12\x14\n" +
 	"\x05seats\x18\x06 \x01(\x05R\x05seats\x12#\n" +
@@ -2050,12 +2052,13 @@ const file_proto_admissionpb_admission_proto_rawDesc = "" +
 	"\bduration\x18\n" +
 	" \x01(\tR\bduration\x12(\n" +
 	"\x06stages\x18\v \x03(\v2\x10.admission.StageR\x06stages\x12!\n" +
-	"\fpublish_date\x18\f \x01(\tR\vpublishDate\"\xa9\x03\n" +
+	"\fpublish_date\x18\f \x01(\tR\vpublishDate\"\x99\x03\n" +
 	"\x14UpdateProgramRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12!\n" +
-	"\finstitute_id\x18\x02 \x01(\tR\vinstituteId\x12%\n" +
-	"\x0eworkflow_title\x18\x03 \x01(\tR\rworkflowTitle\x12#\n" +
-	"\rworkflow_desc\x18\x04 \x01(\tR\fworkflowDesc\x12\x1b\n" +
+	"\finstitute_id\x18\x02 \x01(\tR\vinstituteId\x12\x1d\n" +
+	"\n" +
+	"form_title\x18\x03 \x01(\tR\tformTitle\x12\x1b\n" +
+	"\tform_desc\x18\x04 \x01(\tR\bformDesc\x12\x1b\n" +
 	"\timage_url\x18\x05 \x01(\tR\bimageUrl\x12\x1b\n" +
 	"\tlast_date\x18\x06 \x01(\tR\blastDate\x12\x14\n" +
 	"\x05seats\x18\a \x01(\x05R\x05seats\x12#\n" +

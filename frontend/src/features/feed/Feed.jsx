@@ -31,7 +31,7 @@ import { Divider } from "@mui/material";
 import { useAppRouter } from '../../hooks/useAppRouter';
 import FeedMobileFilter from "./FeedMobileFilter";
 import CustomCheckbox from "../../components/common/CustomCheckbox";
-
+import TarangButton from "../../components/common/TarangButton";
 const checkboxStyles = {
   color: "var(--color-slate-500)",
   padding: "4px",
@@ -163,7 +163,7 @@ export default function FlowPage() {
           pt: 4 // Exactly 32px padding top. Total Y-Origin = 72px(Navbar) + 32px = 104px
         }}
       >
-        <Container maxWidth="xl" sx={{ px: { xs: 4, md: 6, lg: 8 }, pb: 10, zIndex: 1, position: "relative" }}>
+        <Container maxWidth={false} sx={{ px: { xs: 4, md: 6, lg: 8 }, zIndex: 1, position: "relative" }}>
 
           <Grid container spacing={4} sx={{ width: "var(--size-full)", m: 0 }}>
 
@@ -271,7 +271,7 @@ export default function FlowPage() {
                             display: "flex",
                             flexDirection: "column",
                             borderRadius: 'var(--radius-lg)',
-                            background: "rgba(255, 255, 255, 0.3)",
+                            background: "var(--glass-bg)",
                             backdropFilter: "blur(30px)",
                             WebkitBackdropFilter: "blur(30px)",
                             border: "var(--border-thin) solid rgba(30, 79, 163, 0.2)",
@@ -284,8 +284,8 @@ export default function FlowPage() {
                             sx={{
                               aspectRatio: "16/9",
                               width: 'var(--size-full)',
-                              borderTopLeftRadius: "15px",
-                              borderTopRightRadius: "15px",
+                              borderTopLeftRadius: "calc(var(--radius-lg) - 1px)",
+                              borderTopRightRadius: "calc(var(--radius-lg) - 1px)",
                               backgroundImage: `url(${item.thumbnail})`,
                               backgroundSize: 'cover',
                               backgroundPosition: 'center',
@@ -401,29 +401,14 @@ export default function FlowPage() {
                               {/* Spacer to push button right */}
                               <Box sx={{ flexGrow: 1 }} />
 
-                              <Button
-                                variant="contained" disableElevation
-                                sx={{
-                                  bgcolor: "var(--color-primary)",
-                                  color: "var(--color-white)",
-                                  fontWeight: 800,
-                                  py: 1.2,
-                                  minWidth: "155px", // Force uniform size
-                                  borderRadius: 'var(--radius-lg)',
-                                  textTransform: "none",
-                                  fontSize: 'var(--font-base)',
-                                  whiteSpace: "nowrap", // Prevent text wrapping
-                                  letterSpacing: "0.2px",
-                                  transition: "var(--transition-base)",
-                                  '&:hover': {
-                                    bgcolor: "var(--color-slate-900)",
-                                  }
-                                }}
+                              <TarangButton
+                                variant="primary"
+                                fullWidth
                               >
                                 {item.types.some(t => ["video", "webinar"].includes(t)) ? "Watch" :
                                   item.types.some(t => ["pdf", "article", "journal", "ebook"].includes(t)) ? "Read" :
                                     "Start Learning"}
-                              </Button>
+                              </TarangButton>
                             </Box>
                           </CardContent>
                         </Card>

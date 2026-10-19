@@ -13,16 +13,28 @@ export const apiClient = axios.create({
   },
 });
 
-// Request interceptor to attach JWT token
+// Request interceptor to attach JWT token and Idempotency keys
 apiClient.interceptors.request.use(
   async (config) => {
-    config.metadata = { startTime: new Date() };
+    config.metadata = { startTime: Date.now() };
 
     // Persistent token for logged in users
     const token = getToken();
     if (token && !config.headers.Authorization) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Automatically inject Idempotency-Key for mutating requests
+    const method = config.method?.toLowerCase();
+    if (['post', 'put', 'patch', 'delete'].includes(method)) {
+      if (!config.headers["Idempotency-Key"]) {
+        const uuid = typeof crypto !== 'undefined' && crypto.randomUUID 
+          ? crypto.randomUUID() 
+          : Date.now().toString(36) + Math.random().toString(36).substring(2);
+        config.headers["Idempotency-Key"] = uuid;
+      }
+    }
+
     return config;
   },
   (error) => {
@@ -45,10 +57,47 @@ const processQueue = (error, token = null) => {
 };
 
 apiClient.interceptors.response.use(
-  (response) => {
+  async (response) => {
+
+
+    if (response.config?.metadata?.startTime) {
+      const elapsed = Date.now() - response.config.metadata.startTime;
+      if (elapsed >= 50 && elapsed < 1000) {
+        await new Promise(resolve => setTimeout(resolve, 1000 - elapsed));
+      }
+    }
+
+
+    // // Artificial delay for testing loaders/skeletons
+    // await new Promise(resolve => setTimeout(resolve, 5000));
+
+    // Automatically detect profile/data mutations and emit a global event
+    const method = response.config?.method?.toLowerCase();
+    const url = response.config?.url || "";
+
+    if (['post', 'put', 'patch', 'delete'].includes(method)) {
+      if (url.includes("/profile")) {
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("tarang:profile-mutated"));
+        }
+      }
+      if (url.includes("/applications/") || url.includes("/application/")) {
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("tarang:application-mutated"));
+        }
+      }
+    }
     return response;
   },
   async (error) => {
+    // Also extend errors if they fall in the flicker window
+    if (error.config?.metadata?.startTime) {
+      const elapsed = Date.now() - error.config.metadata.startTime;
+      if (elapsed >= 250 && elapsed < 1000) {
+        await new Promise(resolve => setTimeout(resolve, 1000 - elapsed));
+      }
+    }
+
     const originalRequest = error.config;
 
     // 1. If we get a 401 and haven't tried refreshing yet
@@ -57,8 +106,10 @@ apiClient.interceptors.response.use(
 
       // If we are currently logging in or registering, a 401 means invalid credentials/OTP, not an expired token.
       const isAuthFlow = typeof window !== "undefined" && sessionStorage.getItem("auth_flow_in_progress") === "true";
-      
-      if (isAuthFlow) {
+      const isLoginOrRegister = originalRequest.url?.includes("/auth/login") || originalRequest.url?.includes("/auth/registration-sessions");
+      const isLogout = originalRequest.url?.includes("/auth/logout");
+
+      if (isAuthFlow || isLoginOrRegister || isLogout) {
         return Promise.reject(error);
       }
 
@@ -93,7 +144,7 @@ apiClient.interceptors.response.use(
         });
 
         const data = await refreshResp.json();
-        
+
         if (data.authenticated === false) {
           throw new Error("Refresh failed");
         }

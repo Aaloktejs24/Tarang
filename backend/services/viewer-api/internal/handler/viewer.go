@@ -30,7 +30,8 @@ func NewViewerHandler(repo *repository.ViewerRepository, minio *storage.MinioCli
 }
 
 type UploadIntentRequest struct {
-	Filename string `json:"filename"`
+	Filename    string `json:"filename"`
+	ContentType string `json:"content_type"`
 }
 
 type UploadIntentResponse struct {
@@ -93,7 +94,7 @@ func (h *ViewerHandler) HandleUploadIntent(w http.ResponseWriter, r *http.Reques
 	ext := filepath.Ext(req.Filename)
 	objectKey := jobID.String() + ext
 
-	url, err := h.minio.GeneratePresignedUploadURL(r.Context(), "tarang-docs-raw", objectKey, 15*time.Minute)
+	url, err := h.minio.GeneratePresignedUploadURL(r.Context(), "tarang-docs-raw", objectKey, req.ContentType, 15*time.Minute)
 	if err != nil {
 		http.Error(w, "Failed to generate presigned URL", http.StatusInternalServerError)
 		return

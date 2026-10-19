@@ -3,12 +3,14 @@ import React from 'react';
 import { Box, Container, Paper, Card, Skeleton } from '@mui/material';
 import UniversalHero from '../../components/hero/UniversalHero';
 
+import { DASHBOARD_PAGE_WRAPPER_SX, DASHBOARD_CONTAINER_SX } from '../../constants/layout';
+
 export default function AdmissionSkeleton() {
   return (
-    <Box sx={{ position: "relative", minHeight: "calc(100vh - 72px)", overflowX: "hidden", bgcolor: "transparent", mt: "-1px" }}>
+    <Box sx={DASHBOARD_PAGE_WRAPPER_SX}>
       <UniversalHero loading={true} />
-      
-      <Container maxWidth="xl" sx={{ position: "relative", zIndex: 1, px: { xs: 3, md: 6, lg: 8 }, pb: 10 }}>
+
+      <Container maxWidth={false} sx={DASHBOARD_CONTAINER_SX}>
         <Box sx={{ width: 'var(--size-full)' }}>
           <Box
             sx={{
@@ -30,12 +32,12 @@ export default function AdmissionSkeleton() {
                   <Skeleton variant="text" width="80%" height={20} sx={{ mb: 3 }} />
 
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 'auto', pt: 2 }}>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2.5 }}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
                       {Array.from(new Array(6)).map((_, i) => (
                         <Skeleton key={i} variant="circular" width={24} height={24} />
                       ))}
                     </Box>
-                    <Skeleton variant="rectangular" width={80} height={32} sx={{ }} />
+                    <Skeleton variant="rectangular" width={80} height={32} sx={{}} />
                   </Box>
                 </Box>
               </Card>

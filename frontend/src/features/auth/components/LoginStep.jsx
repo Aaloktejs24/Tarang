@@ -1,5 +1,4 @@
-import { Box, Typography }
-    from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { CustomFloatingInput } from "../../../components/common/CustomFloatingFields";
 import { TextField, InputAdornment, IconButton } from "@mui/material";
 import CustomCheckbox from "../../../components/common/CustomCheckbox";
@@ -12,7 +11,6 @@ import { useState } from "react";
 import { useTranslation } from "../../../hooks/useTranslation";
 import { validateEmail, validateUsername, validatePassword } from "../../../utils/validationUtils";
 import TarangButton from "../../../components/common/TarangButton";
-import AuthMessage from "./AuthMessage";
 import { FormLoadingProvider } from '../../../contexts/FormLoadingContext';
 
 export default function LoginStep({ setStep, setMode, formData, updateFormData, onLogin, isLoading, error, setError, success, setSuccess, onClose }) {
@@ -47,7 +45,7 @@ export default function LoginStep({ setStep, setMode, formData, updateFormData, 
 
     return (
         <FormLoadingProvider isLoading={isLoading}>
-        <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 2 }}>
+        <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 1.5 }}>
             <Box>
                 <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)' }}>
                     {t('auth.loginTitle')}
@@ -57,23 +55,7 @@ export default function LoginStep({ setStep, setMode, formData, updateFormData, 
                 </Typography>
             </Box>
 
-            <AnimatePresence mode="wait">
-                {(error || success) && (
-                    <motion.div
-                        key={error ? "error" : "success"}
-                        initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                        animate={{ opacity: 1, height: "auto", marginTop: 8 }}
-                        exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                        style={{ overflow: "hidden", width: "100%" }}
-                    >
-                        {error ? (
-                            <AuthMessage type="error" message={error} />
-                        ) : (
-                            <AuthMessage type="success" message={success} />
-                        )}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                 <Box>
@@ -163,7 +145,7 @@ export default function LoginStep({ setStep, setMode, formData, updateFormData, 
                         try {
                             await onLogin(formData.email, formData.password);
                         } catch {
-                            // Error handled in LoginForm
+                            // Error handled in AuthModal
                         }
                     }}
                     sx={{ flex: 1, height: 'var(--box-height)' }}

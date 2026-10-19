@@ -101,7 +101,7 @@ export default function ExploreInstitutes() {
       sx: {
         mt: 1,
         borderRadius: 'var(--radius-lg)',
-        background: "rgba(255, 255, 255, 0.8)",
+        background: "var(--glass-bg)",
         backdropFilter: "blur(30px)",
         WebkitBackdropFilter: "blur(30px)",
         border: "var(--border-thin) solid rgba(255, 255, 255, 0.6)",
@@ -112,7 +112,7 @@ export default function ExploreInstitutes() {
           fontWeight: 'var(--font-medium)',
           color: 'var(--color-slate-900)',
           '&:hover': {
-            background: "rgba(255, 255, 255, 0.6)",
+            background: "var(--glass-bg)",
           },
           '&.Mui-selected': {
             background: "rgba(30, 79, 163, 0.1)",
@@ -128,9 +128,9 @@ export default function ExploreInstitutes() {
   };
 
   return (
-    <Box sx={{ minHeight: "calc(100vh - 64px)", pt: { xs: 8, md: 10 }, pb: 10, position: "relative", zIndex: 1 }}>
-      <Container maxWidth="xl" sx={{ mt: 4, px: { xs: 2, sm: 4, md: 8, lg: 12, xl: 16 } }}>
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2, mb: 6, alignItems: 'center', justifyContent: 'space-between' }}>
+    <Box sx={{ minHeight: "calc(100vh - 64px)", pt: { xs: 4, md: 4 }, position: "relative", zIndex: 1 }}>
+      <Container maxWidth={false} sx={{ px: { xs: 2, sm: 4, md: 8, lg: 12, xl: 16 } }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 1.5, mb: 6, mt: 2, alignItems: 'center', justifyContent: 'space-between' }}>
           <TextField
             fullWidth
             placeholder={language === 'en' ? "Search institutes by name or location..." : "नाम या स्थान से संस्थान खोजें..."}
@@ -148,7 +148,7 @@ export default function ExploreInstitutes() {
               flex: 1,
               '& .MuiOutlinedInput-root': {
                 borderRadius: 'var(--radius-md)',
-                backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                backgroundColor: 'var(--glass-bg)',
                 backdropFilter: 'blur(30px)',
                 WebkitBackdropFilter: 'blur(30px)',
                 height: 'var(--box-height, 48px)',
@@ -174,7 +174,7 @@ export default function ExploreInstitutes() {
               }
             }}
           />
-          <Box sx={{ display: 'flex', gap: 2, width: { xs: 'var(--size-full)', md: 'auto' } }}>
+          <Box sx={{ display: 'flex', gap: 1.5, width: { xs: 'var(--size-full)', md: 'auto' } }}>
             <Box sx={{ minWidth: 160, flex: 1 }}>
               <CentralDropdown
                 value={filterType}
@@ -233,7 +233,7 @@ export default function ExploreInstitutes() {
                       display: 'flex',
                       flexDirection: 'column',
                       borderRadius: 'var(--radius-lg)',
-                      background: "rgba(255, 255, 255, 0.3)",
+                      background: "var(--glass-bg)",
                       backdropFilter: "blur(30px)",
                       WebkitBackdropFilter: "blur(30px)",
                       border: "var(--border-thin) solid rgba(30, 79, 163, 0.2)",
@@ -329,7 +329,7 @@ export default function ExploreInstitutes() {
                         <Box sx={{ position: "relative", display: "inline-flex", p: "2px", border: "2px solid var(--color-primary)", borderRadius: 'var(--radius-full)', zIndex: 2, bgcolor: "var(--card-bg)", mt: "-42px", mb: 2 }}>
                           <Avatar
                             src={inst.profile_pic_url}
-                            alt={inst.institution_name || inst.full_name}
+                            alt={inst.primary_name || inst.full_name}
                             sx={{
                               width: 84, height: 84,
                               border: 'none',
@@ -338,13 +338,13 @@ export default function ExploreInstitutes() {
                               position: "relative", zIndex: 1
                             }}
                           >
-                            {(inst.institution_name || inst.full_name || "?").charAt(0).toUpperCase()}
+                            {(inst.primary_name || inst.full_name || "?").charAt(0).toUpperCase()}
                           </Avatar>
                         </Box>
 
                         <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.5, color: 'var(--color-slate-900)', lineHeight: 1.3, textTransform: 'capitalize' }}>
                           {(() => {
-                            const rawName = inst.institution_name || inst.institute_profile?.full_name || inst.full_name || inst.name || inst.username || "Unnamed Institute";
+                            const rawName = inst.primary_name || inst.institute_profile?.full_name || inst.full_name || inst.name || inst.username || "Unnamed Institute";
                             const nameParts = rawName ? rawName.split(' / ') : [];
                             return nameParts.length >= 1 ? nameParts[0].trim() : rawName;
                           })()}

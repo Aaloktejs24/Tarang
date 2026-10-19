@@ -1,4 +1,4 @@
-import { getNoNamePlaceholder, capitalizeFirstLetter, parseBilingualName } from './stringUtils';
+import { getNoNamePlaceholder, capitalizeFirstLetter } from './stringUtils';
 
 export function getHeroPropsFromProfile(profile, language, explicitProps = {}) {
   const {
@@ -10,35 +10,43 @@ export function getHeroPropsFromProfile(profile, language, explicitProps = {}) {
 
   const safeProfile = profile ?? {};
 
-  // institution_name in DB uses "LocalName / EnglishName" bilingual format
-  const rawName = safeProfile.institution_name
-    || safeProfile.institute_profile?.institution_name
-    || safeProfile.institute_profile?.full_name
-    || safeProfile.full_name
-    || safeProfile.name
-    || safeProfile.username
-    || '';
-  const { localName, englishName } = parseBilingualName(rawName);
+  const primaryName = safeProfile.primary_name || safeProfile.full_name || safeProfile.name || safeProfile.username || '';
+  const secondaryName = safeProfile.secondary_name || '';
 
   let defaultTitle = '';
   let defaultSubtitle = '';
 
-  if (localName && englishName) {
-    // Bilingual format: local name first, English second
-    defaultTitle = capitalizeFirstLetter(localName);
-    defaultSubtitle = capitalizeFirstLetter(englishName);
-  } else if (localName || englishName) {
-    defaultTitle = capitalizeFirstLetter(localName || englishName);
+  if (primaryName && secondaryName) {
+    defaultTitle = capitalizeFirstLetter(primaryName);
+    defaultSubtitle = capitalizeFirstLetter(secondaryName);
+  } else if (primaryName || secondaryName) {
+    defaultTitle = capitalizeFirstLetter(primaryName || secondaryName);
     defaultSubtitle = '';
   } else {
-    defaultTitle = language === 'en' ? 'Institution' : 'संस्थान';
+    defaultTitle = '';
     defaultSubtitle = '';
   }
 
   const title = explicitTitle || defaultTitle;
   const subtitle = explicitSubtitle !== undefined ? explicitSubtitle : defaultSubtitle;
-  const bannerUrl = explicitBannerUrl || safeProfile?.banner_url || '';
-  const avatarUrl = explicitAvatarUrl || safeProfile?.profile_pic_url || '';
+  const isManagement = safeProfile?.role === 'institute' || safeProfile?.role === 'admin';
+
+  const defaultBannerUrl = isManagement
+    ? (safeProfile?.institute_profile?.banner_url || "https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=2000")
+    : (safeProfile?.banner_url || '');
+
+  const defaultAvatarUrl = isManagement
+    ? (safeProfile?.institute_profile?.logo_url || '')
+    : (safeProfile?.profile_pic_url || '');
+
+  const bannerUrl = explicitBannerUrl || defaultBannerUrl;
+  const avatarUrl = explicitAvatarUrl || defaultAvatarUrl;
+
+  // If profile is not yet loaded, return empty URLs so the bg preloader
+  // doesn't trigger the full-window loader during the skeleton phase.
+  if (!profile) {
+    return { title, subtitle, bannerUrl: '', avatarUrl: '' };
+  }
 
   return {
     title,

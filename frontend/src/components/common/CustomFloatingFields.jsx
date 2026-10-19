@@ -1,16 +1,30 @@
 import React from 'react';
-import { Box, Typography, Tooltip, CircularProgress } from '@mui/material';
+import { Box, Typography, InputAdornment, Tooltip, CircularProgress, Popover, IconButton } from '@mui/material';
+import { uploadDocument } from '../../lib/uploadService';
 import { FieldContext } from '../../contexts/FieldContext';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+// from '@mui/icons-material/CloudUpload';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import CloseIcon from '@mui/icons-material/Close';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { FieldCommentTooltip } from './FieldCommentTooltip';
 import CentralDropdown from './CentralDropdown';
 import { DropdownListPopup } from './DropdownListPopup';
-
+import { glassPaperSx } from '../../styles/commonStyles';
 import gazeteer from '../../data/formated/gazeteer.json';
 import { useAccessibility } from '../../contexts/AccessibilityContext';
 import { sortLocationsByDistance } from '../../lib/geoNormalize';
 import { useFormLoading } from '../../contexts/FormLoadingContext';
+import { useToast } from '../../contexts/ToastContext';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import dayjs from 'dayjs';
+import { globalDatePickerSlotProps } from '../../features/institute/admissions/datePickerConfig';
+import { CustomTooltip } from './CustomTooltip';
+
 
 
 const withFieldState = (WrappedComponent) => React.forwardRef(function WithFieldState(props, ref) {
@@ -44,10 +58,10 @@ const withFieldState = (WrappedComponent) => React.forwardRef(function WithField
   );
 });
 
-const BaseCustomFloatingInput = React.forwardRef(({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, value, onChange, onClick, type = 'text', disabled = false, error = false, updateRequested = false, helperText = '', multiline = false, rows = 1, InputProps, inputProps, inputRef, ownerState, sx, className, ...rest }, ref) => {
+const BaseCustomFloatingInput = React.forwardRef(({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', transparentBackground = false, label, value, onChange, onClick, onFocus, onBlur, type = 'text', disabled = false, error = false, updateRequested = false, helperText = '', multiline = false, rows = 1, required = false, InputProps, inputProps, inputRef, ownerState, sx, className, fullWidth = false, ...rest }, ref) => {
   const isFormLoading = useFormLoading();
   const finalDisabled = disabled || isFormLoading;
-  
+
   const [focused, setFocused] = React.useState(false);
   const [hovered, setHovered] = React.useState(false);
   const [legendWidth, setLegendWidth] = React.useState(0);
@@ -70,18 +84,27 @@ const BaseCustomFloatingInput = React.forwardRef(({ defaultBorderWidth = '1px', 
     }
   }, [label]);
 
-  let borderColor = 'rgba(30, 79, 163, 0.2)';
+  let borderColor = 'var(--card-border)';
   if (error) borderColor = 'var(--color-error)';
   else if (updateRequested) borderColor = 'var(--color-warning)';
   else if (focused) borderColor = 'var(--color-primary)';
-  else if (hovered) borderColor = 'rgba(30, 79, 163, 0.4)';
 
   const nL = notchL;
   const nT = notchT;
   const nR = nL + legendWidth;
-  const clipPath = isFloating && legendWidth > 0
-    ? `polygon(0px 0px, ${nL}px 0px, ${nL}px ${nT}px, ${nR}px ${nT}px, ${nR}px 0px, 100% 0px, 100% 100%, 0px 100%)`
-    : undefined;
+  const maskStyles = isFloating && legendWidth > 0 ? {
+    WebkitMaskImage: 'linear-gradient(black, black), linear-gradient(black, black), linear-gradient(black, black)',
+    WebkitMaskPosition: `0 0, 100% 0, ${nL}px ${nT}px`,
+    WebkitMaskSize: `${nL}px 100%, calc(100% - ${nR}px) 100%, ${legendWidth}px calc(100% - ${nT}px)`,
+    WebkitMaskRepeat: 'no-repeat',
+    maskImage: 'linear-gradient(black, black), linear-gradient(black, black), linear-gradient(black, black)',
+    maskPosition: `0 0, 100% 0, ${nL}px ${nT}px`,
+    maskSize: `${nL}px 100%, calc(100% - ${nR}px) 100%, ${legendWidth}px calc(100% - ${nT}px)`,
+    maskRepeat: 'no-repeat',
+  } : {
+    WebkitMaskImage: 'none',
+    maskImage: 'none'
+  };
 
   return (
     <Box
@@ -90,11 +113,22 @@ const BaseCustomFloatingInput = React.forwardRef(({ defaultBorderWidth = '1px', 
         position: 'relative', width: 'var(--size-full)', ...sx, '--bw': focused ? focusedBorderWidth : defaultBorderWidth,
         opacity: finalDisabled ? 0.6 : 1, pointerEvents: finalDisabled ? 'none' : 'auto',
         '& input[type=number]::-webkit-inner-spin-button, & input[type=number]::-webkit-outer-spin-button': { WebkitAppearance: 'none', margin: 0 },
-        '& input[type=number]': { MozAppearance: 'textfield' }
+        '& input[type=number]': { MozAppearance: 'textfield' },
+        '& input::placeholder': { color: 'var(--color-slate-500)', opacity: 1 },
+        '& .MuiIconButton-root': {
+          color: 'var(--color-primary)',
+          backgroundColor: 'transparent !important',
+          padding: 0,
+          margin: 0,
+          width: '20px',
+          height: '20px',
+          minWidth: '20px',
+          minHeight: '20px',
+          '&:hover': { backgroundColor: 'transparent !important' },
+          '& svg': { fontSize: '20px', width: '20px', height: '20px', display: 'block' }
+        }
       }}
       className={className}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
       onClick={onClick}
     >
       <Box
@@ -104,12 +138,12 @@ const BaseCustomFloatingInput = React.forwardRef(({ defaultBorderWidth = '1px', 
         {/* White fill with clip-path notch at exactly label width */}
         <Box sx={{
           position: 'absolute', top: (focused ? focusedBorderWidth : defaultBorderWidth), left: (focused ? focusedBorderWidth : defaultBorderWidth), right: (focused ? focusedBorderWidth : defaultBorderWidth), bottom: (focused ? focusedBorderWidth : defaultBorderWidth),
-          backgroundColor: finalDisabled ? 'rgba(241, 245, 249, 0.5)' : 'rgba(255, 255, 255, 0.3)',
-          backdropFilter: 'blur(30px)',
-          WebkitBackdropFilter: 'blur(30px)',
+          backgroundColor: transparentBackground ? 'transparent' : (finalDisabled ? 'var(--input-disabled-bg)' : 'var(--input-bg)'),
+          backdropFilter: transparentBackground ? 'none' : 'blur(30px)',
+          WebkitBackdropFilter: transparentBackground ? 'none' : 'blur(30px)',
           borderRadius: 'var(--radius-md)', zIndex: 0,
-          clipPath: clipPath,
-          transition: 'clip-path 0.05s ease-in-out',
+          ...maskStyles,
+          transition: 'mask-size 0.05s ease-in-out',
         }} />
 
         <InputComponent
@@ -120,18 +154,27 @@ const BaseCustomFloatingInput = React.forwardRef(({ defaultBorderWidth = '1px', 
           value={value || ''}
           onChange={onChange}
           disabled={finalDisabled}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
           {...inputProps}
           {...rest}
+          onFocus={(e) => {
+            setFocused(true);
+            if (onFocus) onFocus(e);
+            if (inputProps?.onFocus) inputProps.onFocus(e);
+          }}
+          onBlur={(e) => {
+            setFocused(false);
+            if (onBlur) onBlur(e);
+            if (inputProps?.onBlur) inputProps.onBlur(e);
+          }}
           placeholder={isFloating ? (inputProps?.placeholder || rest.placeholder || '') : ''}
           style={{
             width: 'var(--size-full)',
             paddingTop: '12px', paddingBottom: '12px',
             paddingLeft: '14px', paddingRight: InputProps?.endAdornment ? '48px' : '14px',
             fontSize: 'var(--font-base)',
+            fontFamily: 'inherit',
             backgroundColor: 'transparent', border: 'none', outline: 'none',
-            boxSizing: 'border-box', fontFamily: 'inherit', color: 'var(--color-slate-900)',
+            boxSizing: 'border-box', color: 'var(--input-text)',
             position: 'relative', zIndex: 2, resize: multiline ? 'vertical' : 'none',
             cursor: finalDisabled ? 'default' : (onClick ? 'pointer' : 'text'), borderRadius: 'var(--radius-md)',
             height: multiline ? 'auto' : 'var(--box-height)',
@@ -139,13 +182,13 @@ const BaseCustomFloatingInput = React.forwardRef(({ defaultBorderWidth = '1px', 
           }}
         />
 
-        <Box sx={{ position: 'absolute', right: '10px', zIndex: 3, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <Box sx={{ position: 'absolute', right: '14px', zIndex: 3, display: 'flex', alignItems: 'center', gap: 0.5 }}>
           {error && typeof helperText === 'string' && helperText.length > 0 && (
-            <Tooltip title={helperText} placement="top" arrow PopperProps={{ sx: { zIndex: 9999 } }}>
+            <CustomTooltip title={helperText} placement="top" arrow PopperProps={{ sx: { zIndex: 9999 } }}>
               <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', pointerEvents: 'auto' }}>
                 <ErrorOutlineIcon sx={{ color: 'var(--color-error)', fontSize: 20 }} />
               </Box>
-            </Tooltip>
+            </CustomTooltip>
           )}
           {InputProps?.endAdornment}
         </Box>
@@ -161,6 +204,7 @@ const BaseCustomFloatingInput = React.forwardRef(({ defaultBorderWidth = '1px', 
             background: 'none',
             transition: 'border-color var(--transition-base), border-width var(--transition-base)',
             zIndex: 1, boxSizing: 'border-box',
+            ...maskStyles,
           }}
         >
           <legend
@@ -173,7 +217,7 @@ const BaseCustomFloatingInput = React.forwardRef(({ defaultBorderWidth = '1px', 
               transition: 'max-width 50ms cubic-bezier(0.0, 0, 0.2, 1) 0ms',
             }}
           >
-            <span style={{ padding: label ? '0 4px' : 0, display: 'inline-block' }}>{label}</span>
+            <span style={{ padding: label ? '0 4px' : 0, display: 'inline-block' }}>{label}{required && <span className="required-asterisk"> *</span>}</span>
           </legend>
         </fieldset>
       </Box>
@@ -181,23 +225,27 @@ const BaseCustomFloatingInput = React.forwardRef(({ defaultBorderWidth = '1px', 
       <label
         style={{
           position: 'absolute', left: '12px',
-          top: isFloating ? '-7px' : (multiline ? '12px' : '50%'),
+          top: isFloating ? '-9px' : (multiline ? '12px' : '50%'),
           transform: isFloating ? 'translateY(0)' : (multiline ? 'translateY(0)' : 'translateY(-50%)'),
           fontSize: isFloating ? '12px' : '15px',
-          color: error ? 'var(--color-error)' : focused ? 'var(--color-primary)' : finalDisabled ? 'var(--color-slate-500)' : 'var(--color-slate-500)',
-          backgroundColor: 'transparent', padding: '0 4px',
+          color: error ? 'var(--color-error)' : focused ? 'var(--color-primary)' : finalDisabled ? 'var(--input-label)' : 'var(--input-label)',
+          backgroundColor: 'transparent', padding: '2px 4px',
           transition: 'all var(--transition-base)', pointerEvents: 'none', zIndex: 3,
-          lineHeight: '14px',
+          lineHeight: isFloating ? '14px' : 'var(--line-height-base)',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          maxWidth: 'calc(100% - 24px)',
         }}
       >
-        {label}
+        {label}{required && <span className="required-asterisk"> *</span>}
       </label>
 
     </Box>
   );
 });
 
-const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, countryCode, onCountryCodeChange, value, onChange, error = false, disabled = false, updateRequested = false, helperText = '', endAdornment }) => {
+const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, countryCode, onCountryCodeChange, value, onChange, error = false, disabled = false, updateRequested = false, helperText = '', required = false, endAdornment }) => {
   const isFormLoading = useFormLoading();
   const finalDisabled = disabled || isFormLoading;
 
@@ -244,18 +292,27 @@ const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorde
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  let borderColor = 'rgba(30, 79, 163, 0.2)';
+  let borderColor = 'var(--card-border)';
   if (error) borderColor = 'var(--color-error)';
   else if (updateRequested) borderColor = 'var(--color-warning)';
   else if (focused || isOpen) borderColor = 'var(--color-primary)';
-  else if (hovered) borderColor = 'rgba(30, 79, 163, 0.4)';
 
   const nL = notchL;
   const nT = notchT;
   const nR = nL + legendWidth;
-  const clipPath = isFloating && legendWidth > 0
-    ? `polygon(0px 0px, ${nL}px 0px, ${nL}px ${nT}px, ${nR}px ${nT}px, ${nR}px 0px, 100% 0px, 100% 100%, 0px 100%)`
-    : undefined;
+  const maskStyles = isFloating && legendWidth > 0 ? {
+    WebkitMaskImage: 'linear-gradient(black, black), linear-gradient(black, black), linear-gradient(black, black)',
+    WebkitMaskPosition: `0 0, 100% 0, ${nL}px ${nT}px`,
+    WebkitMaskSize: `${nL}px 100%, calc(100% - ${nR}px) 100%, ${legendWidth}px calc(100% - ${nT}px)`,
+    WebkitMaskRepeat: 'no-repeat',
+    maskImage: 'linear-gradient(black, black), linear-gradient(black, black), linear-gradient(black, black)',
+    maskPosition: `0 0, 100% 0, ${nL}px ${nT}px`,
+    maskSize: `${nL}px 100%, calc(100% - ${nR}px) 100%, ${legendWidth}px calc(100% - ${nT}px)`,
+    maskRepeat: 'no-repeat',
+  } : {
+    WebkitMaskImage: 'none',
+    maskImage: 'none'
+  };
 
   const countryOptions = sortedCountries.filter(c =>
     c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -268,19 +325,17 @@ const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorde
   return (
     <Box
       ref={containerRef}
-      sx={{ position: 'relative', width: 'var(--size-full)', '--bw': focused ? focusedBorderWidth : defaultBorderWidth, opacity: finalDisabled ? 0.6 : 1, pointerEvents: finalDisabled ? 'none' : 'auto' }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      sx={{ position: 'relative', width: 'var(--size-full)', opacity: finalDisabled ? 0.6 : 1, pointerEvents: finalDisabled ? 'none' : 'auto' }}
     >
       <Box sx={{ position: 'relative', width: 'var(--size-full)', '--bw': focused ? focusedBorderWidth : defaultBorderWidth }}>
         <Box sx={{
           position: 'absolute', top: (focused ? focusedBorderWidth : defaultBorderWidth), left: (focused ? focusedBorderWidth : defaultBorderWidth), right: (focused ? focusedBorderWidth : defaultBorderWidth), bottom: (focused ? focusedBorderWidth : defaultBorderWidth),
-          backgroundColor: finalDisabled ? 'rgba(241, 245, 249, 0.5)' : 'rgba(255, 255, 255, 0.3)',
+          backgroundColor: finalDisabled ? 'var(--input-disabled-bg)' : 'var(--input-bg)',
           backdropFilter: 'blur(30px)',
           WebkitBackdropFilter: 'blur(30px)',
           borderRadius: 'var(--radius-md)', zIndex: 0,
-          clipPath: clipPath,
-          transition: 'clip-path 0.05s ease-in-out',
+          ...maskStyles,
+          transition: 'mask-size 0.05s ease-in-out',
         }} />
 
 
@@ -299,7 +354,7 @@ const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorde
               backgroundColor: 'transparent',
               border: 'none',
               outline: 'none',
-              color: 'var(--color-slate-900)',
+              color: 'var(--input-text)',
               cursor: finalDisabled ? 'default' : 'pointer',
               borderRadius: '8px 0 0 8px',
               display: 'flex',
@@ -308,13 +363,13 @@ const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorde
               gap: '6px'
             }}
           >
-            {selectedCountryObj && <img src={selectedCountryObj.flagUrl} alt="" style={{ width: '20px', height: 'auto', flexShrink: 0 }} />}
-            <div style={{ whiteSpace: 'nowrap', color: 'var(--color-slate-900)' }}>{countryCode || '+91'}</div>
+            {selectedCountryObj && <img src={selectedCountryObj.flagUrl || `https://flagcdn.com/${selectedCountryObj.code?.toLowerCase() || 'in'}.svg`} alt="" style={{ width: '20px', height: '15px', objectFit: 'cover', flexShrink: 0 }} />}
+            <div style={{ whiteSpace: 'nowrap', color: 'var(--input-text)' }}>{countryCode || '+91'}</div>
             <svg
               style={{
                 transform: isOpen ? 'rotate(180deg)' : 'none',
                 transition: 'transform var(--transition-base), color var(--transition-base)',
-                color: (focused || isOpen) ? 'var(--color-primary)' : 'var(--color-slate-500)',
+                color: (focused || isOpen) ? 'var(--color-primary)' : 'var(--input-label)',
                 flexShrink: 0
               }}
               width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
@@ -341,8 +396,7 @@ const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorde
               border: 'none',
               outline: 'none',
               boxSizing: 'border-box',
-              fontFamily: 'inherit',
-              color: 'var(--color-slate-900)',
+              color: 'var(--input-text)',
               cursor: finalDisabled ? 'default' : 'text',
               borderRadius: '0 8px 8px 0',
               paddingRight: endAdornment ? '80px' : '14px',
@@ -352,11 +406,11 @@ const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorde
 
           <Box sx={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', zIndex: 3, display: 'flex', alignItems: 'center', gap: 0.5 }}>
             {error && typeof helperText === 'string' && helperText.length > 0 && (
-              <Tooltip title={helperText} placement="top" arrow PopperProps={{ sx: { zIndex: 9999 } }}>
+              <CustomTooltip title={helperText} placement="top" arrow PopperProps={{ sx: { zIndex: 9999 } }}>
                 <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', pointerEvents: 'auto' }}>
                   <ErrorOutlineIcon sx={{ color: 'var(--color-error)', fontSize: 20 }} />
                 </Box>
-              </Tooltip>
+              </CustomTooltip>
             )}
             {endAdornment}
           </Box>
@@ -373,6 +427,7 @@ const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorde
             background: 'none',
             transition: 'border-color var(--transition-base), border-width var(--transition-base)',
             zIndex: 1, boxSizing: 'border-box',
+            ...maskStyles,
           }}
         >
           <legend
@@ -385,7 +440,7 @@ const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorde
               transition: 'max-width 50ms cubic-bezier(0.0, 0, 0.2, 1) 0ms',
             }}
           >
-            <span style={{ padding: '0 4px', display: 'inline-block' }}>{label}</span>
+            <span style={{ padding: '0 4px', display: 'inline-block' }}>{label}{required && <span className="required-asterisk"> *</span>}</span>
           </legend>
         </fieldset>
       </Box>
@@ -393,16 +448,20 @@ const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorde
       <label
         style={{
           position: 'absolute', left: isFloating ? '12px' : '110px',
-          top: isFloating ? '-7px' : '50%',
+          top: isFloating ? '-9px' : '50%',
           transform: isFloating ? 'translateY(0)' : 'translateY(-50%)',
           fontSize: isFloating ? '12px' : '15px',
-          color: error ? 'var(--color-error)' : (focused || isOpen) ? 'var(--color-primary)' : finalDisabled ? 'var(--color-slate-500)' : 'var(--color-slate-500)',
-          backgroundColor: 'transparent', padding: '0 4px',
+          color: error ? 'var(--color-error)' : (focused || isOpen) ? 'var(--color-primary)' : finalDisabled ? 'var(--input-label)' : 'var(--input-label)',
+          backgroundColor: 'transparent', padding: '2px 4px',
           transition: 'all var(--transition-base)', pointerEvents: 'none', zIndex: 3,
-          lineHeight: '14px',
+          lineHeight: isFloating ? '14px' : 'var(--line-height-base)',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          maxWidth: isFloating ? 'calc(100% - 24px)' : 'calc(100% - 124px)',
         }}
       >
-        {label}
+        {label}{required && <span className="required-asterisk"> *</span>}
       </label>
 
       <DropdownListPopup
@@ -432,289 +491,55 @@ const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorde
 
 const BaseCustomFloatingSelect = CentralDropdown;
 
-const BaseCustomFloatingDatePicker = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, value, onChange, error, helperText, disabled, updateRequested = false, disableFuture = false, minYear, maxYear }) => {
+const BaseCustomFloatingDatePicker = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, value, onChange, error, helperText, disabled, updateRequested = false, disableFuture = false, minYear, maxYear, required = false, placement = 'bottom' }) => {
   const isFormLoading = useFormLoading();
   const finalDisabled = disabled || isFormLoading;
 
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [showMonthSelect, setShowMonthSelect] = React.useState(false);
-  const [showYearSelect, setShowYearSelect] = React.useState(false);
-  const [currentMonth, setCurrentMonth] = React.useState(value ? new Date(value) : new Date());
-  const containerRef = React.useRef(null);
-
-  React.useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
-        setIsOpen(false);
-        setShowMonthSelect(false);
-        setShowYearSelect(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handlePrevMonth = (e) => {
-    e.stopPropagation();
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
-  };
-
-  const handleNextMonth = (e) => {
-    e.stopPropagation();
-    const nextMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
-    if (disableFuture && nextMonth > new Date()) return;
-    setCurrentMonth(nextMonth);
-  };
-
-  const handleDateSelect = (day) => {
-    const selected = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-    if (disableFuture && selected > new Date()) return;
-    const yyyy = selected.getFullYear();
-    const mm = String(selected.getMonth() + 1).padStart(2, '0');
-    const dd = String(selected.getDate()).padStart(2, '0');
-    onChange({ target: { value: `${yyyy}-${mm}-${dd}` } });
-    setIsOpen(false);
-  };
-
-  const year = currentMonth.getFullYear();
-  const month = currentMonth.getMonth();
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  const days = [];
-  for (let i = 0; i < firstDay; i++) days.push(null);
-  for (let i = 1; i <= daysInMonth; i++) days.push(i);
-
-  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-  const selectedDate = value ? new Date(value) : null;
-
-  let displayValue = '';
-  if (value) {
-    if (typeof value === 'string') {
-      const cleanValue = value.split('T')[0];
-      let parts = cleanValue.includes('/') ? cleanValue.split('/') : cleanValue.split('-');
-      if (parts.length === 3) {
-        if (parts[0].length === 4) { // YYYY-MM-DD
-          displayValue = `${parts[2]}/${parts[1]}/${parts[0]}`;
-        } else { // DD-MM-YYYY
-          displayValue = `${parts[0]}/${parts[1]}/${parts[2]}`;
-        }
-      } else {
-        displayValue = value;
-      }
-    } else if (value instanceof Date) {
-      const d = String(value.getDate()).padStart(2, '0');
-      const m = String(value.getMonth() + 1).padStart(2, '0');
-      const y = value.getFullYear();
-      displayValue = `${d}/${m}/${y}`;
-    }
-  }
-
+  const dateValue = value ? dayjs(value) : null;
   const currentYearNum = new Date().getFullYear();
   const maxYearNum = maxYear !== undefined ? maxYear : (disableFuture ? currentYearNum : currentYearNum + 19);
   const minYearNum = minYear !== undefined ? minYear : currentYearNum - 100;
-  const yearsArray = Array.from({ length: Math.max(0, maxYearNum - minYearNum + 1) }, (_, i) => minYearNum + i).reverse();
 
   return (
-    <Box ref={containerRef} sx={{ position: 'relative', width: 'var(--size-full)', '--bw': isOpen ? focusedBorderWidth : defaultBorderWidth }}>
-      <BaseCustomFloatingInput
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <DesktopDatePicker
         label={label}
-        value={displayValue}
-        onClick={() => !finalDisabled && setIsOpen(!isOpen)}
-        error={error}
-        helperText={helperText}
+        showToolbar
+        toolbarFormat="DD MMMM YYYY"
+        format="DD/MM/YYYY"
+        value={dateValue}
         disabled={finalDisabled}
-        updateRequested={updateRequested}
-        inputProps={{ readOnly: true, style: { cursor: finalDisabled ? 'default' : 'pointer' } }}
-        InputProps={{
-          endAdornment: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--color-primary)' }}>
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-          )
+        disableFuture={disableFuture}
+        minDate={dayjs(`${minYearNum}-01-01`)}
+        maxDate={dayjs(`${maxYearNum}-12-31`)}
+        slots={{ textField: BaseCustomFloatingInput }}
+        slotProps={{
+          ...globalDatePickerSlotProps,
+          textField: {
+            defaultBorderWidth,
+            focusedBorderWidth,
+            error,
+            helperText,
+            updateRequested,
+            disabled: finalDisabled,
+            required,
+          }
+        }}
+        sx={{ width: 'var(--size-full)' }}
+        onChange={(newDate) => {
+          if (!newDate || !newDate.isValid()) {
+            onChange({ target: { value: '' } });
+            return;
+          }
+          const formattedDate = newDate.format('YYYY-MM-DD');
+          onChange({ target: { value: formattedDate } });
         }}
       />
-
-      {isOpen && (
-        <Box sx={{
-          position: 'absolute', top: 'var(--size-full)', left: 0, mt: '8px', zIndex: 'var(--z-modal)',
-          bgcolor: 'var(--color-white)', borderRadius: 'var(--radius-lg)', p: '28px',
-          border: 'var(--border-thin) solid var(--color-slate-300)', width: '300px',
-        }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, position: 'relative' }}>
-              <Box
-                onClick={(e) => { e.stopPropagation(); setShowMonthSelect(!showMonthSelect); setShowYearSelect(false); }}
-                sx={{ cursor: 'pointer', p: 0.5, borderRadius: 1, '&:hover': { bgcolor: 'var(--color-slate-50)' }, fontSize: 'var(--font-base)', fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-900)' }}
-              >
-                {monthNames[month]}
-              </Box>
-              <Box
-                onClick={(e) => { e.stopPropagation(); setShowYearSelect(!showYearSelect); setShowMonthSelect(false); }}
-                sx={{ cursor: 'pointer', p: 0.5, borderRadius: 1, '&:hover': { bgcolor: 'var(--color-slate-50)' }, fontSize: 'var(--font-base)', fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-900)' }}
-              >
-                {year}
-              </Box>
-              <svg onClick={(e) => { e.stopPropagation(); setShowYearSelect(!showYearSelect); setShowMonthSelect(false); }} width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '2px', cursor: 'pointer' }}>
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-
-              {/* Month Dropdown */}
-              {showMonthSelect && (
-                <Box sx={{
-                  position: 'absolute', top: 'var(--size-full)', left: 0, mt: '2px',
-                  width: '130px', maxHeight: '220px', overflowY: 'auto',
-                  bgcolor: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)',
-                  borderRadius: 'var(--radius-lg)', border: 'var(--border-thin) solid var(--color-slate-300)',
-                  zIndex: 'var(--z-popover)', py: '4px'
-                }}>
-                  {monthNames.map((m, i) => {
-                    const isDisabledMonth = disableFuture && year === currentYearNum && i > new Date().getMonth();
-                    const isSelected = month === i;
-                    return (
-                      <Box
-                        key={i}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (isDisabledMonth) return;
-                          setCurrentMonth(new Date(year, i, 1));
-                          setShowMonthSelect(false);
-                        }}
-                        sx={{
-                          boxSizing: 'border-box',
-                          borderRadius: 'var(--radius-md)',
-                          margin: '2px 6px',
-                          width: 'calc(100% - 12px)',
-                          padding: '8px 12px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: isDisabledMonth ? 'not-allowed' : 'pointer',
-                          opacity: isDisabledMonth ? 0.4 : 1,
-                          bgcolor: isSelected ? 'var(--color-slate-50)' : 'transparent',
-                          color: isSelected ? 'var(--color-primary)' : 'var(--color-slate-900)',
-                          fontWeight: isSelected ? 600 : 400,
-                          fontSize: 'var(--font-sm)',
-                          transition: 'all var(--transition-fast)',
-                          '&:hover': {
-                            bgcolor: isDisabledMonth ? 'transparent' : 'var(--color-slate-50)',
-                            color: isDisabledMonth ? 'inherit' : 'var(--color-slate-900)'
-                          },
-                        }}
-                      >
-                        {m}
-                      </Box>
-                    );
-                  })}
-                </Box>
-              )}
-
-              {/* Year Dropdown */}
-              {showYearSelect && (
-                <Box sx={{
-                  position: 'absolute', top: 'var(--size-full)', left: '40%', mt: '2px',
-                  width: '100px', maxHeight: '220px', overflowY: 'auto',
-                  bgcolor: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)',
-                  borderRadius: 'var(--radius-lg)', border: 'var(--border-thin) solid var(--color-slate-300)',
-                  zIndex: 'var(--z-popover)', py: '4px'
-                }}>
-                  {yearsArray.map(y => {
-                    const isSelected = year === y;
-                    return (
-                      <Box
-                        key={y}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const newMonth = (disableFuture && y === currentYearNum && month > new Date().getMonth()) ? new Date().getMonth() : month;
-                          setCurrentMonth(new Date(y, newMonth, 1));
-                          setShowYearSelect(false);
-                        }}
-                        sx={{
-                          boxSizing: 'border-box',
-                          borderRadius: 'var(--radius-md)',
-                          margin: '2px 6px',
-                          width: 'calc(100% - 12px)',
-                          padding: '8px 12px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          bgcolor: isSelected ? 'var(--color-slate-50)' : 'transparent',
-                          color: isSelected ? 'var(--color-primary)' : 'var(--color-slate-900)',
-                          fontWeight: isSelected ? 600 : 400,
-                          fontSize: 'var(--font-sm)',
-                          transition: 'all var(--transition-fast)',
-                          '&:hover': {
-                            bgcolor: 'var(--color-slate-50)',
-                            color: 'var(--color-slate-900)'
-                          },
-                        }}
-                      >
-                        {y}
-                      </Box>
-                    );
-                  })}
-                </Box>
-              )}
-            </Box>
-            <Box sx={{ display: 'flex', gap: 1.5 }}>
-              <Box onClick={handlePrevMonth} sx={{ cursor: 'pointer', color: 'var(--color-primary)', display: 'flex', p: 0.5 }}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-              </Box>
-              <Box onClick={handleNextMonth} sx={{ cursor: (disableFuture && new Date(year, month + 1, 1) > new Date()) ? 'not-allowed' : 'pointer', opacity: (disableFuture && new Date(year, month + 1, 1) > new Date()) ? 0.3 : 1, color: 'var(--color-primary)', display: 'flex', p: 0.5 }}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-              </Box>
-            </Box>
-          </Box>
-
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', mb: 1.5, textAlign: 'center' }}>
-            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
-              <Box key={i} sx={{ fontSize: 'var(--font-sm)', color: 'var(--color-slate-500)', fontWeight: 'var(--font-medium)' }}>{d}</Box>
-            ))}
-          </Box>
-
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', rowGap: 1.2, textAlign: 'center' }}>
-            {days.map((d, i) => {
-              if (!d) return <Box key={i} />;
-
-              const isSelected = selectedDate && selectedDate.getDate() === d && selectedDate.getMonth() === month && selectedDate.getFullYear() === year;
-              const today = new Date();
-              const isToday = today.getDate() === d && today.getMonth() === month && today.getFullYear() === year;
-
-              return (
-                <Box
-                  key={i}
-                  onClick={(e) => { e.stopPropagation(); handleDateSelect(d); }}
-                  sx={{
-                    width: '32px', height: '32px', mx: 'auto',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 'var(--font-base)', fontWeight: (isSelected || isToday) ? 700 : 500,
-                    color: isSelected ? 'var(--color-slate-900)' : isToday ? 'var(--color-primary)' : 'var(--color-slate-900)',
-                    bgcolor: isSelected ? 'var(--color-slate-50)' : 'transparent',
-                    border: isSelected ? 'var(--border-thin) solid var(--color-primary)' : isToday ? '1px dashed var(--color-slate-500)' : 'var(--border-thin) solid transparent',
-                    borderRadius: 'var(--radius-full)',
-                    cursor: 'pointer',
-                    '&:hover': {
-                      bgcolor: isSelected ? 'var(--color-slate-50)' : 'var(--color-slate-50)'
-                    }
-                  }}
-                >
-                  {d}
-                </Box>
-              );
-            })}
-          </Box>
-        </Box>
-      )}
-    </Box>
+    </LocalizationProvider>
   );
 };
 
-const BaseCustomFloatingCountrySelect = ({ returnNationality = false, defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, value, onChange, error, helperText, disabled, updateRequested = false }) => {
+const BaseCustomFloatingCountrySelect = ({ returnNationality = false, defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, value, onChange, error, helperText, disabled, required = false, updateRequested = false }) => {
   const { userLocation } = useAccessibility();
 
   const sortedCountries = React.useMemo(() => {
@@ -745,11 +570,12 @@ const BaseCustomFloatingCountrySelect = ({ returnNationality = false, defaultBor
       disabled={disabled}
       updateRequested={updateRequested}
       searchable={true}
+      required={required}
     />
   );
 };
 
-const BaseCustomFloatingFileInput = React.forwardRef(({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, error = false, helperText = '', disabled = false, updateRequested = false, onChange, ...rest }, ref) => {
+const BaseCustomFloatingFileInput = React.forwardRef(({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, error = false, helperText = '', disabled = false, updateRequested = false, required = false, onChange, customDisplayText, savedValue, fullWidth = false, uploading = false, success = false, ...rest }, ref) => {
   const isFormLoading = useFormLoading();
   const finalDisabled = disabled || isFormLoading;
 
@@ -760,9 +586,35 @@ const BaseCustomFloatingFileInput = React.forwardRef(({ defaultBorderWidth = '1p
   const [notchT, setNotchT] = React.useState(7);
   const legendRef = React.useRef(null);
   const fieldsetRef = React.useRef(null);
+  const fileInputRef = React.useRef(null);
 
-  // File input always has content ("Choose File")
-  const isFloating = true;
+  const getDisplayFilename = () => {
+    if (customDisplayText) return customDisplayText;
+    if (savedValue) {
+      if (typeof savedValue === 'string') {
+        if (savedValue.includes('/')) {
+          try {
+            return decodeURIComponent(savedValue.split('/').pop().split('?')[0]) || "दस्तावेज़ संलग्न है";
+          } catch (e) {
+            return "दस्तावेज़ संलग्न है";
+          }
+        }
+        // If it's a UUID (from Viewer service) and metadata hasn't loaded yet, hide it
+        if (/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(savedValue)) {
+          return "दस्तावेज़ संलग्न है";
+        }
+        return savedValue;
+      } else if (typeof savedValue === 'object' && savedValue.name) {
+        return savedValue.name;
+      }
+      return "दस्तावेज़ संलग्न है";
+    }
+    return "";
+  };
+
+  const displayText = getDisplayFilename();
+  // Float if focused or if a file is selected
+  const isFloating = focused || Boolean(displayText);
 
   React.useLayoutEffect(() => {
     if (legendRef.current && fieldsetRef.current) {
@@ -774,7 +626,7 @@ const BaseCustomFloatingFileInput = React.forwardRef(({ defaultBorderWidth = '1p
     }
   }, [label]);
 
-  let borderColor = 'rgba(30, 79, 163, 0.2)';
+  let borderColor = 'var(--card-border)';
   if (error) borderColor = 'var(--color-error)';
   else if (updateRequested) borderColor = 'var(--color-warning)';
   else if (focused) borderColor = 'var(--color-primary)';
@@ -783,67 +635,112 @@ const BaseCustomFloatingFileInput = React.forwardRef(({ defaultBorderWidth = '1p
   const nL = notchL;
   const nT = notchT;
   const nR = nL + legendWidth;
-  const clipPath = isFloating && legendWidth > 0
-    ? `polygon(0px 0px, ${nL}px 0px, ${nL}px ${nT}px, ${nR}px ${nT}px, ${nR}px 0px, 100% 0px, 100% 100%, 0px 100%)`
-    : undefined;
+  const maskStyles = isFloating && legendWidth > 0 ? {
+    WebkitMaskImage: 'linear-gradient(black, black), linear-gradient(black, black), linear-gradient(black, black)',
+    WebkitMaskPosition: `0 0, 100% 0, ${nL}px ${nT}px`,
+    WebkitMaskSize: `${nL}px 100%, calc(100% - ${nR}px) 100%, ${legendWidth}px calc(100% - ${nT}px)`,
+    WebkitMaskRepeat: 'no-repeat',
+    maskImage: 'linear-gradient(black, black), linear-gradient(black, black), linear-gradient(black, black)',
+    maskPosition: `0 0, 100% 0, ${nL}px ${nT}px`,
+    maskSize: `${nL}px 100%, calc(100% - ${nR}px) 100%, ${legendWidth}px calc(100% - ${nT}px)`,
+    maskRepeat: 'no-repeat',
+  } : {
+    WebkitMaskImage: 'none',
+    maskImage: 'none'
+  };
 
   return (
     <Box
       ref={ref}
-      sx={{ position: 'relative', width: 'var(--size-full)', '--bw': focused ? focusedBorderWidth : defaultBorderWidth, opacity: finalDisabled ? 0.6 : 1, pointerEvents: finalDisabled ? 'none' : 'auto' }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      sx={{ position: 'relative', width: 'var(--size-full)', minWidth: 0, '--bw': focused ? focusedBorderWidth : defaultBorderWidth, opacity: finalDisabled ? 0.6 : 1, pointerEvents: finalDisabled ? 'none' : 'auto' }}
     >
-      <Box sx={{ position: 'relative', width: 'var(--size-full)', display: 'flex', alignItems: 'center' }}>
+      <Box
+        sx={{ position: 'relative', width: 'var(--size-full)', minWidth: 0, display: 'flex', alignItems: 'center', cursor: finalDisabled ? 'default' : 'pointer' }}
+        onClick={() => {
+          if (!finalDisabled && fileInputRef.current) {
+            fileInputRef.current.click();
+          }
+        }}
+      >
         <Box sx={{
           position: 'absolute', top: (focused ? focusedBorderWidth : defaultBorderWidth), left: (focused ? focusedBorderWidth : defaultBorderWidth), right: (focused ? focusedBorderWidth : defaultBorderWidth), bottom: (focused ? focusedBorderWidth : defaultBorderWidth),
-          backgroundColor: finalDisabled ? 'rgba(241, 245, 249, 0.5)' : 'rgba(255, 255, 255, 0.3)',
+          backgroundColor: finalDisabled ? 'var(--input-disabled-bg)' : 'var(--input-bg)',
           backdropFilter: 'blur(30px)',
           WebkitBackdropFilter: 'blur(30px)',
           borderRadius: 'var(--radius-md)', zIndex: 0,
-          clipPath: clipPath,
+          ...maskStyles,
         }} />
 
         <input
           type="file"
+          ref={fileInputRef}
           onChange={onChange}
           disabled={finalDisabled}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           {...rest}
           style={{
-            width: 'var(--size-full)',
-            paddingTop: '10px', paddingBottom: '10px',
-            paddingLeft: '14px', paddingRight: '14px',
-            fontSize: 'var(--font-sm)',
-            backgroundColor: 'transparent', border: 'none', outline: 'none',
-            boxSizing: 'border-box', fontFamily: 'inherit', color: 'var(--color-slate-900)',
-            position: 'relative', zIndex: 2,
-            cursor: finalDisabled ? 'default' : 'pointer', borderRadius: 'var(--radius-md)',
-            height: 'auto',
-            minHeight: 'var(--box-height)',
+            position: 'absolute',
+            width: '1px',
+            height: '1px',
+            padding: 0,
+            margin: '-1px',
+            overflow: 'hidden',
+            clip: 'rect(0, 0, 0, 0)',
+            whiteSpace: 'nowrap',
+            border: 0,
             ...(rest.style || {})
           }}
         />
 
-        {/* Inject CSS for file-selector-button just for this component instance */}
-        <style>{`
-          input[type=file]::file-selector-button {
-            border: var(--border-thin) solid var(--color-slate-300);
-            padding: 4px 10px;
-            border-radius: 6px;
-            background-color: #f8fafc;
-            color: #475569;
-            cursor: ${finalDisabled ? 'default' : 'pointer'};
-            margin-right: 12px;
-            font-size: 12px;
-            font-weight: var(--font-medium);
-            transition: var(--transition-base);
-          }
-          input[type=file]::file-selector-button:hover {
-            background-color: ${finalDisabled ? 'var(--color-slate-50)' : 'var(--color-slate-50)'};
-          }
-        `}</style>
+        <Box sx={{
+          width: 'var(--size-full)',
+          paddingTop: '10px', paddingBottom: '10px',
+          paddingLeft: '14px', paddingRight: '14px',
+          fontSize: 'var(--font-sm)',
+          display: 'flex',
+          alignItems: 'center',
+          height: 'var(--box-height)',
+          boxSizing: 'border-box',
+          position: 'relative',
+          zIndex: 2,
+          minWidth: 0,
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', minWidth: 0 }}>
+            <Box sx={{
+              fontSize: 'var(--font-sm)',
+              color: displayText ? 'var(--color-slate-900)' : 'var(--color-slate-500)',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              flex: 1,
+              mr: 1,
+              minWidth: 0,
+            }}>
+              {displayText}
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', zIndex: 12 }}>
+              {displayText && !finalDisabled && !uploading && (
+                <CloseIcon
+                  sx={{ color: 'var(--color-slate-500)', fontSize: 18, mr: 1, cursor: 'pointer', '&:hover': { color: 'var(--color-danger)' } }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                    if (onChange) onChange({ target: { files: [] } });
+                  }}
+                />
+              )}
+              {uploading ? (
+                <CircularProgress size={16} thickness={5} sx={{ color: 'var(--color-primary)' }} />
+              ) : success ? (
+                <CheckCircleIcon sx={{ color: 'var(--color-success)', fontSize: 20 }} />
+              ) : (
+                <CloudUploadIcon sx={{ color: 'var(--color-primary)', fontSize: 20 }} />
+              )}
+            </Box>
+          </Box>
+        </Box>
 
         <fieldset
           ref={fieldsetRef}
@@ -856,6 +753,7 @@ const BaseCustomFloatingFileInput = React.forwardRef(({ defaultBorderWidth = '1p
             background: 'none',
             transition: 'border-color var(--transition-base), border-width var(--transition-base)',
             zIndex: 1, boxSizing: 'border-box',
+            ...maskStyles,
           }}
         >
           <legend
@@ -868,7 +766,7 @@ const BaseCustomFloatingFileInput = React.forwardRef(({ defaultBorderWidth = '1p
               transition: 'max-width 50ms cubic-bezier(0.0, 0, 0.2, 1) 0ms',
             }}
           >
-            <span style={{ padding: '0 4px', display: 'inline-block' }}>{label}</span>
+            <span style={{ padding: '0 4px', display: 'inline-block' }}>{label}{required && <span className="required-asterisk"> *</span>}</span>
           </legend>
         </fieldset>
       </Box>
@@ -876,20 +774,24 @@ const BaseCustomFloatingFileInput = React.forwardRef(({ defaultBorderWidth = '1p
       <label
         style={{
           position: 'absolute', left: '12px',
-          top: isFloating ? '-7px' : '50%',
+          top: isFloating ? '-9px' : '50%',
           transform: isFloating ? 'translateY(0)' : 'translateY(-50%)',
           fontSize: isFloating ? '12px' : '15px',
-          color: error ? 'var(--color-error)' : focused ? 'var(--color-primary)' : disabled ? 'var(--color-slate-500)' : 'var(--color-slate-500)',
-          backgroundColor: 'transparent', padding: '0 4px',
+          color: error ? 'var(--color-error)' : focused ? 'var(--color-primary)' : disabled ? 'var(--input-label)' : 'var(--input-label)',
+          backgroundColor: 'transparent', padding: '2px 4px',
           transition: 'all var(--transition-base)', pointerEvents: 'none', zIndex: 3,
-          lineHeight: '14px',
+          lineHeight: isFloating ? '14px' : 'var(--line-height-base)',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          maxWidth: isFloating ? 'calc(100% - 24px)' : 'calc(100% - 44px)',
         }}
       >
-        {label}
+        {label}{required && <span className="required-asterisk"> *</span>}
       </label>
 
       {helperText && (
-        <Tooltip title={helperText} placement="top" arrow PopperProps={{ sx: { zIndex: 9999 } }}>
+        <CustomTooltip title={helperText} placement="top" arrow PopperProps={{ sx: { zIndex: 9999 } }}>
           <Box component="span" sx={{
             position: 'absolute',
             right: '12px',
@@ -903,13 +805,13 @@ const BaseCustomFloatingFileInput = React.forwardRef(({ defaultBorderWidth = '1p
           }}>
             <ErrorOutlineIcon sx={{ fontSize: '18px', color: error ? 'var(--color-error)' : 'var(--color-slate-500)' }} />
           </Box>
-        </Tooltip>
+        </CustomTooltip>
       )}
     </Box>
   );
 });
 
-export const CustomFloatingSearchableSelect = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, value, onChange, options = [], error, helperText, disabled, freeSolo = false, multiple = false }) => {
+export const CustomFloatingSearchableSelect = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, value, onChange, options = [], error, helperText, disabled, freeSolo = false, multiple = false, required = false }) => {
   const formattedOptions = React.useMemo(() => {
     return options.map(opt => {
       if (typeof opt === 'string') {
@@ -933,6 +835,7 @@ export const CustomFloatingSearchableSelect = ({ defaultBorderWidth = '1px', foc
       searchable={true}
       freeSolo={freeSolo}
       multiple={multiple}
+      required={required}
     />
   );
 };
@@ -957,29 +860,60 @@ export { WrappedCustomFloatingDatePicker as CustomFloatingDatePicker };
 export { WrappedCustomFloatingCountrySelect as CustomFloatingCountrySelect };
 export { WrappedCustomFloatingFileInput as CustomFloatingFileInput };
 
-export const CustomFloatingDocumentUpload = React.forwardRef(({ onUploadStart, onUploadComplete, onUploadError, onChange, savedValue, ...props }, ref) => {
+export const CustomFloatingViewerUpload = React.forwardRef(({ onUploadStart, onUploadComplete, onUploadError, onChange, savedValue, uploadFunction, ...props }, ref) => {
+  const { showToast } = useToast();
   const [uploading, setUploading] = React.useState(false);
   const [progress, setProgress] = React.useState(0);
+  const [localFileName, setLocalFileName] = React.useState("");
+
+  React.useEffect(() => {
+    if (savedValue && !localFileName && typeof savedValue === 'string' && !savedValue.includes('/')) {
+      const fetchFileName = async () => {
+        try {
+          const { apiClient } = await import('../../lib/apiClient');
+          const res = await apiClient.get(`/viewer/${savedValue}/metadata`);
+          if (res.data) {
+            const data = res.data;
+            if (data.metadata && data.metadata.original_filename) {
+              setLocalFileName(data.metadata.original_filename);
+            }
+          }
+        } catch (e) {
+          // Silent fallback
+        }
+      };
+      fetchFileName();
+    }
+  }, [savedValue, localFileName]);
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
-    if (onChange) onChange(e); // Still bubble up the event if needed
-    
-    if (!file) return;
+    if (file) {
+      setLocalFileName(file.name);
+    } else {
+      setLocalFileName("");
+    }
+    if (onChange) onChange(e);
+
+    if (!file) {
+      if (onUploadComplete) onUploadComplete("");
+      return;
+    }
 
     try {
       setUploading(true);
       setProgress(0);
       if (onUploadStart) onUploadStart(file);
 
-      // We dynamically import to avoid circular dependencies if any, or just import it at top
-      const { uploadDocument } = await import('../../lib/uploadService');
-      const jobId = await uploadDocument(file, (pct) => setProgress(pct));
-      
-      if (onUploadComplete) onUploadComplete(jobId, file);
+      const result = uploadFunction
+        ? await uploadFunction(file, (pct) => setProgress(pct))
+        : await uploadDocument(file, (pct) => setProgress(pct));
+
+      if (onUploadComplete) onUploadComplete(result, file);
     } catch (error) {
+      console.error("DEBUG UPLOAD ERROR:", error);
       if (onUploadError) onUploadError(error);
-      else alert("Failed to upload document");
+      else showToast(`Failed to upload document: ${error.message || error}`);
     } finally {
       setUploading(false);
       setProgress(0);
@@ -987,25 +921,205 @@ export const CustomFloatingDocumentUpload = React.forwardRef(({ onUploadStart, o
   };
 
   return (
-    <Box sx={{ position: 'relative', width: '100%' }}>
-      <WrappedCustomFloatingFileInput 
-        {...props} 
-        onChange={handleFileChange} 
-        disabled={props.disabled || uploading} 
+    <Box sx={{ position: 'relative', width: '100%', minWidth: 0 }}>
+      <WrappedCustomFloatingFileInput
+        {...props}
+        error={props.error}
+        helperText={props.helperText}
+        onChange={handleFileChange}
+        disabled={props.disabled || uploading}
         ref={ref}
+        savedValue={savedValue}
+        customDisplayText={localFileName || undefined}
+        uploading={uploading}
+        success={!uploading && Boolean(savedValue)}
       />
-      
-
-
-      {uploading && (
-        <Box sx={{ 
-          position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', 
-          display: 'flex', alignItems: 'center', zIndex: 10
-        }}>
-          <CircularProgress size={16} thickness={5} sx={{ color: 'var(--color-primary)' }} />
-        </Box>
-      )}
     </Box>
   );
 });
-CustomFloatingDocumentUpload.displayName = "CustomFloatingDocumentUpload";
+CustomFloatingViewerUpload.displayName = "CustomFloatingViewerUpload";
+
+export const CustomFloatingMinIOUpload = React.forwardRef(({ onUploadStart, onUploadComplete, onUploadError, onChange, savedValue, profile, type = 'document', fieldName, ...props }, ref) => {
+  const { showToast } = useToast();
+  const [uploading, setUploading] = React.useState(false);
+  const [localFileName, setLocalFileName] = React.useState("");
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      setLocalFileName(file.name);
+    } else {
+      setLocalFileName("");
+    }
+
+    if (onChange) onChange(e);
+
+    if (!file) {
+      if (onUploadComplete) onUploadComplete("");
+      return;
+    }
+
+    try {
+      setUploading(true);
+      if (onUploadStart) onUploadStart(file);
+
+      const { uploadToMinIO } = await import('../../utils/uploadUtil');
+      const oldURL = savedValue;
+      const url = await uploadToMinIO(
+        file,
+        profile,
+        type,
+        fieldName || props.name || 'document',
+        typeof oldURL === 'string' && oldURL.startsWith('http') ? oldURL : null
+      );
+
+      // Append a timestamp query param to force React to see a "new" URL if the base URL is identical
+      const uniqueUrl = url.includes('?') ? `${url}&_t=${Date.now()}` : `${url}?_t=${Date.now()}`;
+      setLocalFileName(""); // Clear so the URL-extracted backend name (aalok_field_timestamp) is shown
+      if (onUploadComplete) onUploadComplete(uniqueUrl, file);
+    } catch (error) {
+      console.error("MinIO Upload Error:", error);
+      if (onUploadError) onUploadError(error);
+      else showToast(`Upload failed: ${error.message || error}`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  if (props.variant === 'box') {
+    return (
+      <Box sx={{
+        position: 'relative',
+        width: '100%',
+        aspectRatio: '16/9',
+        border: `2px dashed ${props.error ? 'var(--color-error)' : 'rgba(30, 79, 163, 0.3)'}`,
+        borderRadius: 'var(--radius-lg)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        bgcolor: props.savedValue ? 'transparent' : 'var(--glass-bg)',
+        backdropFilter: props.savedValue ? 'none' : 'blur(30px)',
+        cursor: (props.disabled || uploading) ? 'default' : 'pointer',
+        overflow: 'hidden',
+        transition: 'var(--transition-base)',
+      }}
+        onClick={() => {
+          if (!props.disabled && !uploading && ref?.current) {
+            ref.current.click();
+          } else if (!props.disabled && !uploading && document.getElementById(props.id || fieldName)) {
+            document.getElementById(props.id || fieldName).click();
+          }
+        }}>
+        {uploading ? (
+          <>
+            <CircularProgress size={32} sx={{ color: 'var(--color-primary)', mb: 1 }} />
+            <Typography variant="body2" color="text.secondary">Uploading...</Typography>
+          </>
+        ) : savedValue ? (
+          <>
+            {type === 'video' ? (
+              <Box 
+                component="video"
+                src={savedValue} 
+                controls 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                onClick={(e) => e.stopPropagation()}
+                sx={{
+                  '&::-webkit-media-controls-enclosure': {
+                    backgroundColor: 'transparent !important',
+                    background: 'transparent !important',
+                  },
+                  '&::-webkit-media-controls-panel': {
+                    backgroundColor: 'transparent !important',
+                    background: 'transparent !important',
+                    backgroundImage: 'none !important',
+                    boxShadow: 'none !important'
+                  },
+                  '&::-webkit-media-controls-overlay-play-button': {
+                    backgroundColor: 'transparent !important',
+                    background: 'transparent !important',
+                  }
+                }}
+              />
+            ) : ['profile', 'banner', 'thumbnail', 'image'].includes(type) ? (
+              <Box
+                component="img"
+                src={savedValue}
+                sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            ) : (
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <CheckCircleIcon sx={{ fontSize: 40, color: 'var(--color-success)', mb: 1 }} />
+                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', px: 2, wordBreak: 'break-all' }}>
+                  {localFileName || 'File uploaded successfully'}
+                </Typography>
+              </Box>
+            )}
+            
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!props.disabled && !uploading && ref?.current) {
+                  ref.current.click();
+                } else if (!props.disabled && !uploading && document.getElementById(props.id || fieldName)) {
+                  document.getElementById(props.id || fieldName).click();
+                }
+              }}
+              sx={{
+                position: 'absolute', top: 8, right: 8,
+                bgcolor: 'var(--card-bg)', color: 'var(--color-primary)',
+                boxShadow: 'var(--shadow-sm)',
+                backdropFilter: 'var(--card-blur)',
+                '&:hover': { bgcolor: 'var(--color-slate-50)', transform: 'scale(1.05)' }
+              }}
+            >
+              <EditOutlinedIcon fontSize="small" />
+            </IconButton>
+          </>
+        ) : (
+          <>
+            <CloudUploadIcon sx={{ fontSize: 40, color: 'var(--color-slate-400)', mb: 1 }} />
+            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+              {props.label || 'Click to Upload'}
+            </Typography>
+            {props.helperText && (
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                {props.helperText}
+              </Typography>
+            )}
+          </>
+        )}
+        <input
+          id={props.id || fieldName}
+          type="file"
+          hidden
+          ref={ref}
+          accept={props.accept}
+          onChange={handleFileChange}
+          disabled={props.disabled || uploading}
+        />
+      </Box>
+    );
+  }
+
+  return (
+    <Box sx={{ position: 'relative', width: '100%', minWidth: 0 }}>
+      <WrappedCustomFloatingFileInput
+        {...props}
+        error={props.error}
+        helperText={props.helperText}
+        onChange={handleFileChange}
+        disabled={props.disabled || uploading}
+        ref={ref}
+        savedValue={savedValue}
+        uploading={uploading}
+        success={!uploading && Boolean(savedValue)}
+        customDisplayText={localFileName || undefined}
+      />
+    </Box>
+  );
+});
+CustomFloatingMinIOUpload.displayName = "CustomFloatingMinIOUpload";

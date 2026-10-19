@@ -162,7 +162,7 @@ export default function Settings() {
       >
         {/* Page Header */}
         <Box component={motion.div} variants={itemVariants} sx={{ display: "flex", alignItems: "center", gap: 3 }}>
-          <Box sx={{ p: 2, borderRadius: 'var(--radius-lg)', bgcolor: "rgba(255, 255, 255, 0.9)", color: "var(--color-primary)" }}>
+          <Box sx={{ p: 2, borderRadius: 'var(--radius-lg)', bgcolor: "var(--glass-bg)", color: "var(--color-primary)" }}>
             <SettingsOutlinedIcon sx={{ fontSize: 36 }} />
           </Box>
           <Box>
@@ -234,7 +234,7 @@ export default function Settings() {
           isMobile={isMobile}
           title="सूचनाएँ (Notifications)"
           customTitleNode={
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
               <Box sx={{ p: 1.5, bgcolor: "rgba(30, 79, 163, 0.08)", color: "var(--color-primary)" }}>
                 <NotificationsNoneOutlinedIcon fontSize="small" />
               </Box>
@@ -257,7 +257,7 @@ export default function Settings() {
           isMobile={isMobile}
           title="सुरक्षा (Security)"
           customTitleNode={
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
               <Box sx={{ p: 1.5, bgcolor: "rgba(245, 158, 11, 0.1)", color: "var(--color-warning)" }}>
                 <SecurityOutlinedIcon fontSize="small" />
               </Box>
@@ -267,7 +267,7 @@ export default function Settings() {
         >
           <Box sx={{ px: { xs: 1, md: 2 } }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", py: 2 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                 <VerifiedUserOutlinedIcon sx={{ color: profile?.kyc_status === "verified" ? "var(--color-success)" : "var(--color-slate-500)" }} />
                 <Box>
                   <Typography fontSize={14} fontWeight={600} color="var(--color-slate-900)">KYC सत्यापन</Typography>
@@ -291,7 +291,7 @@ export default function Settings() {
             <Divider sx={{ my: 1, borderColor: "rgba(0,0,0,0.05)" }} />
             
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", py: 2 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                 <LockOutlinedIcon sx={{ color: "var(--color-slate-500)" }} />
                 <Box>
                   <Typography fontSize={14} fontWeight={600} color="var(--color-slate-900)">पासवर्ड</Typography>
@@ -314,7 +314,7 @@ export default function Settings() {
           isMobile={isMobile}
           title="प्रदर्शन (Display)"
           customTitleNode={
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
               <Box sx={{ p: 1.5, bgcolor: "rgba(40, 167, 69, 0.1)", color: "var(--color-success)" }}>
                 <MonitorOutlinedIcon fontSize="small" />
               </Box>
@@ -352,8 +352,8 @@ export default function Settings() {
                     borderColor: "var(--color-slate-200)",
                     px: 1,
                     cursor: "pointer",
-                    bgcolor: "rgba(255, 255, 255, 0.5)",
-                    "&:hover": { bgcolor: "rgba(255, 255, 255, 0.9)" }
+                    bgcolor: "var(--glass-bg)",
+                    "&:hover": { bgcolor: "var(--glass-bg)" }
                   }}
                 />
               </Box>

@@ -8,9 +8,6 @@ import {
   TextField,
   IconButton,
   Paper,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Menu,
   MenuItem,
   InputBase,
@@ -28,8 +25,13 @@ import {
 } from "@mui/material";
 import { motion, Reorder, useDragControls } from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
+import { CustomAccordion, CustomAccordionSummary, CustomAccordionDetails } from "../../../components/common/CustomAccordion";
 import ViewListIcon from '@mui/icons-material/ViewList';
 import CustomCheckbox from "../../../components/common/CustomCheckbox";
+import { useToast } from '../../../contexts/ToastContext';
+import { useConfirm } from '../../../contexts/ConfirmContext';
+import { DropdownListPopup } from "../../../components/common/DropdownListPopup";
+import TarangButton from "../../../components/common/TarangButton";
 import AddIcon from "@mui/icons-material/Add";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -40,6 +42,8 @@ import VideoCameraFrontOutlinedIcon from "@mui/icons-material/VideoCameraFrontOu
 import PaymentOutlinedIcon from "@mui/icons-material/PaymentOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
+import { BroomIcon } from "./BroomIcon";
+import { CustomTooltip } from "../../../components/common/CustomTooltip";
 import RichQuestionEditor from "../../../components/RichQuestionEditor";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -47,13 +51,18 @@ import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
 import dayjs from "dayjs";
 import { useTranslation } from "../../../hooks/useTranslation";
+import { useAccessibility } from "../../../contexts/AccessibilityContext";
+import { sortLocationsByDistance } from "../../../lib/geoNormalize";
 import useScrollLock from "../../../hooks/useScrollLock";
 import { apiClient } from "../../../lib/apiClient";
 import { useProfile } from "../../../hooks/useProfile";
 import { useAppRouter } from '../../../hooks/useAppRouter';
 import { FormLoadingProvider } from '../../../contexts/FormLoadingContext';
 import CustomTimePicker from "./CustomTimePicker";
-import { CustomFloatingInput, CustomFloatingSelect } from "../../../components/common/CustomFloatingFields";
+import { CustomFloatingInput, CustomFloatingSelect, CustomFloatingFileInput, CustomFloatingSearchableSelect } from "../../../components/common/CustomFloatingFields";
+import admissionConfig from "../../../data/admissionConfig.json";
+import AutoSaveIndicator from "../../../components/common/AutoSaveIndicator";
+import gazeteer from "../../../data/formated/gazeteer.json";
 
 import { globalDatePickerSlotProps } from "./datePickerConfig";
 
@@ -70,29 +79,69 @@ const roundToFive = (d) => {
 };
 
 export default function AdmissionModal({ open, onClose, editData }) {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+  const { userLocation } = useAccessibility();
+  const confirm = useConfirm();
+  const { showToast } = useToast();
+
+  const currencyOptions = React.useMemo(() => {
+    const uLat = userLocation?.lat || 20.5937;
+    const uLon = userLocation?.lon || 78.9629;
+    const sortedCountries = sortLocationsByDistance(gazeteer.Countries, uLat, uLon, 'countries');
+    return Array.from(
+      new Set(sortedCountries.map((c) => c.currency.split(" ")[0]))
+    ).filter(Boolean);
+  }, [userLocation]);
 
   const [activeStep, setActiveStep] = useState(0);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
-  const [workflowTitle, setWorkflowTitle] = useState("");
+  const [formTitle, setWorkflowTitle] = useState("");
   const [academicYear, setAcademicYear] = useState("");
-  const [workflowDesc, setWorkflowDesc] = useState("");
+  const [formDesc, setWorkflowDesc] = useState("");
   const [publishDate, setPublishDate] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [maxCandidates, setMaxCandidates] = useState("");
+  const [eligibility, setEligibility] = useState([""]);
+  const [duration, setDuration] = useState("");
   const [loading, setLoading] = useState(false);
   const { profile } = useProfile();
   const router = useAppRouter();
   const [draftId, setDraftId] = useState(null);
+  const [autoSaveStatus, setAutoSaveStatus] = useState("idle");
+  const [errors, setErrors] = useState({});
 
   useScrollLock(open);
 
   const [stages, setStages] = useState([]);
   const [activeStageTab, setActiveStageTab] = useState(0);
+
+  const getTranslatedTitle = (title, type) => {
+    const prefix = t("admissionBuilder.stagePrefix") || "Stage";
+    const typeStr = type === "document" ? (t("admissionBuilder.stageTypeDoc") || "Applicant Details")
+      : type === "quiz" ? (t("admissionBuilder.stageTypeQuiz") || "Quiz")
+        : type === "interview" ? (t("admissionBuilder.stageTypeInt") || "Interview")
+          : (t("admissionBuilder.stageTypePay") || "Payment");
+
+    // Match any existing stage title like "Stage 1: Applicant Details" or "Stage 1: PI"
+    const match = (title || "").match(/(?:Stage|चरण)\s*(\d+):?/i);
+    if (match) {
+      return `${prefix} ${match[1]}: ${typeStr}`;
+    }
+    return title || `${prefix} 1: ${typeStr}`;
+  };
+
+  const parseEligibility = (val) => {
+    if (!val) return [""];
+    if (Array.isArray(val)) return val;
+    if (typeof val === 'string') {
+      try {
+        const parsed = JSON.parse(val);
+        if (Array.isArray(parsed)) return parsed;
+      } catch (e) {
+        return [val];
+      }
+    }
+    return [""];
+  };
 
   React.useEffect(() => {
     let isMounted = true;
@@ -105,15 +154,18 @@ export default function AdmissionModal({ open, onClose, editData }) {
         try {
           const { draftId: rId, draftData: parsed } = JSON.parse(recovered);
           setDraftId(rId);
-          setWorkflowTitle(parsed.workflowTitle || "");
+          setWorkflowTitle(parsed.formTitle || "");
           setAcademicYear(parsed.academicYear || "");
-          setWorkflowDesc(parsed.workflowDesc || "");
+          setWorkflowDesc(parsed.formDesc || "");
           setPublishDate(parsed.publishDate || "");
           setExpiryDate(parsed.expiryDate || "");
           setMaxCandidates(parsed.maxCandidates || "");
+          setEligibility(parseEligibility(parsed.eligibility));
+          setDuration(parsed.duration || "");
           setStages((parsed.stages || []).map(s => ({
             ...s,
-            title: (s.title || "").replace(/Document Request|PI/g, "Applicant Details")
+            id: s.id || `${Date.now()}-${Math.random()}`,
+            title: getTranslatedTitle(s.title, s.type || "document")
           })));
           setActiveStep(parsed.activeStep || 0);
         } catch (e) { }
@@ -123,15 +175,18 @@ export default function AdmissionModal({ open, onClose, editData }) {
           ? JSON.parse(editData.draftObj.draft_data)
           : editData.rawDraft;
         if (parsed) {
-          setWorkflowTitle(parsed.workflowTitle || "");
+          setWorkflowTitle(parsed.formTitle || "");
           setAcademicYear(parsed.academicYear || "");
-          setWorkflowDesc(parsed.workflowDesc || "");
+          setWorkflowDesc(parsed.formDesc || "");
           setPublishDate(parsed.publishDate || "");
           setExpiryDate(parsed.expiryDate || "");
           setMaxCandidates(parsed.maxCandidates || "");
+          setEligibility(parseEligibility(parsed.eligibility || editData.eligibility));
+          setDuration(parsed.duration || editData.duration || "");
           setStages((parsed.stages || []).map(s => ({
             ...s,
-            title: (s.title || "").replace(/Document Request|PI/g, "Applicant Details")
+            id: s.id || `${Date.now()}-${Math.random()}`,
+            title: getTranslatedTitle(s.title, s.type || "document")
           })));
           setActiveStep(parsed.activeStep || 0);
         }
@@ -139,7 +194,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
         setDraftId(null);
         setWorkflowTitle(editData.title || "");
         setAcademicYear(editData.academic_year || "");
-        setWorkflowDesc(editData.workflow_desc || "");
+        setWorkflowDesc(editData.form_desc || "");
         if (editData.stages && editData.stages.length > 0) {
           console.log("[AdmissionModal] Loading live stages:", editData.stages);
           setStages(
@@ -147,7 +202,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
               console.log("[AdmissionModal] Mapping stage:", s.title, "selected_fields:", s.selected_fields, "selectedFields:", s.selectedFields);
               return {
                 id: s.id || `${Date.now()}-${Math.random()}`,
-                title: (s.title || "").replace(/Document Request|PI/g, "Applicant Details"),
+                title: getTranslatedTitle(s.title, s.type || "document"),
                 type: s.type || "document",
                 // map snake_case API fields → camelCase state
                 startDate: s.startDate || s.start_date || "",
@@ -169,6 +224,8 @@ export default function AdmissionModal({ open, onClose, editData }) {
         setPublishDate(editData.publish_date || "");
         setExpiryDate(editData.last_date || "");
         setMaxCandidates(editData.seats || "");
+        setEligibility(parseEligibility(editData.eligibility));
+        setDuration(editData.duration || "");
         setActiveStep(0);
       } else {
         setDraftId(null);
@@ -178,6 +235,8 @@ export default function AdmissionModal({ open, onClose, editData }) {
         setPublishDate("");
         setExpiryDate("");
         setMaxCandidates("");
+        setEligibility([""]);
+        setDuration("");
         setStages([]);
         setActiveStep(0);
       }
@@ -188,6 +247,8 @@ export default function AdmissionModal({ open, onClose, editData }) {
   }, [open, editData, profile]);
 
   const isInitialLoad = React.useRef(true);
+  const isSubmitting = React.useRef(false);
+
   React.useEffect(() => {
     if (open) {
       // Small timeout to allow state to settle after load
@@ -201,30 +262,32 @@ export default function AdmissionModal({ open, onClose, editData }) {
 
   React.useEffect(() => {
     if (open && !isInitialLoad.current && profile?.username) {
-      const isTitleFilled = workflowTitle && workflowTitle.trim() !== "";
-      const isDescFilled = workflowDesc && workflowDesc.trim() !== "";
+      const isTitleFilled = formTitle && formTitle.trim() !== "";
+      const isDescFilled = formDesc && formDesc.trim() !== "";
       const isCandidatesFilled =
         maxCandidates && maxCandidates.toString().trim() !== "";
       const hasStages = stages && stages.length > 0;
 
       if (
+        !draftId &&
         !isTitleFilled &&
         !isDescFilled &&
         !isCandidatesFilled &&
         !hasStages
       ) {
+        setAutoSaveStatus('idle');
         return;
       }
 
-      const draftTitle = isTitleFilled ? workflowTitle : "Untitled";
-
       const draftData = {
-        workflowTitle: draftTitle,
+        formTitle,
         academicYear,
-        workflowDesc,
+        formDesc,
         publishDate,
         expiryDate,
         maxCandidates,
+        eligibility,
+        duration,
         stages,
         activeStep,
       };
@@ -239,12 +302,16 @@ export default function AdmissionModal({ open, onClose, editData }) {
         );
       }
 
+      if (!isInitialLoad.current) {
+        setAutoSaveStatus('saving');
+      }
+
       const payload = {
-        institute_id: profile.username,
+        institute_id: profile.id,
         program_id:
-          editData && !editData.isDraft
-            ? editData.id
-            : editData?.target_program_id || "",
+          (editData && !editData.isDraft)
+            ? (editData.id || editData.Id || editData._id)
+            : (editData?.target_program_id || editData?.targetProgramId || ""),
         draft_data: JSON.stringify(draftData),
       };
       if (draftId) {
@@ -252,32 +319,43 @@ export default function AdmissionModal({ open, onClose, editData }) {
       }
 
       const saveDraftTimeout = setTimeout(() => {
+        if (!isInitialLoad.current) {
+          setAutoSaveStatus('saving');
+        }
         apiClient
           .post("/admissions/drafts", payload)
           .then((res) => {
             if (res.data?.draft?.id && !draftId) {
               setDraftId(res.data.draft.id);
             }
+            if (!isInitialLoad.current) {
+              setAutoSaveStatus('saved');
+            }
           })
-          .catch((err) =>
-            console.error("Failed to auto-save draft to DB", err),
-          );
+          .catch((err) => {
+            console.error("Failed to auto-save draft to DB", err);
+            if (!isInitialLoad.current) {
+              setAutoSaveStatus('error');
+            }
+          });
       }, 1000); // 1s debounce
 
       return () => clearTimeout(saveDraftTimeout);
     }
   }, [
-    workflowTitle,
+    formTitle,
     academicYear,
-    workflowDesc,
+    formDesc,
     publishDate,
     expiryDate,
     maxCandidates,
-    stages,
+    JSON.stringify(eligibility),
+    JSON.stringify(duration),
+    JSON.stringify(stages),
     activeStep,
     open,
-    editData,
-    profile,
+    JSON.stringify(editData),
+    profile?.id,
     draftId,
   ]);
 
@@ -315,15 +393,34 @@ export default function AdmissionModal({ open, onClose, editData }) {
   const [quizSearchQuery, setQuizSearchQuery] = useState("");
   const openMenu = Boolean(anchorEl);
 
+  const quizDropdownRef = React.useRef(null);
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      const inAnchor = quizMenuAnchorEl && quizMenuAnchorEl.contains(event.target);
+      const inDropdown = quizDropdownRef.current && quizDropdownRef.current.contains(event.target);
+      if (!inAnchor && !inDropdown) {
+        setQuizMenuAnchorEl(null);
+        setQuizMenuAnchorPos(null);
+      }
+    };
+    if (quizMenuAnchorEl || quizMenuAnchorPos) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [quizMenuAnchorEl, quizMenuAnchorPos]);
+
   const hasEnteredData =
-    workflowTitle.trim().length > 0 ||
-    workflowDesc.trim().length > 0 ||
+    formTitle.trim().length > 0 ||
+    formDesc.trim().length > 0 ||
+    eligibility.some(e => e.trim().length > 0) ||
+    duration.trim().length > 0 ||
     maxCandidates.toString().trim().length > 0 ||
     (stages && stages.length > 0);
-  const THEME_BORDER = "var(--color-slate-300)";
+  const THEME_BORDER = "var(--card-border)";
 
   const themeInputSx = {
     "& .MuiOutlinedInput-root": {
+      borderRadius: 'var(--radius-md)',
       "&.Mui-disabled": {
         backgroundColor: "var(--color-slate-50)",
       },
@@ -332,7 +429,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
       },
       "& input, & textarea": {
         color: "var(--color-slate-900)",
-        fontSize: 'var(--font-base)',
+        fontSize: 'var(--font-sm)',
       },
     },
   };
@@ -349,7 +446,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
     "& .MuiInputLabel-root": { top: "-4px" },
     "& .MuiInputLabel-shrink": { top: "0px" },
     "& .MuiInputAdornment-root .MuiIconButton-root svg": {
-      fontSize: 'var(--font-base)',
+      fontSize: 'var(--font-sm)',
     },
     "& .MuiInputAdornment-root .MuiIconButton-root": {
       padding: "4px",
@@ -369,9 +466,18 @@ export default function AdmissionModal({ open, onClose, editData }) {
 
   const addStage = (type) => {
     handleMenuClose();
+    const prefix = t("admissionBuilder.stagePrefix") || "Stage";
+    const typeName = type === "document"
+      ? t("admissionBuilder.stageTypeDoc") || "Applicant Details"
+      : type === "quiz"
+        ? t("admissionBuilder.stageTypeQuiz") || "Quiz"
+        : type === "interview"
+          ? t("admissionBuilder.stageTypeInt") || "Interview"
+          : t("admissionBuilder.stageTypePay") || "Payment";
+
     const newStage = {
       id: Date.now(),
-      title: `Stage ${stages.length + 1}: ${type === "document" ? "Applicant Details" : type === "quiz" ? "Quiz" : type === "interview" ? "Interview" : "Payment"}`,
+      title: `${prefix} ${stages.length + 1}: ${typeName}`,
       type: type,
       startDate: "",
       startDateOnly: "",
@@ -384,7 +490,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
       interviewDetails: type === "interview" ? { meetingLink: "", passcode: "" } : undefined,
       paymentDetails:
         type === "payment"
-          ? { amount: "", currency: "USD", instructions: "" }
+          ? { amount: "", currency: "", instructions: "" }
           : undefined,
     };
     const newStages = [...stages, newStage];
@@ -394,9 +500,15 @@ export default function AdmissionModal({ open, onClose, editData }) {
 
   const deleteStage = (id) => {
     const remainingStages = stages.filter((s) => s.id !== id);
+    const prefix = t("admissionBuilder.stagePrefix") || "Stage";
+
+    // We need to match whatever the prefix is in the current language, or fallback to english "Stage" just in case.
+    // A safe regex that matches either the localized prefix or "Stage"
+    const regex = new RegExp(`^(${prefix}|Stage) \\d+:`);
+
     const updatedStages = remainingStages.map((stage, idx) => ({
       ...stage,
-      title: stage.title?.replace(/^Stage \d+:/, `Stage ${idx + 1}:`),
+      title: stage.title?.replace(regex, `${prefix} ${idx + 1}:`),
     }));
     setStages(updatedStages);
     setActiveStageTab((prev) =>
@@ -435,20 +547,44 @@ export default function AdmissionModal({ open, onClose, editData }) {
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting.current) return;
+    
+    const validation = validateForm();
+    if (Object.keys(validation.errors).length > 0) {
+      setErrors(validation.errors);
+      if (validation.firstErrorStep !== -1) {
+        setActiveStep(validation.firstErrorStep);
+      }
+      return;
+    }
+    setErrors({});
+
+    isSubmitting.current = true;
     setLoading(true);
     try {
+      const targetProgramId = (editData && !editData.isDraft) 
+        ? (editData.id || editData.Id || editData._id) 
+        : (editData?.target_program_id || editData?.targetProgramId || null);
+
+      const totalFees = stages
+        .filter(s => s.type === "payment" && s.paymentDetails?.amount)
+        .reduce((sum, s) => sum + parseFloat(s.paymentDetails.amount), 0);
+      const currency = stages.find(s => s.type === "payment" && s.paymentDetails?.currency)?.paymentDetails.currency || "INR";
+      const calculatedFees = totalFees > 0 ? `${totalFees} ${currency}` : "Free";
+
       const payload = {
-        institute_id: profile?.username || "unknown",
-        workflow_title: workflowTitle,
+        id: targetProgramId || undefined,
+        institute_id: profile?.id || "unknown",
+        form_title: formTitle,
         academic_year: academicYear,
-        workflow_desc: workflowDesc,
+        form_desc: formDesc,
         image_url: "",
         last_date: expiryDate || "To be announced",
         seats: maxCandidates ? parseInt(maxCandidates) : 0,
         publish_date: publishDate || "",
-        eligibility: "",
-        fees: "",
-        duration: "",
+        eligibility: JSON.stringify(eligibility.filter(e => e.trim())),
+        fees: calculatedFees,
+        duration: duration || "",
         stages: stages.map((s) => ({
           title: s.title,
           type: s.type,
@@ -461,34 +597,26 @@ export default function AdmissionModal({ open, onClose, editData }) {
           requirements: [],
           selected_fields: s.type === "document" ? (s.selectedFields || []) : [],
           academic_records_config: s.type === "document" ? (s.academicRecordsConfig || []).map(r => ({ name: r.name })) : [],
-          payment_details: s.type === "payment" ? s.paymentDetails : undefined,
+          payment_details: s.type === "payment" ? { ...s.paymentDetails, amount: s.paymentDetails?.amount ? parseFloat(s.paymentDetails.amount) : 0 } : undefined,
           quiz_attachments: s.type === "quiz" ? s.quizAttachments : undefined,
           interview_details: s.type === "interview" ? s.interviewDetails : undefined,
         })),
       };
 
-      if (editData && editData.id) {
-        await apiClient.put(`/admissions/programs/${editData.id}`, payload);
-        setSnackbar({
-          open: true,
-          message: "Admission workflow updated successfully!",
-          severity: "success",
-        });
+      if (targetProgramId) {
+        await apiClient.put(`/admissions/programs/${targetProgramId}`, payload);
+        showToast("Admission form updated successfully!", "success");
       } else {
         await apiClient.post("/admissions/programs", payload);
-        setSnackbar({
-          open: true,
-          message: "Admission workflow published successfully!",
-          severity: "success",
-        });
+        showToast("Admission form published successfully!", "success");
       }
 
       // Remove draft from DB on success
-      if (profile?.username) {
+      if (profile?.id) {
         if (draftId) {
           apiClient
             .delete(
-              `/admissions/drafts?institute_id=${profile.username}&draft_id=${draftId}`,
+              `/admissions/drafts?institute_id=${profile.id}&draft_id=${draftId}`,
             )
             .catch(console.error);
         }
@@ -499,32 +627,162 @@ export default function AdmissionModal({ open, onClose, editData }) {
       }, 1500);
     } catch (error) {
       console.error(error);
-      setSnackbar({
-        open: true,
-        message:
-          "Failed to publish workflow: " +
-          (error.response?.data || error.message),
-        severity: "error",
-      });
+      let errorMsg = error.response?.data?.message || error.response?.data?.error;
+      if (!errorMsg) {
+        errorMsg = error.response?.status === 500
+          ? "Our server encountered a temporary issue. Please try again later."
+          : error.message;
+      }
+      if (typeof errorMsg === 'object') {
+        errorMsg = "An unexpected error occurred.";
+      }
+      showToast("Failed to publish form: " + errorMsg, "error");
     } finally {
       setLoading(false);
+      isSubmitting.current = false;
     }
   };
-  const handleDiscard = async () => {
-    // Delete draft from DB if exists
-    if (draftId && profile?.username) {
-      try {
-        await apiClient.delete(
-          `/admissions/drafts?institute_id=${profile.username}&draft_id=${draftId}`,
-        );
-      } catch (e) {
-        console.error("Failed to delete draft on discard", e);
+
+  const validateForm = () => {
+    const newErrors = {};
+    let firstErrorStep = -1;
+
+    // Step 0
+    if (!formTitle || !formTitle.trim()) newErrors.formTitle = true;
+    if (!academicYear) newErrors.academicYear = true;
+    if (!duration || !duration.trim()) newErrors.duration = true;
+    if (!formDesc || !formDesc.trim()) newErrors.formDesc = true;
+    
+    eligibility.forEach((e, i) => {
+      if (!e || !e.trim()) newErrors[`eligibility_${i}`] = true;
+    });
+    if (!eligibility.some(e => e && e.trim() !== "")) newErrors.eligibility = true; // At least one
+
+    if (Object.keys(newErrors).length > 0 && firstErrorStep === -1) firstErrorStep = 0;
+
+    // Step 1
+    const step1Errors = {};
+    if (!publishDate || !publishDate.includes("T")) step1Errors.publishDate = true;
+    if (!expiryDate || !expiryDate.includes("T")) step1Errors.expiryDate = true;
+    if (!maxCandidates) step1Errors.maxCandidates = true;
+    
+    Object.assign(newErrors, step1Errors);
+    if (Object.keys(step1Errors).length > 0 && firstErrorStep === -1) firstErrorStep = 1;
+
+    // Step 2
+    const step2Errors = {};
+    if (stages.length === 0) step2Errors.stages = true;
+    stages.forEach((s, i) => {
+      if (!s.title.trim()) step2Errors[`stage_${i}_title`] = true;
+      if (!s.startDateOnly || !s.startTimeOnly) step2Errors[`stage_${i}_start`] = true;
+      if (!s.endDateOnly || !s.endTimeOnly) step2Errors[`stage_${i}_end`] = true;
+      
+      if (s.type === "document") {
+        const hasSelection = (s.selectedFields && s.selectedFields.length > 0) || (s.academicRecordsConfig && s.academicRecordsConfig.length > 0);
+        if (!hasSelection) step2Errors[`stage_${i}_doc_selection`] = true;
+        if (s.academicRecordsConfig) {
+          s.academicRecordsConfig.forEach((r, rIdx) => {
+            if (!r.name.trim()) step2Errors[`stage_${i}_doc_rec_${rIdx}`] = true;
+          });
+        }
       }
+      if (s.type === "payment") {
+        if (!s.paymentDetails?.amount) step2Errors[`stage_${i}_pay_amount`] = true;
+        if (!s.paymentDetails?.currency) step2Errors[`stage_${i}_pay_currency`] = true;
+      }
+      if (s.type === "quiz") {
+        if (!s.quizAttachments || s.quizAttachments.length === 0) step2Errors[`stage_${i}_quiz_attach`] = true;
+      }
+      if (s.type === "interview") {
+        if (!s.interviewDetails?.meetingLink?.trim()) step2Errors[`stage_${i}_int_link`] = true;
+        if (!s.interviewDetails?.passcode?.trim()) step2Errors[`stage_${i}_int_pass`] = true;
+      }
+    });
+
+    Object.assign(newErrors, step2Errors);
+    if (Object.keys(step2Errors).length > 0 && firstErrorStep === -1) firstErrorStep = 2;
+
+    return { errors: newErrors, firstErrorStep };
+  };
+
+  const handleClear = async () => {
+    const isConfirmed = await confirm({
+      title: language === 'en' ? 'Clear Form?' : 'फ़ॉर्म साफ़ करें?',
+      message: language === 'en'
+        ? 'Are you sure you want to clear all form fields? This will reset all your unsaved changes.'
+        : 'क्या आप वाकई फ़ॉर्म के सभी फ़ील्ड साफ़ करना चाहते हैं? इससे आपके सभी सहेजे न गए बदलाव मिट जाएंगे।',
+      confirmText: language === 'en' ? 'Clear' : 'साफ़ करें',
+      cancelText: language === 'en' ? 'Cancel' : 'रद्द करें',
+      variant: 'primary'
+    });
+    if (!isConfirmed) return;
+    setWorkflowTitle("");
+    setAcademicYear("");
+    setEligibility([""]);
+    setDuration("");
+    setWorkflowDesc("");
+    setPublishDate("");
+    setExpiryDate("");
+    setMaxCandidates("");
+    setStages([]);
+    setActiveStep(0);
+    setActiveStageTab(0);
+    showToast(language === 'en' ? 'Form cleared successfully.' : 'फ़ॉर्म सफलतापूर्वक साफ़ कर दिया गया।', 'success');
+  };
+
+  const handleDiscard = async () => {
+    const isLive = editData && !editData.isDraft && editData.id;
+    const isConfirmed = await confirm({
+      title: language === 'en' ? 'Delete Program?' : 'प्रोग्राम हटाएं?',
+      message: language === 'en' ? 'Are you sure you want to delete this? This action cannot be undone.' : 'क्या आप वाकई इसे हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।',
+      confirmText: language === 'en' ? 'Delete' : 'हटाएं',
+      cancelText: language === 'en' ? 'Cancel' : 'रद्द करें',
+      variant: 'danger'
+    });
+    if (!isConfirmed) return;
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
+    setLoading(true);
+    try {
+      if (editData && !editData.isDraft && editData.id) {
+        // Delete live program
+        await apiClient.delete(`/admissions/programs/${editData.id}`);
+        showToast(language === 'en' ? "Program deleted successfully" : "प्रोग्राम सफलतापूर्वक हटा दिया गया", "success");
+      } else if (draftId && profile?.id) {
+        // Delete draft from DB if exists
+        await apiClient.delete(
+          `/admissions/drafts?institute_id=${profile.id}&draft_id=${draftId}`,
+        );
+        showToast(language === 'en' ? "Draft deleted successfully" : "ड्राफ्ट सफलतापूर्वक हटा दिया गया", "success");
+      }
+    } catch (e) {
+      console.error("Failed to delete on discard", e);
+      showToast(language === 'en' ? "Failed to delete. Please try again." : "हटाने में विफल। कृपया पुनः प्रयास करें।", "error");
+      isSubmitting.current = false;
+      setLoading(false);
+      return;
     }
+
     // Clear sessionStorage recovery
     if (typeof window !== "undefined")
       sessionStorage.removeItem("admissionBuilderRecovery");
+
+    // Explicitly reset all state
+    setDraftId(null);
+    setWorkflowTitle("");
+    setAcademicYear("");
+    setEligibility([""]);
+    setDuration("");
+    setWorkflowDesc("");
+    setPublishDate("");
+    setExpiryDate("");
+    setMaxCandidates("");
+    setStages([]);
+    setActiveStep(0);
+
     onClose();
+    isSubmitting.current = false;
+    setLoading(false);
   };
 
   if (!open) return null;
@@ -566,37 +824,82 @@ export default function AdmissionModal({ open, onClose, editData }) {
             #eef2f6
           `,
             border: 'none',
-            overflowY: "auto",
+            overflow: "hidden",
             maxHeight: "92vh",
             position: "relative",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          <IconButton
-            onClick={onClose}
+          <Box
             sx={{
-              display: { xs: "inline-flex", md: "none" },
               position: "absolute",
-              top: 16,
-              right: 16,
-              color: "var(--color-slate-500)",
-              "&:hover": { color: "var(--color-slate-900)", bgcolor: "rgba(0,0,0,0.05)" },
+              top: { xs: 12, sm: 20 },
+              right: { xs: 12, sm: 24 },
+              display: "flex",
+              gap: 1,
+              zIndex: 'var(--z-sticky)'
             }}
           >
-            <CloseIcon />
-          </IconButton>
+            <CustomTooltip title={t('admissionBuilder.discardBtn') || 'Discard'}>
+              <IconButton
+                onClick={handleDiscard}
+                disabled={loading}
+                disableRipple
+                sx={{
+                  color: "var(--color-error)",
+                  "&:hover": { bgcolor: "transparent" },
+                }}
+              >
+                <DeleteOutlineIcon />
+              </IconButton>
+            </CustomTooltip>
+
+            <CustomTooltip title={language === 'en' ? 'Clear' : 'साफ़ करें'}>
+              <IconButton
+                onClick={handleClear}
+                disabled={loading}
+                disableRipple
+                sx={{
+                  color: "var(--color-slate-500)",
+                  "&:hover": { bgcolor: "transparent" },
+                }}
+              >
+                <BroomIcon />
+              </IconButton>
+            </CustomTooltip>
+
+            <CustomTooltip title={t('admissionBuilder.cancelBtn') || 'Close'}>
+              <IconButton
+                onClick={() => {
+                  if (autoSaveStatus !== "idle") setAutoSaveStatus("idle");
+                  onClose();
+                }}
+                disableRipple
+                sx={{
+                  color: "var(--color-slate-500)",
+                  "&:hover": { bgcolor: "transparent" },
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </CustomTooltip>
+          </Box>
 
           <Box
             sx={{
-              px: { xs: 3, sm: 6 },
-              py: { xs: 5, sm: 6 },
+              px: { xs: 3, sm: 8 },
+              pt: { xs: 6, sm: 8 },
+              pb: 2,
               width: "var(--size-full)",
               boxSizing: "border-box",
+              flexShrink: 0,
             }}
           >
             {/* Header */}
             <Box
               sx={{
-                mb: 4,
+                mb: 2,
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
@@ -604,29 +907,32 @@ export default function AdmissionModal({ open, onClose, editData }) {
             >
               <Box>
                 <Typography
-                  variant="h4"
+                  variant="h5"
                   sx={{
                     fontWeight: 800,
                     color: "var(--color-slate-900)",
                     letterSpacing: "-0.5px",
-                    fontSize: 'var(--font-xl)',
+                    fontSize: 'var(--font-2xl)',
                   }}
                 >
-                  {editData
-                    ? "Edit Admission Workflow"
-                    : t("admissionBuilder.title")}
+                  {t("admissionBuilder.title")}
                 </Typography>
                 <Typography
                   variant="body2"
-                  sx={{ color: "var(--color-slate-500)", mt: 0.5, fontSize: 'var(--font-sm)' }}
+                  sx={{ color: "var(--color-slate-500)", mt: 0.5, fontSize: 'var(--font-base)' }}
                 >
                   {t("admissionBuilder.subtitle")}
                 </Typography>
               </Box>
+
+              {/* Auto Save Indicator Positioned in Header Right */}
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <AutoSaveIndicator status={autoSaveStatus} />
+              </Box>
             </Box>
 
             {/* Step Indicator Progress Bar */}
-            <Box sx={{ display: "flex", gap: 2, mb: 4, mt: 1 }}>
+            <Box sx={{ display: "flex", gap: 1.5, mt: 1 }}>
               <Box
                 sx={{
                   flex: 1,
@@ -648,9 +954,9 @@ export default function AdmissionModal({ open, onClose, editData }) {
                 <Typography
                   variant="caption"
                   sx={{
-                    fontWeight: 800,
+                    fontWeight: 'var(--font-bold)',
                     color: activeStep === 0 ? "var(--color-primary)" : "var(--color-slate-500)",
-                    fontSize: "11.5px",
+                    fontSize: "var(--font-xs)",
                   }}
                 >
                   {t("admissionBuilder.step1Label")}
@@ -664,9 +970,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                   gap: 0.75,
                   cursor: "pointer",
                 }}
-                onClick={() => {
-                  if (workflowTitle) setActiveStep(1);
-                }}
+                onClick={() => setActiveStep(1)}
               >
                 <Box
                   sx={{
@@ -679,12 +983,12 @@ export default function AdmissionModal({ open, onClose, editData }) {
                 <Typography
                   variant="caption"
                   sx={{
-                    fontWeight: 800,
+                    fontWeight: 'var(--font-bold)',
                     color: activeStep === 1 ? "var(--color-primary)" : "var(--color-slate-500)",
-                    fontSize: "11.5px",
+                    fontSize: "var(--font-xs)",
                   }}
                 >
-                  2. Schedule & Limits
+                  {t("admissionBuilder.step2Label")}
                 </Typography>
               </Box>
               <Box
@@ -695,9 +999,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                   gap: 0.75,
                   cursor: "pointer",
                 }}
-                onClick={() => {
-                  if (workflowTitle) setActiveStep(2);
-                }}
+                onClick={() => setActiveStep(2)}
               >
                 <Box
                   sx={{
@@ -710,43 +1012,49 @@ export default function AdmissionModal({ open, onClose, editData }) {
                 <Typography
                   variant="caption"
                   sx={{
-                    fontWeight: 800,
+                    fontWeight: 'var(--font-bold)',
                     color: activeStep === 2 ? "var(--color-primary)" : "var(--color-slate-500)",
-                    fontSize: "11.5px",
+                    fontSize: "var(--font-xs)",
                   }}
                 >
-                  3. Admission Stages
+                  {t("admissionBuilder.step3Label")}
                 </Typography>
               </Box>
             </Box>
+          </Box>
 
+          <Box sx={{ flex: 1, overflowY: "auto", minHeight: 0, px: { xs: 3, sm: 8 }, py: 3, display: 'flex', flexDirection: 'column' }}>
             <Box
               sx={{
                 display: "flex",
                 flexDirection: "column",
-                gap: 3,
+                gap: 1.5,
                 width: "var(--size-full)",
               }}
             >
-              {/* STEP 1: WORKFLOW DETAILS */}
+              {/* STEP 1: FORM DETAILS */}
               {activeStep === 0 && (
                 <Box
                   sx={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: 3,
+                    gap: 1.5,
                     width: "var(--size-full)",
                   }}
                 >
-                  <Box sx={{ display: "grid", gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 2.5, alignItems: "flex-start" }}>
+                  <Box sx={{ display: "grid", gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 1.5, alignItems: "flex-start" }}>
                     <CustomFloatingInput
-                      label={`${t("admissionBuilder.titleField")} *`}
-                      value={workflowTitle}
+                      label={t("admissionBuilder.titleField")}
+                      required
+                      value={formTitle}
+                      error={!!errors.formTitle}
                       onChange={(e) => setWorkflowTitle(e.target.value)}
                     />
                     <CustomFloatingSelect
-                      label={`${t("admissionBuilder.academicYear") || "Academic Year"} *`}
+                      label={t("admissionBuilder.academicYear") || "Academic Year"}
+                      required
                       value={academicYear}
+                      error={!!errors.academicYear}
                       onChange={(e) => setAcademicYear(e.target.value)}
                       options={(() => {
                         const currentYear = new Date().getFullYear();
@@ -758,13 +1066,59 @@ export default function AdmissionModal({ open, onClose, editData }) {
                       })()}
                     />
                   </Box>
-                  <CustomFloatingInput
-                    label={`${t("admissionBuilder.descField")} *`}
-                    value={workflowDesc}
-                    onChange={(e) => setWorkflowDesc(e.target.value)}
-                    multiline
-                    rows={4}
-                  />
+                  <Box sx={{ display: "grid", gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 1.5, alignItems: "flex-start", width: "var(--size-full)" }}>
+                    <Box sx={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 1.5 }}>
+                      <CustomFloatingSelect
+                        label={t("admissionBuilder.duration") || "Duration"}
+                        required
+                        value={duration}
+                        error={!!errors.duration}
+                        onChange={(e) => setDuration(e.target.value)}
+                        options={admissionConfig.durationOptions}
+                      />
+                      <CustomFloatingInput
+                        label={t("admissionBuilder.descField")}
+                        required
+                        value={formDesc}
+                        error={!!errors.formDesc}
+                        onChange={(e) => setWorkflowDesc(e.target.value)}
+                        multiline
+                        rows={4}
+                      />
+                    </Box>
+                    <Box sx={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 1, border: '1px solid var(--card-border)', borderRadius: 'var(--radius-md)', p: 1.5 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)', mb: 0.5 }}>
+                        {t("admissionBuilder.eligibility") || "Eligibility"}&nbsp;
+                        <Box component="span" sx={{ color: 'var(--color-error)' }}>*</Box>
+                      </Typography>
+                      {eligibility.map((item, index) => (
+                        <Box key={index} sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
+                          <CustomFloatingInput
+                            label={(t("admissionBuilder.eligibility") || "Eligibility") + (eligibility.length > 1 ? ` ${index + 1}` : "")}
+                            value={item}
+                            error={!!errors[`eligibility_${index}`]}
+                            onChange={(e) => {
+                              const newEligibility = [...eligibility];
+                              newEligibility[index] = e.target.value;
+                              setEligibility(newEligibility);
+                            }}
+                          />
+                          {eligibility.length > 1 && (
+                            <IconButton
+                              size="small"
+                              sx={{ color: 'var(--color-error)', mt: 1 }}
+                              onClick={() => setEligibility(eligibility.filter((_, i) => i !== index))}
+                            >
+                              <DeleteOutlineIcon fontSize="small" />
+                            </IconButton>
+                          )}
+                        </Box>
+                      ))}
+                      <Button size="small" onClick={() => setEligibility([...eligibility, ""])} sx={{ alignSelf: 'flex-start', textTransform: 'none', color: 'var(--color-primary)' }}>
+                        + Add Point
+                      </Button>
+                    </Box>
+                  </Box>
                 </Box>
               )}
 
@@ -782,40 +1136,45 @@ export default function AdmissionModal({ open, onClose, editData }) {
                     sx={{
                       display: "flex",
                       flexDirection: "column",
-                      gap: 3,
+                      gap: 1.5,
                       width: "var(--size-full)",
                     }}
                   >
                     <Box>
-                      <Box sx={{ display: "flex", gap: 2 }}>
+                      <Box sx={{ display: "flex", gap: 1.5 }}>
                         <Box sx={{ flex: 1 }}>
                           <DesktopDatePicker
-                            label="Publish Date *"
+                            label={t("admissionBuilder.publishDate")}
                             showToolbar
                             toolbarFormat="DD MMMM YYYY"
                             format="DD/MM/YYYY"
                             disabled={Boolean(editData && !editData.isDraft && editData.publish_date && dayjs(editData.publish_date).isBefore(dayjs()))}
                             slots={{ textField: CustomFloatingInput }}
-                            slotProps={globalDatePickerSlotProps}
+                            slotProps={{ ...globalDatePickerSlotProps, textField: { required: true, error: !!errors[`stage_${activeStageTab}_start`] } }}
                             sx={{ width: "var(--size-full)", ...themePickerSx }}
                             minDate={publishDate && dayjs(publishDate).isBefore(dayjs(), "day") ? dayjs(publishDate) : dayjs()}
                             maxDate={expiryDate ? dayjs(expiryDate) : undefined}
                             value={publishDate ? dayjs(publishDate) : null}
+                            error={!!errors.publishDate}
                             onChange={(newDate) => {
                               if (!newDate) return setPublishDate("");
                               const hasTime = publishDate && publishDate.includes("T");
                               const timePart = hasTime ? publishDate.split("T")[1] : "";
                               const newD = newDate.format("YYYY-MM-DD");
-                              setPublishDate(hasTime ? `${newD}T${timePart}` : newD);
-                              setExpiryDate("");
+                              const newPublishFull = hasTime ? `${newD}T${timePart}` : newD;
+                              setPublishDate(newPublishFull);
+                              if (expiryDate && dayjs(newPublishFull).isAfter(dayjs(expiryDate))) {
+                                setExpiryDate(expiryDate.split("T")[0]);
+                              }
                             }}
                           />
                         </Box>
                         <Box sx={{ flex: 1 }}>
                           <CustomTimePicker
-                            label="Publish Time"
+                            label={t("admissionBuilder.publishTime")}
                             disabled={!publishDate || Boolean(editData && !editData.isDraft && editData.publish_date && dayjs(editData.publish_date).isBefore(dayjs()))}
                             minuteStep={5}
+                            required
                             sx={{ width: "var(--size-full)", ...themePickerSx }}
                             maxTime={
                               publishDate && expiryDate && expiryDate.includes("T") && dayjs(publishDate).isSame(dayjs(expiryDate), "day")
@@ -832,7 +1191,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                               const newPublishFull = `${baseDate}T${newTime.format("HH:mm")}`;
                               setPublishDate(newPublishFull);
                               if (expiryDate && dayjs(newPublishFull).isAfter(dayjs(expiryDate))) {
-                                setExpiryDate("");
+                                setExpiryDate(expiryDate.split("T")[0]);
                               }
                             }}
                           />
@@ -841,33 +1200,42 @@ export default function AdmissionModal({ open, onClose, editData }) {
                     </Box>
 
                     <Box>
-                      <Box sx={{ display: "flex", gap: 2 }}>
+                      <Box sx={{ display: "flex", gap: 1.5 }}>
                         <Box sx={{ flex: 1 }}>
                           <DesktopDatePicker
-                            label="Expiry Date *"
+                            label={t("admissionBuilder.expiryDate")}
                             showToolbar
                             toolbarFormat="DD MMMM YYYY"
                             format="DD/MM/YYYY"
                             disabled={!publishDate}
                             slots={{ textField: CustomFloatingInput }}
-                            slotProps={globalDatePickerSlotProps}
+                            slotProps={{ ...globalDatePickerSlotProps, textField: { required: true, error: !!errors[`stage_${activeStageTab}_end`] } }}
                             sx={{ width: "var(--size-full)", ...themePickerSx }}
                             minDate={publishDate ? dayjs(publishDate) : dayjs()}
                             value={expiryDate ? dayjs(expiryDate) : null}
+                            error={!!errors.expiryDate}
                             onChange={(newDate) => {
                               if (!newDate) return setExpiryDate("");
                               const hasTime = expiryDate && expiryDate.includes("T");
                               const timePart = hasTime ? expiryDate.split("T")[1] : "";
                               const newD = newDate.format("YYYY-MM-DD");
-                              setExpiryDate(hasTime ? `${newD}T${timePart}` : newD);
+                              let newExpiryFull = hasTime ? `${newD}T${timePart}` : newD;
+
+                              if (hasTime && publishDate && publishDate.includes("T")) {
+                                if (dayjs(newExpiryFull).isBefore(dayjs(publishDate))) {
+                                  newExpiryFull = newD; // wipe time if invalid
+                                }
+                              }
+                              setExpiryDate(newExpiryFull);
                             }}
                           />
                         </Box>
                         <Box sx={{ flex: 1 }}>
                           <CustomTimePicker
-                            label="Expiry Time"
+                            label={t("admissionBuilder.expiryTime")}
                             disabled={!expiryDate}
                             minuteStep={5}
+                            required
                             sx={{ width: "var(--size-full)", ...themePickerSx }}
                             minTime={
                               publishDate && publishDate.includes("T") && expiryDate && dayjs(publishDate).isSame(dayjs(expiryDate), "day")
@@ -898,10 +1266,11 @@ export default function AdmissionModal({ open, onClose, editData }) {
 
                     <Box>
                       <CustomFloatingInput
-                        label="Seats Available *"
+                        label={t("admissionBuilder.seatsAvailable")}
                         type="number"
-                        placeholder="E.G. 100"
+                        required
                         value={maxCandidates}
+                        error={!!errors.maxCandidates}
                         onKeyDown={(e) => {
                           if (["e", "E", "+", "-", ".", ","].includes(e.key))
                             e.preventDefault();
@@ -922,7 +1291,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                   sx={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: 2,
+                    gap: 1.5,
                     width: "var(--size-full)",
                   }}
                 >
@@ -936,8 +1305,8 @@ export default function AdmissionModal({ open, onClose, editData }) {
                     }}
                   >
                     <Typography
-                      variant="h5"
-                      sx={{ fontWeight: 800, color: "var(--color-slate-900)" }}
+                      variant="h6"
+                      sx={{ fontWeight: 'var(--font-bold)', color: "var(--color-slate-900)", fontSize: 'var(--font-lg)' }}
                     >
                       {t("admissionBuilder.stagesHeading")}
                     </Typography>
@@ -948,15 +1317,14 @@ export default function AdmissionModal({ open, onClose, editData }) {
                       size="small"
                       sx={{
                         textTransform: "none",
-                        borderRadius: 'var(--radius-md)',
+                        borderRadius: 'var(--radius-sm)',
                         fontWeight: 'var(--font-bold)',
                         borderColor: "var(--color-primary)",
                         color: "var(--color-primary)",
-                        fontSize: 'var(--font-xs)',
+                        fontSize: 'var(--font-sm)',
                         py: 0.5,
-                        border: "1.5px solid var(--color-primary)",
                         "&:hover": {
-                          border: "1.5px solid #004494",
+                          borderColor: "#004494",
                           backgroundColor: "rgba(0, 86, 179, 0.04)",
                         },
                       }}
@@ -972,19 +1340,19 @@ export default function AdmissionModal({ open, onClose, editData }) {
                           borderRadius: 'var(--radius-lg)',
                           mt: 0.5,
                           border: themeBorderSx,
-                          background: "rgba(255, 255, 255, 0.9)",
-                          backdropFilter: "blur(30px)",
-                          minWidth: "220px",
+                          backgroundColor: "var(--card-bg)",
+                          backdropFilter: "var(--card-blur)",
+                          minWidth: "180px",
                           "& .MuiList-root": {
                             py: 0.5,
                           },
                           "& .MuiMenuItem-root": {
-                            gap: 1.5,
-                            px: 2,
-                            py: 1,
+                            gap: 1,
+                            px: 1.5,
+                            py: 0.75,
                             fontWeight: 'var(--font-medium)',
                             color: "var(--color-slate-900)",
-                            fontSize: 'var(--font-sm)',
+                            fontSize: 'var(--font-xs)',
                             transition: "all var(--transition-base)",
                             "&:hover": {
                               backgroundColor: "rgba(0, 86, 179, 0.06)",
@@ -994,7 +1362,6 @@ export default function AdmissionModal({ open, onClose, editData }) {
                       }}
                     >
                       <MenuItem
-                        sx={{ gap: 1.5, alignItems: "center" }}
                         disabled={stages.some((s) => s.type === "document")}
                         onClick={() => addStage("document")}
                       >
@@ -1003,13 +1370,12 @@ export default function AdmissionModal({ open, onClose, editData }) {
                             color: stages.some((s) => s.type === "document")
                               ? "text.disabled"
                               : "var(--color-primary)",
-                            fontSize: "14px",
+                            fontSize: 'var(--font-lg)',
                           }}
-                        />{" "}
-                        Applicant Details
+                        />
+                        {t("admissionBuilder.menuDocRequest") || "Applicant Details"}
                       </MenuItem>
                       <MenuItem
-                        sx={{ gap: 1.5, alignItems: "center" }}
                         disabled={stages.some((s) => s.type === "quiz")}
                         onClick={() => addStage("quiz")}
                       >
@@ -1018,13 +1384,12 @@ export default function AdmissionModal({ open, onClose, editData }) {
                             color: stages.some((s) => s.type === "quiz")
                               ? "text.disabled"
                               : "var(--color-primary)",
-                            fontSize: "14px",
+                            fontSize: 'var(--font-lg)',
                           }}
-                        />{" "}
+                        />
                         {t("admissionBuilder.menuCreateQuiz")}
                       </MenuItem>
                       <MenuItem
-                        sx={{ gap: 1.5, alignItems: "center" }}
                         disabled={stages.some((s) => s.type === "interview")}
                         onClick={() => addStage("interview")}
                       >
@@ -1033,13 +1398,12 @@ export default function AdmissionModal({ open, onClose, editData }) {
                             color: stages.some((s) => s.type === "interview")
                               ? "text.disabled"
                               : "var(--color-primary)",
-                            fontSize: "14px",
+                            fontSize: 'var(--font-lg)',
                           }}
-                        />{" "}
+                        />
                         {t("admissionBuilder.menuScheduleInterview")}
                       </MenuItem>
                       <MenuItem
-                        sx={{ gap: 1.5, alignItems: "center" }}
                         disabled={stages.some((s) => s.type === "payment")}
                         onClick={() => addStage("payment")}
                       >
@@ -1048,10 +1412,10 @@ export default function AdmissionModal({ open, onClose, editData }) {
                             color: stages.some((s) => s.type === "payment")
                               ? "text.disabled"
                               : "var(--color-primary)",
-                            fontSize: "14px",
+                            fontSize: 'var(--font-lg)',
                           }}
-                        />{" "}
-                        Request Payment
+                        />
+                        {t("admissionBuilder.menuSetupPayment") || "Request Payment"}
                       </MenuItem>
                     </Menu>
                   </Box>
@@ -1062,7 +1426,9 @@ export default function AdmissionModal({ open, onClose, editData }) {
                         p: 6,
                         textAlign: "center",
                         borderRadius: 'var(--radius-lg)',
-                        bgcolor: "rgba(255,255,255,0.4)",
+                        bgcolor: "var(--card-bg)",
+                        backdropFilter: "var(--card-blur)",
+                        border: "var(--border-thin) solid var(--card-border)",
                       }}
                     >
                       <Typography
@@ -1104,12 +1470,11 @@ export default function AdmissionModal({ open, onClose, editData }) {
                           display: "flex",
                           gap: 1,
                           flexWrap: "nowrap",
-                          mb: 2,
-                          px: 1,
+                          m: 0,
+                          mb: 1, // Reduced gap as requested
                           overflowX: "auto",
                           listStyle: "none",
-                          margin: 0,
-                          padding: "4px",
+                          p: 0, // Removed padding so width perfectly aligns with the stage below
                           "&::-webkit-scrollbar": { height: "4px" },
                           "&::-webkit-scrollbar-thumb": {
                             backgroundColor: "rgba(0,0,0,0.1)",
@@ -1131,7 +1496,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                             <Reorder.Item
                               key={stage.id}
                               value={stage}
-                              style={{ listStyle: "none", flex: 1, minWidth: "160px" }}
+                              style={{ listStyle: "none", flex: 1, minWidth: "160px", display: "flex" }}
                             >
                               <Box
                                 onClick={() => setActiveStageTab(idx)}
@@ -1141,18 +1506,20 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                   gap: 1,
                                   px: 2,
                                   py: 1,
+                                  height: "48px", // Force exact height for all tabs
                                   flex: 1,
                                   width: "var(--size-full)",
                                   minWidth: 0,
                                   flexShrink: 0,
-                                  borderRadius: 'var(--radius-lg)',
+                                  borderRadius: 'var(--radius-md)',
                                   cursor: "pointer",
                                   border: isActive
-                                    ? "1.5px solid var(--color-primary)"
-                                    : "1.5px solid rgba(203,213,225,0.8)",
+                                    ? "var(--border-thin) solid var(--color-primary)"
+                                    : "var(--border-thin) solid var(--card-border)",
                                   backgroundColor: isActive
                                     ? "rgba(0,86,179,0.06)"
-                                    : "rgba(255,255,255,0.7)",
+                                    : "var(--card-bg)",
+                                  backdropFilter: "var(--card-blur)",
                                   transition: "background-color 0.18s, border-color 0.18s",
                                   "&:active": { cursor: "grabbing" },
                                   "&:hover": {
@@ -1164,14 +1531,14 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                 <DragIndicatorIcon
                                   sx={{
                                     fontSize: 'var(--font-sm)',
-                                    color: "var(--color-slate-200)",
+                                    color: "var(--color-slate-400)",
                                     flexShrink: 0,
                                     mr: -0.5,
                                   }}
                                 />
                                 <StageIcon
                                   sx={{
-                                    fontSize: 'var(--font-base)',
+                                    fontSize: 'var(--font-sm)',
                                     color: isActive ? "var(--color-primary)" : "var(--color-slate-500)",
                                     flexShrink: 0,
                                   }}
@@ -1187,7 +1554,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                     textOverflow: "ellipsis",
                                   }}
                                 >
-                                  {stage.title || `Stage ${idx + 1}`}
+                                  {getTranslatedTitle(stage.title, stage.type || "document")}
                                 </Typography>
                               </Box>
                             </Reorder.Item>
@@ -1200,45 +1567,23 @@ export default function AdmissionModal({ open, onClose, editData }) {
                         (() => {
                           const stage = stages[activeStageTab];
                           return (
-                            <Accordion
-                              elevation={0}
+                            <CustomAccordion
                               key={stage.id}
-                              disableGutters
                               defaultExpanded
-                              sx={{
-                                borderRadius: "12px",
-                                border: "1.5px solid rgba(30,79,163,0.15)",
-                                background: "rgba(255,255,255,0.5)",
-                                backdropFilter: "blur(20px)",
-                                "&::before": { display: "none" },
-                                overflow: "hidden",
-                                transform: "translateZ(0)",
-                              }}
                             >
                               {/* Header — AccordionSummary */}
-                              <AccordionSummary
+                              <CustomAccordionSummary
                                 expandIcon={
                                   <ExpandMoreIcon sx={{ color: "var(--color-primary)" }} />
                                 }
                                 sx={{
                                   px: { xs: 1.5, sm: 2.25 },
-                                  py: 0,
                                   height: "64px",
                                   minHeight: "64px",
-                                  borderBottom: "none",
-                                  transition: "none",
-                                  "&&, &&:focus, &&:hover, &&:active, &&.Mui-expanded, &&.Mui-focusVisible":
-                                  {
-                                    background: "#e0e7ff",
-                                    backgroundColor: "#e0e7ff",
-                                  },
                                   "& .MuiAccordionSummary-content": {
                                     alignItems: "center",
                                     gap: 1.5,
-                                    m: 0,
                                   },
-                                  "& .MuiAccordionSummary-content.Mui-expanded":
-                                    { m: 0 },
                                 }}
                               >
                                 {stage.type === "document" ? (
@@ -1275,7 +1620,8 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                   />
                                 )}
                                 <TextField
-                                  value={stage.title}
+                                  value={getTranslatedTitle(stage.title, stage.type || "document")}
+                                  error={!!errors[`stage_${activeStageTab}_title`]}
                                   onChange={(e) =>
                                     setStages(
                                       stages.map((s) =>
@@ -1297,7 +1643,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                     input: {
                                       fontWeight: 'var(--font-bold)',
                                       color: "var(--color-slate-900)",
-                                      fontSize: 'var(--font-base)',
+                                      fontSize: 'var(--font-sm)',
                                       py: 0.5,
                                     },
                                     "& .MuiInputBase-input": { p: 0 },
@@ -1314,18 +1660,17 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                 >
                                   <DeleteOutlineIcon fontSize="small" />
                                 </IconButton>
-                              </AccordionSummary>
+                              </CustomAccordionSummary>
 
                               {/* Content — AccordionDetails */}
-                              <AccordionDetails
+                              <CustomAccordionDetails
                                 sx={{
                                   pt: 2,
                                   pb: 3,
                                   pl: { xs: 2, sm: "46px" },
                                   pr: 2,
-                                  background: "rgba(255,255,255,0.65)",
-                                  borderBottomLeftRadius: "var(--radius-lg)",
-                                  borderBottomRightRadius: "var(--radius-lg)",
+                                  background: "transparent",
+                                  borderTop: "var(--border-thin) solid var(--card-border)",
                                   maxHeight: "calc(92vh - 534px)",
                                   overflowY: "auto",
                                   "&::-webkit-scrollbar": { width: "6px" },
@@ -1350,7 +1695,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                     >
                                       <Box
                                         sx={{
-                                          mb: 3,
+                                          mb: 2,
                                           p: 2,
                                           bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)",
                                           borderRadius: 'var(--radius-lg)',
@@ -1358,238 +1703,223 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                         }}
                                       >
                                         <Typography
-                                          variant="subtitle2"
                                           sx={{
                                             fontWeight: 'var(--font-semibold)',
                                             color: "var(--color-slate-900)",
+                                            fontSize: 'var(--font-sm)',
                                             mb: 2,
                                             display: "flex",
                                             alignItems: "center",
                                           }}
                                         >
-                                          <AccessTimeOutlinedIcon
-                                            sx={{
-                                              fontSize: 16,
-                                              mr: 1,
-                                              color: "var(--color-primary)",
-                                            }}
-                                          />
-                                          Stage Timeline
+                                          {t("admissionBuilder.timeline")}
                                         </Typography>
-                                        <Box
-                                          sx={{
-                                            display: "flex",
-                                            flexDirection: {
-                                              xs: "column",
-                                              md: "row",
-                                            },
-                                            gap: 2,
-                                          }}
-                                        >
-                                          <Box
-                                            sx={{
-                                              flex: 1,
-                                              display: "flex",
-                                              gap: 1,
-                                              alignItems: "center",
-                                            }}
-                                          >
-                                            <DesktopDatePicker
-                                              showToolbar
-                                              toolbarFormat="DD MMMM YYYY"
-                                              label="Start Date"
-                                              format="DD/MM/YYYY"
-                                              slots={{ textField: CustomFloatingInput }}
-                                              slotProps={globalDatePickerSlotProps}
-                                              disabled={isStageStarted}
-                                              sx={{
-                                                width: "var(--size-full)",
-                                                ...themePickerSx,
-                                              }}
-                                              minDate={
-                                                publishDate
-                                                  ? dayjs(publishDate)
-                                                  : undefined
-                                              }
-                                              maxDate={
-                                                stage.endDateOnly
-                                                  ? dayjs(stage.endDateOnly)
-                                                  : expiryDate
-                                                    ? dayjs(expiryDate)
-                                                    : undefined
-                                              }
-                                              value={stage.startDateOnly ? dayjs(stage.startDateOnly) : null}
-                                              onChange={(newDate) => {
-                                                if (!newDate) {
-                                                  setStages(stages.map((s) => s.id === stage.id ? { ...s, startDateOnly: "", startDate: "" } : s));
-                                                  return;
-                                                }
-                                                const d = newDate.format("YYYY-MM-DD");
-
-                                                // Hard validation to prevent typing invalid dates
-                                                if (publishDate && dayjs(d).isBefore(dayjs(publishDate), "day")) {
-                                                  setStages(stages.map((s) => s.id === stage.id ? { ...s, startDateOnly: "", startDate: "", startTimeOnly: "", endDateOnly: "", endTimeOnly: "", endDate: "" } : s));
-                                                  return;
-                                                }
-                                                if (expiryDate && dayjs(d).isAfter(dayjs(expiryDate), "day")) {
-                                                  setStages(stages.map((s) => s.id === stage.id ? { ...s, startDateOnly: "", startDate: "", startTimeOnly: "", endDateOnly: "", endTimeOnly: "", endDate: "" } : s));
-                                                  return;
-                                                }
-
-                                                const combined = stage.startTimeOnly ? `${d}T${stage.startTimeOnly}` : "";
-                                                setStages(
-                                                  stages.map((s) =>
-                                                    s.id === stage.id
-                                                      ? {
-                                                        ...s,
-                                                        startDateOnly: d,
-                                                        startDate: combined,
-                                                        startTimeOnly: "",
-                                                        endDateOnly: "",
-                                                        endTimeOnly: "",
-                                                        endDate: "",
-                                                      }
-                                                      : s,
-                                                  ),
-                                                );
-                                              }}
-                                            />
-                                            <CustomTimePicker
-                                              label="Start Time"
-                                              disabled={!stage.startDateOnly || isStageStarted}
-                                              minuteStep={5}
-                                              sx={{ width: "var(--size-full)", ...themePickerSx }}
-                                              maxTime={
-                                                stage.startDateOnly && stage.endDateOnly && stage.startDateOnly === stage.endDateOnly && stage.endTimeOnly
-                                                  ? dayjs(`2000-01-01T${stage.endTimeOnly}`)
-                                                  : undefined
-                                              }
-                                              value={stage.startTimeOnly ? dayjs(`2000-01-01T${stage.startTimeOnly}`) : null}
-                                              onChange={(newTime) => {
-                                                if (!newTime) {
-                                                  setStages(stages.map((s) => s.id === stage.id ? { ...s, startTimeOnly: "", startDate: "" } : s));
-                                                  return;
-                                                }
-                                                const t = newTime.format("HH:mm");
-                                                const combined = stage.startDateOnly ? `${stage.startDateOnly}T${t}` : "";
-                                                setStages(stages.map((s) => s.id === stage.id ? {
-                                                  ...s,
-                                                  startTimeOnly: t,
-                                                  startDate: combined,
-                                                  endDateOnly: "",
-                                                  endTimeOnly: "",
-                                                  endDate: "",
-                                                } : s));
-                                              }}
-                                            />
-                                          </Box>
-                                          <Box
-                                            sx={{
-                                              flex: 1,
-                                              display: "flex",
-                                              gap: 1,
-                                              alignItems: "center",
-                                            }}
-                                          >
-                                            <DesktopDatePicker
-                                              showToolbar
-                                              toolbarFormat="DD MMMM YYYY"
-                                              label="End Date"
-                                              format="DD/MM/YYYY"
-                                              disabled={!stage.startDateOnly || !stage.startTimeOnly || isStageStarted}
-                                              slotProps={globalDatePickerSlotProps}
-                                              sx={{
-                                                width: "var(--size-full)",
-                                                ...themePickerSx,
-                                              }}
-                                              minDate={
-                                                stage.startDateOnly
-                                                  ? dayjs(stage.startDateOnly)
-                                                  : publishDate
+                                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                                          <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 1.5 }}>
+                                            <Box sx={{ flex: 1 }}>
+                                              <DesktopDatePicker
+                                                showToolbar
+                                                toolbarFormat="DD MMMM YYYY"
+                                                label={t("admissionBuilder.startDate")}
+                                                format="DD/MM/YYYY"
+                                                slots={{ textField: CustomFloatingInput }}
+                                                slotProps={{ ...globalDatePickerSlotProps, textField: { required: true } }}
+                                                disabled={isStageStarted}
+                                                sx={{
+                                                  flex: 1,
+                                                  width: "var(--size-full)",
+                                                  ...themePickerSx,
+                                                }}
+                                                minDate={
+                                                  publishDate
                                                     ? dayjs(publishDate)
                                                     : undefined
-                                              }
-                                              maxDate={
-                                                expiryDate
-                                                  ? dayjs(expiryDate)
-                                                  : undefined
-                                              }
-                                              value={stage.endDateOnly ? dayjs(stage.endDateOnly) : null}
-                                              onChange={(newDate) => {
-                                                if (!newDate) {
-                                                  setStages(stages.map((s) => s.id === stage.id ? { ...s, endDateOnly: "", endDate: "" } : s));
-                                                  return;
                                                 }
-                                                const d = newDate.format("YYYY-MM-DD");
-
-                                                // Hard validation to prevent typing invalid dates
-                                                if (stage.startDateOnly && d < stage.startDateOnly) {
-                                                  setStages(stages.map((s) => s.id === stage.id ? { ...s, endDateOnly: "", endDate: "", endTimeOnly: "" } : s));
-                                                  return;
+                                                maxDate={
+                                                  stage.endDateOnly
+                                                    ? dayjs(stage.endDateOnly)
+                                                    : expiryDate
+                                                      ? dayjs(expiryDate)
+                                                      : undefined
                                                 }
-                                                if (publishDate && dayjs(d).isBefore(dayjs(publishDate), "day")) {
-                                                  setStages(stages.map((s) => s.id === stage.id ? { ...s, endDateOnly: "", endDate: "", endTimeOnly: "" } : s));
-                                                  return;
-                                                }
-                                                if (expiryDate && dayjs(d).isAfter(dayjs(expiryDate), "day")) {
-                                                  setStages(stages.map((s) => s.id === stage.id ? { ...s, endDateOnly: "", endDate: "", endTimeOnly: "" } : s));
-                                                  return;
-                                                }
-
-                                                const combined = stage.endTimeOnly ? `${d}T${stage.endTimeOnly}` : "";
-                                                setStages(
-                                                  stages.map((s) =>
-                                                    s.id === stage.id
-                                                      ? {
-                                                        ...s,
-                                                        endDateOnly: d,
-                                                        endDate: combined,
-                                                        endTimeOnly: "",
-                                                      }
-                                                      : s,
-                                                  ),
-                                                );
-                                              }}
-                                            />
-                                            <CustomTimePicker
-                                              label="End Time"
-                                              disabled={!stage.endDateOnly || !stage.startDateOnly || !stage.startTimeOnly || isStageStarted}
-                                              minuteStep={5}
-                                              sx={{ width: "var(--size-full)", ...themePickerSx }}
-                                              minTime={
-                                                stage.startDateOnly &&
-                                                  stage.endDateOnly &&
-                                                  stage.startDateOnly === stage.endDateOnly &&
-                                                  stage.startTimeOnly
-                                                  ? dayjs(`2000-01-01T${stage.startTimeOnly}`)
-                                                  : undefined
-                                              }
-                                              value={stage.endTimeOnly ? dayjs(`2000-01-01T${stage.endTimeOnly}`) : null}
-                                              onChange={(newTime) => {
-                                                if (!newTime) {
-                                                  setStages(stages.map((s) => s.id === stage.id ? { ...s, endTimeOnly: "", endDate: "" } : s));
-                                                  return;
-                                                }
-                                                const t = newTime.format("HH:mm");
-
-                                                // Hard validation to prevent selecting AM when disabled or typing invalid time
-                                                if (
-                                                  stage.startDateOnly &&
-                                                  stage.endDateOnly &&
-                                                  stage.startDateOnly === stage.endDateOnly &&
-                                                  stage.startTimeOnly
-                                                ) {
-                                                  if (t < stage.startTimeOnly) {
-                                                    setStages(stages.map((s) => s.id === stage.id ? { ...s, endTimeOnly: "", endDate: "" } : s));
-                                                    return; // Force clear
+                                                value={stage.startDateOnly ? dayjs(stage.startDateOnly) : null}
+                                                onChange={(newDate) => {
+                                                  if (!newDate) {
+                                                    setStages(stages.map((s) => s.id === stage.id ? { ...s, startDateOnly: "", startDate: "" } : s));
+                                                    return;
                                                   }
-                                                }
+                                                  const d = newDate.format("YYYY-MM-DD");
 
-                                                const combined = stage.endDateOnly ? `${stage.endDateOnly}T${t}` : "";
-                                                setStages(stages.map((s) => s.id === stage.id ? { ...s, endTimeOnly: t, endDate: combined } : s));
-                                              }}
-                                            />
+                                                  // Hard validation to prevent typing invalid dates
+                                                  if (publishDate && dayjs(d).isBefore(dayjs(publishDate), "day")) {
+                                                    setStages(stages.map((s) => s.id === stage.id ? { ...s, startDateOnly: "", startDate: "", startTimeOnly: "", endDateOnly: "", endTimeOnly: "", endDate: "" } : s));
+                                                    return;
+                                                  }
+                                                  if (expiryDate && dayjs(d).isAfter(dayjs(expiryDate), "day")) {
+                                                    setStages(stages.map((s) => s.id === stage.id ? { ...s, startDateOnly: "", startDate: "", startTimeOnly: "", endDateOnly: "", endTimeOnly: "", endDate: "" } : s));
+                                                    return;
+                                                  }
+
+                                                  const combined = stage.startTimeOnly ? `${d}T${stage.startTimeOnly}` : "";
+                                                  setStages(
+                                                    stages.map((s) =>
+                                                      s.id === stage.id
+                                                        ? {
+                                                          ...s,
+                                                          startDateOnly: d,
+                                                          startDate: combined,
+                                                          startTimeOnly: "",
+                                                          endDateOnly: "",
+                                                          endTimeOnly: "",
+                                                          endDate: "",
+                                                        }
+                                                        : s,
+                                                    ),
+                                                  );
+                                                }}
+                                              />
+                                            </Box>
+                                            <Box sx={{ flex: 1 }}>
+                                              <CustomTimePicker
+                                                required
+                                                label={t("admissionBuilder.startTime")}
+                                                disabled={!stage.startDateOnly || isStageStarted}
+                                                minuteStep={5}
+                                                sx={{ flex: 1, width: "var(--size-full)", ...themePickerSx }}
+                                                maxTime={
+                                                  stage.startDateOnly && stage.endDateOnly && stage.startDateOnly === stage.endDateOnly && stage.endTimeOnly
+                                                    ? dayjs(`2000-01-01T${stage.endTimeOnly}`)
+                                                    : undefined
+                                                }
+                                                value={stage.startTimeOnly ? dayjs(`2000-01-01T${stage.startTimeOnly}`) : null}
+                                                onChange={(newTime) => {
+                                                  if (!newTime) {
+                                                    setStages(stages.map((s) => s.id === stage.id ? { ...s, startTimeOnly: "", startDate: "" } : s));
+                                                    return;
+                                                  }
+                                                  const t = newTime.format("HH:mm");
+                                                  const combined = stage.startDateOnly ? `${stage.startDateOnly}T${t}` : "";
+                                                  setStages(stages.map((s) => s.id === stage.id ? {
+                                                    ...s,
+                                                    startTimeOnly: t,
+                                                    startDate: combined,
+                                                    endDateOnly: "",
+                                                    endTimeOnly: "",
+                                                    endDate: "",
+                                                  } : s));
+                                                }}
+                                              />
+                                            </Box>
                                           </Box>
+
+                                          <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 1.5 }}>
+                                            <Box sx={{ flex: 1 }}>
+                                              <DesktopDatePicker
+                                                showToolbar
+                                                toolbarFormat="DD MMMM YYYY"
+                                                label={t("admissionBuilder.endDate")}
+                                                format="DD/MM/YYYY"
+                                                slots={{ textField: CustomFloatingInput }}
+                                                slotProps={{ ...globalDatePickerSlotProps, textField: { required: true } }}
+                                                disabled={!stage.startDateOnly || !stage.startTimeOnly || isStageStarted}
+                                                sx={{
+                                                  flex: 1,
+                                                  width: "var(--size-full)",
+                                                  ...themePickerSx,
+                                                }}
+                                                minDate={
+                                                  stage.startDateOnly
+                                                    ? dayjs(stage.startDateOnly)
+                                                    : publishDate
+                                                      ? dayjs(publishDate)
+                                                      : undefined
+                                                }
+                                                maxDate={
+                                                  expiryDate
+                                                    ? dayjs(expiryDate)
+                                                    : undefined
+                                                }
+                                                value={stage.endDateOnly ? dayjs(stage.endDateOnly) : null}
+                                                onChange={(newDate) => {
+                                                  if (!newDate) {
+                                                    setStages(stages.map((s) => s.id === stage.id ? { ...s, endDateOnly: "", endDate: "" } : s));
+                                                    return;
+                                                  }
+                                                  const d = newDate.format("YYYY-MM-DD");
+
+                                                  // Hard validation to prevent typing invalid dates
+                                                  if (stage.startDateOnly && d < stage.startDateOnly) {
+                                                    setStages(stages.map((s) => s.id === stage.id ? { ...s, endDateOnly: "", endDate: "", endTimeOnly: "" } : s));
+                                                    return;
+                                                  }
+                                                  if (publishDate && dayjs(d).isBefore(dayjs(publishDate), "day")) {
+                                                    setStages(stages.map((s) => s.id === stage.id ? { ...s, endDateOnly: "", endDate: "", endTimeOnly: "" } : s));
+                                                    return;
+                                                  }
+                                                  if (expiryDate && dayjs(d).isAfter(dayjs(expiryDate), "day")) {
+                                                    setStages(stages.map((s) => s.id === stage.id ? { ...s, endDateOnly: "", endDate: "", endTimeOnly: "" } : s));
+                                                    return;
+                                                  }
+
+                                                  const combined = stage.endTimeOnly ? `${d}T${stage.endTimeOnly}` : "";
+                                                  setStages(
+                                                    stages.map((s) =>
+                                                      s.id === stage.id
+                                                        ? {
+                                                          ...s,
+                                                          endDateOnly: d,
+                                                          endDate: combined,
+                                                          endTimeOnly: "",
+                                                        }
+                                                        : s,
+                                                    ),
+                                                  );
+                                                }}
+                                              />
+                                            </Box>
+                                            <Box sx={{ flex: 1 }}>
+                                              <CustomTimePicker
+                                                required
+                                                label={t("admissionBuilder.endTime")}
+                                                disabled={!stage.endDateOnly || !stage.startDateOnly || !stage.startTimeOnly || isStageStarted}
+                                                minuteStep={5}
+                                                sx={{ flex: 1, width: "var(--size-full)", ...themePickerSx }}
+                                                minTime={
+                                                  stage.startDateOnly &&
+                                                    stage.endDateOnly &&
+                                                    stage.startDateOnly === stage.endDateOnly &&
+                                                    stage.startTimeOnly
+                                                    ? dayjs(`2000-01-01T${stage.startTimeOnly}`)
+                                                    : undefined
+                                                }
+                                                value={stage.endTimeOnly ? dayjs(`2000-01-01T${stage.endTimeOnly}`) : null}
+                                                onChange={(newTime) => {
+                                                  if (!newTime) {
+                                                    setStages(stages.map((s) => s.id === stage.id ? { ...s, endTimeOnly: "", endDate: "" } : s));
+                                                    return;
+                                                  }
+                                                  const t = newTime.format("HH:mm");
+
+                                                  // Hard validation to prevent selecting AM when disabled or typing invalid time
+                                                  if (
+                                                    stage.startDateOnly &&
+                                                    stage.endDateOnly &&
+                                                    stage.startDateOnly === stage.endDateOnly &&
+                                                    stage.startTimeOnly
+                                                  ) {
+                                                    if (t < stage.startTimeOnly) {
+                                                      setStages(stages.map((s) => s.id === stage.id ? { ...s, endTimeOnly: "", endDate: "" } : s));
+                                                      return; // Force clear
+                                                    }
+                                                  }
+
+                                                  const combined = stage.endDateOnly ? `${stage.endDateOnly}T${t}` : "";
+                                                  setStages(stages.map((s) => s.id === stage.id ? { ...s, endTimeOnly: t, endDate: combined } : s));
+                                                }}
+                                              />
+                                            </Box>
+                                          </Box>
+
                                         </Box>
                                         {((stage.startDate &&
                                           publishDate &&
@@ -1736,19 +2066,20 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                     updateAcRecords(acRecords.map((r, idx) => idx === i ? { ...r, [field]: val } : r));
 
                                   return (
-                                    <Box sx={{ mt: 2, p: { xs: 0, sm: 1 } }}>
+                                    <Box sx={{ p: 0, mt: 0 }}>
                                       <Box
                                         sx={{
-                                          border: themeBorderSx,
+                                          border: errors[`stage_${activeStageTab}_doc_selection`] ? '1px solid var(--color-error)' : themeBorderSx,
                                           borderRadius: 'var(--radius-lg)',
-                                          bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)",
+                                          bgcolor: errors[`stage_${activeStageTab}_doc_selection`] ? 'rgba(239, 68, 68, 0.05)' : "var(--card-bg)", 
+                                          backdropFilter: "var(--card-blur)",
                                           p: 2,
-                                          mb: 2,
+                                          mb: 0,
                                         }}
                                       >
-                                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
-                                          <Typography sx={{ fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-base)' }}>
-                                            Applicant Details
+                                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 0.5 }}>
+                                          <Typography sx={{ fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-base)', lineHeight: 1.2 }}>
+                                            {t("admissionBuilder.applicantDetailsTitle") || "Applicant Details"}
                                           </Typography>
                                           <Typography
                                             onClick={() => {
@@ -1758,33 +2089,41 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                             }}
                                             sx={{ fontSize: 'var(--font-xs)', color: "var(--color-primary)", cursor: "pointer", fontWeight: 'var(--font-medium)', "&:hover": { textDecoration: "underline" } }}
                                           >
-                                            {allVisibleFields.every(f => selected.includes(f.key)) ? "Deselect All" : "Select All"}
+                                            {allVisibleFields.every(f => selected.includes(f.key)) ? (t("admissionBuilder.deselectAll") || "Deselect All") : (t("admissionBuilder.selectAll") || "Select All")}
                                           </Typography>
                                         </Box>
-                                        <Typography sx={{ fontWeight: 'var(--font-regular)', color: "var(--color-slate-500)", mb: 3, fontSize: "0.875rem" }}>
-                                          Select the fields that students must fill during this stage.
+                                        <Typography sx={{ fontWeight: 'var(--font-regular)', color: "var(--color-slate-500)", mb: 3, fontSize: 'var(--font-base)', lineHeight: 1.4 }}>
+                                          {t("admissionBuilder.applicantDetailsSub") || "Select the fields that students must fill during this stage."}
                                         </Typography>
+                                        {errors[`stage_${activeStageTab}_doc_selection`] && (
+                                          <Typography sx={{ color: 'var(--color-error)', fontSize: 'var(--font-sm)', mb: 2, fontWeight: 'var(--font-medium)' }}>
+                                            {language === 'en' ? "Please select at least one field or add an academic record." : "कृपया कम से कम एक फ़ील्ड चुनें या शैक्षणिक रिकॉर्ड जोड़ें।"}
+                                          </Typography>
+                                        )}
 
                                         {ALL_PI_FIELDS.map((group) => {
                                           if (group.isCustomBuilder) {
                                             return (
-                                              <Box key={group.group} sx={{ mb: 3 }}>
-                                                <Typography sx={{ fontWeight: 'var(--font-bold)', color: "var(--color-slate-900)", fontSize: 'var(--font-xs)', textTransform: "uppercase", letterSpacing: "0.06em", mb: 1.5 }}>
-                                                  {group.group}
+                                              <Box key={group.group} sx={{ mb: 1.5 }}>
+                                                <Typography sx={{ fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-base)', mb: 0.5 }}>
+                                                  {t(`admissionBuilder.groups.${group.group.replace(/[^A-Za-z]/g, '')}`) || group.group}
                                                 </Typography>
-                                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 1, pl: 0 }}>
+                                                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 1.5, alignItems: 'flex-start', mb: 1.5, pl: 0 }}>
                                                   {acRecords.map((rec, i) => (
-                                                    <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 1.5, py: 1.5, border: themeBorderSx, borderRadius: 'var(--radius-md)' }}>
-                                                      <input
-                                                        type="text"
-                                                        placeholder="e.g. 10th Marksheet, B.Tech Degree…"
+                                                    <Box key={i}>
+                                                      <CustomFloatingInput
+                                                        label={language === 'en' ? `Record ${i + 1}` : `रिकॉर्ड ${i + 1}`}
                                                         value={rec.name}
+                                                        error={!!errors[`stage_${activeStageTab}_doc_rec_${i}`]}
                                                         onChange={(e) => updateAcRecord(i, 'name', e.target.value)}
-                                                        style={{ flex: 1, border: 'none', outline: 'none', fontSize: 'var(--font-sm)', color: 'var(--color-slate-900)', background: 'transparent' }}
+                                                        InputProps={{
+                                                          endAdornment: (
+                                                            <IconButton size="small" onClick={() => removeAcRecord(i)} color="error" sx={{ color: 'var(--color-error) !important', mr: -1 }}>
+                                                              <DeleteOutlineIcon sx={{ fontSize: 'var(--font-base)' }} />
+                                                            </IconButton>
+                                                          )
+                                                        }}
                                                       />
-                                                      <IconButton size="small" onClick={() => removeAcRecord(i)} sx={{ color: 'var(--color-error)', p: 0.4 }}>
-                                                        <DeleteOutlineIcon sx={{ fontSize: 'var(--font-base)' }} />
-                                                      </IconButton>
                                                     </Box>
                                                   ))}
                                                 </Box>
@@ -1792,10 +2131,20 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                                   variant="outlined"
                                                   size="small"
                                                   onClick={addAcRecord}
-                                                  startIcon={<AddIcon sx={{ fontSize: '15px' }} />}
-                                                  sx={{ textTransform: 'none', fontSize: '0.78rem', borderRadius: 'var(--radius-md)' }}
+                                                  startIcon={<AddIcon sx={{ fontSize: 'var(--font-base)' }} />}
+                                                  sx={{
+                                                    textTransform: 'none',
+                                                    color: "var(--color-primary)",
+                                                    fontWeight: 'var(--font-bold)',
+                                                    borderColor: "var(--color-primary)",
+                                                    borderRadius: 'var(--radius-sm)',
+                                                    "&:hover": {
+                                                      borderColor: "var(--color-primary-hover)",
+                                                      bgcolor: "rgba(0,86,179,0.04)",
+                                                    },
+                                                  }}
                                                 >
-                                                  Add Academic Record
+                                                  {t("admissionBuilder.addAcademicRecordBtn") || "Add Academic Record"}
                                                 </Button>
                                               </Box>
                                             );
@@ -1803,37 +2152,32 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                           const allGroupChecked = group.fields.every(f => selected.includes(f.key));
                                           const someGroupChecked = group.fields.some(f => selected.includes(f.key));
                                           return (
-                                            <Box key={group.group} sx={{ mb: 3 }}>
-                                              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+                                            <Box key={group.group} sx={{ mb: 1.5 }}>
+                                              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
                                                 <CustomCheckbox
                                                   checked={allGroupChecked}
                                                   indeterminate={someGroupChecked && !allGroupChecked}
                                                   onChange={() => toggleGroup(group.fields)}
-                                                  sx={{ p: 0.5 }}
+                                                  sx={{ p: 0 }}
                                                 />
-                                                <Typography sx={{ fontWeight: 'var(--font-bold)', color: "var(--color-slate-900)", fontSize: 'var(--font-xs)', textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                                                  {group.group}
+                                                <Typography sx={{ fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-base)' }}>
+                                                  {t(`admissionBuilder.groups.${group.group.replace(/[^A-Za-z]/g, '')}`) || group.group}
                                                 </Typography>
                                               </Box>
-                                              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 0.5, pl: 3.5 }}>
+                                              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 0, pl: 3.5 }}>
                                                 {group.fields.map(field => (
-                                                  <Box key={field.key} sx={{ width: "100%", display: "flex", alignItems: "center", py: 0.5 }}>
+                                                  <Box key={field.key} sx={{ width: "100%", display: "flex", alignItems: "center" }}>
                                                     <CustomCheckbox
                                                       checked={selected.includes(field.key)}
                                                       onChange={() => toggleField(field)}
                                                       label={
                                                         <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-                                                          <Typography sx={{ fontSize: "0.875rem", color: "var(--color-slate-900)" }}>
-                                                            {field.label}
+                                                          <Typography sx={{ fontSize: 'var(--font-sm)', color: "var(--color-slate-800)", fontWeight: 'var(--font-medium)' }}>
+                                                            {t(`admissionBuilder.fields.${field.key}`) || field.label}
                                                           </Typography>
-                                                          {field.required && (
-                                                            <Typography sx={{ fontSize: "0.75rem", color: "var(--color-error)", fontWeight: 'var(--font-medium)' }}>
-                                                              *
-                                                            </Typography>
-                                                          )}
                                                         </Box>
                                                       }
-                                                      sx={{ p: 0.5, width: "100%" }}
+                                                      sx={{ p: 0, width: "100%" }}
                                                     />
                                                   </Box>
                                                 ))}
@@ -1849,19 +2193,16 @@ export default function AdmissionModal({ open, onClose, editData }) {
 
                                 {/* Quiz stage */}
                                 {stage.type === "quiz" && (
-                                  <Box>
-                                    <Typography
-                                      sx={{
-                                        fontWeight: 'var(--font-semibold)',
-                                        color: "var(--color-slate-500)",
-                                        mb: 3,
-                                      }}
-                                    >
-                                      {t("admissionBuilder.attachQuiz")}
-                                    </Typography>
+                                  <Box
+                                    sx={{
+                                      border: themeBorderSx,
+                                      borderRadius: 'var(--radius-lg)',
+                                      bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)",
+                                      overflow: "hidden",
+                                    }}
+                                  >
                                     {!(stage.quizAttachments || []).length ? (
-                                      <Paper
-                                        elevation={0}
+                                      <Box
                                         onClick={(e) => {
                                           const rect =
                                             e.currentTarget.getBoundingClientRect();
@@ -1873,20 +2214,14 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                           setActiveQuizStageId(stage.id);
                                         }}
                                         sx={{
-                                          mb: 2,
-                                          p: 1.25,
-                                          borderRadius: 'var(--radius-md)',
-                                          bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)",
-                                          border:
-                                            "var(--border-thin) solid rgba(30,79,163,0.1)",
+                                          p: 2,
                                           display: "flex",
                                           flexDirection: "row",
                                           alignItems: "center",
-                                          gap: 2,
+                                          gap: 1.5,
                                           cursor: "pointer",
                                           transition: "all var(--transition-base)",
                                           "&:hover": {
-                                            borderColor: "var(--color-primary)",
                                             bgcolor: "rgba(0,86,179,0.03)",
                                           },
                                         }}
@@ -1928,113 +2263,50 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                         >
                                           + Click to select
                                         </Typography>
-                                      </Paper>
+                                      </Box>
                                     ) : (
-                                      <Box
-                                        sx={{
-                                          mb: 4,
-                                          display: "flex",
-                                          flexDirection: "column",
-                                          gap: 2,
-                                        }}
-                                      >
-                                        {(stage.quizAttachments || []).map(
-                                          (quiz) => (
+                                      <Box sx={{ display: "flex", flexDirection: "column" }}>
+                                        <Box
+                                          sx={{
+                                            display: "flex",
+                                            flexDirection: "row",
+                                            flexWrap: "wrap",
+                                            gap: 1.5,
+                                            p: 2,
+                                          }}
+                                        >
+                                          {(stage.quizAttachments || []).map((quiz) => (
                                             <Box
                                               key={quiz.id}
                                               sx={{
                                                 display: "flex",
                                                 alignItems: "center",
-                                                justifyContent: "space-between",
-                                                p: 1.25,
-                                                bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)",
-                                                border:
-                                                  "var(--border-thin) solid rgba(30,79,163,0.1)",
+                                                py: 0.75,
+                                                px: 1.5,
+                                                border: themeBorderSx,
                                                 borderRadius: 'var(--radius-md)',
+                                                bgcolor: "var(--card-bg)",
                                                 transition: "all var(--transition-base)",
                                                 "&:hover": {
                                                   borderColor: "var(--color-primary)",
                                                 },
-                                                width: "var(--size-full)",
-                                                maxWidth: "600px",
+                                                gap: 1,
+                                                flex: "1 1 calc(50% - 12px)",
+                                                maxWidth: "calc(50% - 12px)",
+                                                minWidth: 0,
                                               }}
                                             >
-                                              <Box
-                                                sx={{
-                                                  display: "flex",
-                                                  alignItems: "center",
-                                                  gap: 1.5,
-                                                  flex: 1,
-                                                }}
-                                              >
-                                                <Box
-                                                  sx={{
-                                                    width: 40,
-                                                    height: 40,
-                                                    borderRadius: 'var(--radius-md)',
-                                                    bgcolor: "transparent",
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    justifyContent: "center",
-                                                    color: "var(--color-primary)",
-                                                    flexShrink: 0,
-                                                  }}
-                                                >
-                                                  <QuizOutlinedIcon
-                                                    sx={{ fontSize: 22 }}
-                                                  />
-                                                </Box>
-                                                <Box
-                                                  sx={{
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    justifyContent:
-                                                      "space-between",
-                                                    flex: 1,
-                                                    pr: 3,
-                                                  }}
-                                                >
-                                                  <Typography
-                                                    noWrap
-                                                    sx={{
-                                                      fontWeight: 'var(--font-bold)',
-                                                      color: "var(--color-slate-900)",
-                                                      fontSize: 'var(--font-base)',
-                                                      overflow: "hidden",
-                                                      textOverflow: "ellipsis",
-                                                      maxWidth: "260px",
-                                                    }}
-                                                  >
-                                                    {quiz.name}
-                                                  </Typography>
-                                                  <Typography
-                                                    variant="body2"
-                                                    sx={{
-                                                      color: "var(--color-slate-500)",
-                                                      fontWeight: 800,
-                                                      fontSize: 'var(--font-sm)',
-                                                    }}
-                                                  >
-                                                    {quiz.size}
-                                                  </Typography>
-                                                </Box>
-                                              </Box>
-                                              <IconButton
-                                                onClick={() =>
-                                                  handleRemoveQuiz(
-                                                    stage.id,
-                                                    quiz.id,
-                                                  )
-                                                }
-                                                size="small"
-                                                sx={{ color: "var(--color-error)" }}
-                                              >
-                                                <DeleteOutlineIcon fontSize="small" />
+                                              <QuizOutlinedIcon sx={{ fontSize: 'var(--font-base)', color: "var(--color-primary)", flexShrink: 0 }} />
+                                              <Typography noWrap sx={{ fontWeight: 'var(--font-medium)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)', flex: 1, minWidth: 0 }}>
+                                                {quiz.name}
+                                              </Typography>
+                                              <IconButton onClick={() => handleRemoveQuiz(stage.id, quiz.id)} size="small" sx={{ p: 0.25, flexShrink: 0, color: "var(--color-error)" }}>
+                                                <DeleteOutlineIcon sx={{ fontSize: 'var(--font-base)' }} />
                                               </IconButton>
                                             </Box>
-                                          ),
-                                        )}
-                                        <Box>
+                                          ))}
+                                        </Box>
+                                        <Box sx={{ px: 2, pb: 1.5 }}>
                                           <Button
                                             size="small"
                                             startIcon={<AddIcon />}
@@ -2044,7 +2316,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                               color: "var(--color-primary)",
                                               fontWeight: 'var(--font-bold)',
                                               borderColor: "var(--color-primary)",
-                                              borderRadius: 'var(--radius-md)',
+                                              borderRadius: 'var(--radius-sm)',
                                               "&:hover": {
                                                 borderColor: "var(--color-primary-hover)",
                                                 bgcolor: "rgba(0,86,179,0.04)",
@@ -2063,7 +2335,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                               setActiveQuizStageId(stage.id);
                                             }}
                                           >
-                                            Attach Quiz
+                                            {t("admissionBuilder.attachQuizBtn")}
                                           </Button>
                                         </Box>
                                       </Box>
@@ -2073,12 +2345,20 @@ export default function AdmissionModal({ open, onClose, editData }) {
 
                                 {/* Interview stage */}
                                 {stage.type === "interview" && (
-                                  <Box>
+                                  <Box
+                                    sx={{
+                                      border: themeBorderSx,
+                                      borderRadius: 'var(--radius-lg)',
+                                      bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)",
+                                      p: 2,
+                                    }}
+                                  >
                                     <Typography
                                       sx={{
                                         fontWeight: 'var(--font-semibold)',
-                                        color: "var(--color-slate-500)",
-                                        mb: 3,
+                                        color: "var(--color-slate-900)",
+                                        fontSize: 'var(--font-sm)',
+                                        mb: 2,
                                       }}
                                     >
                                       {t(
@@ -2089,33 +2369,17 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                       sx={{
                                         display: "flex",
                                         flexDirection: "column",
-                                        gap: 3,
+                                        gap: 1.5,
                                       }}
                                     >
 
-                                      <Box sx={{ display: "flex", gap: 2 }}>
+                                      <Box sx={{ display: "flex", gap: 1.5 }}>
                                         <Box sx={{ flex: 1 }}>
-                                          <Typography
-                                            variant="body2"
-                                            sx={{
-                                              mb: 1,
-                                              fontWeight: 800,
-                                              color: "var(--color-slate-900)",
-                                              fontSize: 'var(--font-sm)',
-                                            }}
-                                          >
-                                            {t("admissionBuilder.meetingLink")}{" "}
-                                            <span style={{ color: "var(--color-slate-900)" }}>
-                                              *
-                                            </span>
-                                          </Typography>
-                                          <TextField
+                                          <CustomFloatingInput
                                             type="url"
-                                            placeholder={t(
-                                              "admissionBuilder.meetingLinkPlaceholder",
-                                            )}
-                                            fullWidth
-                                            sx={themeInputSx}
+                                            label={t("admissionBuilder.meetingLink")}
+                                            error={!!errors[`stage_${activeStageTab}_int_link`]}
+                                            required
                                             value={stage.interviewDetails?.meetingLink || ""}
                                             onChange={(e) =>
                                               setStages(stages.map((s) =>
@@ -2127,27 +2391,11 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                           />
                                         </Box>
                                         <Box sx={{ flex: 1 }}>
-                                          <Typography
-                                            variant="body2"
-                                            sx={{
-                                              mb: 1,
-                                              fontWeight: 800,
-                                              color: "var(--color-slate-900)",
-                                              fontSize: 'var(--font-sm)',
-                                            }}
-                                          >
-                                            {t("admissionBuilder.passcode")}{" "}
-                                            <span style={{ color: "var(--color-slate-900)" }}>
-                                              *
-                                            </span>
-                                          </Typography>
-                                          <TextField
+                                          <CustomFloatingInput
                                             type="text"
-                                            placeholder={t(
-                                              "admissionBuilder.passcodePlaceholder",
-                                            )}
-                                            fullWidth
-                                            sx={themeInputSx}
+                                            label={t("admissionBuilder.passcode")}
+                                            error={!!errors[`stage_${activeStageTab}_int_pass`]}
+                                            required
                                             value={stage.interviewDetails?.passcode || ""}
                                             onChange={(e) =>
                                               setStages(stages.map((s) =>
@@ -2159,28 +2407,19 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                           />
                                         </Box>
                                       </Box>
-                                      <Box sx={{ mb: 3 }}>
-                                        <Typography
-                                          variant="body2"
-                                          sx={{
-                                            mb: 1,
-                                            fontWeight: 800,
-                                            color: "var(--color-slate-900)",
-                                            fontSize: 'var(--font-sm)',
-                                          }}
-                                        >
-                                          {t(
-                                            "admissionBuilder.interviewInstructionsField",
-                                          )}
-                                        </Typography>
-                                        <TextField
-                                          fullWidth
+                                      <Box>
+                                        <CustomFloatingInput
+                                          label={t("admissionBuilder.interviewInstructionsField")}
                                           multiline
                                           rows={3}
-                                          placeholder={t(
-                                            "admissionBuilder.interviewInstructionsPlaceholder",
-                                          )}
-                                          sx={themeInputSx}
+                                          value={stage.interviewDetails?.instructions || ""}
+                                          onChange={(e) =>
+                                            setStages(stages.map((s) =>
+                                              s.id === stage.id
+                                                ? { ...s, interviewDetails: { ...s.interviewDetails, instructions: e.target.value } }
+                                                : s
+                                            ))
+                                          }
                                         />
                                       </Box>
                                     </Box>
@@ -2189,47 +2428,43 @@ export default function AdmissionModal({ open, onClose, editData }) {
 
                                 {/* Payment stage */}
                                 {stage.type === "payment" && (
-                                  <Box>
+                                  <Box
+                                    sx={{
+                                      border: themeBorderSx,
+                                      borderRadius: 'var(--radius-lg)',
+                                      bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)",
+                                      p: 2,
+                                    }}
+                                  >
                                     <Typography
                                       sx={{
                                         fontWeight: 'var(--font-semibold)',
-                                        color: "var(--color-slate-500)",
-                                        mb: 3,
+                                        color: "var(--color-slate-900)",
+                                        fontSize: 'var(--font-sm)',
+                                        mb: 2,
                                       }}
                                     >
-                                      Payment Configuration
+                                      {t("admissionBuilder.paymentConfiguration")}
                                     </Typography>
                                     <Box
                                       sx={{
                                         display: "flex",
                                         flexDirection: "column",
-                                        gap: 3,
+                                        gap: 1.5,
                                       }}
                                     >
                                       <Box
                                         sx={{
                                           display: "flex",
-                                          gap: 2,
+                                          gap: 1.5,
                                           alignItems: "flex-start",
                                         }}
                                       >
                                         <Box sx={{ flex: 1 }}>
-                                          <Typography
-                                            variant="body2"
-                                            sx={{
-                                              mb: 1,
-                                              fontWeight: 800,
-                                              color: "var(--color-slate-900)",
-                                              fontSize: 'var(--font-sm)',
-                                            }}
-                                          >
-                                            Outstanding Amount{" "}
-                                            <span style={{ color: "var(--color-slate-900)" }}>
-                                              *
-                                            </span>
-                                          </Typography>
-                                          <TextField
+                                          <CustomFloatingInput
                                             type="number"
+                                            required
+                                            label={t("admissionBuilder.outstandingAmount")}
                                             value={
                                               stage.paymentDetails?.amount || ""
                                             }
@@ -2249,31 +2484,18 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                                 ),
                                               );
                                             }}
-                                            placeholder="0.00"
-                                            fullWidth
-                                            sx={themeInputSx}
                                           />
                                         </Box>
                                         <Box sx={{ flex: 1 }}>
-                                          <Typography
-                                            variant="body2"
-                                            sx={{
-                                              mb: 1,
-                                              fontWeight: 800,
-                                              color: "var(--color-slate-900)",
-                                              fontSize: 'var(--font-sm)',
-                                            }}
-                                          >
-                                            Currency{" "}
-                                            <span style={{ color: "var(--color-slate-900)" }}>
-                                              *
-                                            </span>
-                                          </Typography>
-                                          <TextField
+                                          <CustomFloatingSearchableSelect
+                                            required
+                                            label={t("admissionBuilder.currency")}
+                                            error={!!errors[`stage_${activeStageTab}_pay_currency`]}
                                             value={
                                               stage.paymentDetails?.currency ||
-                                              "INR"
+                                              ""
                                             }
+                                            options={currencyOptions}
                                             onChange={(e) => {
                                               setStages(
                                                 stages.map((s) =>
@@ -2290,167 +2512,60 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                                 ),
                                               );
                                             }}
-                                            placeholder="INR"
-                                            fullWidth
-                                            sx={themeInputSx}
                                           />
                                         </Box>
                                         <Box sx={{ flex: 1 }}>
-                                          <Typography
-                                            variant="body2"
-                                            sx={{
-                                              mb: 1,
-                                              fontWeight: 800,
-                                              color: "var(--color-slate-900)",
-                                              fontSize: 'var(--font-sm)',
-                                            }}
-                                          >
-                                            Fee Details{" "}
-                                            <span style={{ color: "var(--color-slate-900)" }}>
-                                              *
-                                            </span>
-                                          </Typography>
-                                          {!stage.paymentDetails?.attachment ? (
-                                            <Button
-                                              variant="outlined"
-                                              component="label"
-                                              startIcon={
-                                                <FileUploadOutlinedIcon />
+                                          <Box sx={{ position: 'relative' }}>
+                                            <CustomFloatingFileInput
+                                              required
+                                              key={stage.paymentDetails?.attachment ? 'has-file' : 'no-file'}
+                                              label={t("admissionBuilder.feeDetails")}
+                                              accept=".pdf"
+                                              customDisplayText={
+                                                stage.paymentDetails?.attachment
+                                                  ? `${stage.paymentDetails.attachment.name} (${stage.paymentDetails.attachment.size})`
+                                                  : "Upload PDF"
                                               }
-                                              sx={{
-                                                textTransform: "none",
-                                                borderRadius: 'var(--radius-md)',
-                                                fontWeight: 'var(--font-semibold)',
-                                                color: "var(--color-primary)",
-                                                borderColor:
-                                                  "rgba(0,86,179,0.3)",
-                                                "&:hover": {
-                                                  borderColor: "var(--color-primary)",
-                                                  bgcolor:
-                                                    "rgba(0,86,179,0.04)",
-                                                },
-                                                height: "46.5px",
-                                                width: "var(--size-full)",
-                                              }}
-                                            >
-                                              Upload PDF
-                                              <input
-                                                type="file"
-                                                hidden
-                                                accept=".pdf"
-                                                onChange={(e) => {
-                                                  const file =
-                                                    e.target.files[0];
-                                                  if (file) {
-                                                    setStages(
-                                                      stages.map((s) =>
-                                                        s.id === stage.id
-                                                          ? {
-                                                            ...s,
-                                                            paymentDetails: {
-                                                              ...s.paymentDetails,
-                                                              attachment: {
-                                                                name: file.name,
-                                                                size:
-                                                                  (
-                                                                    file.size /
-                                                                    1024 /
-                                                                    1024
-                                                                  ).toFixed(
-                                                                    2,
-                                                                  ) + " MB",
-                                                              },
+                                              success={Boolean(stage.paymentDetails?.attachment)}
+                                              onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                if (file) {
+                                                  setStages(
+                                                    stages.map((s) =>
+                                                      s.id === stage.id
+                                                        ? {
+                                                          ...s,
+                                                          paymentDetails: {
+                                                            ...s.paymentDetails,
+                                                            attachment: {
+                                                              name: file.name,
+                                                              size: (file.size / 1024 / 1024).toFixed(2) + " MB",
                                                             },
-                                                          }
-                                                          : s,
-                                                      ),
-                                                    );
-                                                  }
-                                                }}
-                                              />
-                                            </Button>
-                                          ) : (
-                                            <Box
-                                              sx={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "space-between",
-                                                p: "8.5px 12px",
-                                                bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)",
-                                                border:
-                                                  "var(--border-thin) solid rgba(30,79,163,0.1)",
-                                                borderRadius: 'var(--radius-md)',
-                                                width: "var(--size-full)",
-                                                transition: "all var(--transition-base)",
-                                                "&:hover": {
-                                                  borderColor: "var(--color-primary)",
-                                                },
+                                                          },
+                                                        }
+                                                        : s,
+                                                    ),
+                                                  );
+                                                }
                                               }}
-                                            >
-                                              <Box
-                                                sx={{
-                                                  display: "flex",
-                                                  alignItems: "center",
-                                                  gap: 1.5,
-                                                  flex: 1,
-                                                  pr: 1,
-                                                  minWidth: 0,
-                                                }}
-                                              >
-                                                <Box
-                                                  sx={{
-                                                    width: 28,
-                                                    height: 28,
-                                                    borderRadius: 'var(--radius-sm)',
-                                                    bgcolor: "#e0e7ff",
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    justifyContent: "center",
-                                                    color: "var(--color-primary)",
-                                                    flexShrink: 0,
-                                                  }}
-                                                >
-                                                  <FileUploadOutlinedIcon
-                                                    sx={{ fontSize: 16 }}
-                                                  />
-                                                </Box>
-                                                <Box sx={{ minWidth: 0 }}>
-                                                  <Typography
-                                                    noWrap
-                                                    sx={{
-                                                      fontWeight: 'var(--font-bold)',
-                                                      color: "var(--color-slate-900)",
-                                                      fontSize: 'var(--font-sm)',
-                                                    }}
-                                                  >
-                                                    {
-                                                      stage.paymentDetails
-                                                        .attachment.name
-                                                    }
-                                                  </Typography>
-                                                  <Typography
-                                                    variant="body2"
-                                                    sx={{
-                                                      color: "var(--color-slate-500)",
-                                                      fontWeight: 'var(--font-semibold)',
-                                                      fontSize: 'var(--font-xs)',
-                                                      lineHeight: 1,
-                                                    }}
-                                                  >
-                                                    {
-                                                      stage.paymentDetails
-                                                        .attachment.size
-                                                    }
-                                                  </Typography>
-                                                </Box>
-                                              </Box>
+                                            />
+                                            {stage.paymentDetails?.attachment && (
                                               <IconButton
                                                 size="small"
                                                 sx={{
-                                                  color: "var(--color-error)",
+                                                  position: 'absolute',
+                                                  right: '36px',
+                                                  top: '50%',
+                                                  transform: 'translateY(-50%)',
+                                                  zIndex: 20,
+                                                  color: 'var(--color-error)',
                                                   p: 0.5,
+                                                  bgcolor: 'var(--glass-bg)',
+                                                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 1)' }
                                                 }}
-                                                onClick={() => {
+                                                onClick={(e) => {
+                                                  e.preventDefault();
+                                                  e.stopPropagation();
                                                   setStages(
                                                     stages.map((s) =>
                                                       s.id === stage.id
@@ -2468,27 +2583,14 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                               >
                                                 <DeleteOutlineIcon fontSize="small" />
                                               </IconButton>
-                                            </Box>
-                                          )}
+                                            )}
+                                          </Box>
                                         </Box>
                                       </Box>
-                                      <Box sx={{ mb: 3 }}>
-                                        <Typography
-                                          variant="body2"
-                                          sx={{
-                                            mb: 1,
-                                            fontWeight: 800,
-                                            color: "var(--color-slate-900)",
-                                            fontSize: 'var(--font-sm)',
-                                          }}
-                                        >
-                                          Payment Instructions{" "}
-                                          <span style={{ color: "var(--color-slate-900)" }}>
-                                            *
-                                          </span>
-                                        </Typography>
-                                        <TextField
-                                          fullWidth
+                                      <Box>
+                                        <CustomFloatingInput
+                                          required
+                                          label={t("admissionBuilder.paymentInstructions")}
                                           multiline
                                           rows={3}
                                           value={
@@ -2511,15 +2613,13 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                               ),
                                             );
                                           }}
-                                          placeholder="Enter payment instructions for the candidate..."
-                                          sx={themeInputSx}
                                         />
                                       </Box>
                                     </Box>
                                   </Box>
                                 )}
-                              </AccordionDetails>
-                            </Accordion>
+                              </CustomAccordionDetails>
+                            </CustomAccordion>
                           );
                         })()}
                     </Box>
@@ -2527,435 +2627,97 @@ export default function AdmissionModal({ open, onClose, editData }) {
                 </Box>
               )}
             </Box>
+          </Box>
 
-            <Box
-              sx={{
-                mt: "auto",
-                pt: 4,
-                display: "flex",
-                flexDirection: { xs: "column", sm: "row" },
-                justifyContent: { sm: "space-between" },
-                alignItems: { xs: "stretch", sm: "center" },
-                gap: { xs: 1.5, sm: 2 },
-              }}
-            >
-              {/* Left: Discard (always) */}
-              <Button
-                variant="outlined"
-                onClick={handleDiscard}
-                disabled={loading}
-                sx={{
-                  borderRadius: 'var(--radius-md)',
-                  borderColor: "var(--color-slate-200)",
-                  color: "var(--color-error)",
-                  width: { xs: "var(--size-full)", sm: "auto" },
-                  minWidth: { xs: 0, sm: "120px" },
-                  px: { xs: 2, sm: 3 },
-                  height: { xs: "44px", sm: "48px" },
-                  fontWeight: 'var(--font-bold)',
-                  textTransform: "none",
-                  fontSize: { xs: "14px", sm: "15px" },
-                  order: { xs: 3, sm: 0 },
-                  "&:hover": {
-                    borderColor: "var(--color-error)",
-                    bgcolor: "rgba(239,68,68,0.05)",
-                  },
-                }}
-              >
-                {hasEnteredData
-                  ? t("admissionBuilder.discardBtn")
-                  : t("admissionBuilder.cancelBtn")}
-              </Button>
-
-              {/* Right group: Save Draft + Back + Next/Publish */}
-              <Box sx={{ display: "flex", gap: { xs: 1.5, sm: 2 }, flexWrap: { xs: "wrap", sm: "nowrap" }, width: { xs: "var(--size-full)", sm: "auto" } }}>
-                <Button
+          <Box
+            sx={{
+              px: { xs: 3, sm: 8 },
+              pb: { xs: 6, sm: 8 },
+              pt: 3,
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              justifyContent: "flex-end",
+              alignItems: { xs: "stretch", sm: "center" },
+              gap: { xs: 1.5, sm: 2 },
+              flexShrink: 0,
+            }}
+          >
+            {/* Navigation and Actions */}
+            <Box sx={{ display: "flex", gap: { xs: 1.5, sm: 2 }, flexWrap: { xs: "wrap", sm: "nowrap" }, width: { xs: "var(--size-full)", sm: "auto" } }}>
+              {activeStep > 0 && (
+                <TarangButton
                   variant="outlined"
-                  onClick={() => {
-                    setSnackbar({
-                      open: true,
-                      message: t("admissionBuilder.draftSaved") || "Draft saved successfully",
-                      severity: "success",
-                    });
-                    setTimeout(() => onClose(), 1500);
-                  }}
+                  onClick={() => setActiveStep(activeStep - 1)}
                   disabled={loading}
                   sx={{
-                    borderRadius: 'var(--radius-md)',
-                    borderColor: THEME_BORDER,
-                    color: "var(--color-slate-500)",
                     flex: { xs: "1 1 calc(50% - 6px)", sm: "0 0 auto" },
                     minWidth: { xs: 0, sm: "120px" },
-                    px: { xs: 2, sm: 3 },
                     height: { xs: "44px", sm: "48px" },
-                    fontWeight: 'var(--font-bold)',
-                    textTransform: "none",
-                    fontSize: { xs: "13px", sm: "15px" },
-                    order: { xs: 2, sm: 0 },
-                    "&:hover": {
-                      borderColor: "var(--color-slate-500)",
-                      bgcolor: "rgba(0,0,0,0.02)",
-                    },
+                    fontSize: { xs: 'var(--font-xs)', sm: 'var(--font-sm)' },
+                    order: { xs: 1, sm: 0 },
                   }}
                 >
-                  {t("admissionBuilder.saveDraftBtn") || "Save as Draft"}
-                </Button>
-                {activeStep > 0 && (
-                  <Button
-                    variant="outlined"
-                    onClick={() => setActiveStep(activeStep - 1)}
-                    disabled={loading}
-                    sx={{
-                      borderRadius: 'var(--radius-md)',
-                      borderColor: THEME_BORDER,
-                      color: "var(--color-slate-500)",
-                      flex: { xs: "1 1 calc(50% - 6px)", sm: "0 0 auto" },
-                      minWidth: { xs: 0, sm: "120px" },
-                      px: { xs: 2, sm: 3 },
-                      height: { xs: "44px", sm: "48px" },
-                      fontWeight: 'var(--font-bold)',
-                      textTransform: "none",
-                      fontSize: { xs: "13px", sm: "15px" },
-                      order: { xs: 1, sm: 0 },
-                      "&:hover": {
-                        borderColor: "var(--color-slate-500)",
-                        bgcolor: "rgba(0,0,0,0.02)",
-                      },
-                    }}
-                  >
-                    {t("admissionBuilder.backBtn")}
-                  </Button>
-                )}
-                <Button
-                  variant="contained"
-                  disableElevation
-                  onClick={
-                    activeStep < 2
-                      ? () => setActiveStep(activeStep + 1)
-                      : handleSubmit
-                  }
-                  disabled={
-                    loading ||
-                    (() => {
-                      if (activeStep === 0)
-                        return (
-                          !workflowTitle.trim() ||
-                          !academicYear ||
-                          !workflowDesc.trim()
-                        );
-                      if (activeStep === 1)
-                        return !publishDate || !expiryDate || !maxCandidates;
-                      if (activeStep === 2) {
-                        if (stages.length === 0) return true;
-                        return stages.some((s) => {
-                          if (
-                            !s.title.trim() ||
-                            !s.startDateOnly ||
-                            !s.startTimeOnly ||
-                            !s.endDateOnly ||
-                            !s.endTimeOnly
-                          )
-                            return true;
-                          if (s.type === "document") {
-                            const hasSelection = (s.selectedFields && s.selectedFields.length > 0) || (s.academicRecordsConfig && s.academicRecordsConfig.length > 0);
-                            const hasEmptyRecord = s.academicRecordsConfig && s.academicRecordsConfig.some(r => !r.name.trim());
-                            return !hasSelection || hasEmptyRecord;
-                          }
-                          if (s.type === "payment")
-                            return (
-                              !s.paymentDetails?.amount ||
-                              !s.paymentDetails?.currency
-                            );
-                          if (s.type === "quiz")
-                            return (
-                              !s.quizAttachments || s.quizAttachments.length === 0
-                            );
-                          if (s.type === "interview")
-                            return (
-                              !s.interviewDetails?.meetingLink?.trim() ||
-                              !s.interviewDetails?.passcode?.trim()
-                            );
-                          return false;
-                        });
-                      }
-                      return false;
-                    })()
-                  }
-                  sx={{
-                    borderRadius: 'var(--radius-md)',
-                    flex: { xs: "0 0 100%", sm: "0 0 auto" },
-                    minWidth: { xs: 0, sm: "140px" },
-                    px: { xs: 2, sm: 3 },
-                    height: { xs: "44px", sm: "48px" },
-                    fontWeight: 'var(--font-bold)',
-                    textTransform: "none",
-                    fontSize: { xs: "14px", sm: "15px" },
-                    order: { xs: 0, sm: 0 },
-                    background: (() => {
-                      const stageIncomplete =
-                        activeStep === 2 &&
-                        (stages.length === 0 ||
-                          stages.some(
-                            (s) =>
-                              !s.title.trim() ||
-                              !s.startDateOnly ||
-                              !s.startTimeOnly ||
-                              !s.endDateOnly ||
-                              !s.endTimeOnly ||
-                              (s.type === "document" &&
-                                (!((s.selectedFields && s.selectedFields.length > 0) || (s.academicRecordsConfig && s.academicRecordsConfig.length > 0)) ||
-                                  (s.academicRecordsConfig && s.academicRecordsConfig.some(r => !r.name.trim())))) ||
-                              (s.type === "payment" &&
-                                (!s.paymentDetails?.amount ||
-                                  !s.paymentDetails?.currency)),
-                          ));
-                      const isDisabled =
-                        loading ||
-                        (activeStep === 0 &&
-                          (!workflowTitle.trim() ||
-                            !academicYear ||
-                            !workflowDesc.trim())) ||
-                        (activeStep === 1 &&
-                          (!publishDate || !expiryDate || !maxCandidates)) ||
-                        stageIncomplete;
-                      return isDisabled
-                        ? "var(--color-slate-200)"
-                        : "linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)";
-                    })(),
-                    color: (() => {
-                      const stageIncomplete =
-                        activeStep === 2 &&
-                        (stages.length === 0 ||
-                          stages.some(
-                            (s) =>
-                              !s.title.trim() ||
-                              !s.startDateOnly ||
-                              !s.startTimeOnly ||
-                              !s.endDateOnly ||
-                              !s.endTimeOnly ||
-                              (s.type === "document" &&
-                                (!((s.selectedFields && s.selectedFields.length > 0) || (s.academicRecordsConfig && s.academicRecordsConfig.length > 0)) ||
-                                  (s.academicRecordsConfig && s.academicRecordsConfig.some(r => !r.name.trim())))) ||
-                              (s.type === "payment" &&
-                                (!s.paymentDetails?.amount ||
-                                  !s.paymentDetails?.currency)),
-                          ));
-                      const isDisabled =
-                        loading ||
-                        (activeStep === 0 &&
-                          (!workflowTitle.trim() ||
-                            !academicYear ||
-                            !workflowDesc.trim())) ||
-                        (activeStep === 1 &&
-                          (!publishDate || !expiryDate || !maxCandidates)) ||
-                        stageIncomplete;
-                      return isDisabled ? "var(--color-slate-500)" : "var(--color-white)";
-                    })(),
-                    transition: "var(--transition-slow)",
-                    "&:hover": {
-                      background: (() => {
-                        const stageIncomplete =
-                          activeStep === 2 &&
-                          (stages.length === 0 ||
-                            stages.some(
-                              (s) =>
-                                !s.title.trim() ||
-                                !s.startDateOnly ||
-                                !s.startTimeOnly ||
-                                !s.endDateOnly ||
-                                !s.endTimeOnly ||
-                                (s.type === "document" &&
-                                  (!((s.selectedFields && s.selectedFields.length > 0) || (s.academicRecordsConfig && s.academicRecordsConfig.length > 0)) ||
-                                    (s.academicRecordsConfig && s.academicRecordsConfig.some(r => !r.name.trim())))) ||
-                                (s.type === "payment" &&
-                                  (!s.paymentDetails?.amount ||
-                                    !s.paymentDetails?.currency)),
-                            ));
-                        const isDisabled =
-                          loading ||
-                          (activeStep === 0 &&
-                            (!workflowTitle.trim() ||
-                              !academicYear ||
-                              !workflowDesc.trim())) ||
-                          (activeStep === 1 &&
-                            (!publishDate || !expiryDate || !maxCandidates)) ||
-                          stageIncomplete;
-                        return isDisabled
-                          ? "var(--color-slate-200)"
-                          : "linear-gradient(135deg, #004494 0%, var(--color-success) 100%)";
-                      })(),
-                    },
-                    "&.Mui-disabled": {
-                      background: "var(--color-slate-50)",
-                      color: "var(--color-slate-500)",
-                    },
-                  }}
-                >
-                  {activeStep < 2
-                    ? t("admissionBuilder.nextBtn")
-                    : loading
-                      ? <CircularProgress size={24} color="inherit" />
-                      : editData
-                        ? "Update Workflow"
-                        : t("admissionBuilder.publishBtn")}
-                </Button>
-              </Box>
+                  {t("admissionBuilder.backBtn")}
+                </TarangButton>
+              )}
+              <TarangButton
+                loading={loading}
+                onClick={
+                  activeStep < 2
+                    ? () => setActiveStep(activeStep + 1)
+                    : handleSubmit
+                }
+                disabled={loading}
+                sx={{
+                  flex: { xs: "0 0 100%", sm: "0 0 auto" },
+                  minWidth: { xs: 0, sm: "140px" },
+                  height: { xs: "44px", sm: "48px" },
+                  fontSize: { xs: 'var(--font-sm)', sm: 'var(--font-base)' },
+                  order: { xs: 0, sm: 0 },
+                }}
+              >
+                {activeStep < 2
+                  ? t("admissionBuilder.nextBtn")
+                  : editData
+                    ? t("admissionBuilder.updateBtn")
+                    : t("admissionBuilder.publishBtn")}
+              </TarangButton>
             </Box>
           </Box>
         </Paper>
 
-        <Menu
-          onClick={(e) => e.stopPropagation()}
-          anchorReference={quizMenuAnchorPos ? "anchorPosition" : "anchorEl"}
-          anchorPosition={
-            quizMenuAnchorPos
-              ? { top: quizMenuAnchorPos.top, left: quizMenuAnchorPos.left }
-              : undefined
-          }
-          anchorEl={quizMenuAnchorEl}
-          open={Boolean(quizMenuAnchorPos || quizMenuAnchorEl)}
-          onClose={() => {
-            setQuizMenuAnchorEl(null);
-            setQuizMenuAnchorPos(null);
+        <DropdownListPopup
+          isOpen={Boolean(quizMenuAnchorPos || quizMenuAnchorEl)}
+          setIsOpen={(open) => {
+            if (!open) {
+              setQuizMenuAnchorEl(null);
+              setQuizMenuAnchorPos(null);
+            }
           }}
-          PaperProps={{
-            sx: {
-              mt: 1,
-              borderRadius: 'var(--radius-md)',
-              minWidth: "320px",
-              maxHeight: "320px",
-              border: themeBorderSx,
-            },
-          }}
-        >
-          <Box sx={{ p: 1.5, pb: 0.5 }}>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                bgcolor: "var(--color-slate-50)",
-                borderRadius: 'var(--radius-md)',
-                px: 1.5,
-                py: 0.5,
-              }}
-            >
-              <SearchIcon sx={{ color: "var(--color-slate-500)", fontSize: 20, mr: 1 }} />
-              <InputBase
-                placeholder={t("admissionBuilder.searchQuizzesPlaceholder")}
-                value={quizSearchQuery}
-                onChange={(e) => setQuizSearchQuery(e.target.value)}
-                onClick={(e) => e.stopPropagation()}
-                onKeyDown={(e) => e.stopPropagation()}
-                sx={{ flex: 1, fontSize: "0.875rem" }}
-              />
-            </Box>
-          </Box>
-          <Typography
-            variant="caption"
-            sx={{
-              px: 2,
-              py: 1,
-              display: "block",
-              color: "var(--color-slate-500)",
-              fontWeight: 'var(--font-bold)',
-              letterSpacing: "0.05em",
-              textTransform: "uppercase",
-            }}
-          >
-            {t("admissionBuilder.cloudQuizzesLabel")}
-          </Typography>
-          {MOCK_QUIZZES.filter((q) =>
-            q.name.toLowerCase().includes(quizSearchQuery.toLowerCase()),
-          ).map((quiz) => {
-            const isSelected =
-              activeQuizStageId &&
-              stages
-                .find((s) => s.id === activeQuizStageId)
-                ?.quizAttachments?.find((q) => q.id === quiz.id);
-            return (
-              <MenuItem
-                key={quiz.id}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (isSelected) {
-                    handleRemoveQuiz(activeQuizStageId, quiz.id);
-                  } else {
-                    handleAttachQuiz(activeQuizStageId, quiz);
-                  }
-                }}
-                sx={{ py: 1, "&:hover": { bgcolor: "var(--color-slate-50)" } }}
-              >
-                <CustomCheckbox
-                  checked={!!isSelected}
-                  sx={{ mr: 1, p: 0 }}
-                />
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    width: "var(--size-full)",
-                    pr: 2,
-                    overflow: "hidden",
-                  }}
-                >
-                  <Typography
-                    noWrap
-                    sx={{
-                      fontWeight: 'var(--font-bold)',
-                      color: "var(--color-slate-900)",
-                      fontSize: 'var(--font-base)',
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      maxWidth: "260px",
-                    }}
-                  >
-                    {quiz.name}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: "var(--color-slate-500)",
-                      fontWeight: 'var(--font-semibold)',
-                      fontSize: "0.875rem",
-                      flexShrink: 0,
-                      ml: 2,
-                    }}
-                  >
-                    {quiz.size}
-                  </Typography>
-                </Box>
-              </MenuItem>
-            );
-          })}
-          {MOCK_QUIZZES.filter((q) =>
-            q.name.toLowerCase().includes(quizSearchQuery.toLowerCase()),
-          ).length === 0 && (
-              <Box sx={{ p: 3, textAlign: "center" }}>
-                <Typography variant="body2" sx={{ color: "var(--color-slate-500)" }}>
-                  {t("admissionBuilder.noQuizzesFound")}
-                </Typography>
+          options={MOCK_QUIZZES.map(q => ({
+            value: q.id,
+            label: q.name,
+            searchStr: q.name.toLowerCase(),
+            renderLabel: () => (
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", pr: 1, overflow: "hidden" }}>
+                <Typography noWrap sx={{ fontSize: 'inherit', fontWeight: 'inherit', overflow: "hidden", textOverflow: "ellipsis" }}>{q.name}</Typography>
+                <Typography sx={{ color: "var(--color-slate-400)", fontSize: 'var(--font-xs)', flexShrink: 0, ml: 2 }}>{q.size}</Typography>
               </Box>
-            )}
-        </Menu>
-
-        <Snackbar
-          open={snackbar.open}
-          autoHideDuration={4000}
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        >
-          <Alert
-            onClose={() => setSnackbar({ ...snackbar, open: false })}
-            severity={snackbar.severity}
-            sx={{
-              width: "var(--size-full)",
-              borderRadius: 'var(--radius-lg)',
-            }}
-          >
-            {snackbar.message}
-          </Alert>
-        </Snackbar>
+            )
+          }))}
+          value={activeQuizStageId ? (stages.find(s => s.id === activeQuizStageId)?.quizAttachments || []).map(q => q.id) : []}
+          onChange={(e) => {
+            const newIds = e.target.value;
+            const newAttachments = newIds.map(id => MOCK_QUIZZES.find(q => q.id === id));
+            setStages(stages.map(s => s.id === activeQuizStageId ? { ...s, quizAttachments: newAttachments } : s));
+          }}
+          searchQuery={quizSearchQuery}
+          setSearchQuery={setQuizSearchQuery}
+          anchorRef={{ current: quizMenuAnchorEl }}
+          dropdownRef={quizDropdownRef}
+          multiple={true}
+          searchable={true}
+        />
       </Box>
     </FormLoadingProvider>
   );

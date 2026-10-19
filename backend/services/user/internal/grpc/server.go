@@ -32,9 +32,14 @@ func mapToResponse(u *user.User) *userpb.UserResponse {
 		fullName = *u.FullName
 	}
 
-	institutionName := ""
-	if u.InstitutionName != nil {
-		institutionName = *u.InstitutionName
+	primaryName := ""
+	if u.PrimaryName != nil {
+		primaryName = *u.PrimaryName
+	}
+
+	secondaryName := ""
+	if u.SecondaryName != nil {
+		secondaryName = *u.SecondaryName
 	}
 
 	dob := ""
@@ -94,7 +99,8 @@ func mapToResponse(u *user.User) *userpb.UserResponse {
 		SocialLinks:   u.SocialLinks,
 		Skills:        u.Skills,
 		Recognitions:  u.Recognitions,
-		InstitutionName: institutionName,
+		PrimaryName: primaryName,
+		SecondaryName: secondaryName,
 		IsProfileCompleted: isCompleted,
 		Location:      location,
 		Languages:     u.Languages,
@@ -206,11 +212,11 @@ func (s *Server) UpdateProfile(ctx context.Context, req *userpb.UpdateProfileReq
 		return nil, err
 	}
 
-	if err := s.service.UpdateProfile(ctx, uid, req.FullName, "", "", req.Bio, req.SocialLinks, req.Skills, req.Recognitions, req.Location, req.Languages, req.Demographic, req.InstitutionName, nil, "", "", "", "", nil, nil, nil); err != nil {
+	if err := s.service.UpdateProfile(ctx, uid, req.FullName, "", "", req.Bio, req.SocialLinks, req.Skills, req.Recognitions, req.Location, req.Languages, req.Demographic, req.PrimaryName, req.SecondaryName, nil, "", "", "", "", nil, nil, nil); err != nil {
 		return nil, err
 	}
 
-	if err := s.service.UpdateInstitution(ctx, uid, req.InstitutionName); err != nil {
+	if err := s.service.UpdateInstitution(ctx, uid, req.PrimaryName); err != nil {
 		return nil, err
 	}
 

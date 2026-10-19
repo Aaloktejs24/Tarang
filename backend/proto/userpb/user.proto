@@ -71,12 +71,13 @@ message UpdateProfileRequest {
   map<string, string> social_links = 2;
   repeated string skills = 3;
   repeated string recognitions = 4;
-  string institution_name = 5;
+  string primary_name = 5;
   string full_name = 6;
   string bio = 7;
   string location = 8;
   repeated string languages = 9;
   string demographic = 10;
+  string secondary_name = 11;
   }
 
 
@@ -120,12 +121,13 @@ message UserResponse {
   map<string, string> social_links = 11;
   repeated string skills = 12;
   repeated string recognitions = 13;
-  string institution_name = 14;
+  string primary_name = 14;
   bool is_profile_completed = 15;
   string location = 16;
   repeated string languages = 17;
   string demographic = 18;
   string email = 19;
+  string secondary_name = 20;
 }
 message InstituteIDRequest {
   string institute_id = 1;

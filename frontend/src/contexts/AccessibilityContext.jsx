@@ -23,14 +23,9 @@ const LOCATION_FAILURE_COOLDOWN = 60 * 60 * 1000;
 
 export const useAccessibility = () => useContext(AccessibilityContext);
 
-const dropdownPaperSx = {
-  borderRadius: 'var(--radius-lg)',
-  marginTop: '8px',
-  border: 'var(--border-thin) solid var(--color-slate-200)',
-  backdropFilter: "blur(20px)",
-  backgroundColor: "rgba(255, 255, 255, 0.85)",
-  backgroundImage: "none"
-};
+import { glassPaperSx } from '../styles/commonStyles';
+
+
 
 const dropdownListSx = {
   padding: '8px 0'
@@ -80,10 +75,10 @@ const highlightedOptionSx = {
 };
 
 export const AccessibilityProvider = ({ children }) => {
-  const [language, setLanguage] = useState('hi');
+  const [language, setLanguage] = useState('en');
   const [fontFamily, setFontFamily] = useState(() => {
-    const fonts = getFontsForLanguage('hi');
-    return fonts[0]?.value ?? "'Noto Sans Devanagari', sans-serif";
+    const fonts = getFontsForLanguage('en');
+    return fonts[0]?.value ?? "'Inter', sans-serif";
   });
   const [mounted, setMounted] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
@@ -108,7 +103,7 @@ export const AccessibilityProvider = ({ children }) => {
       let detectedLang = 'hi';
       const stateLang = lookupMapping(data.region, 'states');
       const districtLang = lookupMapping(data.city, 'districts');
-      
+
       if (districtLang) {
         detectedLang = districtLang;
       } else if (stateLang) {
@@ -201,7 +196,7 @@ export const AccessibilityProvider = ({ children }) => {
 
             const stateLang = lookupMapping(stateName, 'states');
             const districtLang = lookupMapping(districtName, 'districts');
-            
+
             if (districtLang) {
               detectedLang = districtLang;
             } else if (stateLang) {
@@ -214,7 +209,7 @@ export const AccessibilityProvider = ({ children }) => {
             }
 
             setLanguage(detectedLang);
-            
+
             // Update cache so reloading uses this new geolocation
             const locNameParts = [];
             if (districtName) locNameParts.push(districtName);
@@ -223,9 +218,9 @@ export const AccessibilityProvider = ({ children }) => {
             else locNameParts.push("India");
             setLocationName(locNameParts.join(", "));
 
-            localStorage.setItem(LOCATION_CACHE_KEY, JSON.stringify({ 
-              data: { latitude: lat, longitude: lon, region: stateName, city: districtName, country: addr.country }, 
-              createdAt: Date.now() 
+            localStorage.setItem(LOCATION_CACHE_KEY, JSON.stringify({
+              data: { latitude: lat, longitude: lon, region: stateName, city: districtName, country: addr.country },
+              createdAt: Date.now()
             }));
             localStorage.removeItem(LOCATION_FAILURE_KEY);
           }
@@ -326,10 +321,14 @@ export const AccessibilityProvider = ({ children }) => {
         styleOverrides: {
           root: {
             borderRadius: 'var(--radius-lg)',
-            background: "rgba(255, 255, 255, 0.3)",
+            background: "var(--glass-bg)",
             backdropFilter: "blur(30px)",
             WebkitBackdropFilter: "blur(30px)",
             border: "var(--border-thin) solid rgba(30, 79, 163, 0.2)",
+            transition: 'transform var(--transition-base)',
+            '&:hover': {
+              transform: 'var(--hover-lift)',
+            }
           }
         }
       },
@@ -338,26 +337,113 @@ export const AccessibilityProvider = ({ children }) => {
           root: {
             borderRadius: 'var(--radius-md)',
             textTransform: 'none',
+            '&.Mui-disabled': {
+              cursor: 'not-allowed',
+              pointerEvents: 'auto',
+            },
+          },
+          sizeSmall: {
+            borderRadius: 'var(--radius-sm)',
+          },
+          contained: {
+            '&.Mui-disabled': {
+              backgroundColor: 'rgba(0, 86, 179, 0.35)',
+              color: 'rgba(255, 255, 255, 0.7)',
+            },
+          },
+          outlined: {
+            borderWidth: 'var(--border-thin)',
+            '&:hover': {
+              borderWidth: 'var(--border-thin)',
+            },
+            '&.Mui-disabled': {
+              backgroundColor: 'transparent',
+              color: 'rgba(0, 86, 179, 0.45)',
+              borderColor: 'rgba(0, 86, 179, 0.25)',
+              borderWidth: 'var(--border-thin)',
+            },
+          },
+          text: {
+            '&.Mui-disabled': {
+              color: 'rgba(0, 86, 179, 0.4)',
+            },
+          },
+        }
+      },
+      MuiIconButton: {
+        styleOverrides: {
+          root: {
+            '&:hover': {
+              backgroundColor: 'transparent',
+            },
+            '&.Mui-disabled': {
+              opacity: 0.4,
+              cursor: 'not-allowed',
+              pointerEvents: 'auto',
+            },
+          },
+        }
+      },
+      MuiFormLabel: {
+        styleOverrides: {
+          asterisk: {
+            color: 'var(--color-error)',
+            '&$error': {
+              color: 'var(--color-error)'
+            }
+          }
+        }
+      },
+      MuiInputLabel: {
+        styleOverrides: {
+          asterisk: {
+            color: 'var(--color-error)',
+          }
+        }
+      },
+      MuiInputBase: {
+        styleOverrides: {
+          root: {
+            color: 'var(--input-text)',
+          },
+          input: {
+            '&::placeholder': {
+              color: 'var(--input-placeholder)',
+              opacity: 1,
+            }
+          }
+        }
+      },
+      MuiInputLabel: {
+        styleOverrides: {
+          root: {
+            color: 'var(--input-label)',
+            overflow: 'visible !important',
+            lineHeight: 'var(--line-height-base) !important',
+            whiteSpace: 'normal !important',
+          },
+          asterisk: {
+            color: 'var(--color-error)',
           }
         }
       },
       MuiOutlinedInput: {
         styleOverrides: {
           root: {
-            backgroundColor: "rgba(255, 255, 255, 0.3)",
+            backgroundColor: "var(--glass-bg)",
             backdropFilter: "blur(30px)",
             WebkitBackdropFilter: "blur(30px)",
             borderRadius: 'var(--radius-md)',
             transition: 'all var(--transition-base)',
-            "& .MuiOutlinedInput-notchedOutline": { 
-              borderColor: "rgba(203, 213, 225, 0.8)", 
-              borderWidth: "1.5px" 
+            "& .MuiOutlinedInput-notchedOutline": {
+              borderColor: "rgba(203, 213, 225, 0.8)",
+              borderWidth: "1.5px"
             },
-            "&:hover .MuiOutlinedInput-notchedOutline": { 
-              borderColor: "var(--color-slate-500)" 
+            "&:hover .MuiOutlinedInput-notchedOutline": {
+              borderColor: "var(--color-slate-500)"
             },
             '&.Mui-focused': {
-              backgroundColor: 'rgba(255, 255, 255, 0.4)',
+              backgroundColor: 'var(--glass-bg)',
               outline: 'none'
             },
             '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
@@ -383,8 +469,13 @@ export const AccessibilityProvider = ({ children }) => {
       },
       MuiPickersPopper: {
         styleOverrides: {
-          paper: {
-            borderRadius: 'var(--radius-lg)'
+          paper: glassPaperSx
+        }
+      },
+      MuiSelect: {
+        styleOverrides: {
+          select: {
+            lineHeight: 'var(--line-height-base)',
           }
         }
       },
@@ -393,23 +484,23 @@ export const AccessibilityProvider = ({ children }) => {
           root: {
             backgroundImage: 'none'
           },
-          elevation1: { },
-          elevation2: { },
-          elevation3: { },
-          elevation4: { },
-          elevation8: { },
-          elevation16: { },
-          elevation24: { },
+          elevation1: {},
+          elevation2: {},
+          elevation3: {},
+          elevation4: {},
+          elevation8: {},
+          elevation16: {},
+          elevation24: {},
         }
       },
       MuiPopover: {
         styleOverrides: {
-          paper: dropdownPaperSx
+          paper: glassPaperSx
         }
       },
       MuiMenu: {
         styleOverrides: {
-          paper: dropdownPaperSx,
+          paper: glassPaperSx,
           list: dropdownListSx
         }
       },
@@ -437,7 +528,7 @@ export const AccessibilityProvider = ({ children }) => {
       },
       MuiCheckbox: {
         defaultProps: {
-          icon: <span style={{ width: 22, height: 22, border: '1.5px solid rgba(203, 213, 225, 0.8)', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255, 255, 255, 0.3)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', boxSizing: 'border-box', transition: 'all var(--transition-base)' }} />,
+          icon: <span style={{ width: 22, height: 22, border: '1.5px solid rgba(203, 213, 225, 0.8)', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--glass-bg)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', boxSizing: 'border-box', transition: 'all var(--transition-base)' }} />,
           checkedIcon: <span style={{ width: 22, height: 22, backgroundColor: 'var(--color-primary)', border: '1.5px solid var(--color-primary)', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box', transition: 'all var(--transition-base)' }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>,
           indeterminateIcon: <span style={{ width: 22, height: 22, backgroundColor: 'var(--color-primary)', border: '1.5px solid var(--color-primary)', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box', transition: 'all var(--transition-base)' }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>,
         },
@@ -448,14 +539,14 @@ export const AccessibilityProvider = ({ children }) => {
             },
             '&.Mui-focusVisible span, &:focus-within span': {
               borderColor: 'var(--color-primary)',
-              
+
             }
           }
         }
       },
       MuiAutocomplete: {
         styleOverrides: {
-          paper: dropdownPaperSx,
+          paper: glassPaperSx,
           listbox: dropdownListSx,
           option: {
             ...highlightedOptionSx,
@@ -489,7 +580,7 @@ export const AccessibilityProvider = ({ children }) => {
       <ThemeProvider theme={theme}>
         <GlobalStyles styles={{
           '*, html, body, button, input, select, textarea, .MuiTypography-root, .MuiButtonBase-root, ::placeholder, input::placeholder, textarea::placeholder': {
-            fontFamily: `${fontFamily}`,
+            fontFamily: `${fontFamily} !important`,
           },
           '.MuiOutlinedInput-notchedOutline legend': {
             width: 'auto',

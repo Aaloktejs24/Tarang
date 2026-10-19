@@ -118,7 +118,7 @@ export default function BlogDetailPage() {
                         <Typography sx={{ color: "var(--color-slate-500)", fontWeight: 'var(--font-medium)', fontSize: 'var(--font-base)', transition: "color var(--transition-base)" }}>
                           {cat}
                         </Typography>
-                        <ChevronRightIcon sx={{ color: "var(--color-slate-900)", fontSize: 20 }} />
+                        <ChevronRightIcon sx={{ color: "var(--color-slate-500)", fontSize: 20 }} />
                       </Box>
                     </ListItem>
                   ))}
@@ -128,7 +128,7 @@ export default function BlogDetailPage() {
               {/* Recent Post Widget */}
               <Paper elevation={0} sx={{ p: 4, borderRadius: 'var(--radius-lg)', border: "var(--border-thin) solid rgba(0,0,0,0.05)" }}>
                 <Typography variant="h5" sx={{ fontWeight: 800, color: "var(--color-slate-900)", mb: 3 }}>{t("landing.blogPage.recentPost.title")}</Typography>
-                <Box sx={{ display: "flex", gap: 2, alignItems: "center", mb: 3, cursor: "pointer", "&:hover .post-title": { color: "var(--color-primary)" } }}>
+                <Box sx={{ display: "flex", gap: 1.5, alignItems: "center", mb: 3, cursor: "pointer", "&:hover .post-title": { color: "var(--color-primary)" } }}>
                   <Box
                     component="img"
                     src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=200"
@@ -187,7 +187,7 @@ export default function BlogDetailPage() {
                   t("landing.blogPage.mainPost.list2"),
                   t("landing.blogPage.mainPost.list4")
                 ].map((text, i) => (
-                  <Box key={i} sx={{ display: "flex", alignItems: "flex-start", gap: 2, mb: 2.5 }}>
+                  <Box key={i} sx={{ display: "flex", alignItems: "flex-start", gap: 1.5, mb: 2.5 }}>
                     <CheckIcon sx={{ color: "var(--color-success)", fontSize: 22, mt: 0.2 }} />
                     <Typography sx={{ color: "var(--color-slate-500)", fontSize: 'var(--font-base)', lineHeight: 1.6 }}>
                       {text}

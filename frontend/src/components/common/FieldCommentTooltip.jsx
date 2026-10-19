@@ -1,13 +1,13 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import { AmberTooltip } from './CustomTooltip';
+import { CustomTooltip } from './CustomTooltip';
 
 export const FieldCommentTooltip = ({ comment }) => {
   if (!comment) return null;
 
   return (
-    <AmberTooltip title={comment} placement="top" arrow>
+    <CustomTooltip title={comment} placement="top" arrow>
       <Box 
         className="comment-icon"
         sx={{
@@ -29,6 +29,6 @@ export const FieldCommentTooltip = ({ comment }) => {
       >
         <ChatBubbleOutlineIcon sx={{ fontSize: 'var(--font-sm)' }} />
       </Box>
-    </AmberTooltip>
+    </CustomTooltip>
   );
 };

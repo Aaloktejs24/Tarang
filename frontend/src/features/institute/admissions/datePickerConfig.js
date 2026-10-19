@@ -1,19 +1,20 @@
+import { glassPaperSx } from "../../../styles/commonStyles";
+
 export const globalDatePickerSlotProps = {
   textField: {},
   toolbar: {
     hidden: true,
   },
   desktopPaper: {
+    elevation: 0,
     sx: {
-      marginTop: "8px",
-      border: "var(--border-thin) solid var(--color-slate-300)",
-      
-      borderRadius: 'var(--radius-lg)',
-      backgroundColor: "rgba(255, 255, 255, 0.85)",
-      backdropFilter: "blur(20px)",
-      overflow: "hidden",
+      ...glassPaperSx,
       "& *": {
-        },
+        fontFamily: "inherit !important",
+      },
+      "& .MuiPickersLayout-root": {
+        backgroundColor: "transparent",
+      },
       "& .MuiDateCalendar-root": {
         height: "auto",
         padding: "8px 20px 16px 20px",
@@ -65,12 +66,30 @@ export const globalDatePickerSlotProps = {
       "& .MuiPickersToolbar-root .MuiTypography-overline, & .MuiDatePickerToolbar-root .MuiTypography-overline": {
         display: "none",
       },
+      "& .MuiYearCalendar-root": {
+        padding: "0 0 16px 0",
+        width: "100%",
+        display: "grid",
+        gridTemplateColumns: "repeat(4, 1fr)",
+        gap: "4px",
+      },
+      "& .MuiPickersYear-root": {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexBasis: "unset",
+      },
+      "& .MuiPickersYear-yearButton": {
+        margin: 0,
+        width: "100%",
+        borderRadius: "var(--radius-md)",
+      },
     },
   },
   popper: {
     sx: {
       "& *": {
-        },
+      },
     },
   },
 };

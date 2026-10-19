@@ -3,20 +3,35 @@
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import CodeViewerComponent from "./CodeViewerComponent";
-const PdfViewerComponent = dynamic(() => import("./PdfViewerComponent"), { ssr: false });
+const PdfViewerComponent = dynamic(() => import("./PdfViewerComponent"), {
+  ssr: false,
+  loading: () => (
+    <Box sx={{ 
+      width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+      background: 'radial-gradient(ellipse at 0% 0%, rgba(0, 86, 179, 0.35) 0%, rgba(0, 86, 179, 0) 80%), radial-gradient(ellipse at 100% 0%, rgba(40, 167, 69, 0.25) 0%, rgba(40, 167, 69, 0) 80%), radial-gradient(ellipse at 100% 100%, rgba(40, 167, 69, 0.2) 0%, rgba(40, 167, 69, 0) 80%), radial-gradient(ellipse at 0% 100%, rgba(0, 86, 179, 0.2) 0%, rgba(0, 86, 179, 0) 80%), #f1f5f9'
+    }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
+        <Loader inline />
+        <Typography sx={{ color: 'var(--color-primary)', fontWeight: 600, mt: -1 }}>Loading Document...</Typography>
+      </Box>
+    </Box>
+  )
+});
 import ShakaPlayerComponent from "./ShakaPlayerComponent";
 import MarkdownViewerComponent from "./MarkdownViewerComponent";
 import LatexViewerComponent from "./LatexViewerComponent";
 import NotebookViewerComponent from "./NotebookViewerComponent";
 import ImageViewerComponent from "./ImageViewerComponent";
 import ArchiveViewerComponent from "./ArchiveViewerComponent";
-import { DownloadIcon, FileWarningIcon, Loader2 } from "lucide-react";
+import { DownloadIcon, FileWarningIcon } from "lucide-react";
+import Loader from "../common/Loader";
 import { Box, Typography, Button } from "@mui/material";
 
 export default function UniversalViewer({ jobId, isVideo = false }) {
   const [metadata, setMetadata] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // Removed minTimeElapsed since loaders are identical and PdfViewerComponent enforces a 2s delay.
 
   // Poll metadata until COMPLETED
   useEffect(() => {
@@ -26,16 +41,16 @@ export default function UniversalViewer({ jobId, isVideo = false }) {
       try {
         const port = isVideo ? "8083" : "8084"; // Stream/Viewer ports
         const service = isVideo ? "streaming" : "viewer";
-        
+
         const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
-        
+
         // Use KrakenD API gateway for all requests
         const res = await fetch(`${baseUrl}/${service}/${jobId}${isVideo ? '' : '/metadata'}`);
-        
+
         if (!res.ok) {
           throw new Error("Failed to fetch file metadata");
         }
-        
+
         const data = await res.json();
         setMetadata(data);
 
@@ -53,7 +68,7 @@ export default function UniversalViewer({ jobId, isVideo = false }) {
     };
 
     fetchMetadata(); // initial fetch
-    intervalId = setInterval(fetchMetadata, 3000); // poll every 3s
+    intervalId = setInterval(fetchMetadata, 1000); // poll every 1s
 
     return () => clearInterval(intervalId);
   }, [jobId, isVideo]);
@@ -61,28 +76,17 @@ export default function UniversalViewer({ jobId, isVideo = false }) {
   if (loading) {
     return (
       <Box sx={{ 
-        width: '100%', 
-        height: '100%', 
-        display: 'flex', 
-        flexDirection: 'column', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        bgcolor: '#F3F4F6', // Standard viewer background
-        color: '#374151'
+        width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'radial-gradient(ellipse at 0% 0%, rgba(0, 86, 179, 0.35) 0%, rgba(0, 86, 179, 0) 80%), radial-gradient(ellipse at 100% 0%, rgba(40, 167, 69, 0.25) 0%, rgba(40, 167, 69, 0) 80%), radial-gradient(ellipse at 100% 100%, rgba(40, 167, 69, 0.2) 0%, rgba(40, 167, 69, 0) 80%), radial-gradient(ellipse at 0% 100%, rgba(0, 86, 179, 0.2) 0%, rgba(0, 86, 179, 0) 80%), #f1f5f9'
       }}>
-        <Loader2 className="h-10 w-10 animate-spin mb-4" style={{ color: '#3B82F6', animation: 'spin 1s linear infinite' }} />
-        <Typography variant="h6" sx={{ fontWeight: 500, fontFamily: 'Inter, sans-serif' }}>
-          Processing your file...
-        </Typography>
-        <Typography variant="body2" sx={{ color: '#6B7280', mt: 1, fontFamily: 'Inter, sans-serif' }}>
-          This might take a few seconds.
-        </Typography>
-        <style>{`
-          @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
-        `}</style>
+        <Box
+          sx={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0
+          }}
+        >
+          <Loader inline />
+          <Typography sx={{ color: 'var(--color-primary)', fontWeight: 600, mt: -1 }}>Processing your file...</Typography>
+        </Box>
       </Box>
     );
   }
@@ -113,9 +117,9 @@ export default function UniversalViewer({ jobId, isVideo = false }) {
   if (isVideo && (metadata?.dash_manifest_url || metadata?.hls_manifest_url)) {
     return (
       <div className="flex flex-col space-y-4">
-        <ShakaPlayerComponent 
-          manifestUrl={metadata.dash_manifest_url || metadata.hls_manifest_url} 
-          jobId={metadata.job_id} 
+        <ShakaPlayerComponent
+          manifestUrl={metadata.dash_manifest_url || metadata.hls_manifest_url}
+          jobId={metadata.job_id}
         />
         <div className="flex justify-between items-center text-sm text-gray-400">
           <span>{metadata.original_filename}</span>
@@ -127,8 +131,8 @@ export default function UniversalViewer({ jobId, isVideo = false }) {
 
   // Document Viewer
   if (!isVideo && metadata) {
-    const { renderer, pdf_download_url, original_download_url, original_filename } = metadata;
-    
+    const { renderer, pdf_download_url, original_download_url, filename } = metadata;
+
     // Base URL for downloads (assuming microservice port)
     const baseUrl = `http://localhost:8084`;
 
@@ -139,58 +143,58 @@ export default function UniversalViewer({ jobId, isVideo = false }) {
       <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%' }}>
         {/* Viewer Header - Hide for PDF.js to use the native injected toolbar */}
         {renderer !== "PDF.js" && (
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center', 
+          <Box sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
             backgroundColor: '#FFFFFF',
             borderBottom: '1px solid #E5E7EB',
-            p: '16px 24px', 
+            p: '16px 24px',
             height: '72px',
             boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
             zIndex: 10,
             position: 'relative'
           }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-              <Typography sx={{ 
-                color: '#111827', 
-                fontWeight: 600, 
-                fontSize: '1.125rem', 
-                fontFamily: 'Inter, sans-serif',
+              <Typography sx={{
+                color: '#111827',
+                fontWeight: 600,
+                fontSize: '1.125rem',
+                fontFamily: 'inherit',
                 letterSpacing: '-0.01em'
               }}>
-                {original_filename}
+                {filename}
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Box sx={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#10B981' }} />
-                <Typography sx={{ 
-                  color: '#6B7280', 
-                  fontSize: '0.8125rem', 
-                  fontFamily: 'Inter, sans-serif', 
-                  fontWeight: 500 
+                <Typography sx={{
+                  color: '#6B7280',
+                  fontSize: '0.8125rem',
+                  fontFamily: 'inherit',
+                  fontWeight: 500
                 }}>
                   Rendered via {renderer}
                 </Typography>
               </Box>
             </Box>
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button 
-                variant="outlined" 
-                href={getOriginalUrl()} 
-                target="_blank" 
+            <Box sx={{ display: 'flex', gap: 1.5 }}>
+              <Button
+                variant="outlined"
+                href={getOriginalUrl()}
+                target="_blank"
                 rel="noopener noreferrer"
-                sx={{ 
-                  color: '#374151', 
+                sx={{
+                  color: '#374151',
                   borderColor: '#D1D5DB',
                   textTransform: 'none',
-                  fontFamily: 'Inter, sans-serif',
+                  fontFamily: 'inherit',
                   fontWeight: 500,
                   px: 2,
                   borderRadius: '8px',
                   transition: 'all 0.2s ease',
-                  '&:hover': { 
-                    backgroundColor: '#F3F4F6', 
-                    borderColor: '#9CA3AF' 
+                  '&:hover': {
+                    backgroundColor: '#F3F4F6',
+                    borderColor: '#9CA3AF'
                   }
                 }}
                 startIcon={<DownloadIcon size={16} />}
@@ -202,28 +206,28 @@ export default function UniversalViewer({ jobId, isVideo = false }) {
         )}
 
         {/* The Actual Viewer Container */}
-        <Box sx={{ 
+        <Box sx={{
           position: 'relative',
           overflow: 'hidden',
-          width: '100%', 
+          width: '100%',
           flexGrow: 1,
           display: 'flex',
           flexDirection: 'column',
-          backgroundColor: '#F3F4F6'
+          backgroundColor: 'transparent'
         }}>
           <Box sx={{ position: 'relative', zIndex: 2, width: '100%', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
             {renderer === "PDF.js" && (
-              <PdfViewerComponent 
-                downloadUrl={getPdfUrl()} 
-                filename={original_filename}
+              <PdfViewerComponent
+                downloadUrl={getPdfUrl()}
+                filename={filename}
                 originalDownloadUrl={getOriginalUrl()}
               />
             )}
 
             {renderer === "Monaco" && (
-              <CodeViewerComponent downloadUrl={getOriginalUrl()} filename={original_filename} />
+              <CodeViewerComponent downloadUrl={getOriginalUrl()} filename={filename} />
             )}
-            
+
             {renderer === "Markdown" && (
               <MarkdownViewerComponent downloadUrl={getOriginalUrl()} />
             )}
@@ -237,7 +241,7 @@ export default function UniversalViewer({ jobId, isVideo = false }) {
             )}
 
             {renderer === "Image" && (
-              <ImageViewerComponent downloadUrl={getOriginalUrl()} filename={original_filename} />
+              <ImageViewerComponent downloadUrl={getOriginalUrl()} filename={filename} />
             )}
 
             {renderer === "Archive" && (
@@ -249,7 +253,7 @@ export default function UniversalViewer({ jobId, isVideo = false }) {
                 <FileWarningIcon className="mx-auto h-16 w-16 text-gray-500 mb-4" />
                 <Typography variant="h6" sx={{ color: 'var(--color-slate-900)', fontWeight: 500, mb: 1 }}>Preview Not Available</Typography>
                 <Typography sx={{ color: 'var(--color-slate-500)', mb: 3 }}>We don't support previewing this file type yet.</Typography>
-                <Button 
+                <Button
                   variant="contained"
                   href={getOriginalUrl()}
                   startIcon={<DownloadIcon size={20} />}

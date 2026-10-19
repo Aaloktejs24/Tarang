@@ -10,6 +10,11 @@ import EventSeatOutlinedIcon from '@mui/icons-material/EventSeatOutlined';
 import { motion } from 'framer-motion';
 import { useTranslation } from '../../../hooks/useTranslation';
 import AdmissionModal from './AdmissionModal';
+
+
+import { DASHBOARD_PAGE_WRAPPER_SX, DASHBOARD_CONTAINER_SX } from '../../../constants/layout';
+import { useConfirm } from '../../../contexts/ConfirmContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { useProfile } from '../../../hooks/useProfile';
 import { apiClient } from '../../../lib/apiClient';
 import { useAccessibility } from '../../../contexts/AccessibilityContext';
@@ -22,24 +27,23 @@ const MotionDiv = motion.div;
 
 export default function AdmissionsDashboard() {
   const router = useRouter();
-  const { t } = useTranslation();
-  const { language } = useAccessibility();
+  const { t, language } = useTranslation();
+  const confirm = useConfirm();
+  const { showToast } = useToast();
+  const { fontSizeClass } = useAccessibility();
   const [isBuilderOpen, setIsBuilderOpen] = React.useState(false);
   const [editingAdmission, setEditingAdmission] = React.useState(null);
   const [admissions, setAdmissions] = React.useState([]);
   const [draftAdmissions, setDraftAdmissions] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
-  const [confirmDeleteInfo, setConfirmDeleteInfo] = React.useState(null); // { id, isDraft }
-  const [deleteError, setDeleteError] = React.useState('');
   const { profile } = useProfile();
 
-  const rawInstituteName = profile ? (profile.institution_name || profile.full_name || profile.username) : 'Institute';
+  const rawInstituteName = profile ? (profile.primary_name || profile.full_name || profile.username) : 'Institute';
   const breadcrumbInstituteName = formatBreadcrumbName(rawInstituteName);
 
-  // Auto-manage breadcrumbs
   useBreadcrumbs([
-    { labelEn: 'Home', labelHi: 'गृह', onClick: () => router.push('/dashboard/home') },
-    { label: breadcrumbInstituteName, onClick: () => router.push('/dashboard/home/institute') },
+    { labelEn: 'Home', labelHi: 'गृह', onClick: () => router.push('/dashboard/home/institute') },
+    { labelEn: 'Student Affairs', labelHi: 'छात्र मामले', onClick: () => router.push('/dashboard/home/institute?category=student_affairs') },
     { labelEn: 'Admissions', labelHi: 'प्रवेश' }
   ]);
 
@@ -64,13 +68,13 @@ export default function AdmissionsDashboard() {
   }, []);
 
   React.useEffect(() => {
-    if (!profile?.username) return;
+    if (!profile?.id) return;
 
     const fetchPrograms = async () => {
       try {
         const [progRes, draftRes] = await Promise.allSettled([
-          apiClient.get(`/admissions/institutes/${profile.username}/programs`),
-          apiClient.get(`/admissions/drafts?institute_id=${profile.username}`)
+          apiClient.get(`/admissions/institutes/${profile.id}/programs`),
+          apiClient.get(`/admissions/drafts?institute_id=${profile.id}`)
         ]);
 
         if (progRes.status === 'fulfilled' && progRes.value.data) {
@@ -79,21 +83,22 @@ export default function AdmissionsDashboard() {
             const rawStages = typeof p.stages === 'string' ? JSON.parse(p.stages) : (p.stages || []);
             return {
               ...p,
-              id: p.id,
-              title: p.workflow_title,
-              description: p.workflow_desc,
+              id: p.id || p.Id || p._id,
+              title: p.form_title || p.formTitle,
+              description: p.form_desc || p.formDesc,
               status: 'Active',
-              startDate: formatFullDate(p.publish_date || p.created_at),
-              endDate: formatFullDate(p.last_date),
+              startDate: formatFullDate(p.publish_date || p.publishDate || p.created_at),
+              endDate: formatFullDate(p.last_date || p.lastDate),
               applicants: 0,
               seats: p.seats || 0,
               stages: rawStages,
               // also expose top-level API fields for AdmissionModal to read
-              academic_year: p.academic_year,
-              workflow_desc: p.workflow_desc,
-              workflow_title: p.workflow_title,
-              publish_date: p.publish_date,
-              last_date: p.last_date };
+              academic_year: p.academic_year || p.academicYear,
+              form_desc: p.form_desc || p.formDesc,
+              form_title: p.form_title || p.formTitle,
+              publish_date: p.publish_date || p.publishDate,
+              last_date: p.last_date || p.lastDate
+            };
           }));
         }
 
@@ -101,13 +106,13 @@ export default function AdmissionsDashboard() {
           const draftsList = draftRes.value.data.drafts || [];
           const parsedDrafts = draftsList.map(draftObj => {
             try {
-              const parsed = JSON.parse(draftObj.draft_data);
+              const parsed = JSON.parse(draftObj.draft_data || draftObj.draftData || "{}");
               return {
-                id: draftObj.id,
+                id: draftObj.id || draftObj.Id || draftObj._id,
                 isDraft: true,
-                target_program_id: draftObj.program_id,
-                title: parsed.workflowTitle || 'Untitled Draft',
-                description: parsed.workflowDesc || '',
+                target_program_id: draftObj.program_id || draftObj.programId,
+                title: parsed.formTitle || 'Untitled Draft',
+                description: parsed.formDesc || '',
                 status: 'Draft',
                 startDate: formatFullDate(parsed.publishDate || draftObj.updated_at),
                 endDate: formatFullDate(parsed.expiryDate),
@@ -131,29 +136,32 @@ export default function AdmissionsDashboard() {
     fetchPrograms();
   }, [profile, isBuilderOpen]); // re-fetch when builder closes
 
-  const handleDeleteAdmission = (id, isDraft) => {
-    setConfirmDeleteInfo({ id, isDraft });
-  };
+  const handleDeleteAdmission = async (id, isDraft) => {
+    const isConfirmed = await confirm({
+      title: isDraft ? (language === 'en' ? 'Delete Draft?' : 'ड्राफ्ट हटाएं?') : (language === 'en' ? 'Delete Admission Program?' : 'प्रवेश कार्यक्रम हटाएं?'),
+      message: isDraft 
+        ? (language === 'en' ? 'Are you sure you want to delete this draft? This action cannot be undone.' : 'क्या आप वाकई इस ड्राफ्ट को हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।')
+        : (language === 'en' ? 'Are you sure you want to delete this admission program? This action cannot be undone.' : 'क्या आप वाकई इस प्रवेश कार्यक्रम को हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।'),
+      confirmText: language === 'en' ? 'Delete' : 'हटाएं',
+      cancelText: language === 'en' ? 'Cancel' : 'रद्द करें',
+      variant: 'danger'
+    });
 
-  const handleConfirmDelete = async () => {
-    if (!confirmDeleteInfo) return;
-    const { id, isDraft } = confirmDeleteInfo;
-    setConfirmDeleteInfo(null);
+    if (!isConfirmed) return;
+
     try {
       if (isDraft) {
-        await apiClient.delete(`/admissions/drafts?institute_id=${profile.username}&draft_id=${id}`);
-        setDraftAdmissions(prev => prev.filter(d => d.id !== id));
+        await apiClient.delete(`/admissions/drafts?institute_id=${profile.id}&draft_id=${id}`);
+        setDraftAdmissions(prev => prev.filter(a => a.id !== id));
       } else {
         await apiClient.delete(`/admissions/programs/${id}`);
-        setAdmissions(prev => prev.filter(a => a.id !== id));
+        setAdmissions(prev => prev.filter(a => String(a.id) !== String(id)));
       }
     } catch (err) {
       console.error("Failed to delete", err);
-      setDeleteError(language === 'en' ? "Failed to delete. Please try again." : "हटाने में विफल। कृपया पुनः प्रयास करें।");
+      showToast(language === 'en' ? "Failed to delete. Please try again." : "हटाने में विफल। कृपया पुनः प्रयास करें।", "error");
     }
   };
-
-  // Bilingual name parsing is handled by getHeroPropsFromProfile via heroUtils
 
   // Combine drafts and admissions, ensuring if a draft targets an existing program, we merge it.
   const standaloneDrafts = draftAdmissions.filter(d => !d.target_program_id || !admissions.some(a => a.id.toString() === d.target_program_id.toString()));
@@ -164,31 +172,31 @@ export default function AdmissionsDashboard() {
     }
     return a;
   });
-  
+
   const displayItems = [...standaloneDrafts, ...mergedAdmissions];
   const showEmptyState = !loading && displayItems.length === 0;
 
   return (
     <>
-      <Box sx={{ position: "relative", minHeight: "calc(100vh - 72px)", bgcolor: "transparent", mt: "-1px" }}>
+      <Box sx={DASHBOARD_PAGE_WRAPPER_SX}>
         <UniversalHero
           {...getHeroPropsFromProfile(profile, language)}
           loading={loading}
-          hideContent={showEmptyState}
-          showSpacer={!showEmptyState}
+          hideContent={!loading && showEmptyState}
+          showSpacer={loading || !showEmptyState}
           fadeAnchorRef={cardsRef}
         />
 
-        <Container ref={cardsRef} maxWidth="xl" sx={{
-          position: "relative",
-          zIndex: 1,
+        <Container ref={cardsRef} maxWidth={false} sx={{
+          ...DASHBOARD_CONTAINER_SX,
           pb: showEmptyState ? 0 : 10,
-          px: { xs: 3, md: 6, lg: 8 },
-          ...(showEmptyState && {
+          ...(!loading && showEmptyState && {
             height: "calc(100vh - 72px)",
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center" })
+            justifyContent: "center"
+          })
         }}>
           {loading ? (
             <Grid container spacing={3}>
@@ -196,13 +204,13 @@ export default function AdmissionsDashboard() {
                 <Grid size={{ xs: 12, md: 6, lg: 4 }} key={`skeleton-${index}`}>
                   <Card sx={{
                     height: 'var(--size-full)', display: 'flex', flexDirection: 'column', borderRadius: 'var(--radius-lg)',
-                    background: 'rgba(255, 255, 255, 0.4)', backdropFilter: 'blur(30px)',
-                    border: 'var(--border-thin) solid rgba(30, 79, 163, 0.2)', p: 4
+                    background: 'var(--card-bg)', border: 'var(--border-thin) solid var(--card-border)', p: 4
                   }}>
                     <Skeleton variant="text" width="60%" height={32} sx={{ mb: 1 }} />
                     <Skeleton variant="text" width="90%" height={20} />
                     <Skeleton variant="text" width="80%" height={20} sx={{ mb: 3 }} />
-                    <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 4 }}>
+                    <Box sx={{ mt: 'auto' }} />
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 0 }}>
                       <Box sx={{ display: 'flex', gap: 4 }}>
                         <Skeleton variant="circular" width={24} height={24} />
                         <Skeleton variant="circular" width={24} height={24} />
@@ -229,7 +237,7 @@ export default function AdmissionsDashboard() {
                           display: 'flex',
                           flexDirection: 'column',
                           borderRadius: 'var(--radius-lg)',
-                          background: 'rgba(255, 255, 255, 0.4)',
+                          background: 'var(--glass-bg)',
                           backdropFilter: 'blur(30px)',
                           border: 'var(--border-thin) solid rgba(30, 79, 163, 0.2)',
                           transition: 'var(--transition-slow)',
@@ -256,8 +264,9 @@ export default function AdmissionsDashboard() {
                               Description ....
                             </Typography>
                           )}
+                          <Box sx={{ mt: 'auto' }} />
                           {!admission.isDraft && (
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
                               <Typography sx={{ color: 'var(--color-slate-500)', fontSize: 'var(--font-xs)', fontWeight: 'var(--font-semibold)', display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                 <AccessTimeOutlinedIcon sx={{ fontSize: 16, mb: '2px', color: 'var(--color-success)' }} /> {admission.startDate}
                               </Typography>
@@ -267,7 +276,7 @@ export default function AdmissionsDashboard() {
                               </Typography>
                             </Box>
                           )}
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 'auto', pt: 4 }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 0 }}>
                             {!admission.isDraft ? (
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }} title="Applicants">
@@ -290,22 +299,38 @@ export default function AdmissionsDashboard() {
                                   e.stopPropagation();
                                   handleDeleteAdmission(admission.id, admission.isDraft);
                                 }}
-                                sx={{ border: 'var(--border-thin) solid currentColor', borderRadius: 'var(--radius-md)', width: 32, height: 32 }}
+                                sx={{ border: 'var(--border-thin) solid currentColor', borderRadius: 'var(--radius-sm)', width: 32, height: 32 }}
                               >
                                 <DeleteOutlineIcon sx={{ fontSize: 18 }} />
                               </IconButton>
+                              {admission.isDraft && (
                               <Button
                                 variant="outlined"
                                 size="small"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setEditingAdmission(admission.hasDraft ? admission.draftObj : admission);
+                                  setEditingAdmission(admission.draftObj ?? admission);
                                   setIsBuilderOpen(true);
                                 }}
-                                sx={{ borderRadius: 'var(--radius-md)', textTransform: 'none', fontWeight: 'var(--font-bold)', height: 32, fontSize: 'var(--font-xs)' }}
+                                sx={{ borderRadius: 'var(--radius-sm)', textTransform: 'none', fontWeight: 'var(--font-bold)', height: 32, fontSize: 'var(--font-xs)' }}
                               >
-                                {admission.isDraft || admission.hasDraft ? 'Resume Draft' : 'Edit'}
+                                Resume Draft
                               </Button>
+                              )}
+                              {!admission.isDraft && (
+                                <Button
+                                  variant="outlined"
+                                  size="small"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEditingAdmission(admission);
+                                    setIsBuilderOpen(true);
+                                  }}
+                                  sx={{ borderRadius: 'var(--radius-sm)', textTransform: 'none', fontWeight: 'var(--font-bold)', height: 32, fontSize: 'var(--font-xs)' }}
+                                >
+                                  Update
+                                </Button>
+                              )}
                               {!admission.isDraft && (
                                 <Button
                                   variant="contained"
@@ -315,7 +340,7 @@ export default function AdmissionsDashboard() {
                                     e.stopPropagation();
                                     router.push(`/dashboard/home/institute/admissions/${admission.id}/applications`);
                                   }}
-                                  sx={{ borderRadius: 'var(--radius-md)', textTransform: 'none', fontWeight: 'var(--font-bold)', height: 32, fontSize: 'var(--font-xs)', bgcolor: 'var(--color-primary)', color: 'var(--color-white)', '&:hover': { bgcolor: 'var(--color-primary-hover)' } }}
+                                  sx={{ borderRadius: 'var(--radius-sm)', textTransform: 'none', fontWeight: 'var(--font-bold)', height: 32, fontSize: 'var(--font-xs)', bgcolor: 'var(--color-primary)', color: 'var(--color-white)', '&:hover': { bgcolor: 'var(--color-primary-hover)' } }}
                                 >
                                   Manage
                                 </Button>
@@ -383,82 +408,6 @@ export default function AdmissionsDashboard() {
         }}
         editData={editingAdmission}
       />
-
-      {/* Custom Delete Confirmation Dialog */}
-      <Dialog
-        open={!!confirmDeleteInfo}
-        onClose={() => setConfirmDeleteInfo(null)}
-        PaperProps={{
-          sx: {
-            borderRadius: 'var(--radius-lg)',
-            p: 1,
-            maxWidth: 400,
-            width: '90%',
-            background: `
-            radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.45) 0, transparent 50%), 
-            radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.3) 0, transparent 50%), 
-            radial-gradient(at 80% 90%, rgba(40, 167, 69, 0.2) 0, transparent 50%),
-            radial-gradient(at 20% 80%, rgba(0, 86, 179, 0.15) 0, transparent 50%),
-            #eef2f6
-          `,
-            backdropFilter: 'blur(20px)',
-          }
-        }}
-        BackdropProps={{
-          sx: { backdropFilter: 'blur(6px)', backgroundColor: 'rgba(15,23,42,0.4)' }
-        }}
-      >
-        <DialogTitle sx={{ pb: 1, pt: 2.5, px: 3, fontWeight: 800, color: 'var(--color-slate-900)', fontSize: '1.15rem' }}>
-          {confirmDeleteInfo?.isDraft
-            ? (language === 'en' ? 'Delete Draft?' : 'ड्राफ्ट हटाएं?')
-            : (language === 'en' ? 'Delete Admission Program?' : 'प्रवेश कार्यक्रम हटाएं?')}
-        </DialogTitle>
-        <DialogContent sx={{ px: 3, pb: 1 }}>
-          <Typography sx={{ color: 'var(--color-slate-500)', fontSize: 'var(--font-base)', lineHeight: 1.6 }}>
-            {confirmDeleteInfo?.isDraft
-              ? (language === 'en' ? 'Are you sure you want to delete this draft? This action cannot be undone.' : 'क्या आप वाकई इस ड्राफ्ट को हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।')
-              : (language === 'en' ? 'Are you sure you want to delete this admission program? This action cannot be undone.' : 'क्या आप वाकई इस प्रवेश कार्यक्रम को हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।')
-            }
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2.5, pt: 1.5, gap: 1 }}>
-          <Button
-            onClick={() => setConfirmDeleteInfo(null)}
-            variant="outlined"
-            sx={{
-              borderRadius: 'var(--radius-md)', fontWeight: 'var(--font-semibold)', textTransform: 'none',
-              borderColor: 'var(--color-slate-200)', color: 'var(--color-slate-500)', px: 2.5,
-              '&:hover': { borderColor: 'var(--color-slate-500)', bgcolor: 'var(--color-slate-50)' }
-            }}
-          >
-            {language === 'en' ? 'Cancel' : 'रद्द करें'}
-          </Button>
-          <Button
-            onClick={handleConfirmDelete}
-            variant="contained"
-            disableElevation
-            sx={{
-              borderRadius: 'var(--radius-md)', fontWeight: 'var(--font-bold)', textTransform: 'none',
-              bgcolor: 'var(--color-error)', color: 'var(--color-white)', px: 2.5,
-              '&:hover': { bgcolor: 'var(--color-error)' },
-            }}
-          >
-            {language === 'en' ? 'Delete' : 'हटाएं'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Error Snackbar */}
-      <Snackbar
-        open={!!deleteError}
-        autoHideDuration={4000}
-        onClose={() => setDeleteError('')}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={() => setDeleteError('')} severity="error" sx={{ borderRadius: 'var(--radius-lg)' }}>
-          {deleteError}
-        </Alert>
-      </Snackbar>
     </>
   );
 }

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Button, CircularProgress } from '@mui/material';
+import { useSmartLoading } from '../../hooks/useSmartLoading';
 
 /**
  * TarangButton — Centralized button component
@@ -23,35 +24,74 @@ const VARIANT_STYLES = {
     color: 'var(--color-white)',
     border: 'none',
     '&:hover': { background: 'linear-gradient(135deg, #004494 0%, var(--color-success) 100%)' },
-    '&.Mui-disabled': { background: 'linear-gradient(135deg, rgba(0, 86, 179, 0.4) 0%, rgba(40, 167, 69, 0.4) 100%)', color: 'rgba(255, 255, 255, 0.7)' },
+    '&.Mui-disabled': {
+      background: 'linear-gradient(135deg, rgba(0, 86, 179, 0.4) 0%, rgba(40, 167, 69, 0.4) 100%) !important',
+      backgroundColor: 'transparent !important',
+      color: 'rgba(255, 255, 255, 0.7) !important',
+    },
   },
   primary: {
     background: 'var(--color-primary)',
     color: 'var(--color-white)',
     border: 'none',
     '&:hover': { background: 'var(--color-primary-hover)' },
-    '&.Mui-disabled': { background: 'rgba(0, 86, 179, 0.4)', color: 'rgba(255, 255, 255, 0.7)' },
+    '&.Mui-disabled': {
+      backgroundColor: 'rgba(0, 86, 179, 0.4) !important',
+      color: 'rgba(255, 255, 255, 0.7) !important',
+    },
   },
   success: {
     background: 'var(--color-success)',
     color: 'var(--color-white)',
     border: 'none',
     '&:hover': { background: 'var(--color-success)' },
-    '&.Mui-disabled': { background: 'rgba(40, 167, 69, 0.4)', color: 'rgba(255, 255, 255, 0.7)' },
+    '&.Mui-disabled': {
+      backgroundColor: 'rgba(40, 167, 69, 0.4) !important',
+      color: 'rgba(255, 255, 255, 0.7) !important',
+    },
   },
   outlined: {
     background: 'transparent',
     color: 'var(--color-primary)',
-    border: '1.5px solid var(--color-primary)',
+    border: 'var(--border-thin) solid var(--color-primary)',
     '&:hover': { background: 'rgba(0, 86, 179, 0.06)', borderColor: 'var(--color-primary)', color: 'var(--color-primary)' },
-    '&.Mui-disabled': { background: 'transparent', color: 'rgba(0, 86, 179, 0.5)', border: '1.5px solid rgba(0, 86, 179, 0.3)' },
+    '&.Mui-disabled': {
+      backgroundColor: 'transparent !important',
+      color: 'rgba(0, 86, 179, 0.5) !important',
+      border: 'var(--border-thin) solid rgba(0, 86, 179, 0.3) !important',
+    },
+  },
+  danger: {
+    background: 'var(--color-error)',
+    color: 'var(--color-white)',
+    border: 'none',
+    '&:hover': { background: '#dc2626' },
+    '&.Mui-disabled': {
+      backgroundColor: 'rgba(239, 68, 68, 0.4) !important',
+      color: 'rgba(255, 255, 255, 0.7) !important',
+    },
+  },
+  dangerOutlined: {
+    background: 'transparent',
+    color: 'var(--color-error)',
+    border: 'var(--border-thin) solid var(--color-error)',
+    '&:hover': { background: 'rgba(239, 68, 68, 0.06)', borderColor: 'var(--color-error)', color: 'var(--color-error)' },
+    '&.Mui-disabled': {
+      backgroundColor: 'transparent !important',
+      color: 'rgba(239, 68, 68, 0.5) !important',
+      border: 'var(--border-thin) solid rgba(239, 68, 68, 0.3) !important',
+    },
   },
   white: {
     background: 'var(--color-white)',
     color: 'var(--color-primary)',
-    border: '1px solid rgba(0, 86, 179, 0.2)',
+    border: 'var(--border-thin) solid rgba(0, 86, 179, 0.2)',
     '&:hover': { background: 'var(--color-slate-50)', borderColor: 'var(--color-primary)' },
-    '&.Mui-disabled': { background: 'rgba(255, 255, 255, 0.6)', color: 'rgba(0, 86, 179, 0.5)', border: '1px solid rgba(0, 86, 179, 0.1)' },
+    '&.Mui-disabled': {
+      backgroundColor: 'var(--glass-bg) !important',
+      color: 'rgba(0, 86, 179, 0.5) !important',
+      border: 'var(--border-thin) solid rgba(0, 86, 179, 0.1) !important',
+    },
   },
   text: {
     background: 'transparent',
@@ -60,12 +100,15 @@ const VARIANT_STYLES = {
     padding: '0',
     minWidth: 'auto',
     '&:hover': { background: 'transparent', textDecoration: 'underline' },
-    '&.Mui-disabled': { background: 'transparent', color: 'rgba(0, 86, 179, 0.5)' },
+    '&.Mui-disabled': {
+      backgroundColor: 'transparent !important',
+      color: 'rgba(0, 86, 179, 0.5) !important',
+    },
   },
 };
 
 const SIZE_STYLES = {
-  sm: { minHeight: 36, px: 2, fontSize: 'var(--font-sm)', borderRadius: 'var(--radius-md)' },
+  sm: { minHeight: 36, px: 2, fontSize: 'var(--font-sm)', borderRadius: 'var(--radius-sm)' },
   md: { minHeight: 'var(--box-height)', px: 3, fontSize: 'var(--font-base)', borderRadius: 'var(--radius-md)' },
   lg: { minHeight: 'var(--box-height)', px: 4, fontSize: 'var(--font-base)', borderRadius: 'var(--radius-md)' },
 };
@@ -87,10 +130,15 @@ export default function TarangButton({
   const variantSx = VARIANT_STYLES[variant] || VARIANT_STYLES.gradient;
   const sizeSx = SIZE_STYLES[size] || SIZE_STYLES.md;
 
-  const spinnerColor = variant === 'success' ? 'var(--color-success)' : 'var(--color-primary)';
+  const isDarkVariant = ['gradient', 'primary', 'success', 'danger'].includes(variant);
+  const spinnerColor = 'var(--color-primary)';
+
+  // Smart loading: wait 100ms before showing spinner, show for at least 1000ms
+  const spinnerVisible = useSmartLoading(loading, 100, 1000);
 
   return (
     <Button
+      color="inherit"
       disableElevation
       disableRipple={variant === 'text'}
       variant="contained"
@@ -98,8 +146,8 @@ export default function TarangButton({
       fullWidth={fullWidth}
       disabled={disabled || loading}
       onClick={onClick}
-      startIcon={loading ? null : startIcon}
-      endIcon={loading ? null : endIcon}
+      startIcon={startIcon}
+      endIcon={endIcon}
       sx={{
         textTransform: 'none',
         fontWeight: 'var(--font-semibold)',
@@ -109,10 +157,33 @@ export default function TarangButton({
         ...sizeSx,
         ...variantSx,
         ...sx,
+        ...(loading && {
+          '& .tarang-btn-content, & .MuiButton-startIcon, & .MuiButton-endIcon': {
+            opacity: 0,
+            visibility: 'hidden'
+          }
+        })
       }}
       {...rest}
     >
-      {loading ? <CircularProgress size={20} sx={{ color: spinnerColor }} /> : children}
+      <span className="tarang-btn-content" style={{ display: 'inherit', alignItems: 'inherit', justifyContent: 'inherit', color: isDarkVariant ? 'var(--color-white)' : 'inherit' }}>
+        {children}
+      </span>
+      {loading && (
+        <CircularProgress
+          className="tarang-spinner"
+          size={20}
+          sx={{
+            color: spinnerColor,
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            marginTop: '-10px',
+            marginLeft: '-10px',
+            zIndex: 1
+          }}
+        />
+      )}
     </Button>
   );
 }

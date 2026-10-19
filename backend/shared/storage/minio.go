@@ -82,3 +82,23 @@ func (m *MinioClient) UploadFile(ctx context.Context, bucket, key string, body [
 	}
 	return key, nil
 }
+
+// ListObjects lists all objects in a bucket with the given prefix
+func (m *MinioClient) ListObjects(ctx context.Context, bucket, prefix string) []minio.ObjectInfo {
+	var objects []minio.ObjectInfo
+	for obj := range m.client.ListObjects(ctx, bucket, minio.ListObjectsOptions{
+		Prefix:    prefix,
+		Recursive: true,
+	}) {
+		if obj.Err != nil {
+			continue
+		}
+		objects = append(objects, obj)
+	}
+	return objects
+}
+
+// RemoveObject deletes an object from a bucket
+func (m *MinioClient) RemoveObject(ctx context.Context, bucket, key string) error {
+	return m.client.RemoveObject(ctx, bucket, key, minio.RemoveObjectOptions{})
+}

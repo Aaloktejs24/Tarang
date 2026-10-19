@@ -1,23 +1,28 @@
 {
   "title": {
-    "en": "Create Admission Flow",
-    "hi": "एडमिशन फ्लो बनाएं",
-    "sa": "प्रवेशप्रवाहं रचयन्तु"
+    "en": "Admission Form",
+    "hi": "प्रवेश प्रपत्र",
+    "sa": "प्रवेश प्रपत्रं"
   },
   "subtitle": {
     "en": "Design the step-by-step admission process for your institute.",
-    "hi": "अपने संस्थान के लिए चरण-दर-चरण एडमिशन प्रक्रिया डिज़ाइन करें।",
+    "hi": "अपने संस्थान के लिए चरण-दर-चरण प्रवेश प्रक्रिया डिज़ाइन करें।",
     "sa": "स्वस्य संस्थायाः कृते पदे पदे प्रवेशप्रक्रियायाः डिजाइनं कुर्वन्तु।"
   },
   "step1Label": {
-    "en": "1. Admission Flow Details",
-    "hi": "1. एडमिशन फ्लो विवरण",
-    "sa": "1. प्रवेशप्रवाहविवरणम्"
+    "en": "1. Admission Form Details",
+    "hi": "1. प्रवेश प्रपत्र विवरण",
+    "sa": "1. प्रवेश प्रपत्र विवरणम्"
   },
   "step2Label": {
-    "en": "2. Admission Stages",
-    "hi": "2. एडमिशन चरण",
-    "sa": "2. प्रवेशपदार्थाः"
+    "en": "2. Schedule & Limits",
+    "hi": "2. अनुसूची और सीमाएं",
+    "sa": "2. अनुसूची तथा सीमा"
+  },
+  "step3Label": {
+    "en": "3. Admission Stages",
+    "hi": "3. प्रवेश चरण",
+    "sa": "3. प्रवेशपदार्थाः"
   },
   "titleField": {
     "en": "Title",
@@ -26,7 +31,7 @@
   },
   "titlePlaceholder": {
     "en": "e.g. B.Tech Admissions 2026",
-    "hi": "उदा. B.Tech एडमिशन 2026",
+    "hi": "उदा. B.Tech प्रवेश 2026",
     "sa": "यथा--- B.Tech प्रवेश 2026"
   },
   "descField": {
@@ -35,13 +40,13 @@
     "sa": "आवेदकानां कृते विवरणं तथा निर्देशाः"
   },
   "descPlaceholder": {
-    "en": "Write a few details about this workflow...",
-    "hi": "इस वर्कफ़्लो के बारे में कुछ विवरण लिखें...",
-    "sa": "अस्य कार्यप्रवाहस्य विषये कतिपयानि विवरणानि लिखन्तु..."
+    "en": "Write a few details about this form...",
+    "hi": "इस प्रपत्र के बारे में कुछ विवरण लिखें...",
+    "sa": "अस्य प्रपत्रस्य विषये कतिपयानि विवरणानि लिखन्तु..."
   },
   "stagesHeading": {
     "en": "Admission Stages",
-    "hi": "एडमिशन चरण",
+    "hi": "प्रवेश चरण",
     "sa": "प्रवेश चरण"
   },
   "addStage": {
@@ -100,9 +105,9 @@
     "sa": "प्रश्नोत्तरी चयनं कुर्वन्तु"
   },
   "interviewInstructions": {
-    "en": "Configure interview and instructions:",
-    "hi": "इंटरव्यू और निर्देश कॉन्फ़िगर करें:",
-    "sa": "साक्षात्कारस्य निर्देशान् च विन्यस्यताम्:"
+    "en": "Configure interview and instructions",
+    "hi": "इंटरव्यू और निर्देश विन्यस्त करें",
+    "sa": "साक्षात्कारस्य निर्देशान् च विन्यस्यताम्"
   },
   "dateLabel": {
     "en": "Date",
@@ -155,9 +160,9 @@
     "sa": "अद्यापि कोऽपि चरणः न योजितः।"
   },
   "noStagesSubtitle": {
-    "en": "Click \"Add Stage\" to start building your admission workflow.",
-    "hi": "एडमिशन वर्कफ़्लो बनाना शुरू करने के लिए \"चरण जोड़ें\" पर क्लिक करें।",
-    "sa": "प्रवेशकार्यप्रवाहस्य निर्माणं आरभ्य \"Add Stage\" नुदन्तु ।"
+    "en": "Click \"Add Stage\" to start building your admission form.",
+    "hi": "प्रवेश प्रपत्र बनाना शुरू करने के लिए \"चरण जोड़ें\" पर क्लिक करें।",
+    "sa": "प्रवेशप्रपत्रस्य निर्माणं आरभ्य \"Add Stage\" नुदन्तु ।"
   },
   "cloudQuizzesLabel": {
     "en": "Your Cloud Quizzes",
@@ -179,15 +184,30 @@
     "hi": "शैक्षणिक वर्ष",
     "sa": "शैक्षणिकवर्षम्"
   },
+  "eligibility": {
+    "en": "Eligibility",
+    "hi": "योग्यता",
+    "sa": "योग्यता"
+  },
+  "duration": {
+    "en": "Duration",
+    "hi": "अवधि",
+    "sa": "अवधिः"
+  },
+  "fees": {
+    "en": "Overall Fees",
+    "hi": "कुल फीस",
+    "sa": "कुलं शुल्कम्"
+  },
   "discardBtn": {
     "en": "Discard",
     "hi": "हटाएं",
     "sa": "परित्यजतु"
   },
   "cancelBtn": {
-    "en": "Cancel",
-    "hi": "रद्द करें",
-    "sa": "निरसयतु"
+    "en": "Close",
+    "hi": "बंद करें",
+    "sa": "पिदधातु"
   },
   "backBtn": {
     "en": "Back",
@@ -200,18 +220,442 @@
     "sa": "अग्रिम"
   },
   "publishBtn": {
-    "en": "Publish Workflow",
-    "hi": "वर्कफ़्लो प्रकाशित करें",
-    "sa": "कार्यप्रवाह प्रकाशित करें"
+    "en": "Publish Form",
+    "hi": "प्रपत्र प्रकाशित करें",
+    "sa": "प्रपत्र प्रकाशित करें"
+  },
+  "updateBtn": {
+    "en": "Update Form",
+    "hi": "प्रपत्र अद्यतन करें",
+    "sa": "प्रपत्र अद्यतन कुर्वन्तु"
+  },
+  "addAcademicRecordBtn": {
+    "en": "Add Academic Record",
+    "hi": "अकादमिक रिकॉर्ड जोड़ें",
+    "sa": "शैक्षणिक अभिलेखं योजयन्तु"
+  },
+  "attachQuizBtn": {
+    "en": "Attach Quiz",
+    "hi": "प्रश्नोत्तरी संलग्न करें",
+    "sa": "प्रश्नोत्तरी संलग्न कुर्वन्तु"
   },
   "saveDraftBtn": {
-    "en": "Save as Draft",
-    "hi": "ड्राफ़्ट के रूप में सहेजें",
-    "sa": "ड्राफ़्टरूपेण रक्षन्तु"
+    "en": "Save Draft",
+    "hi": "सेव ड्राफ़्ट",
+    "sa": "ड्राफ़्ट रक्षन्तु"
   },
   "draftSaved": {
     "en": "Draft saved successfully",
     "hi": "ड्राफ़्ट सफलतापूर्वक सहेजा गया",
     "sa": "ड्राफ़्ट सफलतापूर्वक रक्षितम्"
+  },
+  "editTitle": {
+    "en": "Admission Form",
+    "hi": "प्रवेश प्रपत्र",
+    "sa": "प्रवेश प्रपत्रं"
+  },
+  "stage1": {
+    "en": "Stage 1: Applicant Details",
+    "hi": "चरण 1: आवेदक विवरण",
+    "sa": "चरण 1: आवेदक विवरणम्"
+  },
+  "stage2": {
+    "en": "Stage 2: Quiz",
+    "hi": "चरण 2: प्रश्नोत्तरी",
+    "sa": "चरण 2: प्रश्नोत्तरी"
+  },
+  "stage3": {
+    "en": "Stage 3: Interview",
+    "hi": "चरण 3: साक्षात्कार",
+    "sa": "चरण 3: साक्षात्कारः"
+  },
+  "stage4": {
+    "en": "Stage 4: Payment",
+    "hi": "चरण 4: भुगतान",
+    "sa": "चरण 4: भुगतानम्"
+  },
+  "stagePrefix": {
+    "en": "Stage",
+    "hi": "चरण",
+    "sa": "चरण"
+  },
+  "menuDocRequest": {
+    "en": "Applicant Details",
+    "hi": "आवेदक विवरण",
+    "sa": "आवेदक विवरणम्"
+  },
+  "menuSetupPayment": {
+    "en": "Request Payment",
+    "hi": "भुगतान अनुरोध",
+    "sa": "भुगतान अनुरोधः"
+  },
+  "stageTypeDoc": {
+    "en": "Applicant Details",
+    "hi": "आवेदक विवरण",
+    "sa": "आवेदक विवरणम्"
+  },
+  "stageTypeQuiz": {
+    "en": "Quiz",
+    "hi": "प्रश्नोत्तरी",
+    "sa": "प्रश्नोत्तरी"
+  },
+  "stageTypeInt": {
+    "en": "Interview",
+    "hi": "साक्षात्कार",
+    "sa": "साक्षात्कारः"
+  },
+  "stageTypePay": {
+    "en": "Payment",
+    "hi": "भुगतान",
+    "sa": "भुगतानम्"
+  },
+  "timeline": {
+    "en": "Timeline",
+    "hi": "समय सीमा",
+    "sa": "समयरेखा"
+  },
+  "startDate": {
+    "en": "Start Date",
+    "hi": "आरंभ तिथि",
+    "sa": "प्रारम्भिक दिनाङ्क"
+  },
+  "startTime": {
+    "en": "Start Time",
+    "hi": "आरंभ समय",
+    "sa": "प्रारम्भिक समय"
+  },
+  "endDate": {
+    "en": "End Date",
+    "hi": "समाप्ति तिथि",
+    "sa": "समाप्ति दिनाङ्क"
+  },
+  "endTime": {
+    "en": "End Time",
+    "hi": "समाप्ति समय",
+    "sa": "समाप्ति समय"
+  },
+  "publishDate": {
+    "en": "Publish Date",
+    "hi": "प्रकाशन तिथि",
+    "sa": "प्रकाशन दिनाङ्क"
+  },
+  "publishTime": {
+    "en": "Publish Time",
+    "hi": "प्रकाशन समय",
+    "sa": "प्रकाशन समय"
+  },
+  "expiryDate": {
+    "en": "Expiry Date",
+    "hi": "समाप्ति तिथि",
+    "sa": "समाप्ति दिनाङ्क"
+  },
+  "expiryTime": {
+    "en": "Expiry Time",
+    "hi": "समाप्ति समय",
+    "sa": "समाप्ति समय"
+  },
+  "seatsAvailable": {
+    "en": "Seats Available",
+    "hi": "उपलब्ध सीटें",
+    "sa": "उपलब्ध आसनानि"
+  },
+  "applicantDetailsTitle": {
+    "en": "Applicant Details",
+    "hi": "आवेदक विवरण",
+    "sa": "आवेदक विवरणम्"
+  },
+  "applicantDetailsSub": {
+    "en": "Select the fields that students must fill during this stage.",
+    "hi": "उन क्षेत्रों का चयन करें जिन्हें छात्रों को इस चरण के दौरान भरना होगा।",
+    "sa": "अस्मिन् चरणे छात्रैः पूरणीयानि क्षेत्राणि चिनोतु।"
+  },
+  "deselectAll": {
+    "en": "Deselect All",
+    "hi": "सभी अचयनित करें",
+    "sa": "सर्वम् अचिनोतु"
+  },
+  "selectAll": {
+    "en": "Select All",
+    "hi": "सभी का चयन करे",
+    "sa": "सर्वं चिनोतु"
+  },
+  "groups": {
+    "PersonalInformation": {
+      "en": "Personal Information",
+      "hi": "व्यक्तिगत जानकारी",
+      "sa": "व्यक्तिगतं विवरणम्"
+    },
+    "AcademicRecord": {
+      "en": "Academic Record",
+      "hi": "अकादमिक रिकॉर्ड",
+      "sa": "शैक्षणिक अभिलेख"
+    },
+    "FamilyDetails": {
+      "en": "Family Details",
+      "hi": "परिवार का विवरण",
+      "sa": "परिवारस्य विवरणम्"
+    },
+    "FamilyIncome": {
+      "en": "Family Income",
+      "hi": "पारिवारिक आय",
+      "sa": "पारिवारिक आय"
+    },
+    "PermanentAddress": {
+      "en": "Permanent Address",
+      "hi": "स्थायी पता",
+      "sa": "स्थायी सङ्केतः"
+    },
+    "CorrespondenceAddress": {
+      "en": "Correspondence Address",
+      "hi": "पत्राचार का पता",
+      "sa": "पत्राचारस्य सङ्केतः"
+    },
+    "CriminalCharacterRecord": {
+      "en": "Criminal & Character Record",
+      "hi": "आपराधिक और चरित्र रिकॉर्ड",
+      "sa": "आपराधिक तथा चरित्र अभिलेख"
+    }
+  },
+  "fields": {
+    "full_name": {
+      "en": "Full Name",
+      "hi": "पूरा नाम",
+      "sa": "पूर्णनाम"
+    },
+    "email": {
+      "en": "Email",
+      "hi": "ईमेल",
+      "sa": "ईमेल"
+    },
+    "phone": {
+      "en": "Phone Number",
+      "hi": "फोन नंबर",
+      "sa": "दूरभाष सङ्ख्या"
+    },
+    "dob": {
+      "en": "Date of Birth",
+      "hi": "जन्म तिथि",
+      "sa": "जन्मदिनम्"
+    },
+    "gender": {
+      "en": "Gender",
+      "hi": "लिंग",
+      "sa": "लिङ्गम्"
+    },
+    "nationality": {
+      "en": "Nationality",
+      "hi": "राष्ट्रीयता",
+      "sa": "राष्ट्रीयता"
+    },
+    "caste": {
+      "en": "Caste",
+      "hi": "जाति",
+      "sa": "जाति"
+    },
+    "subcaste": {
+      "en": "Subcaste",
+      "hi": "उपजाति",
+      "sa": "उपजाति"
+    },
+    "birth_religion": {
+      "en": "Birth Religion",
+      "hi": "जन्म का धर्म",
+      "sa": "जन्म धर्म"
+    },
+    "current_religion": {
+      "en": "Current Religion",
+      "hi": "वर्तमान धर्म",
+      "sa": "वर्तमान धर्म"
+    },
+    "race_ethnicity": {
+      "en": "Race / Ethnicity",
+      "hi": "प्रजाति / नस्ल",
+      "sa": "प्रजाति / नस्ल"
+    },
+    "language": {
+      "en": "Language",
+      "hi": "भाषा",
+      "sa": "भाषा"
+    },
+    "father_name": {
+      "en": "Father's Name",
+      "hi": "पिता का नाम",
+      "sa": "पितुः नाम"
+    },
+    "father_contact": {
+      "en": "Father's Contact Number",
+      "hi": "पिता का संपर्क नंबर",
+      "sa": "पितुः सम्पर्कसङ्ख्या"
+    },
+    "mother_name": {
+      "en": "Mother's Name",
+      "hi": "माता का नाम",
+      "sa": "मातुः नाम"
+    },
+    "mother_contact": {
+      "en": "Mother's Contact Number",
+      "hi": "माता का संपर्क नंबर",
+      "sa": "मातुः सम्पर्कसङ्ख्या"
+    },
+    "has_sibling": {
+      "en": "Sibling Details",
+      "hi": "भाई-बहन का विवरण",
+      "sa": "भ्रातुः विवरणम्"
+    },
+    "family_income": {
+      "en": "Annual Family Income",
+      "hi": "वार्षिक पारिवारिक आय",
+      "sa": "वार्षिक पारिवारिक आय"
+    },
+    "individual_family_details": {
+      "en": "Individual Family Details",
+      "hi": "व्यक्तिगत परिवार का विवरण",
+      "sa": "व्यक्तिगत परिवारस्य विवरणम्"
+    },
+    "perm_country": {
+      "en": "Country",
+      "hi": "देश",
+      "sa": "देश"
+    },
+    "perm_state": {
+      "en": "State",
+      "hi": "राज्य",
+      "sa": "राज्यम्"
+    },
+    "perm_district": {
+      "en": "District",
+      "hi": "ज़िला",
+      "sa": "जनपदम्"
+    },
+    "perm_area_type": {
+      "en": "Area Type",
+      "hi": "क्षेत्र का प्रकार",
+      "sa": "क्षेत्रस्य प्रकारः"
+    },
+    "perm_ward": {
+      "en": "Ward / Sector",
+      "hi": "वार्ड / सेक्टर",
+      "sa": "वार्ड / सेक्टर"
+    },
+    "perm_house": {
+      "en": "House No. & Name",
+      "hi": "मकान नं. और नाम",
+      "sa": "गृहसङ्ख्या तथा नाम"
+    },
+    "perm_landmark": {
+      "en": "Landmark",
+      "hi": "सीमाचिह्न",
+      "sa": "सीमाचिह्नम्"
+    },
+    "perm_street": {
+      "en": "Street",
+      "hi": "सड़क/गली",
+      "sa": "मार्गः"
+    },
+    "perm_pincode": {
+      "en": "Pincode",
+      "hi": "पिन कोड",
+      "sa": "पिन कोड"
+    },
+    "perm_address": {
+      "en": "Address Proof",
+      "hi": "पता प्रमाण",
+      "sa": "सङ्केतस्य प्रमाणम्"
+    },
+    "corr_country": {
+      "en": "Country",
+      "hi": "देश",
+      "sa": "देश"
+    },
+    "corr_state": {
+      "en": "State",
+      "hi": "राज्य",
+      "sa": "राज्यम्"
+    },
+    "corr_district": {
+      "en": "District",
+      "hi": "ज़िला",
+      "sa": "जनपदम्"
+    },
+    "corr_area_type": {
+      "en": "Area Type",
+      "hi": "क्षेत्र का प्रकार",
+      "sa": "क्षेत्रस्य प्रकारः"
+    },
+    "corr_ward": {
+      "en": "Ward / Sector",
+      "hi": "वार्ड / सेक्टर",
+      "sa": "वार्ड / सेक्टर"
+    },
+    "corr_house": {
+      "en": "House No. & Name",
+      "hi": "मकान नं. और नाम",
+      "sa": "गृहसङ्ख्या तथा नाम"
+    },
+    "corr_landmark": {
+      "en": "Landmark",
+      "hi": "सीमाचिह्न",
+      "sa": "सीमाचिह्नम्"
+    },
+    "corr_street": {
+      "en": "Street",
+      "hi": "सड़क/गली",
+      "sa": "मार्गः"
+    },
+    "corr_pincode": {
+      "en": "Pincode",
+      "hi": "पिन कोड",
+      "sa": "पिन कोड"
+    },
+    "corr_address": {
+      "en": "Address Proof",
+      "hi": "पता प्रमाण",
+      "sa": "सङ्केतस्य प्रमाणम्"
+    },
+    "criminal_record": {
+      "en": "Criminal Record",
+      "hi": "आपराधिक रिकॉर्ड",
+      "sa": "आपराधिक अभिलेख"
+    }
+  },
+  "paymentConfiguration": {
+    "en": "Payment Configuration",
+    "hi": "भुगतान विन्यास",
+    "sa": "भुगतान विन्यास"
+  },
+  "outstandingAmount": {
+    "en": "Outstanding Amount",
+    "hi": "बकाया राशि",
+    "sa": "अवशिष्ट राशि"
+  },
+  "currency": {
+    "en": "Currency",
+    "hi": "मुद्रा",
+    "sa": "मुद्रा"
+  },
+  "feeDetails": {
+    "en": "Fee Details",
+    "hi": "शुल्क विवरण",
+    "sa": "शुल्क विवरण"
+  },
+  "uploadPdf": {
+    "en": "Upload PDF",
+    "hi": "PDF अपलोड करें",
+    "sa": "PDF अपलोड कुर्वन्तु"
+  },
+  "paymentInstructions": {
+    "en": "Payment Instructions",
+    "hi": "भुगतान निर्देश",
+    "sa": "भुगतान निर्देश"
+  },
+  "confirmDeleteTitle": {
+    "en": "Delete Program?",
+    "hi": "प्रपत्र हटाएं?",
+    "sa": "प्रपत्रं निष्कासयतु?"
+  },
+  "confirmDelete": {
+    "en": "Are you sure you want to delete this program? This action cannot be undone.",
+    "hi": "क्या आप वाकई इस प्रपत्र को हटाना चाहते हैं? यह कार्रवाई पूर्ववत नहीं की जा सकती।",
+    "sa": "किं भवन्तः निश्चितरूपेण एतत् प्रपत्रं निष्कासयितुं इच्छन्ति? एतत् कार्यं पूर्ववत् कर्तुं न शक्यते।"
   }
 }

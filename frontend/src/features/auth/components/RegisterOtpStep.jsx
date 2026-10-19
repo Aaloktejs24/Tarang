@@ -10,7 +10,6 @@ import { IconButton } from "@mui/material";
 import { QRCodeSVG } from "qrcode.react";
 import { validateOtp } from "../../../utils/validationUtils";
 import TarangButton from "../../../components/common/TarangButton";
-import AuthMessage from "./AuthMessage";
 import { getMaskedEmail } from "../../../utils/maskUtils";
 import { FormLoadingProvider } from '../../../contexts/FormLoadingContext';
 
@@ -36,7 +35,7 @@ export default function RegisterOtpStep({ setStep, formData, updateFormData, err
 
   return (
     <FormLoadingProvider isLoading={isLoading}>
-    <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 2 }}>
+    <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 1.5 }}>
 
       <Box>
         <Typography variant="h5" sx={{ mb: 1, fontWeight: 'var(--font-extrabold)', color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)' }}>
@@ -48,28 +47,12 @@ export default function RegisterOtpStep({ setStep, formData, updateFormData, err
         </Typography>
       </Box>
 
-      <AnimatePresence mode="wait">
-        {(error || success) && (
-          <motion.div
-            key={error ? "error" : "success"}
-            initial={{ opacity: 0, height: 0, marginTop: 0 }}
-            animate={{ opacity: 1, height: "auto", marginTop: 8 }}
-            exit={{ opacity: 0, height: 0, marginTop: 0 }}
-            style={{ overflow: "hidden", textAlign: "center", width: "100%" }}
-          >
-            {error ? (
-              <AuthMessage type="error" message={error} />
-            ) : (
-              <AuthMessage type="success" message={success} />
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>      <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 1.5 }}>
+            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 1.5 }}>
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
             ईमेल वेरिफिकेशन कोड
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <OtpInput
               value={formData.otp}
               onChange={(val) => {
@@ -84,7 +67,7 @@ export default function RegisterOtpStep({ setStep, formData, updateFormData, err
               size="sm"
               disabled={isLoading || resendTimer > 0}
               onClick={handleResend}
-              sx={{ color: resendTimer > 0 ? '#64748b' : 'var(--color-primary)', p: 0, minWidth: 'auto', minHeight: 'auto', '&:hover': { background: 'transparent', textDecoration: 'underline' }, whiteSpace: 'nowrap' }}
+              sx={{ color: 'var(--color-primary)', p: 0, minWidth: 'auto', minHeight: 'auto', '&.Mui-disabled': { color: 'var(--color-primary)', opacity: 0.8 }, '&:hover': { background: 'transparent', textDecoration: 'underline' }, whiteSpace: 'nowrap' }}
             >
               {resendTimer > 0 ? (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -131,7 +114,7 @@ export default function RegisterOtpStep({ setStep, formData, updateFormData, err
               alignItems: "center",
               gap: 1.5,
               width: "var(--size-full)",
-              bgcolor: "rgba(255, 255, 255, 0.3)",
+              bgcolor: "var(--glass-bg)",
               p: 2,
               borderRadius: 'var(--radius-md)',
               border: "1px solid rgba(30, 79, 163, 0.2)",
@@ -157,7 +140,7 @@ export default function RegisterOtpStep({ setStep, formData, updateFormData, err
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    bgcolor: "rgba(255, 255, 255, 0.5)",
+                    bgcolor: "var(--glass-bg)",
                     pl: 2,
                     pr: 1,
                     py: 0.75,

@@ -23,6 +23,7 @@ export default function AdminLanding() {
   const params = useParams();
   const router = useRouter();
   const token = params.adminToken;
+  const isSubmitting = React.useRef(false);
   
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
@@ -46,6 +47,8 @@ export default function AdminLanding() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
     setLoading(true);
     setError('');
     
@@ -76,6 +79,7 @@ export default function AdminLanding() {
     } catch (err) {
       setError(err.message);
     } finally {
+      isSubmitting.current = false;
       setLoading(false);
     }
   };
@@ -103,6 +107,8 @@ export default function AdminLanding() {
 
   const handleVerifyOtpSetup = async (e) => {
     e.preventDefault();
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
     setLoading(true);
     setError('');
     try {
@@ -122,12 +128,15 @@ export default function AdminLanding() {
     } catch (err) {
       setError(err.message);
     } finally {
+      isSubmitting.current = false;
       setLoading(false);
     }
   };
 
   const handleVerifyOtpLogin = async (e) => {
     e.preventDefault();
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
     setLoading(true);
     setError('');
     try {
@@ -147,6 +156,7 @@ export default function AdminLanding() {
     } catch (err) {
       setError(err.message);
     } finally {
+      isSubmitting.current = false;
       setLoading(false);
     }
   };
@@ -190,7 +200,7 @@ export default function AdminLanding() {
             border: 'none' }}
         >
           <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <Box component="img" src="/logo.svg" alt="Tarang Logo" sx={{ width: 48, height: 48, objectFit: 'contain' }} />
               <Typography variant="h5" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', letterSpacing: '-1px', fontSize: '26px' }}>
                 Tarang
@@ -282,7 +292,7 @@ export default function AdminLanding() {
                   "&.Mui-disabled": { background: "var(--color-slate-200)", color: "var(--color-slate-500)" }
                 }}
               >
-                {loading ? <CircularProgress size={24} color="inherit" /> : 'Log In'}
+                {loading ? <CircularProgress size={24} sx={{ color: 'var(--color-primary)' }} /> : 'Log In'}
               </Button>
               </Box>
             </form>
@@ -301,7 +311,7 @@ export default function AdminLanding() {
                   display: "flex",
                   flexDirection: { xs: "column", sm: "row" },
                   alignItems: { xs: "center", sm: "stretch" },
-                  gap: 2,
+                  gap: 1.5,
                   width: "var(--size-full)",
                   mb: 4
               }}>
@@ -414,7 +424,7 @@ export default function AdminLanding() {
                   "&.Mui-disabled": { background: "var(--color-slate-200)", color: "var(--color-slate-500)", WebkitTextFillColor: "var(--color-slate-500)" }
                 }}
               >
-                {loading ? <CircularProgress size={24} color="inherit" /> : 'Verify & Continue'}
+                {loading ? <CircularProgress size={24} sx={{ color: 'var(--color-primary)' }} /> : 'Verify & Continue'}
               </Button>
             </form>
           )}
@@ -470,7 +480,7 @@ export default function AdminLanding() {
                   "&.Mui-disabled": { background: "var(--color-slate-200)", color: "var(--color-slate-500)", WebkitTextFillColor: "var(--color-slate-500)" }
                 }}
               >
-                {loading ? <CircularProgress size={24} color="inherit" /> : 'Verify Code'}
+                {loading ? <CircularProgress size={24} sx={{ color: 'var(--color-primary)' }} /> : 'Verify Code'}
               </Button>
             </form>
           )}

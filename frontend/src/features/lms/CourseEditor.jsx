@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
-import { Box, Typography, Button, Container, TextField, IconButton, Paper, Accordion, AccordionSummary, AccordionDetails, Breadcrumbs, Link } from '@mui/material';
+import { Box, Typography, Button, Container, TextField, IconButton, Paper, Breadcrumbs, Link } from '@mui/material';
+import { CustomAccordion, CustomAccordionSummary, CustomAccordionDetails } from '../../components/common/CustomAccordion';
 import {  useSearchParams } from 'next/navigation';
 
 import { useAppRouter as useRouter } from '../../hooks/useAppRouter';
@@ -15,6 +16,8 @@ import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { useBreadcrumbs } from '../../contexts/BreadcrumbContext';
 import { useProfile } from '../../hooks/useProfile';
 import { formatBreadcrumbName } from '../../utils/stringUtils';
+import MediaUploadModal from './components/MediaUploadModal';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 export default function CourseEditor() {
   const router = useRouter();
@@ -26,22 +29,37 @@ export default function CourseEditor() {
   const [courseDesc, setCourseDesc] = useState(descParam);
 
   const [modules, setModules] = useState([
-    { id: 1, title: 'Module 1: Introduction', lessons: [{ id: 101, title: 'Welcome to the Course', type: 'video' }] }
+    { id: crypto.randomUUID(), title: 'Module 1: Introduction', children: [{ id: crypto.randomUUID(), title: 'Welcome to the Course', type: 'video' }] }
   ]);
 
-  const { profile } = useProfile();
-  const rawInstituteName = profile ? (profile.institution_name || profile.full_name || profile.username) : 'Institute';
-  const breadcrumbInstituteName = formatBreadcrumbName(rawInstituteName);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [activeUploadLesson, setActiveUploadLesson] = useState(null);
+
+  const handleUploadComplete = (lessonId, resultData) => {
+    setModules(modules.map(mod => ({
+      ...mod,
+      children: (mod.children || []).map(les => {
+        if (les.id === lessonId) {
+          if (les.type === 'video') {
+            return { ...les, video_url: resultData.manifestUrl, video_job_id: resultData.jobId };
+          } else {
+            return { ...les, document_url: resultData.viewerUrl, document_job_id: resultData.jobId };
+          }
+        }
+        return les;
+      })
+    })));
+  };
 
   useBreadcrumbs([
-    { labelEn: 'Home', labelHi: 'गृह', onClick: () => router.push('/dashboard/home') },
-    { label: breadcrumbInstituteName, onClick: () => router.push('/dashboard/home/institute') },
+    { labelEn: 'Home', labelHi: 'गृह', onClick: () => router.push('/dashboard/home/institute') },
+    { labelEn: 'Academic Affairs', labelHi: 'शैक्षणिक मामले', onClick: () => router.push('/dashboard/home/institute?category=academic_affairs') },
     { labelEn: 'Courses', labelHi: 'पाठ्यक्रम', onClick: () => router.push('/dashboard/home/institute/courses') },
     { labelEn: 'Course Builder', labelHi: 'कोर्स बिल्डर' }
   ]);
 
   const addModule = () => {
-    setModules([...modules, { id: Date.now(), title: `Module ${modules.length + 1}: New Module`, lessons: [] }]);
+    setModules([...modules, { id: crypto.randomUUID(), title: `Module ${modules.length + 1}: New Module`, children: [] }]);
   };
 
   const addLesson = (moduleId, type) => {
@@ -49,7 +67,7 @@ export default function CourseEditor() {
       if (mod.id === moduleId) {
         return {
           ...mod,
-          lessons: [...mod.lessons, { id: Date.now(), title: 'New Lesson', type }]
+          children: [...(mod.children || []), { id: crypto.randomUUID(), title: 'New Lesson', type }]
         };
       }
       return mod;
@@ -60,8 +78,8 @@ export default function CourseEditor() {
     <>
 
 
-      <Box sx={{ minHeight: 'calc(100vh - 64px)', pb: 10, pt: { xs: 8, md: 10 }, position: 'relative' }}>
-        <Container maxWidth="xl" sx={{ px: { xs: 4, md: 6, lg: 8 }, zIndex: 1, position: "relative" }}>
+      <Box sx={{ minHeight: 'calc(100vh - 64px)', pt: { xs: 8, md: 10 }, position: 'relative' }}>
+        <Container maxWidth={false} sx={{ px: { xs: 4, md: 6, lg: 8 }, zIndex: 1, position: "relative" }}>
 
         {/* Header */}
         <Box sx={{ 
@@ -133,31 +151,15 @@ export default function CourseEditor() {
           </Box>
 
           {modules.map((module, index) => (
-            <Accordion key={module.id} sx={{ 
-              margin: '0 0 16px 0',
-              borderRadius: '12px', 
-              border: '1.5px solid rgba(30, 79, 163, 0.15)', 
-              background: "rgba(255, 255, 255, 0.4)",
-              backdropFilter: "blur(20px)",
-              '&:before': { display: 'none' }
-            }}>
-              <AccordionSummary 
+            <CustomAccordion key={module.id}>
+              <CustomAccordionSummary 
                 expandIcon={<ExpandMoreIcon sx={{ color: 'var(--color-primary)' }} />} 
                 disableRipple
                 sx={{ 
-                  borderTopLeftRadius: 'var(--radius-lg)',
-                  borderTopRightRadius: 'var(--radius-lg)',
-                  borderBottomLeftRadius: 0,
-                  borderBottomRightRadius: 0,
                   px: { xs: 1.5, sm: 2.25 },
-                  py: 0,
                   height: '64px',
                   minHeight: '64px',
-                  maxHeight: '64px',
-                  '&.Mui-expanded': { minHeight: '64px', maxHeight: '64px', m: 0 },
-                  '&:hover': { backgroundColor: 'transparent' },
-                  '&.Mui-focusVisible': { backgroundColor: 'transparent' },
-                  '& .MuiAccordionSummary-content': { my: 0, minWidth: 0, '&.Mui-expanded': { m: 0 } }
+                  '& .MuiAccordionSummary-content': { my: 0, minWidth: 0 }
                 }}
               >
                 <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'minmax(0, 1fr) auto' }, alignItems: 'center', gap: { xs: 1.5, lg: 2 }, width: 'var(--size-full)', minWidth: 0 }}>
@@ -191,24 +193,23 @@ export default function CourseEditor() {
                     </IconButton>
                   </Box>
                 </Box>
-              </AccordionSummary>
-              <AccordionDetails sx={{ 
-                pt: 0,
-                pb: 0.5,
-                pl: { xs: 2, sm: '46px' },
-                pr: 2,
-                background: "rgba(255, 255, 255, 0.65)", 
-                borderBottomLeftRadius: 'var(--radius-lg)', 
-                borderBottomRightRadius: 'var(--radius-lg)' 
+              </CustomAccordionSummary>
+
+              <CustomAccordionDetails sx={{
+                p: { xs: 1.5, sm: 2.25 },
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1.5,
+                backgroundColor: 'var(--glass-bg)',
               }}>
-                {module.lessons.map((lesson) => (
-                  <Box key={lesson.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1.25, mb: 1, bgcolor: 'var(--color-white)', border: 'var(--border-thin) solid rgba(30, 79, 163, 0.1)', transition: 'all var(--transition-base)', '&:hover': { borderColor: 'var(--color-primary)' } }}>
+                {(module.children || []).map((lesson) => (
+                  <Box key={lesson.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: { xs: 1.5, sm: 2.25 }, height: '64px', mb: 1, borderRadius: 'var(--radius-lg)', border: 'var(--border-thin) solid var(--card-border)', bgcolor: 'var(--card-bg)', backdropFilter: 'var(--card-blur)', transition: 'transform 0.2s ease-in-out', cursor: 'pointer', '&:hover': { transform: 'translateY(-2px)' } }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexGrow: 1 }}>
                       {lesson.type === 'video' ? <OndemandVideoIcon sx={{ color: 'var(--color-primary)', fontSize: 'var(--font-lg)' }} /> : <PictureAsPdfIcon sx={{ color: 'var(--color-success)', fontSize: 'var(--font-lg)' }} />}
                       <TextField
                         value={lesson.title}
                         onChange={(e) => {
-                          setModules(modules.map(mod => mod.id === module.id ? { ...mod, lessons: mod.lessons.map(les => les.id === lesson.id ? { ...les, title: e.target.value } : les) } : mod));
+                          setModules(modules.map(mod => mod.id === module.id ? { ...mod, children: (mod.children || []).map(les => les.id === lesson.id ? { ...les, title: e.target.value } : les) } : mod));
                         }}
                         placeholder="Lesson Title"
                         variant="standard"
@@ -218,15 +219,18 @@ export default function CourseEditor() {
                           input: { fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-900)', fontSize: '0.88rem', py: 0.1 }
                         }}
                       />
+                      {(lesson.video_job_id || lesson.document_job_id) && (
+                        <CheckCircleIcon sx={{ color: 'var(--color-success)', fontSize: 'var(--font-sm)', ml: 1 }} />
+                      )}
                     </Box>
                     <Box sx={{ display: 'flex', gap: 1 }}>
-                      <Button size="small" variant="text" sx={{ textTransform: 'none', color: 'var(--color-primary)', fontWeight: 'var(--font-bold)' }}>Edit Content</Button>
-                      <IconButton size="small" onClick={() => setModules(modules.map(mod => mod.id === module.id ? { ...mod, lessons: mod.lessons.filter(l => l.id !== lesson.id) } : mod))} sx={{ color: 'var(--color-error)' }}><DeleteOutlineIcon fontSize="small" /></IconButton>
+                      <Button size="small" variant="text" onClick={() => { setActiveUploadLesson(lesson); setUploadModalOpen(true); }} sx={{ textTransform: 'none', color: 'var(--color-primary)', fontWeight: 'var(--font-bold)' }}>{lesson.video_job_id || lesson.document_job_id ? 'Re-Upload' : 'Upload Content'}</Button>
+                      <IconButton size="small" onClick={() => setModules(modules.map(mod => mod.id === module.id ? { ...mod, children: (mod.children || []).filter(l => l.id !== lesson.id) } : mod))} sx={{ color: 'var(--color-error)' }}><DeleteOutlineIcon fontSize="small" /></IconButton>
                     </Box>
                   </Box>
                 ))}
                 
-                <Box sx={{ display: 'flex', gap: 2, mt: 2, mb: 1 }}>
+                <Box sx={{ display: 'flex', gap: 1.5, mt: 2, mb: 1 }}>
                   <Button size="small" startIcon={<OndemandVideoIcon />} onClick={() => addLesson(module.id, 'video')} sx={{ textTransform: 'none', bgcolor: 'var(--color-white)', color: 'var(--color-primary)', fontWeight: 'var(--font-bold)', border: 'var(--border-thin) solid rgba(30, 79, 163, 0.2)', px: 2, py: 0.5, '&:hover': { bgcolor: 'var(--color-slate-50)', borderColor: 'var(--color-primary)' } }}>
                     Add Video
                   </Button>
@@ -234,13 +238,20 @@ export default function CourseEditor() {
                     Add PDF
                   </Button>
                 </Box>
-              </AccordionDetails>
-            </Accordion>
+              </CustomAccordionDetails>
+            </CustomAccordion>
           ))}
 
         </Container>
       </Container>
     </Box>
+
+    <MediaUploadModal 
+      open={uploadModalOpen} 
+      onClose={() => setUploadModalOpen(false)} 
+      lesson={activeUploadLesson} 
+      onUploadComplete={handleUploadComplete} 
+    />
     </>
   );
 }

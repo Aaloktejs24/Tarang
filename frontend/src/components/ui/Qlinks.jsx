@@ -12,6 +12,7 @@ import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import Link from "next/link";
 import { logoutUser } from "../../features/auth/authService";
 import Loader from "../common/Loader";
+import { glassPaperSx } from "../../styles/commonStyles";
 
 // ── Styled dropdown ─────────────────────────────────────────
 const StyledMenu = styled((props) => (
@@ -20,17 +21,16 @@ const StyledMenu = styled((props) => (
     anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
     transformOrigin={{ vertical: "top", horizontal: "right" }}
     {...props}
+    PaperProps={{
+      sx: {
+        ...glassPaperSx,
+        minWidth: 180,
+        overflow: "hidden",
+        ...props.PaperProps?.sx
+      }
+    }}
   />
 ))(() => ({
-  "& .MuiPaper-root": {
-    minWidth: 180,
-    borderRadius: "var(--radius-lg)",
-    border: "var(--border-thin) solid rgba(0, 86, 179, 0.18)",
-    marginTop: "6px",
-    background:
-      "linear-gradient(135deg, rgba(0, 86, 179, 0.04) 0%, rgba(40, 167, 69, 0.03) 100%), #ffffff",
-    overflow: "hidden",
-  },
   // icon container — minWidth controls gap between icon & text
   "& .MuiListItemIcon-root": {
     minWidth: 20,            // ← tight gap
@@ -59,8 +59,8 @@ export default function CustomizedMenus() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
 
-  const handleClick  = (e) => setAnchorEl(e.currentTarget);
-  const handleClose  = ()  => setAnchorEl(null);
+  const handleClick = (e) => setAnchorEl(e.currentTarget);
+  const handleClose = () => setAnchorEl(null);
 
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
@@ -68,7 +68,10 @@ export default function CustomizedMenus() {
     handleClose();
     setIsLoggingOut(true);
     try {
-      await logoutUser();
+      await Promise.all([
+        logoutUser(),
+        new Promise(resolve => setTimeout(resolve, 600)) // UX delay
+      ]);
     } catch (error) {
       console.error("Logout error:", error);
     } finally {

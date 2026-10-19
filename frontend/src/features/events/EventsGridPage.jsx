@@ -122,17 +122,17 @@ export default function EventsGridPage() {
               sx={{
                 display: "flex",
                 alignItems: "center",
-                bgcolor: "rgba(255, 255, 255, 0.15)",
+                bgcolor: "var(--glass-bg)",
                 backdropFilter: "blur(8px)",
                 borderRadius: 'var(--radius-lg)', // Pill shape like dashboard navbar
                 px: 2,
                 width: { xs: "var(--size-full)", sm: "320px" },
                 height: "44px", // Match navbar search height
                 boxSizing: "border-box",
-                border: "var(--border-thin) solid rgba(255, 255, 255, 0.3)",
+                border: "var(--border-thin) solid var(--glass-bg)",
                 transition: "var(--transition-slow)",
                 "&:focus-within": {
-                  bgcolor: "rgba(255, 255, 255, 0.25)",
+                  bgcolor: "var(--glass-bg)",
                   border: "var(--border-thin) solid rgba(255, 255, 255, 0.5)"
                 }
               }}

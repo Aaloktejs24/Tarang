@@ -18,7 +18,7 @@ export function useAutoSave({ appId, activeStep, basicDetails, uploadedDocs, pro
 
   const performAutoSave = useCallback(async () => {
     const currentData = latestDataRef.current;
-    if (!appId || !currentData.profile?.id) {
+    if (!appId || !currentData.profile?.id || !currentData.applicationStatus) {
       setAutoSaveStatus('idle');
       return;
     }
@@ -37,18 +37,16 @@ export function useAutoSave({ appId, activeStep, basicDetails, uploadedDocs, pro
         uploaded_docs: currentData.uploadedDocs,
       };
 
-      if (currentData.activeStep === 0) {
-        payloadMetadata.basic_details = {
-          ...currentData.basicDetails,
-          correspondenceAddress: currentData.basicDetails.sameAsPermanent ? currentData.basicDetails.permanentAddress : currentData.basicDetails.correspondenceAddress,
-          fullName: currentData.profile?.full_name || '',
-          email: currentData.profile?.email || '',
-          phone: currentData.basicDetails.phone
-        };
-      }
+      payloadMetadata.basic_details = {
+        ...currentData.basicDetails,
+        correspondenceAddress: currentData.basicDetails.sameAsPermanent ? currentData.basicDetails.permanentAddress : currentData.basicDetails.correspondenceAddress,
+        fullName: currentData.basicDetails.fullName || currentData.profile?.full_name || '',
+        email: currentData.basicDetails.email || currentData.profile?.email || '',
+        phone: currentData.basicDetails.phone
+      };
 
       // Maintain the current status so we don't accidentally advance the application
-      const currentStatus = currentData.applicationStatus || 'pending';
+      const currentStatus = currentData.applicationStatus;
 
       await updateApplicationProgress(
         appId, 
@@ -83,7 +81,7 @@ export function useAutoSave({ appId, activeStep, basicDetails, uploadedDocs, pro
     // As soon as the user types, show the saving/waiting indicator
     // so it doesn't stay blank during the debounce period
     if (autoSaveStatus === 'saved' || autoSaveStatus === 'idle') {
-      setAutoSaveStatus('waiting');
+      setAutoSaveStatus('saving');
     }
 
     if (timeoutRef.current) {
@@ -97,10 +95,9 @@ export function useAutoSave({ appId, activeStep, basicDetails, uploadedDocs, pro
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-    // We explicitly omit performAutoSave and autoSaveStatus from dependencies 
     // because we only want to trigger this effect when the actual data changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [basicDetails, uploadedDocs, appId]); 
+  }, [JSON.stringify(basicDetails), JSON.stringify(uploadedDocs), appId]); 
 
   return { autoSaveStatus };
 }

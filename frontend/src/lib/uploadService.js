@@ -4,10 +4,19 @@ import axios from 'axios';
 export const uploadDocument = async (file, onProgress) => {
   try {
     // 1. Get Intent
-    const intentRes = await apiClient.post('/viewer/upload-intent', { filename: file.name });
-    const { job_id, presigned_url } = intentRes.data;
+    const intentRes = await apiClient.post('/viewer/upload-intent', { 
+      filename: file.name,
+      content_type: file.type || 'application/octet-stream'
+    });
+    let { job_id, presigned_url } = intentRes.data;
 
     // 2. Upload to MinIO directly
+    // Fix for local development: If backend generated a Docker internal URL (minio:9000), 
+    // we must replace it with localhost:9000 so the browser can resolve it.
+    if (presigned_url.includes('://minio:9000')) {
+      presigned_url = presigned_url.replace('://minio:9000', '://localhost:9000');
+    }
+
     await axios.put(presigned_url, file, {
       headers: { 'Content-Type': file.type || 'application/octet-stream' },
       onUploadProgress: (progressEvent) => {

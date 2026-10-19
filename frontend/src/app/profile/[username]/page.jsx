@@ -8,6 +8,7 @@ import {
 
 import { motion } from "framer-motion";
 import { apiClient } from "../../../lib/apiClient";
+import { preserveSignedUrls } from "../../../utils/imageUtils";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import ShareIcon from "@mui/icons-material/Share";
 import LanguageIcon from "@mui/icons-material/Language";
@@ -17,9 +18,12 @@ import FacebookIcon from "@mui/icons-material/Facebook";
 import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import BusinessCenterOutlinedIcon from "@mui/icons-material/BusinessCenterOutlined";
 import PublicProfileSkeleton from "../../../features/profile/PublicProfileSkeleton";
+import ProfileLayout from "../../../components/profile/ProfileLayout";
+import { useToast } from "../../../contexts/ToastContext";
 
 export default function PublicProfile() {
   const { username } = useParams();
+  const { showToast } = useToast();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -28,7 +32,12 @@ export default function PublicProfile() {
     const fetchPublicProfile = async () => {
       try {
         const response = await apiClient.get(`/public/profile/${username}`);
-        setProfile(response.data);
+        setProfile(prev => preserveSignedUrls(prev, response.data, [
+          'profile_pic_url',
+          'banner_url',
+          'institute_profile.logo_url',
+          'institute_profile.banner_url'
+        ]));
       } catch (err) {
         console.error("Failed to fetch public profile:", err);
         setError("User not found or profile is private.");
@@ -54,9 +63,9 @@ export default function PublicProfile() {
   }
 
   return (
-    <Box sx={{ minHeight: "var(--size-screen-h)", bgcolor: "var(--color-slate-50)", pb: 10 }}>
+    <Box sx={{ height: "100vh", bgcolor: "var(--color-slate-50)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
       {/* Navbar / Branding */}
-      <Box sx={{ bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)", py: 2, px: 4, mb: 0, borderBottom: "var(--border-thin) solid var(--color-slate-200)" }}>
+      <Box sx={{ flexShrink: 0, bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)", py: 2, px: 4, mb: 0, borderBottom: "var(--border-thin) solid var(--color-slate-200)" }}>
         <Container maxWidth="lg">
           <Typography variant="h6" fontWeight={900} color="var(--color-primary)" sx={{ letterSpacing: "-1px" }}>
             TARANG <span style={{ color: "var(--color-slate-500)", fontWeight: 'var(--font-medium)', fontSize: 'var(--font-sm)' }}>• PUBLIC PROFILE</span>
@@ -64,119 +73,55 @@ export default function PublicProfile() {
         </Container>
       </Box>
 
-      <Container maxWidth="lg" sx={{ mt: 4 }}>
-        <Paper
-          elevation={0}
-          sx={{
-            borderRadius: { xs: "16px", sm: "20px", md: "24px" }, overflow: "hidden",
-            border: "var(--border-thin) solid rgba(30, 79, 163, 0.1)",
-          }}
-        >
-          {/* Banner */}
-          <Box sx={{ height: 260, position: "relative", bgcolor: "var(--color-primary)" }}>
-            {profile.banner_url ? (
-              <img
-                src={profile.banner_url}
-                alt="Banner"
-                style={{ width: "var(--size-full)", height: "var(--size-full)", objectFit: "cover" }}
-              />
-            ) : (
-              <Box sx={{ width: "var(--size-full)", height: "var(--size-full)", background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary) 100%)" }} />
-            )}
-          </Box>
-
-          {/* Profile Header Info */}
-          <Box sx={{ px: { xs: 3, md: 5 }, pb: 5, position: "relative", mt: -10 }}>
-            <Box sx={{ display: "flex", alignItems: "flex-end", flexWrap: "wrap", gap: 3 }}>
-              {/* Avatar */}
-              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
-                <Avatar
-                  src={profile.profile_pic_url}
-                  sx={{
-                    width: 160, height: 160, border: "6px solid var(--card-inner-border)",
-                    bgcolor: "var(--color-slate-200)"
-                  }}
-                >
-                  {!profile.profile_pic_url && profile.username?.[0]?.toUpperCase()}
-                </Avatar>
-              </motion.div>
-
-              <Box sx={{ mb: 2, flex: 1 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Typography variant="h4" fontWeight={900} color="var(--color-slate-900)">
-                    {profile.full_name || profile.username}
+      <Box sx={{ flexGrow: 1, overflow: "hidden" }}>
+        <ProfileLayout
+          profile={profile}
+          config={{ sidebarPrimary: "Skills", sidebarSecondary: "Recognitions" }}
+          editable={false}
+          stats={[]}
+          tabs={[{ label: "About", value: "about", icon: null }]}
+          currentTab="about"
+          onTabChange={() => {}}
+          actionButtons={
+            <Button
+              variant="contained" disableElevation
+              startIcon={<ShareIcon />}
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href);
+                showToast("Profile link copied!", "success");
+              }}
+              sx={{
+                borderRadius: "var(--radius-full)", textTransform: "none", fontWeight: 'var(--font-bold)',
+                px: 3, bgcolor: "var(--color-primary)", "&:hover": { bgcolor: "var(--color-primary-hover)" }
+              }}
+            >
+              Share
+            </Button>
+          }
+          tabPanels={{
+            about: (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <Box sx={{ p: { xs: 2.5, sm: 4 }, bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)", borderRadius: "var(--radius-lg)", border: "var(--border-thin) solid var(--card-border)" }}>
+                  <Typography variant="h6" fontWeight={800} color="var(--color-primary)" mb={2}>
+                    About
                   </Typography>
-                  {profile.kyc_status === "verified" && (
-                    <VerifiedIcon sx={{ color: "var(--color-primary)", fontSize: 24 }} />
-                  )}
+                  <Typography color="var(--color-slate-900)" lineHeight={1.8}>
+                    A passionate learner on the Tarang platform dedicated to excellence in digital education.
+                    Focusing on building a professional portfolio and contributing to the digital education ecosystem.
+                    {profile.kyc_status === "verified" && " Identity verified and certified by Tarang authorities."}
+                  </Typography>
                 </Box>
-                <Typography variant="h6" color="var(--color-slate-500)" fontWeight={500}>
-                  {profile.role || "Tarang Member"} • Digital Education Enthusiast
-                </Typography>
-                <Typography color="var(--color-slate-500)" fontSize={14} mt={0.5}>
-                  Tarang Professional Profile
-                </Typography>
+                
+                <Box sx={{ textAlign: "center", mt: 4 }}>
+                  <Typography color="var(--color-slate-500)" fontSize={13}>
+                    © 2026 Tarang Ecosystem • Secure DigiLocker Verified Profile
+                  </Typography>
+                </Box>
               </Box>
-
-              <Box sx={{ mb: 2, display: "flex", gap: 1 }}>
-                <Button
-                  variant="contained" disableElevation
-                  startIcon={<ShareIcon />}
-                  onClick={() => {
-                    navigator.clipboard.writeText(window.location.href);
-                    alert("Profile link copied!");
-                  }}
-                  sx={{
-                    borderRadius: "var(--radius-full)", textTransform: "none", fontWeight: 'var(--font-bold)',
-                    px: 3, bgcolor: "var(--color-primary)", "&:hover": { bgcolor: "var(--color-primary-hover)" }
-                  }}
-                >
-                  Share
-                </Button>
-              </Box>
-            </Box>
-
-            <Divider sx={{ my: 4, opacity: 0.5 }} />
-
-            {/* About Section */}
-            <Box sx={{ maxWidth: "800px" }}>
-              <Typography variant="h6" fontWeight={800} color="var(--color-primary)" mb={2}>
-                About
-              </Typography>
-              <Typography color="var(--color-slate-900)" lineHeight={1.8}>
-                A passionate learner on the Tarang platform dedicated to excellence in digital education.
-                Focusing on building a professional portfolio and contributing to the digital education ecosystem.
-                {profile.kyc_status === "verified" && " Identity verified and certified by Tarang authorities."}
-              </Typography>
-            </Box>
-
-            {/* Verification Status */}
-            <Box sx={{ mt: 4, display: "flex", gap: 2 }}>
-              <Chip
-                icon={<ShieldOutlinedIcon sx={{ fontSize: 18 }} />}
-                label={profile.kyc_status === "verified" ? "ID Verified" : "Verification Pending"}
-                sx={{
-                  bgcolor: profile.kyc_status === "verified" ? "rgba(16, 185, 129, 0.1)" : "rgba(255, 193, 7, 0.1)",
-                  color: profile.kyc_status === "verified" ? "var(--color-success)" : "var(--color-warning)",
-                  fontWeight: 'var(--font-bold)', p: 2
-                }}
-              />
-              <Chip
-                icon={<BusinessCenterOutlinedIcon sx={{ fontSize: 18 }} />}
-                label={profile.role || "Student"}
-                variant="outlined"
-                sx={{ fontWeight: 'var(--font-bold)', p: 2, borderColor: "var(--color-slate-200)" }}
-              />
-            </Box>
-          </Box>
-        </Paper>
-
-        <Box sx={{ mt: 4, textAlign: "center" }}>
-          <Typography color="var(--color-slate-500)" fontSize={13}>
-            © 2026 Tarang Ecosystem • Secure DigiLocker Verified Profile
-          </Typography>
-        </Box>
-      </Container>
+            )
+          }}
+        />
+      </Box>
     </Box>
   );
 }

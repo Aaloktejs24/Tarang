@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 import { useBreadcrumbs } from '../../contexts/BreadcrumbContext';
 import { formatBreadcrumbName } from '../../utils/stringUtils';
 import { useTheme } from '@mui/material';
-import { Box, Typography, Button, Container, Grid, CardMedia, CardContent, IconButton, Chip, Fab, SpeedDialIcon, Breadcrumbs, Link, TextField, Paper, Accordion, AccordionSummary, AccordionDetails, Autocomplete, Dialog, Popover, Tooltip, InputAdornment, ListItemButton, Avatar, Skeleton } from '@mui/material';
+import { Box, Typography, Button, Container, Grid, CardMedia, CardContent, IconButton, Chip, Fab, SpeedDialIcon, Breadcrumbs, Link, TextField, Paper, Accordion, AccordionSummary, AccordionDetails, Autocomplete, Dialog, Popover, Tooltip, InputAdornment, ListItemButton, Avatar, Skeleton, Stack, Divider } from '@mui/material';
 import PremiumCard from '../../components/ui/PremiumCard';
 import { ShowMore } from '@re-dev/react-truncate';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -42,7 +42,12 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { useProfile } from '../../hooks/useProfile';
 import UniversalHero from '../../components/hero/UniversalHero';
 import { getHeroPropsFromProfile } from '../../utils/heroUtils';
+import TarangButton from '../../components/common/TarangButton';
 import { useAccessibility } from '../../contexts/AccessibilityContext';
+import { useToast } from '../../contexts/ToastContext';
+import { lmsService } from './lmsService';
+import PDFRenderer from '../../components/viewer/renderers/PDFRenderer';
+import { DialogContent } from '@mui/material';
 
 
 
@@ -136,7 +141,7 @@ const timelineCalendarSx = {
     gap: 0.35,
     p: 0.35,
     borderRadius: 'var(--radius-md)',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'var(--glass-bg)',
     border: 'var(--border-thin) solid var(--color-slate-200)'
   },
   '& .MuiPickersCalendarHeader-switchViewButton, & .MuiPickersArrowSwitcher-button': {
@@ -148,7 +153,8 @@ const timelineCalendarSx = {
     transition: 'var(--transition-base)',
     '& svg': {
       fontSize: '1.45rem',
-      strokeWidth: 1.5 },
+      strokeWidth: 1.5
+    },
     '&:hover': {
       color: 'var(--color-primary)',
       backgroundColor: 'rgba(0, 86, 179, 0.08)'
@@ -229,262 +235,257 @@ const timelineCalendarSx = {
 
 
 
+import CourseModal from './components/CourseModal';
+import { CustomTooltip } from '../../components/common/CustomTooltip';
+import { DASHBOARD_PAGE_WRAPPER_SX, DASHBOARD_CONTAINER_SX } from '../../constants/layout';
+import SearchIcon from '@mui/icons-material/Search';
+import CentralDropdown from '../../components/common/CentralDropdown';
+
 export default function CourseDashboard() {
   const { t } = useTranslation();
-  const { language } = useAccessibility();
   const router = useRouter();
   const theme = useTheme();
-  const { profile } = useProfile();
-  const rawInstituteName = profile ? (profile.institution_name || profile.full_name || profile.username) : 'Institute';
+  const { language, lmsTheme } = useAccessibility();
+  const { showToast } = useToast();
+
+  // Initialize selected category filter based on profile
+  const { profile, loading: isProfileLoading } = useProfile();
+  const isManagement = profile?.role === 'institute' || profile?.role === 'admin' || profile?.user_type === 'institute' || profile?.is_institute;
+  
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [filterType, setFilterType] = React.useState("all");
+  const [sortBy, setSortBy] = React.useState("newest");
+
+  React.useEffect(() => {
+    if (profile?.institute_profile?.courses_offered?.length > 0) {
+      // Logic for selected category if needed
+    }
+  }, [profile]);
+  const rawInstituteName = profile ? (profile.primary_name || profile.full_name || profile.username) : 'Institute';
   const breadcrumbInstituteName = formatBreadcrumbName(rawInstituteName);
 
   useBreadcrumbs([
-    { labelEn: 'Home', labelHi: 'गृह', onClick: () => router.push('/dashboard/home') },
-    { label: breadcrumbInstituteName, onClick: () => router.push('/dashboard/home/institute') },
+    { labelEn: 'Home', labelHi: 'गृह', onClick: () => router.push('/dashboard/home/institute') },
+    { labelEn: 'Academic Affairs', labelHi: 'शैक्षणिक मामले', onClick: () => router.push('/dashboard/home/institute?category=academic_affairs') },
     { labelEn: 'Courses', labelHi: 'पाठ्यक्रम' }
   ]);
 
   const [courses, setCourses] = React.useState([]);
+  const [enrolledCourses, setEnrolledCourses] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [enrollLoading, setEnrollLoading] = React.useState({});
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
-
-  useScrollLock(isCreateModalOpen);
-
-  const [courseTitle, setCourseTitle] = React.useState("");
-  const [courseDesc, setCourseDesc] = React.useState("");
-  const [courseThumbnail, setCourseThumbnail] = React.useState("");
-  const [courseDoc, setCourseDoc] = React.useState("");
-  const [isUploadingThumbnail, setIsUploadingThumbnail] = React.useState(false);
-  const thumbnailInputRef = React.useRef(null);
-  const docInputRef = React.useRef(null);
-  const tagsContainerRef = React.useRef(null);
-  const heroContentRef = React.useRef(null);
-  const [activeStep, setActiveStep] = React.useState(0);
-  const [audienceLevel, setAudienceLevel] = React.useState("");
-  const [courseCategory, setCourseCategory] = React.useState("");
-  const [courseTags, setCourseTags] = React.useState([]);
-  const [courseAccess, setCourseAccess] = React.useState('enrolled');
-  const [courseAccessPopoverAnchor, setCourseAccessPopoverAnchor] = React.useState(null);
-  const [isTagsSectionExpanded, setIsTagsSectionExpanded] = React.useState(false);
-  const [tagSearchQuery, setTagSearchQuery] = React.useState("");
-  const [moduleCalendarAnchorEl, setModuleCalendarAnchorEl] = React.useState(null);
-  const [activeCalendarModuleId, setActiveCalendarModuleId] = React.useState(null);
-  const [activeCalendarField, setActiveCalendarField] = React.useState(null);
-  const [accessPopoverAnchorEl, setAccessPopoverAnchorEl] = React.useState(null);
-  const [activeAccessModuleId, setActiveAccessModuleId] = React.useState(null);
-  const [expandedDescModules, setExpandedDescModules] = React.useState({});
-  const [editingDescId, setEditingDescId] = React.useState(null);
+  const [courseToEdit, setCourseToEdit] = React.useState(null);
 
   React.useEffect(() => {
-    function handleClickOutside(event) {
-      if (tagsContainerRef.current && !tagsContainerRef.current.contains(event.target)) {
-        setIsTagsSectionExpanded(false);
+    const fetchCourses = async () => {
+      setIsLoading(true);
+      try {
+        if (!isManagement && profile?.id) {
+          const [allData, enrolledData] = await Promise.all([
+            lmsService.listCourses(),
+            lmsService.getEnrolledCourses(profile.id)
+          ]);
+          if (allData) setCourses(allData);
+          if (enrolledData) setEnrolledCourses(enrolledData);
+        } else {
+          const data = await lmsService.listCourses();
+          if (data) setCourses(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch courses:", err);
+      } finally {
+        setIsLoading(false);
       }
-    }
-    if (isTagsSectionExpanded) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isTagsSectionExpanded]);
+    fetchCourses();
+  }, [profile?.id, isManagement]);
 
-  const [modules, setModules] = React.useState([
-    {
-      id: 1,
-      title: 'Module 1: Introduction',
-      startDate: '',
-      endDate: '',
-      access: 'enrolled',
-      lessons: []
-    }
-  ]);
-
-  const handleCourseAccessChange = (newAccess) => {
-    setCourseAccess(newAccess);
-    setCourseAccessPopoverAnchor(null);
-
-    setModules(prevModules => prevModules.map(module => {
-      let newModuleAccess = module.access;
-
-      if (newAccess === 'locked') {
-        newModuleAccess = 'locked';
-      } else if (newAccess === 'enrolled') {
-        if (module.access === 'public') {
-          newModuleAccess = 'enrolled';
-        }
-      }
-
-      return { ...module, access: newModuleAccess };
-    }));
-  };
-
-  const addModule = () => {
-    setModules([
-      ...modules,
-      {
-        id: Date.now(),
-        title: `Module ${modules.length + 1}: New Module`,
-        startDate: '',
-        endDate: '',
-        access: courseAccess === 'locked' ? 'locked' : 'enrolled',
-        lessons: []
-      }
-    ]);
-  };
-
-  const deleteModule = (moduleId) => {
-    setModules(modules.filter(mod => mod.id !== moduleId));
-  };
-
-  const deleteLesson = (moduleId, lessonId) => {
-    setModules(modules.map(mod => {
-      if (mod.id === moduleId) {
-        return {
-          ...mod,
-          lessons: mod.lessons.filter(les => les.id !== lessonId)
-        };
-      }
-      return mod;
-    }));
-  };
-
-  const updateModuleTitle = (moduleId, newTitle) => {
-    setModules(modules.map(mod => {
-      if (mod.id === moduleId) {
-        return { ...mod, title: newTitle };
-      }
-      return mod;
-    }));
-  };
-
-  const updateModuleDescription = (moduleId, description) => {
-    setModules(modules.map(mod => {
-      if (mod.id === moduleId) {
-        return { ...mod, description };
-      }
-      return mod;
-    }));
-  };
-
-  const updateModuleDate = (moduleId, field, value) => {
-    setModules(modules.map(mod => {
-      if (mod.id === moduleId) {
-        const nextModule = { ...mod, [field]: value };
-
-        if (field === 'startDate' && mod.endDate && dayjs(value).isAfter(dayjs(mod.endDate), 'day')) {
-          nextModule.endDate = '';
-        }
-
-        return nextModule;
-      }
-      return mod;
-    }));
-  };
-
-  const openModuleCalendar = (event, moduleId, field) => {
-    event.stopPropagation();
-    setModuleCalendarAnchorEl(event.currentTarget);
-    setActiveCalendarModuleId(moduleId);
-    setActiveCalendarField(field);
-  };
-
-  const closeModuleCalendar = () => {
-    setModuleCalendarAnchorEl(null);
-    setActiveCalendarModuleId(null);
-    setActiveCalendarField(null);
-  };
-
-  const activeCalendarModule = modules.find((mod) => mod.id === activeCalendarModuleId) || null;
-
-  const clearModuleDate = (moduleId, field) => {
-    updateModuleDate(moduleId, field, '');
-  };
-
-  const openAccessPopover = (event, moduleId) => {
-    event.stopPropagation();
-    setAccessPopoverAnchorEl(event.currentTarget);
-    setActiveAccessModuleId(moduleId);
-  };
-
-  const closeAccessPopover = () => {
-    setAccessPopoverAnchorEl(null);
-    setActiveAccessModuleId(null);
-  };
-
-  const updateModuleAccess = (moduleId, accessType) => {
-    setModules(modules.map(mod => {
-      if (mod.id === moduleId) {
-        return { ...mod, access: accessType };
-      }
-      return mod;
-    }));
-    closeAccessPopover();
-  };
-
-  // accessOptions are now imported from appConfig
-
-  const updateLessonTitle = (moduleId, lessonId, newTitle) => {
-    setModules(modules.map(mod => {
-      if (mod.id === moduleId) {
-        return {
-          ...mod,
-          lessons: mod.lessons.map(les => {
-            if (les.id === lessonId) {
-              return { ...les, title: newTitle };
-            }
-            return les;
-          })
-        };
-      }
-      return mod;
-    }));
-  };
-
-  const handleThumbnailUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setIsUploadingThumbnail(true);
+  const handleEnroll = async (e, courseId) => {
+    e.stopPropagation();
+    if (!profile?.id) return;
     try {
-      const url = URL.createObjectURL(file);
-      setCourseThumbnail(url);
-    } catch (err) {
-      console.error("Failed to generate preview URL:", err);
+      setEnrollLoading(prev => ({ ...prev, [courseId]: true }));
+      await lmsService.enrollCourse(courseId, profile.id, profile?.full_name || profile?.username, profile?.email, profile?.profile_pic_url);
+      
+      const newEnrolledData = await lmsService.getEnrolledCourses(profile.id);
+      if (newEnrolledData) {
+        setEnrolledCourses(newEnrolledData);
+        showToast(language === 'en' ? 'Successfully enrolled!' : 'सफलतापूर्वक नामांकित!', 'success');
+      }
+    } catch (error) {
+      console.error('Failed to enroll:', error);
+      showToast(language === 'en' ? 'Failed to enroll' : 'नामांकन में विफल', 'error');
     } finally {
-      setIsUploadingThumbnail(false);
+      setEnrollLoading(prev => ({ ...prev, [courseId]: false }));
     }
   };
 
-  const handleCourseDocUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setCourseDoc(file.name);
-    }
-  };
+  const heroContentRef = React.useRef(null);
+  useScrollLock(isCreateModalOpen);
+  const isFullyLoading = isLoading || isProfileLoading;
+
+  const filteredAndSortedCourses = courses
+    .filter(course => {
+      const titleMatch = (course.title || '').toLowerCase().includes(searchTerm.toLowerCase());
+      const descMatch = (course.description || course.desc || '').toLowerCase().includes(searchTerm.toLowerCase());
+      
+      let typeMatch = true;
+      const isEnrolled = enrolledCourses.some(c => c.id === course.id);
+      if (filterType === 'enrolled') {
+        typeMatch = isEnrolled;
+      } else if (filterType === 'not_enrolled') {
+        typeMatch = !isEnrolled;
+      }
+      return (titleMatch || descMatch) && typeMatch;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'alphabetical') return (a.title || '').localeCompare(b.title || '');
+      if (sortBy === 'newest') return (new Date(b.createdAt || 0)) - (new Date(a.createdAt || 0));
+      if (sortBy === 'oldest') return (new Date(a.createdAt || 0)) - (new Date(b.createdAt || 0));
+      return 0;
+    });
 
   return (
     <>
-      <Box sx={{ position: "relative", minHeight: "calc(100vh - 72px)", overflowX: "hidden", bgcolor: "transparent", mt: "-1px" }}>
-
-        <UniversalHero 
-          {...getHeroPropsFromProfile(profile, language)}
-          hideContent={courses.length === 0}
-          showSpacer={courses.length !== 0}
-          fadeAnchorRef={heroContentRef}
-        />
-
-        <Container ref={heroContentRef} maxWidth="xl" sx={{
-          px: { xs: 4, md: 6, lg: 8 },
-          zIndex: 1,
-          position: "relative",
-          ...(courses.length === 0 && {
+      <Box sx={{ minHeight: "calc(100vh - 64px)", pt: { xs: 4, md: 4 }, pb: 10, position: "relative", zIndex: 1 }}>
+        <Container ref={heroContentRef} maxWidth={false} sx={{
+          px: { xs: 2, sm: 4, md: 8, lg: 12, xl: 16 },
+          ...(!isFullyLoading && courses.length === 0 && {
             height: "calc(100vh - 72px)",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center" })
+            justifyContent: "center",
+            flexDirection: "column"
+          })
         }}>
 
+          {!isFullyLoading && courses.length > 0 && (
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 1.5, mb: 6, mt: 2, alignItems: 'center', justifyContent: 'space-between' }}>
+              <TextField
+                fullWidth
+                placeholder={language === 'en' ? "Search courses by name or description..." : "नाम या विवरण से पाठ्यक्रम खोजें..."}
+                variant="outlined"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ color: 'var(--color-slate-500)' }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ 
+                  flex: 1,
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 'var(--radius-md)',
+                    backgroundColor: 'var(--glass-bg)',
+                    backdropFilter: 'blur(30px)',
+                    WebkitBackdropFilter: 'blur(30px)',
+                    height: 'var(--box-height, 48px)',
+                    fontSize: 'var(--font-base)',
+                    color: 'var(--color-slate-900)',
+                    fontFamily: 'inherit',
+                    '& fieldset': {
+                      borderColor: 'rgba(30, 79, 163, 0.2)',
+                      borderWidth: '1px',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'rgba(30, 79, 163, 0.4)',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'var(--color-primary)',
+                      borderWidth: '1.5px',
+                    },
+                  },
+                  '& .MuiOutlinedInput-input': {
+                    padding: '0 14px',
+                    height: '100%',
+                    boxSizing: 'border-box',
+                  }
+                }}
+              />
+              <Box sx={{ display: 'flex', gap: 1.5, width: { xs: 'var(--size-full)', md: 'auto' } }}>
+                <Box sx={{ minWidth: 160, flex: 1 }}>
+                  <CentralDropdown
+                    value={filterType}
+                    onChange={(e) => setFilterType(e.target.value)}
+                    options={[
+                      { value: "all", label: language === 'en' ? "All Courses" : "सभी पाठ्यक्रम" },
+                      { value: "enrolled", label: language === 'en' ? "My Courses" : "मेरे पाठ्यक्रम" },
+                      { value: "not_enrolled", label: language === 'en' ? "Not Enrolled" : "नामांकित नहीं" }
+                    ]}
+                    searchable={false}
+                  />
+                </Box>
+                <Box sx={{ minWidth: 160, flex: 1 }}>
+                  <CentralDropdown
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    options={[
+                      { value: 'newest', label: language === 'en' ? 'Newest First' : 'नवीनतम पहले' },
+                      { value: 'oldest', label: language === 'en' ? 'Oldest First' : 'पुराने पहले' },
+                      { value: 'alphabetical', label: language === 'en' ? 'Alphabetical (A-Z)' : 'वर्णानुक्रम (A-Z)' }
+                    ]}
+                    searchable={false}
+                  />
+                </Box>
+              </Box>
+            </Box>
+          )}
+
           {/* Content Area */}
-          {courses.length === 0 ? (
+          {isFullyLoading ? (
+            <Grid container spacing={4}>
+              {[1, 2, 3, 4, 5, 6].map((idx) => (
+                <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={idx}>
+                  <PremiumCard
+                    disableHover
+                    sx={{
+                      height: 'var(--size-full)',
+                      display: "flex",
+                      flexDirection: "column",
+                      overflow: 'hidden'
+                    }}
+                  >
+                    <Box sx={{ position: 'relative', width: 'var(--size-full)', aspectRatio: "16/9", borderTopLeftRadius: "calc(var(--radius-lg) - 1px)", borderTopRightRadius: "calc(var(--radius-lg) - 1px)", flexShrink: 0, overflow: 'hidden' }}>
+                      <Skeleton variant="rectangular" sx={{ width: '100%', height: '100%', background: 'rgba(0,0,0,0.06)' }} />
+                      {/* Status Chip Skeleton */}
+                      <Skeleton variant="rounded" sx={{ position: 'absolute', top: 12, left: 12, width: 60, height: 24, borderRadius: 'var(--radius-sm)' }} />
+                      {/* Icon Button Skeleton */}
+                      <Skeleton variant="circular" sx={{ position: 'absolute', top: 8, right: 8, width: 32, height: 32 }} />
+                    </Box>
+
+                    <CardContent sx={{ flexGrow: 1, p: 3, pt: 2.5, display: "flex", flexDirection: "column" }}>
+                      {/* Category */}
+                      <Skeleton variant="text" width="30%" sx={{ fontSize: 'var(--font-xs)', mb: 1 }} />
+
+                      {/* Title */}
+                      <Skeleton variant="text" width="100%" sx={{ fontSize: '1.25rem', mb: 0.5 }} />
+                      <Skeleton variant="text" width="60%" sx={{ fontSize: '1.25rem', mb: 2 }} />
+
+                      {/* Description (2 lines) */}
+                      <Skeleton variant="text" width="100%" sx={{ fontSize: '0.875rem', mb: 0.5 }} />
+                      <Skeleton variant="text" width="80%" sx={{ fontSize: '0.875rem', mb: 2.5 }} />
+
+                      {/* Chips */}
+                      <Box sx={{ display: 'flex', gap: 0.5, mb: 3 }}>
+                        <Skeleton variant="rounded" width={50} height={20} sx={{ borderRadius: 'var(--radius-md)' }} />
+                        <Skeleton variant="rounded" width={70} height={20} sx={{ borderRadius: 'var(--radius-md)' }} />
+                        <Skeleton variant="rounded" width={60} height={20} sx={{ borderRadius: 'var(--radius-md)' }} />
+                      </Box>
+
+                      {/* Bottom Info Row */}
+                      <Box sx={{ mt: 'auto', pt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Skeleton variant="text" width="40%" sx={{ fontSize: '0.75rem' }} />
+                        <Skeleton variant="text" width="30%" sx={{ fontSize: '0.75rem' }} />
+                      </Box>
+                    </CardContent>
+                  </PremiumCard>
+                </Grid>
+              ))}
+            </Grid>
+          ) : courses.length === 0 ? (
             <Box sx={{
               display: 'flex',
               flexDirection: 'column',
@@ -495,17 +496,19 @@ export default function CourseDashboard() {
               textAlign: 'center',
               position: 'relative'
             }}>
-             <EmptyState
-              title={t('courseDashboard.emptyStateTitle')}
-              subtitle={t('courseDashboard.emptyStateSubtitle')}
-              actionLabel={t('courseDashboard.createCourseBtn')}
-              actionIcon={
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" style={{ width: 20, height: 20, transition: 'transform var(--transition-base)' }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
-                </svg>
-              }
-              onAction={() => setIsCreateModalOpen(true)}
-              illustration={
+              <EmptyState
+                title={isManagement ? t('courseDashboard.emptyStateTitle') : (language === 'en' ? 'No courses available' : 'कोई पाठ्यक्रम उपलब्ध नहीं है')}
+                subtitle={isManagement ? t('courseDashboard.emptyStateSubtitle') : (language === 'en' ? 'There are no courses currently available.' : 'वर्तमान में कोई पाठ्यक्रम उपलब्ध नहीं है।')}
+                actionLabel={isManagement ? t('courseDashboard.createCourseBtn') : null}
+                actionIcon={
+                  isManagement ? (
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" style={{ width: 20, height: 20, transition: 'transform var(--transition-base)' }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
+                    </svg>
+                  ) : null
+                }
+                onAction={isManagement ? () => setIsCreateModalOpen(true) : null}
+                illustration={
                   <svg viewBox="0 0 260 180" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 'var(--size-full)', height: 'var(--size-full)', animation: 'float 6s ease-in-out infinite' }}>
                     <style>
                       {`
@@ -613,13 +616,15 @@ export default function CourseDashboard() {
                     <path d="M 78 36 L 84 36 Q 84 42 81 42 Q 78 42 78 36 Z" fill="var(--color-white)" opacity="0.8" stroke="var(--color-slate-900)" strokeWidth="1" />
                     <path d="M 90 36 L 96 36 Q 96 42 93 42 Q 90 42 90 36 Z" fill="var(--color-white)" opacity="0.8" stroke="var(--color-slate-900)" strokeWidth="1" />
                   </svg>
-              }
-            />
+                }
+              />
             </Box>
           ) : (
             /* ─── COURSE GRID ─── */
             <Grid container spacing={4}>
-              {courses.map((course) => (
+              {filteredAndSortedCourses.map((course) => {
+                const isEnrolled = enrolledCourses.some(c => c.id === course.id);
+                return (
                 <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={course.id}>
                   <PremiumCard sx={{
                     height: 'var(--size-full)',
@@ -631,128 +636,231 @@ export default function CourseDashboard() {
                       sx={{
                         aspectRatio: "16/9",
                         width: 'var(--size-full)',
-                        borderTopLeftRadius: "15px",
-                        borderTopRightRadius: "15px",
+                        borderTopLeftRadius: "calc(var(--radius-lg) - 1px)",
+                        borderTopRightRadius: "calc(var(--radius-lg) - 1px)",
                         backgroundImage: `url(${course.image})`,
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                         position: 'relative',
                         overflow: 'hidden',
-                        flexShrink: 0, }}
-                    >
-                      <Chip
-                        label={course.status}
-                        size="small"
-                        sx={{
-                          position: 'absolute',
-                          top: 12,
-                          left: 12,
-                          bgcolor: course.status === 'Active' ? 'var(--color-success)' : 'var(--color-warning)',
-                          color: 'var(--color-white)',
-                          fontWeight: 800,
-                          fontSize: 'var(--font-xs)',
-                          px: 1,
-                          border: 'none' }}
-                      />
-                      <IconButton sx={{
-                        position: 'absolute', top: 8, right: 8,
-                        bgcolor: 'rgba(255,255,255,0.85)',
-                        backdropFilter: 'blur(10px)',
-                        p: 0.5,
-                        '&:hover': { bgcolor: 'var(--color-white)', transform: 'scale(1.05)' },
-                        transition: 'all var(--transition-base)'
-                      }}>
-                        <MoreVertIcon fontSize="small" sx={{ color: 'var(--color-slate-900)' }} />
-                      </IconButton>
-                    </Box>
-                    <CardContent sx={{ flexGrow: 1, p: 3, pt: 2.5, display: "flex", flexDirection: "column" }}>
-                      {course.category && (
-                        <Typography variant="caption" sx={{ color: 'var(--color-primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', display: 'block', mb: 0.5, fontSize: 'var(--font-xs)' }}>
-                          {course.category}
-                        </Typography>
-                      )}
-                      <Typography variant="h6" sx={{
-                        fontWeight: 800,
-                        color: 'var(--color-slate-900)',
-                        lineHeight: 1.3,
-                        mb: 1.5,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical'
-                      }}>
-                        {course.title}
-                      </Typography>
-                      {course.description && (
-                        <Typography variant="body2" sx={{
-                          color: "var(--color-slate-500)",
-                          mb: 2,
-                          lineHeight: 1.5,
-                          fontWeight: 'var(--font-medium)',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical'
-                        }}>
-                          {course.description}
-                        </Typography>
-                      )}
-                      {course.tags && course.tags.length > 0 && (
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 2 }}>
-                          {course.tags.map((tag, idx) => (
-                            <Chip
-                              key={idx}
-                              label={tag.includes(' / ') ? tag.split(' / ')[1] : tag}
-                              size="small"
-                              sx={{
-                                fontSize: '10px',
-                                fontWeight: 750,
-                                bgcolor: 'rgba(0, 86, 179, 0.05)',
-                                color: 'var(--color-primary)',
-                                border: 'var(--border-thin) solid rgba(30, 79, 163, 0.15)',
-                                borderRadius: 'var(--radius-md)',
-                                height: '20px',
-                                "& .MuiChip-label": { px: 1, py: 0 }
-                              }}
-                            />
-                          ))}
-                        </Box>
-                      )}
+                        flexShrink: 0,
+                      }}
+                    />
+                    <CardContent sx={{ flexGrow: 1, p: 3, display: "flex", flexDirection: "column", "&:last-child": { pb: 3 } }}>
+                      <Box sx={{ mb: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1.5, mb: 1.5 }}>
+                          <Typography variant="h6" sx={{
+                            fontWeight: 'var(--font-bold)',
+                            color: 'var(--color-slate-900)',
+                            lineHeight: 1.3,
+                            overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                            flexGrow: 1
+                          }}>
+                            {course.title}
+                          </Typography>
 
-                      <Box sx={{ mt: 'auto', pt: 2 }}>
-                        <Typography variant="caption" component="div" sx={{
-                          color: "var(--color-slate-500)", fontWeight: 'var(--font-semibold)',
-                          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+                          {(course.category || (course.tags && course.tags.length > 0) || course.document) && (
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'flex-end', flexShrink: 0, maxWidth: '60%', alignItems: 'center' }}>
+                              {course.document && (
+                                <Box
+                                  onClick={(e) => { e.stopPropagation(); window.open(`/viewer/pdf?url=${encodeURIComponent(course.document)}&name=${encodeURIComponent(course.title + ' Document')}`, '_blank'); }}
+                                  sx={{ display: 'flex', alignItems: 'center', gap: 0.25, color: 'var(--theme-blue)', fontSize: '12px', fontWeight: 600, mr: 0.5, cursor: 'pointer', transition: 'opacity 0.2s', '&:hover': { opacity: 0.7 } }}
+                                >
+                                  <AttachFileIcon sx={{ fontSize: 16 }} />
+                                </Box>
+                              )}
+                              {course.category && (
+                                <Chip
+                                  label={course.category}
+                                  size="small"
+                                  sx={{
+                                    bgcolor: 'transparent',
+                                    color: 'var(--theme-blue)',
+                                    fontWeight: 600,
+                                    fontSize: '10px',
+                                    border: 'var(--border-thin) solid rgba(0, 86, 179, 0.2)',
+                                    borderRadius: 'var(--radius-sm)',
+                                    px: 0.25,
+                                    height: 20,
+                                    backdropFilter: 'var(--card-blur)',
+                                    transition: 'var(--transition-slow)',
+                                    '&:hover': { transform: 'translateY(-2px)', borderColor: 'var(--theme-blue)' }
+                                  }}
+                                />
+                              )}
+                              {course.tags && course.tags.slice(0, course.category ? 1 : 2).map((tag, idx) => (
+                                <Chip
+                                  key={idx}
+                                  label={tag.includes(' / ') ? tag.split(' / ')[1] : tag}
+                                  size="small"
+                                  sx={{
+                                    bgcolor: 'transparent',
+                                    color: 'var(--theme-blue)',
+                                    fontWeight: 600,
+                                    fontSize: '10px',
+                                    border: 'var(--border-thin) solid rgba(0, 86, 179, 0.2)',
+                                    borderRadius: 'var(--radius-sm)',
+                                    px: 0.25,
+                                    height: 20,
+                                    backdropFilter: 'var(--card-blur)',
+                                    transition: 'var(--transition-slow)',
+                                    '&:hover': { transform: 'translateY(-2px)', borderColor: 'var(--theme-blue)' }
+                                  }}
+                                />
+                              ))}
+                              {course.tags && course.tags.length > (course.category ? 1 : 2) && (
+                                <CustomTooltip title={course.tags.slice(course.category ? 1 : 2).join(', ')} arrow placement="top">
+                                  <Chip
+                                    label={`+${course.tags.length - (course.category ? 1 : 2)} more`}
+                                    size="small"
+                                    sx={{
+                                      bgcolor: 'transparent',
+                                      color: 'var(--theme-green)',
+                                      fontWeight: 600,
+                                      fontSize: '10px',
+                                      border: 'var(--border-thin) solid rgba(40, 167, 69, 0.3)',
+                                      borderRadius: 'var(--radius-sm)',
+                                      px: 0.25,
+                                      height: 20,
+                                      backdropFilter: 'var(--card-blur)',
+                                      transition: 'var(--transition-slow)',
+                                      '&:hover': { transform: 'translateY(-2px)', borderColor: 'var(--theme-green)' }
+                                    }}
+                                  />
+                                </CustomTooltip>
+                              )}
+                            </Box>
+                          )}
+                        </Box>
+
+                        {(course.desc || course.description) && (
+                          <Typography variant="body2" sx={{
+                            color: 'var(--color-slate-500)',
+                            lineHeight: 1.6,
+                            overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'
+                          }}>
+                            {course.desc || course.description}
+                          </Typography>
+                        )}
+                      </Box>
+
+                      <Box sx={{ mt: 'auto', pt: 1 }}>
+
+                        {/* Meta Info Row */}
+                        <Box sx={{
+                          display: 'flex',
+                          flexWrap: 'nowrap',
+                          rowGap: 1,
+                          columnGap: { xs: 1.5, lg: 2 },
+                          alignItems: 'center',
+                          mb: 2.5,
+                          overflow: 'hidden'
                         }}>
-                          <Box component="span" sx={{ color: "var(--color-primary)" }}>
-                            <MenuBookIcon sx={{ fontSize: 15, verticalAlign: "text-bottom", mr: 0.4 }} />
-                            {course.modules} Modules
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, color: 'var(--theme-blue)', fontSize: '0.85rem', fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                            <MenuBookIcon sx={{ fontSize: 18, color: 'var(--theme-green)' }} />
+                            <span>{Array.isArray(course.modules) ? course.modules.length : (course.modules || 0)} Modules</span>
                           </Box>
-                          <Box component="span" sx={{ mx: 1, color: "var(--color-slate-200)" }}>•</Box>
-                          <Box component="span">
-                            <PersonOutlineIcon sx={{ fontSize: 15, verticalAlign: "text-bottom", mr: 0.4 }} />
-                            {course.students} Students
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, color: 'var(--theme-blue)', fontSize: '0.85rem', fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                            <PersonOutlineIcon sx={{ fontSize: 18, color: 'var(--theme-green)' }} />
+                            <span>{course.students || 0} Students</span>
                           </Box>
                           {course.audience && (
-                            <>
-                              <Box component="span" sx={{ mx: 1, color: "var(--color-slate-200)" }}>•</Box>
-                              <Box component="span">
-                                <GroupIcon sx={{ fontSize: 15, verticalAlign: "text-bottom", mr: 0.4 }} />
-                                {course.audience}
-                              </Box>
-                            </>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, color: 'var(--theme-blue)', fontSize: '0.85rem', fontWeight: 600, whiteSpace: 'nowrap', minWidth: 0, overflow: 'hidden' }}>
+                              <GroupIcon sx={{ fontSize: 18, color: 'var(--theme-green)', flexShrink: 0 }} />
+                              {(() => {
+                                const audList = Array.isArray(course.audience)
+                                  ? course.audience
+                                  : (typeof course.audience === 'string' ? course.audience.split(',').map(a => a.trim()) : []);
+                                if (audList.length === 0) return null;
+                                if (audList.length === 1) return <span>{audList[0]}</span>;
+                                return (
+                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 0 }}>
+                                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{audList[0]}</span>
+                                    <CustomTooltip title={audList.slice(1).join(', ')} arrow placement="top">
+                                      <Chip
+                                        label={`+${audList.length - 1} more`}
+                                        size="small"
+                                        sx={{
+                                          bgcolor: 'transparent',
+                                          color: 'var(--theme-green)',
+                                          fontWeight: 600,
+                                          fontSize: '10px',
+                                          border: 'var(--border-thin) solid rgba(40, 167, 69, 0.3)',
+                                          borderRadius: 'var(--radius-sm)',
+                                          px: 0.25,
+                                          height: 20,
+                                          backdropFilter: 'var(--card-blur)',
+                                          transition: 'var(--transition-slow)',
+                                          '&:hover': { transform: 'translateY(-2px)', borderColor: 'var(--theme-green)' }
+                                        }}
+                                      />
+                                    </CustomTooltip>
+                                  </Box>
+                                );
+                              })()}
+                            </Box>
                           )}
-                        </Typography>
-                        <Typography sx={{ fontWeight: 800, letterSpacing: 0.5 }}>
-                          {t('Add Module')}
-                        </Typography>
+                        </Box>
+
+                        {/* Action Buttons */}
+                        <Box sx={{ display: 'flex', gap: 1.5 }}>
+                          {isManagement && (
+                            <TarangButton
+                              variant="outlined"
+                              fullWidth
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setCourseToEdit(course);
+                                setIsCreateModalOpen(true);
+                              }}
+                            >
+                              {t('Edit')}
+                            </TarangButton>
+                          )}
+                          {!isManagement && (
+                            <TarangButton
+                              variant="outlined"
+                              fullWidth
+                              onClick={() => router.push(`/dashboard/home/institute/courses/${course.id}`)}
+                            >
+                              {t('View Course')}
+                            </TarangButton>
+                          )}
+                          {!isManagement && (
+                            isEnrolled ? (
+                              <TarangButton
+                                variant="primary"
+                                fullWidth
+                                onClick={(e) => { e.stopPropagation(); router.push(`/dashboard/lms/course/${course.id}/access`); }}
+                              >
+                                {language === 'en' ? 'Access Course' : 'पाठ्यक्रम देखें'}
+                              </TarangButton>
+                            ) : (
+                              <TarangButton
+                                variant="primary"
+                                fullWidth
+                                onClick={(e) => handleEnroll(e, course.id)}
+                                loading={enrollLoading[course.id]}
+                              >
+                                {language === 'en' ? 'Enroll' : 'नामांकन'}
+                              </TarangButton>
+                            )
+                          )}
+                          {isManagement && (
+                            <TarangButton
+                              variant="primary"
+                              fullWidth
+                              onClick={() => router.push(`/dashboard/home/institute/courses/${course.id}`)}
+                            >
+                              {t('View Course')}
+                            </TarangButton>
+                          )}
+                        </Box>
                       </Box>
                     </CardContent>
                   </PremiumCard>
                 </Grid>
-              ))}
+              )})}
             </Grid>
           )}
 
@@ -760,1252 +868,50 @@ export default function CourseDashboard() {
       </Box>
 
       {/* ─── FLOATING ACTION BUTTON (SPEED DIAL STYLE) ─── */}
-      <Box sx={{ position: 'fixed', bottom: { xs: 80, md: 32 }, right: { xs: 24, md: 32 }, zIndex: 'var(--z-sticky)' }}>
-        <Fab
-          aria-label={t('Create Course')}
-          onClick={() => setIsCreateModalOpen(true)}
-          sx={{
-            width: { xs: 56, md: 64 },
-            height: { xs: 56, md: 64 },
-            bgcolor: 'var(--color-primary)',
-            color: 'var(--color-white)',
-            border: "1.5px solid var(--color-warning)",
-            '&:hover, &:focus, &:active': { bgcolor: 'var(--color-primary-hover)', }
-          }}
-        >
-          <SpeedDialIcon />
-        </Fab>
-      </Box>
-
-      {/* ─── CREATE COURSE OVERLAY ─── */}
-      {isCreateModalOpen && (
-        <Box
-          onClick={() => { setIsCreateModalOpen(false); setActiveStep(0); setAudienceLevel(""); }}
-          sx={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 'var(--z-fixed)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: 'rgba(0, 86, 179, 0.1)',
-            backdropFilter: 'blur(15px)',
-            p: { xs: 0, sm: 2 },
-            overflow: 'auto'
-          }}>
-          <Paper
-            onClick={(e) => e.stopPropagation()}
-            elevation={0}
-            component={motion.div}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
+      {isManagement && (
+        <Box sx={{ position: 'fixed', bottom: { xs: 80, md: 32 }, right: { xs: 24, md: 32 }, zIndex: 'var(--z-sticky)' }}>
+          <Fab
+            aria-label={t('Create Course')}
+            onClick={() => { setCourseToEdit(null); setIsCreateModalOpen(true); }}
             sx={{
-              display: "flex",
-              flexDirection: "column",
-              width: { xs: "var(--size-full)", sm: "1000px" },
-              minHeight: { xs: "var(--size-full)", sm: "auto" },
-              borderRadius: { xs: 0, sm: "28px" },
-              background: `
-                radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.18) 0, transparent 50%), 
-                radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.15) 0, transparent 50%), 
-                radial-gradient(at 80% 100%, rgba(40, 167, 69, 0.12) 0, transparent 50%),
-                radial-gradient(at 20% 100%, rgba(0, 86, 179, 0.1) 0, transparent 50%),
-                #ffffff
-              `,
-              boxShadow: { sm: "0 25px 50px -12px rgba(0,0,0,0.3)" },
-              overflowY: 'auto',
-              maxHeight: '92vh',
-              position: 'relative'
+              width: { xs: 56, md: 64 },
+              height: { xs: 56, md: 64 },
+              bgcolor: 'var(--color-primary)',
+              color: 'var(--color-white)',
+              border: "1.5px solid var(--color-warning)",
+              '&:hover, &:focus, &:active': { bgcolor: 'var(--color-primary-hover)', }
             }}
           >
-            {/* Close Button */}
-            <IconButton
-              onClick={() => { setIsCreateModalOpen(false); setActiveStep(0); setAudienceLevel(""); }}
-              sx={{
-                display: { xs: 'inline-flex', md: 'none' },
-                position: 'absolute',
-                top: 16,
-                right: 16,
-                color: 'var(--color-slate-500)',
-                '&:hover': { color: 'var(--color-slate-900)', bgcolor: 'rgba(0,0,0,0.05)' }
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-
-            <Box sx={{ px: { xs: 3, sm: 6 }, py: { xs: 5, sm: 6 }, width: 'var(--size-full)', boxSizing: 'border-box' }}>
-              {/* Header */}
-              <Box sx={{ mb: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Box>
-                  <Typography variant="h4" sx={{ fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-xl)' }}>
-                    {t('courseDashboard.modal.createCourse')}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: "var(--color-slate-500)", mt: 0.5, fontSize: 'var(--font-sm)' }}>
-                    {activeStep === 0 ? t("courseDashboard.modal.basicDetails") : t("Outline the course curriculum and content.")}
-                  </Typography>
-                </Box>
-              </Box>
-
-              {/* Step Indicator Progress Bar */}
-              <Box sx={{ display: 'flex', gap: 2, mb: 4, mt: 1 }}>
-                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
-                  <Box sx={{ height: 4, borderRadius: 'var(--radius-md)', bgcolor: activeStep >= 0 ? 'var(--color-primary)' : 'var(--color-slate-200)', transition: 'all var(--transition-slow)' }} />
-                  <Typography variant="caption" sx={{ fontWeight: 800, color: activeStep === 0 ? 'var(--color-primary)' : 'var(--color-slate-500)', fontSize: '11.5px' }}>
-                    {t('courseDashboard.modal.stepDetails')}
-                  </Typography>
-                </Box>
-                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
-                  <Box sx={{ height: 4, borderRadius: 'var(--radius-md)', bgcolor: activeStep >= 1 ? 'var(--color-primary)' : 'var(--color-slate-200)', transition: 'all var(--transition-slow)' }} />
-                  <Typography variant="caption" sx={{ fontWeight: 800, color: activeStep === 1 ? 'var(--color-primary)' : 'var(--color-slate-500)', fontSize: '11.5px' }}>
-                    {t('courseDashboard.modal.stepCurriculum')}
-                  </Typography>
-                </Box>
-              </Box>
-
-              <Box component="form" onSubmit={(e) => {
-                e.preventDefault();
-                const selectedAudience = audienceLevels.find(al => Reflect.get(al, 'value') === audienceLevel);
-                const selectedCategory = courseCategories.find(cc => Reflect.get(cc, 'value') === courseCategory);
-                const newCourse = {
-                  id: Date.now(),
-                  title: courseTitle || t("Untitled Course"),
-                  desc: courseDesc,
-                  audience: selectedAudience ? Reflect.get(selectedAudience, 'label').split(' / ')[1] : "",
-                  category: selectedCategory ? Reflect.get(selectedCategory, 'label').split(' / ')[1] : "",
-                  tags: courseTags,
-                  modules: modules.length,
-                  students: 0,
-                  status: 'Active',
-                  image: courseThumbnail || 'https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?auto=format&fit=crop&q=80&w=800'
-                };
-                setCourses([newCourse, ...courses]);
-                setIsCreateModalOpen(false);
-                setCourseTitle("");
-                setCourseDesc("");
-                setCourseThumbnail("");
-                setAudienceLevel("");
-                setCourseCategory("");
-                setCourseTags([]);
-                setIsTagsSectionExpanded(false);
-                setModules([
-                  {
-                    id: 1,
-                    title: 'Module 1: Introduction',
-                    startDate: '',
-                    endDate: '',
-                    lessons: []
-                  }
-                ]);
-                setActiveStep(0);
-              }} sx={{ width: 'var(--size-full)', display: 'flex', flexDirection: 'column' }}>
-
-                {/* STEP 1: COURSE DETAILS */}
-                {activeStep === 0 && (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: 'var(--size-full)' }}>
-                    {/* Top Row: Columns */}
-                    <Box sx={{
-                      display: { xs: 'flex', sm: 'grid' },
-                      flexDirection: 'column',
-                      gridTemplateColumns: '1fr 1fr',
-                      rowGap: 3,
-                      columnGap: 4,
-                      width: 'var(--size-full)'
-                    }}>
-
-                      {/* Left Column: Course Details */}
-                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0, gridColumn: '1', gridRow: '1' }}>
-                        {/* Course Title */}
-                        <Box>
-                          <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
-                            {t('courseDashboard.modal.courseTitle')}
-                          </Typography>
-                          <TextField
-                            fullWidth
-                            value={courseTitle}
-                            onChange={(e) => setCourseTitle(e.target.value)}
-                            required
-                            placeholder={t('courseDashboard.modal.courseTitlePlaceholder')}
-                            sx={{
-                              "& .MuiOutlinedInput-root": {
-                                "& input": { color: "var(--color-slate-900)", fontSize: 'var(--font-base)', fontWeight: 'var(--font-medium)' }
-                              }
-                            }}
-                          />
-                        </Box>
-
-                        {/* Target Audience / Educational Level */}
-                        <Box>
-                          <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
-                            {t('courseDashboard.modal.targetAudience')}
-                          </Typography>
-                          <Autocomplete
-                            fullWidth
-                            options={audienceLevels}
-                            getOptionLabel={(option) => typeof option === 'string' ? option : (Reflect.get(option, 'label') || "")}
-                            value={audienceLevels.find(al => Reflect.get(al, 'value') === audienceLevel) || null}
-                            onChange={(e, val) => setAudienceLevel(val ? Reflect.get(val, 'value') : "")}
-                            // Explicitly extracting props instead of spreading to satisfy securecoder
-                            renderInput={(params) => {
-                              const { id, disabled, fullWidth, size, InputLabelProps, InputProps, inputProps } = params;
-                              return <TextField
-                                id={id}
-                                disabled={disabled}
-                                fullWidth={fullWidth}
-                                size={size}
-                                InputLabelProps={InputLabelProps}
-                                InputProps={InputProps}
-                                inputProps={inputProps}
-                                required
-                                placeholder={t('courseDashboard.modal.selectAudience')}
-                                sx={{
-                                  "& .MuiOutlinedInput-root": {
-                                    "& input": { color: "var(--color-slate-900)", fontSize: 'var(--font-base)', fontWeight: 'var(--font-medium)' }
-                                  }
-                                }}
-                              />
-                            }}
-                          />
-                        </Box>
-
-                      </Box>
-
-                      {/* Course Category */}
-                      <Box sx={{ gridColumn: '1', gridRow: '2', minWidth: 0 }}>
-                        <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
-                          {t('courseDashboard.modal.courseCategory')}
-                        </Typography>
-                        <Autocomplete
-                          fullWidth
-                          options={courseCategories}
-                          getOptionLabel={(option) => typeof option === 'string' ? option : (Reflect.get(option, 'label') || "")}
-                          value={courseCategories.find(cc => Reflect.get(cc, 'value') === courseCategory) || null}
-                          onChange={(e, val) => setCourseCategory(val ? Reflect.get(val, 'value') : "")}
-                          // Explicitly extracting props instead of spreading to satisfy securecoder
-                          renderInput={(params) => {
-                            const { id, disabled, fullWidth, size, InputLabelProps, InputProps, inputProps } = params;
-                            return <TextField
-                              id={id}
-                              disabled={disabled}
-                              fullWidth={fullWidth}
-                              size={size}
-                              InputLabelProps={InputLabelProps}
-                              InputProps={InputProps}
-                              inputProps={inputProps}
-                              required
-                              placeholder={t('courseDashboard.modal.selectCategory')}
-                            />
-                          }}
-                        />
-                      </Box>
-
-                      {/* Right Column: 16:9 Aspect-Ratio Course Thumbnail */}
-                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: 'var(--size-full)', minWidth: 0, gridColumn: '2', gridRow: '1' }}>
-                        <Box>
-                          <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
-                            {t('courseDashboard.modal.courseThumbnail')}
-                          </Typography>
-
-                          {/* Wrapper with relative position so lock icon can float over thumbnail */}
-                          <Box sx={{ position: 'relative', width: 'var(--size-full)' }}>
-
-                            {/* Thumbnail clickable area */}
-                            <Box
-                              sx={{
-                                width: 'var(--size-full)',
-                                aspectRatio: '16/9',
-                                borderRadius: 'var(--radius-md)',
-                                backgroundColor: courseThumbnail ? 'transparent' : 'rgba(0, 86, 179, 0.03)',
-                                backgroundImage: courseThumbnail ? `url(${courseThumbnail})` : 'none',
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                border: '2px dashed rgba(30, 79, 163, 0.25)',
-                                cursor: 'pointer',
-                                overflow: 'hidden',
-                                position: 'relative',
-                                transition: 'var(--transition-base)',
-                                '&:hover': {
-                                  borderColor: 'var(--color-primary)',
-                                  backgroundColor: 'rgba(0, 86, 179, 0.05)'
-                                }
-                              }}
-                              onClick={() => thumbnailInputRef.current?.click()}
-                            >
-                              {courseThumbnail ? (
-                                <Box sx={{
-                                  position: 'absolute',
-                                  inset: 0,
-                                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                                  display: 'flex',
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                                  opacity: 0,
-                                  transition: 'opacity var(--transition-base)',
-                                  '&:hover': { opacity: 1 }
-                                }}>
-                                  <Typography sx={{ color: 'var(--color-white)', fontWeight: 'var(--font-bold)', fontSize: 'var(--font-sm)', bgcolor: 'rgba(0,0,0,0.6)', px: 2, py: 1, borderRadius: 'var(--radius-md)' }}>
-                                    {t('courseDashboard.modal.changeImage')}
-                                  </Typography>
-                                </Box>
-                              ) : isUploadingThumbnail ? (
-                                <>
-                                  <CloudUploadIcon sx={{ color: 'var(--color-slate-500)', fontSize: 36, mb: 0.5 }} />
-                                  <Typography sx={{ fontSize: 'var(--font-sm)', fontWeight: 'var(--font-semibold)', color: 'var(--color-primary)' }}>
-                                    {t('courseDashboard.modal.uploading')}
-                                  </Typography>
-                                </>
-                              ) : (
-                                <>
-                                  <CloudUploadIcon sx={{ color: 'var(--color-primary)', fontSize: 36, mb: 0.5 }} />
-                                  <Typography sx={{ fontSize: 'var(--font-sm)', fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-500)' }}>
-                                    {t('courseDashboard.modal.uploadThumbnail')}
-                                  </Typography>
-                                  <Typography sx={{ fontSize: 'var(--font-xs)', color: 'var(--color-slate-500)', mt: 0.5 }}>
-                                    {t('courseDashboard.modal.fileFormats')}
-                                  </Typography>
-                                </>
-                              )}
-                              <input
-                                type="file"
-                                hidden
-                                ref={thumbnailInputRef}
-                                accept="image/*"
-                                onChange={handleThumbnailUpload}
-                              />
-                            </Box>
-
-                            <input
-                              type="file"
-                              hidden
-                              ref={docInputRef}
-                              accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                              onChange={handleCourseDocUpload}
-                            />
-
-                            {/* Attachment icon - positioned OUTSIDE the clickable thumbnail box */}
-                            <Tooltip title={courseDoc ? `Attached: ${courseDoc}` : "Attach Course Document (PDF)"} arrow placement="top">
-                              <IconButton
-                                size="small"
-                                onClick={() => docInputRef.current?.click()}
-                                sx={{
-                                  position: 'absolute',
-                                  top: 8,
-                                  right: 38,
-                                  zIndex: 'var(--z-sticky)',
-                                  p: 0.75,
-                                  '&:hover': { backgroundColor: 'transparent', transform: 'scale(1.15)' },
-                                  transition: 'var(--transition-base)'
-                                }}
-                              >
-                                <AttachFileIcon sx={{ color: courseDoc ? 'var(--color-primary)' : 'var(--color-slate-500)', fontSize: 'var(--font-lg)' }} />
-                              </IconButton>
-                            </Tooltip>
-
-                            {/* Lock icon - positioned OUTSIDE the clickable thumbnail box */}
-                            <Tooltip title="Course Access" arrow placement="top">
-                              <IconButton
-                                size="small"
-                                onClick={(e) => setCourseAccessPopoverAnchor(e.currentTarget)}
-                                sx={{
-                                  position: 'absolute',
-                                  top: 8,
-                                  right: 8,
-                                  zIndex: 'var(--z-sticky)',
-                                  p: 0.75,
-                                  '&:hover': { backgroundColor: 'transparent', transform: 'scale(1.15)' },
-                                  transition: 'var(--transition-base)'
-                                }}
-                              >
-                                <LockOutlinedIcon sx={{ color: courseAccess === 'public' ? 'var(--color-success)' : courseAccess === 'locked' ? 'var(--color-error)' : 'var(--color-slate-500)', fontSize: 'var(--font-lg)' }} />
-                              </IconButton>
-                            </Tooltip>
-
-                            <Popover
-                              open={Boolean(courseAccessPopoverAnchor)}
-                              anchorEl={courseAccessPopoverAnchor}
-                              onClose={() => setCourseAccessPopoverAnchor(null)}
-                              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                              slotProps={{
-                                paper: {
-                                  sx: { p: 1, minWidth: '260px' }
-                                }
-                              }}
-                            >
-                              <Typography variant="caption" sx={{ display: 'block', px: 1, py: 0.5, fontWeight: 800, color: 'var(--color-slate-500)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                                {t('Course Access')}
-                              </Typography>
-                              {[
-                                { label: 'Public (Everyone)', value: 'public' },
-                                { label: 'Accessible only to enrolled students', value: 'enrolled' },
-                                { label: 'Locked (Hidden)', value: 'locked' }
-                              ].map(option => (
-                                <ListItemButton
-                                  key={option.value}
-                                  selected={courseAccess === option.value}
-                                  onClick={() => handleCourseAccessChange(option.value)}
-                                  sx={{
-                                    mt: 0.5
-                                  }}
-                                >
-                                  <Typography sx={{ fontSize: 'inherit', fontWeight: 'inherit', lineHeight: 'inherit', color: 'inherit' }}>
-                                    {option.label}
-                                  </Typography>
-                                </ListItemButton>
-                              ))}
-                            </Popover>
-
-                          </Box>
-                        </Box>
-
-                      </Box>
-
-                      {/* Course Tags */}
-                      <Box ref={tagsContainerRef} sx={{ position: "relative", gridColumn: '2', gridRow: '2', minWidth: 0 }}>
-                        <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
-                          {t('courseDashboard.modal.courseTags')}
-                        </Typography>
-
-                        <Button
-                          fullWidth
-                          disableRipple
-                          onClick={() => setIsTagsSectionExpanded(!isTagsSectionExpanded)}
-                          sx={{
-                            py: 1.75,
-                            borderRadius: 'var(--radius-md)',
-                            textTransform: "none",
-                            fontSize: 'var(--font-base)',
-                            fontWeight: 'var(--font-regular)',
-                            color: "var(--color-slate-500)",
-                            backgroundColor: "rgba(255, 255, 255, 0.8)",
-                            backdropFilter: "blur(4px)",
-                            border: "1.5px solid rgba(203, 213, 225, 0.8)",
-                            "&:hover": {
-                              border: "1.5px solid var(--color-slate-500)",
-                              backgroundColor: "rgba(255, 255, 255, 0.8)" },
-                            display: "flex",
-                            justifyContent: "flex-start",
-                            alignItems: "center",
-                            flexWrap: "nowrap",
-                            gap: 0.75,
-                            px: 1.75,
-                            mb: 1.5,
-                            height: 'var(--box-height)',
-                            overflowX: "auto",
-                            overflowY: "hidden",
-                            scrollbarWidth: "none",
-                            "&::-webkit-scrollbar": { display: "none" }
-                          }}
-                        >
-                          {courseTags.length === 0 ? (
-                            <span># Tags</span>
-                          ) : (
-                            courseTags.map((tag, idx) => (
-                              <Chip
-                                key={idx}
-                                label={tag.includes(' / ') ? tag.split(' / ')[1] : tag}
-                                size="small"
-                                onDelete={(e) => {
-                                  e.stopPropagation();
-                                  setCourseTags(courseTags.filter(t => t !== tag));
-                                }}
-                                sx={{
-                                  fontSize: 'var(--font-xs)',
-                                  fontWeight: 'var(--font-semibold)',
-                                  bgcolor: "rgba(0, 86, 179, 0.08)",
-                                  color: "var(--color-primary)",
-                                  border: "none",
-                                  borderRadius: 'var(--radius-md)',
-                                  height: "26px",
-                                  "& .MuiChip-deleteIcon": {
-                                    color: "rgba(0, 86, 179, 0.5)",
-                                    "&:hover": { color: "var(--color-primary)" }
-                                  }
-                                }}
-                              />
-                            ))
-                          )}
-                        </Button>
-
-                        {/* Floating Dropdown Overlay Checklist Section */}
-                        {isTagsSectionExpanded && (
-                          <Paper
-                            elevation={0}
-                            sx={{
-                              position: "absolute",
-                              top: "var(--size-full)",
-                              left: 0,
-                              right: 0,
-                              zIndex: 'var(--z-sticky)',
-                              mt: 0.1,
-                              border: "1.5px solid rgba(255, 255, 255, 0.8)",
-                              borderRadius: 'var(--radius-lg)',
-                              backgroundColor: "rgba(255, 255, 255, 0.96)",
-                              backdropFilter: "blur(30px)",
-                              WebkitBackdropFilter: "blur(30px)",
-                              
-                              background: `
-                                  radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.08) 0, transparent 55%), 
-                                  radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.06) 0, transparent 55%), 
-                                  #ffffff`,
-                              p: 2,
-                              display: "flex",
-                              flexDirection: "column",
-                              height: "280px"
-                            }}
-                          >
-                            {/* Search input */}
-                            <TextField
-                              fullWidth
-                              size="small"
-                              placeholder={t('courseDashboard.modal.searchTagsPlaceholder')}
-                              value={tagSearchQuery}
-                              onChange={(e) => setTagSearchQuery(e.target.value)}
-                              sx={{
-                                mb: 1.5 }}
-                              InputProps={{
-                                startAdornment: (
-                                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" style={{ width: 14, height: 14, color: 'var(--color-slate-500)', marginRight: 6 }}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.637 10.637z" />
-                                  </svg>
-                                )
-                              }}
-                            />
-
-                            {/* Scrollable List */}
-                            <Box sx={{ flex: 1, overflowY: "auto", pr: 0.5 }}>
-                              {tagCategories.map((cat, catIdx) => {
-                                const filteredTags = cat.tags.filter(tag =>
-                                  tag.toLowerCase().includes(tagSearchQuery.toLowerCase())
-                                );
-
-                                if (filteredTags.length === 0) return null;
-
-                                return (
-                                  <Box key={catIdx} sx={{ mb: 2 }}>
-                                    <Typography sx={{ fontWeight: 800, color: "var(--color-primary)", fontSize: 'var(--font-xs)', borderBottom: "var(--border-thin) solid rgba(0, 86, 179, 0.08)", pb: 0.25, mb: 1, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                                      {cat.category}
-                                    </Typography>
-
-                                    {/* Inline Tags Grid (2 Columns) */}
-                                    <Grid container spacing={0.5}>
-                                      {filteredTags.map((tag, tagIdx) => {
-                                        const isChecked = courseTags.includes(tag);
-                                        return (
-                                          <Grid size={{ xs: 6 }} key={tagIdx}>
-                                            <Box
-                                              onClick={() => {
-                                                if (isChecked) {
-                                                  setCourseTags(courseTags.filter(t => t !== tag));
-                                                } else {
-                                                  setCourseTags([...courseTags, tag]);
-                                                }
-                                              }}
-                                              sx={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                gap: 0.75,
-                                                p: 0.5,
-                                                borderRadius: 'var(--radius-md)',
-                                                cursor: "pointer",
-                                                transition: "all var(--transition-fast)",
-                                                backgroundColor: isChecked ? "rgba(0, 86, 179, 0.04)" : "transparent",
-                                                border: "var(--border-thin) solid",
-                                                borderColor: isChecked ? "rgba(0, 86, 179, 0.2)" : "transparent",
-                                                "&:hover": {
-                                                  backgroundColor: "rgba(0, 0, 0, 0.02)"
-                                                }
-                                              }}
-                                            >
-                                              <input
-                                                type="checkbox"
-                                                checked={isChecked}
-                                                onChange={() => { }}
-                                                style={{
-                                                  width: "14px",
-                                                  height: "14px",
-                                                  cursor: "pointer",
-                                                  accentColor: "var(--color-primary)"
-                                                }}
-                                              />
-                                              <Typography sx={{ fontSize: "11.5px", fontWeight: isChecked ? 700 : 500, color: isChecked ? "var(--color-primary)" : "var(--color-slate-900)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                                {tag.split(' / ')[1]}
-                                              </Typography>
-                                            </Box>
-                                          </Grid>
-                                        );
-                                      })}
-                                    </Grid>
-                                  </Box>
-                                );
-                              })}
-                            </Box>
-                          </Paper>
-                        )}
-
-                      </Box>
-                    </Box>
-
-                    {/* Full Width Row: Course Description */}
-                    <Box sx={{ width: 'var(--size-full)' }}>
-                      <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
-                        {t('courseDashboard.modal.courseDescription')}
-                      </Typography>
-                      <TextField
-                        fullWidth
-                        value={courseDesc}
-                        onChange={(e) => setCourseDesc(e.target.value)}
-                        multiline
-                        rows={3}
-                        placeholder={t('courseDashboard.modal.courseDescPlaceholder')}
-                        sx={{
-                          "& .MuiOutlinedInput-root": {
-                            "& textarea": { color: "var(--color-slate-900)", fontSize: 'var(--font-base)', fontWeight: 'var(--font-medium)' }
-                          }
-                        }}
-                      />
-                    </Box>
-
-                    {/* Step 1 Actions */}
-                    <Box sx={{ display: 'flex', gap: 2, mt: 4, pt: 2.5, borderTop: 'var(--border-thin) solid #F1F5F9' }}>
-                      <Button
-                        fullWidth
-                        variant="outlined"
-                        onClick={() => { setIsCreateModalOpen(false); setActiveStep(0); setAudienceLevel(""); setCourseCategory(""); setCourseTags([]); setIsTagsSectionExpanded(false); }}
-                        disableElevation
-                        sx={{
-                          py: 1.5,
-                          borderRadius: 'var(--radius-md)',
-                          textTransform: "none",
-                          fontSize: 'var(--font-base)',
-                          fontWeight: 'var(--font-semibold)',
-                          borderColor: "var(--color-slate-200)",
-                          color: "var(--color-slate-900)",
-                          "&:hover": {
-                            borderColor: "var(--color-slate-500)",
-                            backgroundColor: "var(--color-slate-50)"
-                          }
-                        }}
-                      >
-                        {t('courseDashboard.modal.cancel')}
-                      </Button>
-                      <Button
-                        fullWidth
-                        variant="contained"
-                        disableElevation
-                        onClick={() => {
-                          if (courseTitle.trim() && audienceLevel && courseCategory && courseDesc.trim() && courseThumbnail) {
-                            setActiveStep(1);
-                          }
-                        }}
-                        disabled={!courseTitle.trim() || !audienceLevel || !courseCategory || !courseDesc.trim() || !courseThumbnail}
-                        sx={{
-                          py: 1.5,
-                          borderRadius: 'var(--radius-md)',
-                          textTransform: "none",
-                          fontSize: 'var(--font-base)',
-                          fontWeight: 'var(--font-bold)',
-                          background: (courseTitle.trim() && audienceLevel && courseCategory && courseDesc.trim() && courseThumbnail) ? 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)' : 'var(--color-slate-200)',
-                          color: 'var(--color-white)',
-                          transition: 'all var(--transition-base)',
-                          '&.Mui-disabled': {
-                            color: 'var(--color-slate-500)',
-                            background: 'var(--color-slate-200)',
-                            WebkitTextFillColor: 'var(--color-slate-500)'
-                          },
-                          '&:hover': {
-                            background: 'linear-gradient(135deg, #004494 0%, var(--color-success) 100%)' }
-                        }}
-                      >
-                        {t('courseDashboard.modal.proceed')}
-                      </Button>
-                    </Box>
-                  </Box>
-                )}
-
-                {/* STEP 2: CURRICULUM BUILDER */}
-                {activeStep === 1 && (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: 'var(--size-full)' }}>
-                    {/* Curriculum Builder */}
-                    <Box>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 'var(--font-bold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
-                          {t('courseDashboard.modal.curriculumHeading')}
-                        </Typography>
-                        <Button
-                          startIcon={<AddIcon />}
-                          variant="outlined"
-                          onClick={addModule}
-                          size="small"
-                          sx={{
-                            textTransform: 'none',
-                            borderRadius: 'var(--radius-md)',
-                            fontWeight: 'var(--font-bold)',
-                            borderColor: 'var(--color-primary)',
-                            color: 'var(--color-primary)',
-                            fontSize: 'var(--font-xs)',
-                            py: 0.5,
-                            '&:hover': { borderWidth: 1.5 }
-                          }}
-                        >
-                          {t('Add Module')}
-                        </Button>
-                      </Box>
-
-                      {modules.map((module) => (
-                        <Accordion
-                          key={module.id}
-                          sx={{
-                            margin: '0 0 16px 0',
-                            '&:before': { display: 'none' }
-                          }}
-                        >
-                          <AccordionSummary
-                            expandIcon={<ExpandMoreIcon sx={{ color: 'var(--color-primary)' }} />}
-                            disableRipple
-                            sx={{
-                              borderTopLeftRadius: 'var(--radius-lg)',
-                              borderTopRightRadius: 'var(--radius-lg)',
-                              borderBottomLeftRadius: 0,
-                              borderBottomRightRadius: 0,
-                              px: { xs: 1.5, sm: 2.25 },
-                              py: 0,
-                              height: '64px',
-                              minHeight: '64px',
-                              maxHeight: '64px',
-                              '&.Mui-expanded': {
-                                minHeight: '64px',
-                                maxHeight: '64px',
-                                m: 0
-                              },
-                              '&:hover': {
-                                backgroundColor: 'transparent'
-                              },
-                              '&.Mui-focusVisible': {
-                                backgroundColor: 'transparent'
-                              },
-                              '& .MuiAccordionSummary-content': {
-                                my: 0,
-                                minWidth: 0,
-                                '&.Mui-expanded': {
-                                  m: 0
-                                }
-                              }
-                            }}
-                          >
-                            <Box
-                              sx={{
-                                display: 'grid',
-                                gridTemplateColumns: { xs: '1fr', lg: 'minmax(0, 1fr) auto' },
-                                alignItems: 'center',
-                                gap: { xs: 1.5, lg: 2 },
-                                width: 'var(--size-full)',
-                                minWidth: 0
-                              }}
-                            >
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
-                                <DragIndicatorIcon sx={{ color: 'var(--color-slate-500)', fontSize: 'var(--font-lg)', flexShrink: 0 }} />
-                                <TextField
-                                  value={module.title}
-                                  onChange={(e) => updateModuleTitle(module.id, e.target.value)}
-                                  placeholder="Module Title"
-                                  variant="standard"
-                                  InputProps={{ disableUnderline: true }}
-                                  onClick={(e) => e.stopPropagation()} // Prevent accordion expansion
-                                  sx={{
-                                    flex: 1,
-                                    minWidth: 0,
-                                    input: {
-                                      fontWeight: 800,
-                                      color: 'var(--color-slate-900)',
-                                      fontSize: 'var(--font-base)',
-                                      py: 0.2,
-                                      textOverflow: 'ellipsis'
-                                    }
-                                  }}
-                                />
-                                <Tooltip title={courseAccess === 'locked' ? "Course is locked" : "Change Access"} arrow placement="top">
-                                  <IconButton
-                                    component="span"
-                                    size="small"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (courseAccess !== 'locked') {
-                                        openAccessPopover(e, module.id);
-                                      }
-                                    }}
-                                    sx={{ ml: 0.5, p: 0.5, cursor: courseAccess === 'locked' ? 'not-allowed' : 'pointer' }}
-                                  >
-                                    <LockOutlinedIcon sx={{ color: module.access === 'public' ? 'var(--color-success)' : module.access === 'locked' ? 'var(--color-error)' : 'var(--color-slate-500)', fontSize: 'var(--font-lg)' }} />
-                                  </IconButton>
-                                </Tooltip>
-                                <Popover
-                                  open={activeAccessModuleId === module.id}
-                                  anchorEl={accessPopoverAnchorEl}
-                                  onClose={closeAccessPopover}
-                                  anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-                                  transformOrigin={{ vertical: 'top', horizontal: 'center' }}
-                                  slotProps={{
-                                    paper: {
-                                      onClick: (e) => e.stopPropagation(),
-                                      sx: { p: 1, minWidth: '260px' }
-                                    }
-                                  }}
-                                >
-                                  <Typography variant="caption" sx={{ display: 'block', px: 1, py: 0.5, fontWeight: 800, color: 'var(--color-slate-500)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                                    {t('Module Access')}
-                                  </Typography>
-                                  {accessOptions.map(option => {
-                                    const isBlocked = (courseAccess === 'locked' && option.value !== 'locked') ||
-                                      (courseAccess === 'enrolled' && option.value === 'public');
-                                    const tooltipText = courseAccess === 'locked'
-                                      ? 'Course is locked — modules must also be locked'
-                                      : 'Course is not public — modules cannot be public';
-                                    return (
-                                      <Tooltip
-                                        key={option.value}
-                                        title={isBlocked ? tooltipText : ''}
-                                        arrow
-                                        placement="right"
-                                      >
-                                        <span>
-                                          <ListItemButton
-                                            selected={module.access === option.value}
-                                            disabled={isBlocked}
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              updateModuleAccess(module.id, option.value);
-                                            }}
-                                            sx={{
-                                              mt: 0.5
-                                            }}
-                                          >
-                                            <Typography sx={{ fontSize: 'inherit', fontWeight: 'inherit', lineHeight: 'inherit', color: 'inherit' }}>
-                                              {option.label}
-                                            </Typography>
-                                            {isBlocked && (
-                                              <LockOutlinedIcon sx={{ fontSize: 'var(--font-sm)', ml: 'auto', color: 'var(--color-slate-500)' }} />
-                                            )}
-                                          </ListItemButton>
-                                        </span>
-                                      </Tooltip>
-                                    );
-                                  })}
-                                </Popover>
-                              </Box>
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 1,
-                                  flexWrap: 'nowrap',
-                                  justifyContent: { xs: 'flex-start', lg: 'flex-end' }
-                                }}
-                              >
-                                <Box
-                                  component="span"
-                                  onClick={(e) => openModuleCalendar(
-                                    e,
-                                    module.id,
-                                    module.startDate && !module.endDate ? 'endDate' : 'startDate'
-                                  )}
-                                  sx={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: 0.75,
-                                    maxWidth: { xs: 'var(--size-full)', sm: '220px' },
-                                    minHeight: '40px',
-                                    justifyContent: 'center',
-                                    px: 1.35,
-                                    py: 0.55,
-                                    borderRadius: 'var(--radius-full)',
-                                    border: 'var(--border-thin) solid rgba(203, 213, 225, 0.75)',
-                                    color: module.startDate || module.endDate ? 'var(--color-primary)' : 'var(--color-slate-500)',
-                                    backgroundColor: 'rgba(255, 255, 255, 0.72)',
-                                    backdropFilter: 'blur(8px)',
-                                    fontWeight: 750,
-                                    fontSize: '0.78rem',
-                                    lineHeight: 1.3,
-                                    whiteSpace: 'nowrap',
-                                    fontVariantNumeric: 'tabular-nums',
-                                    cursor: 'pointer',
-                                    boxShadow: module.startDate || module.endDate ? '0 8px 22px -18px rgba(0, 86, 179, 0.35)' : 'none',
-                                    transition: 'var(--transition-base)',
-                                    '&:hover': {
-                                      backgroundColor: 'rgba(0, 86, 179, 0.08)',
-                                      borderColor: 'rgba(0, 86, 179, 0.22)',
-                                      color: 'var(--color-primary)'
-                                    }
-                                  }}
-                                >
-                                  <CalendarMonthOutlinedIcon sx={{ fontSize: 'var(--font-base)', color: module.startDate || module.endDate ? 'var(--color-primary)' : 'inherit' }} />
-                                  {getModuleDateTriggerLabel(module)}
-                                </Box>
-                                <Popover
-                                  open={activeCalendarModuleId === module.id}
-                                  anchorEl={moduleCalendarAnchorEl}
-                                  onClose={closeModuleCalendar}
-                                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                                  transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                                  slotProps={{
-                                    paper: {
-                                      onClick: (e) => e.stopPropagation(),
-                                      sx: timelineCalendarPaperSx
-                                    }
-                                  }}
-                                >
-                                  <Box sx={{ p: 0.5 }}>
-                                    <Box
-                                      sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        gap: 1,
-                                        px: 0.75,
-                                        pt: 0.35,
-                                        pb: 0.8
-                                      }}
-                                    >
-
-                                      {activeCalendarModule && activeCalendarField && Reflect.get(activeCalendarModule, activeCalendarField) ? (
-                                        <Button
-                                          size="small"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            clearModuleDate(activeCalendarModule.id, activeCalendarField);
-                                          }}
-                                          sx={{
-                                            minWidth: 'auto',
-                                            px: 0.75,
-                                            py: 0.3,
-                                            borderRadius: 'var(--radius-full)',
-                                            textTransform: 'none',
-                                            fontSize: '0.72rem',
-                                            fontWeight: 'var(--font-bold)',
-                                            color: 'var(--color-error)'
-                                          }}
-                                        >
-                                          {t('Clear')}
-                                        </Button>
-                                      ) : null}
-                                    </Box>
-                                    <Box
-                                      sx={{
-                                        display: 'grid',
-                                        gridTemplateColumns: '1fr 1fr',
-                                        gap: 1,
-                                        px: 0.75,
-                                        pb: 0.9
-                                      }}
-                                    >
-                                      <Box
-                                        component="button"
-                                        type="button"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setActiveCalendarField('startDate');
-                                        }}
-                                        sx={{
-                                          appearance: 'none',
-                                          border: activeCalendarField === 'startDate'
-                                            ? 'var(--border-thin) solid rgba(31, 143, 82, 0.3)'
-                                            : 'var(--border-thin) solid rgba(203, 213, 225, 0.75)',
-                                          background: activeCalendarField === 'startDate'
-                                            ? 'rgba(31, 143, 82, 0.08)'
-                                            : 'rgba(255, 255, 255, 0.76)',
-                                          color: activeCalendarField === 'startDate' ? 'var(--color-success)' : 'var(--color-slate-500)',
-                                          borderRadius: 'var(--radius-md)',
-                                          minHeight: '58px',
-                                          px: 1,
-                                          py: 0.85,
-                                          cursor: 'pointer',
-                                          textAlign: 'left'
-                                        }}
-                                      >
-                                        <Typography sx={{ fontSize: '0.68rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.4, opacity: 0.75 }}>
-                                          {t('Start Date')}
-                                        </Typography>
-                                        <Typography sx={{ mt: 0.35, fontSize: '0.82rem', fontWeight: 800, color: 'inherit' }}>
-                                          {activeCalendarModule?.startDate ? formatModuleDate(activeCalendarModule.startDate) : 'Not set'}
-                                        </Typography>
-                                      </Box>
-                                      <Box
-                                        component="button"
-                                        type="button"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setActiveCalendarField('endDate');
-                                        }}
-                                        sx={{
-                                          appearance: 'none',
-                                          border: activeCalendarField === 'endDate'
-                                            ? 'var(--border-thin) solid rgba(0, 86, 179, 0.3)'
-                                            : 'var(--border-thin) solid rgba(203, 213, 225, 0.75)',
-                                          background: activeCalendarField === 'endDate'
-                                            ? 'rgba(0, 86, 179, 0.08)'
-                                            : 'rgba(255, 255, 255, 0.76)',
-                                          color: activeCalendarField === 'endDate' ? 'var(--color-primary)' : 'var(--color-slate-500)',
-                                          borderRadius: 'var(--radius-md)',
-                                          minHeight: '58px',
-                                          px: 1,
-                                          py: 0.85,
-                                          cursor: 'pointer',
-                                          textAlign: 'left'
-                                        }}
-                                      >
-                                        <Typography sx={{ fontSize: '0.68rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.4, opacity: 0.75 }}>
-                                          {t('End Date')}
-                                        </Typography>
-                                        <Typography sx={{ mt: 0.35, fontSize: '0.82rem', fontWeight: 800, color: 'inherit' }}>
-                                          {activeCalendarModule?.endDate ? formatModuleDate(activeCalendarModule.endDate) : 'Not set'}
-                                        </Typography>
-                                      </Box>
-                                    </Box>
-                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                      <DateCalendar
-                                        value={getModuleDateValue(
-                                          activeCalendarField && activeCalendarModule
-                                            ? Reflect.get(activeCalendarModule, activeCalendarField)
-                                            : ''
-                                        )}
-                                        shouldDisableDate={(date) =>
-                                          activeCalendarField === 'endDate' &&
-                                          Boolean(activeCalendarModule?.startDate) &&
-                                          date.isBefore(dayjs(activeCalendarModule.startDate), 'day')
-                                        }
-                                        onChange={(newValue) => {
-                                          if (!newValue || !activeCalendarField || !activeCalendarModuleId) return;
-                                          updateModuleDate(
-                                            activeCalendarModuleId,
-                                            activeCalendarField,
-                                            newValue.format('YYYY-MM-DD')
-                                          );
-                                          if (activeCalendarField === 'startDate') {
-                                            setActiveCalendarField('endDate');
-                                            return;
-                                          }
-                                          closeModuleCalendar();
-                                        }}
-                                        sx={timelineCalendarSx}
-                                      />
-                                    </LocalizationProvider>
-                                  </Box>
-                                </Popover>
-                                <IconButton
-                                  component="span"
-                                  size="small"
-                                  onClick={(e) => { e.stopPropagation(); deleteModule(module.id); }}
-                                  sx={{ color: 'var(--color-error)', ml: { xs: 0, sm: 0.25 } }}
-                                >
-                                  <DeleteOutlineIcon fontSize="small" />
-                                </IconButton>
-                              </Box>
-                            </Box>
-                          </AccordionSummary>
-                          <AccordionDetails
-                            sx={{
-                              pt: 0,
-                              pb: 0.5,
-                              pl: { xs: 2, sm: '46px' },
-                              pr: 2
-                            }}
-                          >
-                            {module.lessons.map((lesson) => (
-                              <Box
-                                key={lesson.id}
-                                sx={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'space-between',
-                                  p: 1.25,
-                                  mb: 1,
-                                  transition: 'all var(--transition-base)' }}
-                              >
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexGrow: 1 }}>
-                                  {lesson.type === 'video' ? <OndemandVideoIcon sx={{ color: 'var(--color-primary)', fontSize: 'var(--font-lg)' }} /> : <PictureAsPdfIcon sx={{ color: 'var(--color-success)', fontSize: 'var(--font-lg)' }} />}
-                                  <TextField
-                                    value={lesson.title}
-                                    onChange={(e) => updateLessonTitle(module.id, lesson.id, e.target.value)}
-                                    placeholder="Lesson Title"
-                                    variant="standard"
-                                    InputProps={{ disableUnderline: true }}
-                                    sx={{
-                                      width: '80%',
-                                      input: {
-                                        fontWeight: 'var(--font-semibold)',
-                                        color: 'var(--color-slate-900)',
-                                        fontSize: '0.88rem',
-                                        py: 0.1
-                                      }
-                                    }}
-                                  />
-                                </Box>
-                                <IconButton
-                                  size="small"
-                                  onClick={() => deleteLesson(module.id, lesson.id)}
-                                  sx={{ color: 'var(--color-error)' }}
-                                >
-                                  <DeleteOutlineIcon fontSize="small" />
-                                </IconButton>
-                              </Box>
-                            ))}
-
-                            <Box sx={{ mt: 0 }}>
-                              {editingDescId === module.id || !module.description ? (
-                                <TextField
-                                  fullWidth
-                                  multiline
-                                  minRows={2}
-                                  maxRows={3}
-                                  onBlur={() => setEditingDescId(null)}
-                                  variant="standard"
-                                  InputProps={{ disableUnderline: true }}
-                                  placeholder={t('courseDashboard.modal.moduleDescPlaceholder')}
-                                  value={module.description || ''}
-                                  onChange={(e) => updateModuleDescription(module.id, e.target.value)}
-                                  sx={{
-                                    p: 1,
-                                    ml: -1,
-                                    "& .MuiInputBase-root": {
-                                      fontSize: "13.5px",
-                                      lineHeight: 1.5,
-                                      fontWeight: 'var(--font-medium)',
-                                      color: "var(--color-slate-500)",
-                                      padding: "0",
-                                      backgroundColor: "transparent"
-                                    },
-                                    "& textarea": {
-                                      overflowY: "auto",
-                                      padding: "0"
-                                    }
-                                  }}
-                                />
-                              ) : (
-                                <Box
-                                  onClick={(e) => {
-                                    if (e.target.closest('.view-more-action')) return;
-                                    setEditingDescId(module.id);
-                                  }}
-                                  sx={{
-                                    cursor: 'pointer',
-                                    p: 1,
-                                    ml: -1,
-                                    borderRadius: 'var(--radius-md)',
-                                    '&:hover': { backgroundColor: 'rgba(0,0,0,0.02)' }
-                                  }}
-                                >
-                                  <Typography
-                                    component="div"
-                                    sx={{
-                                      fontSize: "13.5px",
-                                      lineHeight: 1.5,
-                                      fontWeight: 'var(--font-medium)',
-                                      color: "var(--color-slate-500)",
-                                      whiteSpace: 'pre-wrap',
-                                      maxHeight: Reflect.get(expandedDescModules, module.id) ? '60.75px' : 'none',
-                                      overflowY: Reflect.get(expandedDescModules, module.id) ? 'auto' : 'visible',
-                                      '&::-webkit-scrollbar': {
-                                        width: '4px'
-                                      },
-                                      '&::-webkit-scrollbar-thumb': {
-                                        backgroundColor: 'rgba(0,0,0,0.1)',
-                                        borderRadius: 'var(--radius-md)'
-                                      },
-                                      '& .view-more-action': {
-                                        color: 'var(--color-primary)',
-                                        fontWeight: 800,
-                                        fontSize: 'var(--font-xs)',
-                                        ml: 1,
-                                        cursor: 'pointer',
-                                        textDecoration: 'none',
-                                        display: 'inline-block',
-                                        '&:hover': {
-                                          textDecoration: 'underline'
-                                        }
-                                      }
-                                    }}
-                                  >
-                                    <ShowMore
-                                      lines={3}
-                                      more="View More..."
-                                      less="View Less..."
-                                      anchorClass="view-more-action"
-                                      expanded={Reflect.get(expandedDescModules, module.id) || false}
-                                      onToggle={(isExpanded) => {
-                                        setExpandedDescModules(prev => ({ ...prev, [module.id]: isExpanded }));
-                                      }}
-                                    >
-                                      {module.description?.trimEnd()}
-                                    </ShowMore>
-                                  </Typography>
-                                </Box>
-                              )}
-                            </Box>
-                          </AccordionDetails>
-                        </Accordion>
-                      ))}
-                    </Box>
-
-                    {/* Step 2 Actions */}
-                    <Box sx={{ display: 'flex', gap: 2, mt: 4, pt: 2.5, borderTop: 'var(--border-thin) solid #F1F5F9' }}>
-                      <Button
-                        fullWidth
-                        variant="outlined"
-                        onClick={() => setActiveStep(0)}
-                        disableElevation
-                        sx={{
-                          py: 1.5,
-                          borderRadius: 'var(--radius-md)',
-                          textTransform: "none",
-                          fontSize: 'var(--font-base)',
-                          fontWeight: 'var(--font-semibold)',
-                          borderColor: "var(--color-slate-200)",
-                          color: "var(--color-slate-900)",
-                          "&:hover": {
-                            borderColor: "var(--color-slate-500)",
-                            backgroundColor: "var(--color-slate-50)"
-                          }
-                        }}
-                      >
-                        {t('courseDashboard.modal.back')}
-                      </Button>
-                      <Button
-                        fullWidth
-                        variant="contained"
-                        disableElevation
-                        type="submit"
-                        disabled={modules.length === 0 || modules.some(m => !m.title.trim() || !m.description || !m.description.trim())}
-                        sx={{
-                          py: 1.5,
-                          borderRadius: 'var(--radius-md)',
-                          textTransform: "none",
-                          fontSize: 'var(--font-base)',
-                          fontWeight: 'var(--font-bold)',
-                          background: (modules.length > 0 && modules.every(m => m.title.trim() && m.description?.trim())) ? 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)' : 'var(--color-slate-200)',
-                          color: 'var(--color-white)',
-                          transition: 'all var(--transition-base)',
-                          '&.Mui-disabled': {
-                            color: 'var(--color-slate-500)',
-                            background: 'var(--color-slate-200)',
-                            WebkitTextFillColor: 'var(--color-slate-500)'
-                          },
-                          '&:hover': {
-                            background: 'linear-gradient(135deg, #004494 0%, var(--color-success) 100%)' }
-                        }}
-                      >
-                        {t('courseDashboard.modal.publishCourse')}
-                      </Button>
-                    </Box>
-                  </Box>
-                )}
-              </Box>
-            </Box>
-          </Paper>
+            <SpeedDialIcon />
+          </Fab>
         </Box>
-      )}    </>
+      )}
+
+      {/* ─── CREATE COURSE OVERLAY ─── */}
+
+      <CourseModal
+        open={isCreateModalOpen}
+        onClose={() => { setCourseToEdit(null); setIsCreateModalOpen(false); }}
+        initialData={courseToEdit}
+        onSuccess={(updatedCourse) => {
+          setCourses(prev => {
+            if (prev.some(c => c.id === updatedCourse.id)) {
+              return prev.map(c => c.id === updatedCourse.id ? updatedCourse : c);
+            }
+            return [updatedCourse, ...prev];
+          });
+        }}
+        onDelete={async (id) => {
+          try {
+            await lmsService.deleteCourse(id);
+          } catch (e) {
+            console.error("Failed to delete course", e);
+          }
+          setCourses(courses.filter(c => c.id !== id));
+          setCourseToEdit(null);
+          setIsCreateModalOpen(false);
+        }}
+      />
+    </>
   );
 }

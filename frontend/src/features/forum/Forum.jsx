@@ -10,7 +10,7 @@ export default function Forum() {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
         <ForumIcon sx={{ fontSize: 32, color: "var(--color-primary)" }} />
         <Typography variant="h5" fontWeight="bold" color="var(--color-primary)">वार्तालाप मंच</Typography>
       </Box>

@@ -1,7 +1,7 @@
 {
   "emptyStateTitle": {
     "en": "Create your first course",
-    "hi": "अपना पहला कोर्स बनाएं",
+    "hi": "अपनी पहली पाठ्यश्रृंखला बनाएं",
     "sa": "प्रथमं पाठ्यक्रमं रचयन्तु"
   },
   "emptyStateSubtitle": {
@@ -11,7 +11,7 @@
   },
   "createCourseBtn": {
     "en": "Create course",
-    "hi": "कोर्स बनाएं",
+    "hi": "पाठ्यश्रृंखला बनाएं",
     "sa": "पाठ्यक्रमं रचयन्तु"
   },
   "breadcrumbs": {
@@ -33,13 +33,13 @@
   },
   "modal": {
     "createCourse": {
-      "en": "Create Course",
-      "hi": "नया कोर्स बनाएं",
-      "sa": "पाठ्यक्रम रचयतु"
+      "en": "Course Form",
+      "hi": "पाठ्यश्रृंखला प्रपत्र",
+      "sa": "पाठ्यक्रम प्रपत्र"
     },
     "basicDetails": {
       "en": "Enter basic course details.",
-      "hi": "कोर्स का सामान्य विवरण दर्ज करें।",
+      "hi": "पाठ्यश्रृंखला का सामान्य विवरण दर्ज करें।",
       "sa": "मूलभूतपाठ्यक्रमविवरणं प्रविशतु।"
     },
     "stepDetails": {
@@ -53,19 +53,24 @@
       "sa": "2. पाठ्यक्रमः"
     },
     "courseTitle": {
-      "en": "Course Title *",
-      "hi": "कोर्स का शीर्षक *",
-      "sa": "पाठ्यक्रमस्य शीर्षकम् * ."
+      "en": "Course Title",
+      "hi": "शीर्षक",
+      "sa": "पाठ्यक्रमस्य शीर्षकम्"
     },
     "courseTitlePlaceholder": {
-      "en": "e.g. Physics (PHY101), Data Structures",
-      "hi": "उदा. भौतिकी (PHY101), डेटा स्ट्रक्चर्स",
-      "sa": "यथा--- भौतिकी (PHY101), डेटा संरचनाएँ"
+      "en": "e.g., Introduction to Modern Physics",
+      "hi": "उदा. आधुनिक भौतिकी का परिचय",
+      "sa": "उदा., आधुनिकभौतिकशास्त्रस्य परिचयः"
+    },
+    "courseAccess": {
+      "en": "Course Access",
+      "hi": "एक्सेस",
+      "sa": "पाठ्यक्रम प्रवेश"
     },
     "targetAudience": {
-      "en": "Target Audience Level *",
-      "hi": "लक्षित दर्शक स्तर *",
-      "sa": "लक्षितदर्शकस्तर * ."
+      "en": "Target Audience Level",
+      "hi": "लक्षित दर्शक",
+      "sa": "लक्षितदर्शकस्तर"
     },
     "selectAudience": {
       "en": "Select educational level",
@@ -73,9 +78,9 @@
       "sa": "शैक्षणिकस्तरं चयनं कुर्वन्तु"
     },
     "courseCategory": {
-      "en": "Course Category *",
-      "hi": "कोर्स श्रेणी *",
-      "sa": "पाठ्यक्रम श्रेणी * ."
+      "en": "Course Category",
+      "hi": "श्रेणी",
+      "sa": "पाठ्यक्रम श्रेणी"
     },
     "selectCategory": {
       "en": "Select category",
@@ -84,22 +89,22 @@
     },
     "courseTags": {
       "en": "Course Tags",
-      "hi": "कोर्स टैग्स",
+      "hi": "टैग्स",
       "sa": "पाठ्यक्रम टैग्स"
     },
     "courseDescription": {
-      "en": "Course Description *",
-      "hi": "कोर्स का विवरण *",
-      "sa": "पाठ्यक्रमस्य विवरणम् * ."
+      "en": "Course Description",
+      "hi": "विवरण",
+      "sa": "पाठ्यक्रमस्य विवरणम्"
     },
     "courseDescPlaceholder": {
       "en": "Write some description about this course...",
-      "hi": "इस कोर्स के बारे में कुछ विवरण लिखें...",
+      "hi": "इस पाठ्यश्रृंखला के बारे में कुछ विवरण लिखें...",
       "sa": "अस्य पाठ्यक्रमस्य विषये किञ्चित् वर्णनं लिखन्तु..."
     },
     "courseThumbnail": {
       "en": "Course Thumbnail *",
-      "hi": "कोर्स थंबनेल *",
+      "hi": "थंबनेल *",
       "sa": "पाठ्यक्रमस्य लघुचित्रम् * ."
     },
     "uploadThumbnail": {
@@ -156,6 +161,101 @@
       "en": "Search tags...",
       "hi": "टैग खोजें...",
       "sa": "टैग्स् अन्वेषणं कुर्वन्तु..."
+    },
+    "curriculumSubtitle": {
+      "en": "Outline the course curriculum and content.",
+      "hi": "पाठ्यश्रृंखला का पाठ्यक्रम और विषयवस्तु रूपरेखा तैयार करें।",
+      "sa": "पाठ्यक्रमस्य सामग्रीरूपरेखा च लिखन्तु।"
+    },
+    "description": {
+      "en": "Description",
+      "hi": "विवरण",
+      "sa": "विवरणम्"
+    },
+    "startDate": {
+      "en": "Start Date",
+      "hi": "आरंभ तिथि",
+      "sa": "आरम्भ तिथि"
+    },
+    "endDate": {
+      "en": "End Date",
+      "hi": "समाप्ति तिथि",
+      "sa": "समाप्ति तिथि"
+    },
+    "addModule": {
+      "en": "Add Module",
+      "hi": "खंड जोड़ें",
+      "sa": "मॉड्यूल योजयन्तु"
+    },
+    "addTopic": {
+      "en": "Add Topic",
+      "hi": "प्रकरण जोड़ें",
+      "sa": "विषय योजयन्तु"
+    },
+    "addSubtopic": {
+      "en": "Add Subtopic",
+      "hi": "प्रकरण जोड़ें",
+      "sa": "उपविषय योजयन्तु"
+    },
+    "addItem": {
+      "en": "Add Item",
+      "hi": "आइटम जोड़ें",
+      "sa": "वस्तु योजयन्तु"
+    },
+    "nodeModule": {
+      "en": "Module",
+      "hi": "खंड",
+      "sa": "मॉड्यूल"
+    },
+    "nodeTopic": {
+      "en": "Topic",
+      "hi": "प्रकरण",
+      "sa": "विषय"
+    },
+    "nodeSubtopic": {
+      "en": "Subtopic",
+      "hi": "प्रकरण",
+      "sa": "उपविषय"
+    },
+    "nodeItem": {
+      "en": "Item",
+      "hi": "आइटम",
+      "sa": "वस्तु"
+    },
+    "untitledCourse": {
+      "en": "Untitled Course",
+      "hi": "अनाम पाठ्यश्रृंखला",
+      "sa": "अनामित पाठ्यक्रम"
+    },
+    "introduction": {
+      "en": "Introduction",
+      "hi": "परिचय",
+      "sa": "परिचयः"
+    },
+    "newModule": {
+      "en": "New Module",
+      "hi": "नया खंड",
+      "sa": "नूतन मॉड्यूल"
+    },
+    "newNode": {
+      "en": "New Node",
+      "hi": "नया नोड",
+      "sa": "नूतन नोड"
+    },
+    "newTopic": {
+      "en": "New Topic",
+      "hi": "नया प्रकरण",
+      "sa": "नूतन विषय"
+    },
+    "newSubtopic": {
+      "en": "New Subtopic",
+      "hi": "नया उप-प्रकरण",
+      "sa": "नूतन उपविषय"
+    },
+    "newItem": {
+      "en": "New Item",
+      "hi": "नया आइटम",
+      "sa": "नूतन वस्तु"
     }
   },
   "accessOptions": {

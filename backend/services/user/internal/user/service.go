@@ -157,7 +157,7 @@ func (s *Service) UpdateBio(ctx context.Context, userID uuid.UUID, bio string) e
 	return s.repo.SetBio(ctx, userID, bio)
 }
 
-func (s *Service) UpdateProfile(ctx context.Context, userID uuid.UUID, fullName, dob, gender, bio string, socialLinks map[string]string, skills, recognitions []string, location string, languages []string, demographic string, institutionName string, instProfile *InstituteProfileInput, religion, caste, subcaste, nationality string, addresses []*UserAddress, academicRecords []*UserAcademicRecord, workExperiences []*UserWorkExperience) error {
+func (s *Service) UpdateProfile(ctx context.Context, userID uuid.UUID, fullName, dob, gender, bio string, socialLinks map[string]string, skills, recognitions []string, location string, languages []string, demographic string, primaryName string, secondaryName string, instProfile *InstituteProfileInput, religion, caste, subcaste, nationality string, addresses []*UserAddress, academicRecords []*UserAcademicRecord, workExperiences []*UserWorkExperience) error {
 	u, err := s.repo.GetByID(ctx, userID)
 	if err != nil {
 		return err
@@ -166,8 +166,11 @@ func (s *Service) UpdateProfile(ctx context.Context, userID uuid.UUID, fullName,
 	if fullName != "" {
 		u.FullName = &fullName
 	}
-	if institutionName != "" {
-		u.InstitutionName = &institutionName
+	if primaryName != "" {
+		u.PrimaryName = &primaryName
+	}
+	if secondaryName != "" {
+		u.SecondaryName = &secondaryName
 	}
 	if dob != "" {
 		parsedDOB, _ := time.Parse("2006-01-02", dob)
@@ -228,7 +231,7 @@ func (s *Service) UpdateProfile(ctx context.Context, userID uuid.UUID, fullName,
 	}
 
 	if instProfile != nil {
-		if err := s.repo.UpsertInstituteProfile(ctx, userID, instProfile, u.InstitutionName); err != nil {
+		if err := s.repo.UpsertInstituteProfile(ctx, userID, instProfile, u.PrimaryName); err != nil {
 			return err
 		}
 	}
@@ -236,14 +239,14 @@ func (s *Service) UpdateProfile(ctx context.Context, userID uuid.UUID, fullName,
 	return nil
 }
 
-func (s *Service) UpdateInstitution(ctx context.Context, userID uuid.UUID, institutionName string) error {
+func (s *Service) UpdateInstitution(ctx context.Context, userID uuid.UUID, primaryName string) error {
 	u, err := s.repo.GetByID(ctx, userID)
 	if err != nil {
 		return err
 	}
 
-	if institutionName != "" {
-		u.InstitutionName = &institutionName
+	if primaryName != "" {
+		u.PrimaryName = &primaryName
 	}
 
 	return s.repo.UpdateProfile(ctx, u)

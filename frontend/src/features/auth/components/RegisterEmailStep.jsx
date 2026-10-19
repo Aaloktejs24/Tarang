@@ -5,7 +5,6 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { validateEmail } from "../../../utils/validationUtils";
-import AuthMessage from "./AuthMessage";
 
 import gazeteer from '../../../data/formated/gazeteer.json';
 const COUNTRY_CODES = gazeteer.Countries.map(c => ({ ...c, code: c.phoneCode, enName: c.name, label: c.phoneCode }));
@@ -42,7 +41,7 @@ export default function RegisterEmailStep({ setStep, setMode, formData, updateFo
 
   return (
     <FormLoadingProvider isLoading={isLoading}>
-    <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 2 }}>
+    <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 1.5 }}>
       <Box>
         <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)' }}>
           नया अकाउंट बनाएँ
@@ -50,17 +49,7 @@ export default function RegisterEmailStep({ setStep, setMode, formData, updateFo
         <Typography variant="body2" sx={{ color: "var(--color-slate-500)", fontSize: 'var(--font-base)', lineHeight: 1.5 }}>
           हमारी कम्युनिटी से जुड़ें और अपनी यात्रा शुरू करें.
         </Typography>
-        <AnimatePresence mode="wait">
-            {(error || success) && (
-                <motion.div key={error ? "error" : "success"} initial={{ opacity: 0, height: 0, marginTop: 0 }} animate={{ opacity: 1, height: "auto", marginTop: 12 }} exit={{ opacity: 0, height: 0, marginTop: 0 }} style={{ overflow: "hidden", textAlign: "center" }}>
-                    {error ? (
-                        <AuthMessage type="error" message={error} />
-                    ) : (
-                        <AuthMessage type="success" message={success} />
-                    )}
-                </motion.div>
-            )}
-        </AnimatePresence>
+        
       </Box>
 
       <Box>

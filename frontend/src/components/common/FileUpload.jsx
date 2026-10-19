@@ -131,17 +131,14 @@ export default function FileUpload({
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
         sx={{
-          border: '2px dashed var(--color-slate-300)',
+          border: '2px dashed rgba(30, 79, 163, 0.3)',
           borderRadius: 'var(--radius-lg)',
           p: 4,
           textAlign: 'center',
-          bgcolor: 'var(--color-slate-50)',
+          bgcolor: 'var(--glass-bg)',
+          backdropFilter: 'blur(30px)',
           cursor: 'pointer',
-          transition: 'all var(--transition-base)',
-          '&:hover': {
-            borderColor: 'var(--color-primary)',
-            bgcolor: 'var(--color-slate-100)'
-          }
+          transition: 'var(--transition-base)',
         }}
         onClick={() => fileInputRef.current?.click()}
       >
@@ -153,7 +150,7 @@ export default function FileUpload({
           multiple={multiple} 
           onChange={handleFileSelect} 
         />
-        <CloudUploadIcon sx={{ fontSize: 48, color: 'var(--color-slate-400)', mb: 1 }} />
+        <CloudUploadIcon sx={{ fontSize: 48, color: 'var(--color-slate-500)', mb: 1 }} />
         <Typography variant="h6" sx={{ color: 'var(--color-slate-700)', fontWeight: 600 }}>
           {title}
         </Typography>
@@ -176,7 +173,7 @@ export default function FileUpload({
                 </Typography>
               </Box>
               {!uploading && (
-                <IconButton size="small" onClick={() => removeFile(idx)} sx={{ color: 'var(--color-slate-400)', '&:hover': { color: 'var(--color-red-500)' } }}>
+                <IconButton size="small" onClick={() => removeFile(idx)} sx={{ color: 'var(--color-slate-500)', '&:hover': { color: 'var(--color-red-500)' } }}>
                   <CloseIcon fontSize="small" />
                 </IconButton>
               )}

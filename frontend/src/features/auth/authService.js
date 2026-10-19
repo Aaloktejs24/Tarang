@@ -27,14 +27,14 @@ export const setupRegistrationTotp = async (sessionId) => {
 };
 
 export const completeRegistrationSession = async (sessionId, username, password, fullName, role, phone, dob, gender, totpCode = null) => {
-  const payload = { 
-    username, 
-    password, 
-    full_name: fullName, 
+  const payload = {
+    username,
+    password,
+    full_name: fullName,
     role,
     phone,
     dob,
-    gender 
+    gender
   };
   if (totpCode) {
     payload.totp_code = totpCode;
@@ -190,15 +190,15 @@ export const refreshAuthToken = async () => {
 };
 
 export const logoutUser = async () => {
-  try {
-    await apiClient.post("/auth/logout");
-  } finally {
-    removeToken();
-    if (typeof window !== "undefined") {
-      sessionStorage.removeItem("auth_flow_in_progress");
-      sessionStorage.removeItem("registration_token");
-      sessionStorage.removeItem("auth_mode");
-      sessionStorage.removeItem("auth_step");
-    }
+  // Fire-and-forget — don't block on backend response
+  apiClient.post("/auth/logout", {}, { timeout: 5000 }).catch(() => {});
+
+  // Clear local state immediately
+  removeToken();
+  if (typeof window !== "undefined") {
+    sessionStorage.removeItem("auth_flow_in_progress");
+    sessionStorage.removeItem("registration_token");
+    sessionStorage.removeItem("auth_mode");
+    sessionStorage.removeItem("auth_step");
   }
 };

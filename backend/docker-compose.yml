@@ -128,7 +128,8 @@ services:
       context: .
       dockerfile: services/admission/Dockerfile
     environment:
-      - ADMISSION_DATABASE_URL
+      - MONGO_URI
+      - REDIS_ADDR
       - USER_GRPC_URL
       - PORT
       - JWT_SECRET
@@ -138,7 +139,21 @@ services:
       - "50052:50052"
       - "8082:8082"
     depends_on:
-      postgres:
+      mongodb:
+        condition: service_healthy
+
+  lms-service:
+    build:
+      context: .
+      dockerfile: services/lms/Dockerfile
+    environment:
+      - MONGO_URI
+      - PORT=8085
+    ports:
+      - "50055:50055"
+      - "8085:8085"
+    depends_on:
+      mongodb:
         condition: service_healthy
 
   krakend:
@@ -180,6 +195,7 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
+      MINIO_API_CORS_ALLOW_ORIGIN: "*"
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
@@ -222,8 +238,10 @@ services:
     ports:
       - "8083:8083"
     depends_on:
-      - postgres
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   streaming-worker:
     build:
@@ -233,8 +251,10 @@ services:
       - STREAMING_DATABASE_URL=postgresql://tarang:password@postgres:5432/tarang_auth?sslmode=disable
       - RABBIT_URL=amqp://guest:guest@rabbitmq:5672/
     depends_on:
-      - postgres
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   viewer-api:
     build:
@@ -244,12 +264,15 @@ services:
       - VIEWER_DATABASE_URL=postgresql://tarang:password@postgres:5432/tarang_auth?sslmode=disable
       - RABBIT_URL=amqp://guest:guest@rabbitmq:5672/
       - MINIO_ENDPOINT=minio:9000
+      - MINIO_PUBLIC_URL=http://localhost:9000
       - PORT=8084
     ports:
       - "8084:8084"
     depends_on:
-      - postgres
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   viewer-worker:
     build:
@@ -259,9 +282,12 @@ services:
       - VIEWER_DATABASE_URL=postgresql://tarang:password@postgres:5432/tarang_auth?sslmode=disable
       - RABBIT_URL=amqp://guest:guest@rabbitmq:5672/
       - MINIO_ENDPOINT=minio:9000
+      - MINIO_PUBLIC_URL=http://localhost:9000
     depends_on:
-      - postgres
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
 volumes:
   pgdata:

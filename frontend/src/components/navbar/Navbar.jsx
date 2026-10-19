@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useAppRouter } from '../../hooks/useAppRouter';
+import { usePathname } from 'next/navigation';
 import Link from "next/link";
 import "../../styles/navbar.css";
 import Sidebar from "../sidebar/Sidebar.jsx";
@@ -17,12 +18,13 @@ import {
   ListItemIcon, ListItemText, Divider, Button, Typography
 } from "@mui/material";
 import VerifiedIcon from "@mui/icons-material/Verified";
-import SchoolIcon from "@mui/icons-material/School";
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import PersonIcon from "@mui/icons-material/Person";
 import SearchIcon from "@mui/icons-material/Search";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Skeleton } from "@mui/material";
+import { glassPaperSx } from "../../styles/commonStyles";
 import { useProfile } from "../../hooks/useProfile";
 import { apiClient } from "../../lib/apiClient";
 import { getUserApplications } from "../../features/admission/admissionService";
@@ -120,6 +122,7 @@ function LandingContent({ onLoginClick, language }) {
 function DashboardContent({ onSidebarOpen, language }) {
   const { locationName } = useAccessibility();
   const router = useAppRouter();
+  const pathname = usePathname();
   const { profile, loading } = useProfile();
   const [dynamicInstitute, setDynamicInstitute] = React.useState(null);
   const [admittedInstitutes, setAdmittedInstitutes] = React.useState([]);
@@ -127,19 +130,19 @@ function DashboardContent({ onSidebarOpen, language }) {
   const [notificationCount] = React.useState(5);
 
   React.useEffect(() => {
-    if (profile?.role === "student" && !profile.institution_name && profile.id) {
+    if (profile?.role === "student" && !profile.primary_name && profile.id) {
       getUserApplications(profile.id)
         .then((data) => {
           const appsArray = Array.isArray(data?.applications) ? data.applications : (Array.isArray(data) ? data : []);
-          const approvedApps = appsArray.filter(
-            (app) => app.status === "approved" || app.status === "enrolled"
+          const activeApps = appsArray.filter(
+            (app) => app.status !== "rejected"
           );
-          if (approvedApps.length > 0) {
+          if (activeApps.length > 0) {
             apiClient
               .get(`/public/institutes`)
               .then((res) => {
                 const institutes = res.data?.institutes || res.data || [];
-                const matched = approvedApps
+                const matched = activeApps
                   .map((app) => {
                     const targetId = app.institute_id || app.instituteId;
                     return institutes.find(
@@ -167,7 +170,7 @@ function DashboardContent({ onSidebarOpen, language }) {
         })
         .catch((err) => console.error(err));
     }
-  }, [profile?.id, profile?.role, profile?.institution_name]);
+  }, [profile?.id, profile?.role, profile?.primary_name, pathname]);
 
   const locationString = profile?.location || locationName || "";
   const locationParts = locationString ? locationString.split(", ") : [];
@@ -184,17 +187,17 @@ function DashboardContent({ onSidebarOpen, language }) {
 
   // School info block
   const schoolBlock = (() => {
-    const isInstituteOrOrg = profile?.role === "institute" || profile?.role === "organisation";
+    const isInstituteOrOrg = profile?.role === "institute" || profile?.role === "admin";
 
     if (
       !isInstituteOrOrg &&
-      (!profile?.institution_name && !dynamicInstitute)
+      (!profile?.primary_name && !dynamicInstitute)
     )
       return null;
 
     const rawName =
-      profile?.institution_name ||
-      dynamicInstitute?.institution_name ||
+      profile?.primary_name ||
+      dynamicInstitute?.primary_name ||
       dynamicInstitute?.full_name ||
       dynamicInstitute?.name ||
       dynamicInstitute?.username ||
@@ -206,8 +209,8 @@ function DashboardContent({ onSidebarOpen, language }) {
     let line2 = '';
 
     if (isInstituteOrOrg) {
-      line1 = rawName ? capitalizeFirstLetter(rawName.trim()) : getNoNamePlaceholder(language || 'en');
-      line2 = profile?.role || 'organisation';
+      line1 = rawName ? capitalizeFirstLetter((parts.length >= 2 ? parts[0] : rawName).trim()) : getNoNamePlaceholder(language || 'en');
+      line2 = 'Organisation';
     } else {
       if (parts.length >= 2) {
         line1 = capitalizeFirstLetter(parts[0].trim());
@@ -249,9 +252,9 @@ function DashboardContent({ onSidebarOpen, language }) {
               overflow: "hidden",
             }}
           >
-            {(dynamicInstitute?.profile_pic_url || profile?.profile_pic_url) ? (
+            {(dynamicInstitute?.profile_pic_url || profile?.institute_profile?.logo_url || profile?.profile_pic_url) ? (
               <img
-                src={dynamicInstitute?.profile_pic_url || profile?.profile_pic_url}
+                src={dynamicInstitute?.profile_pic_url || profile?.institute_profile?.logo_url || profile?.profile_pic_url}
                 alt="Institute Logo"
                 style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "var(--radius-full)" }}
                 onError={(e) => {
@@ -260,12 +263,12 @@ function DashboardContent({ onSidebarOpen, language }) {
                 }}
               />
             ) : null}
-            <SchoolIcon
+            <AccountBalanceIcon
               className="fallback-icon"
               sx={{
                 color: "var(--color-primary)",
                 fontSize: 28,
-                display: (dynamicInstitute?.profile_pic_url || profile?.profile_pic_url) ? 'none' : 'block'
+                display: (dynamicInstitute?.profile_pic_url || profile?.institute_profile?.logo_url || profile?.profile_pic_url) ? 'none' : 'block'
               }}
             />
           </Box>
@@ -305,11 +308,11 @@ function DashboardContent({ onSidebarOpen, language }) {
             MenuListProps={{ sx: { py: 0 } }}
             PaperProps={{
               sx: {
+                ...glassPaperSx,
                 mt: 1,
                 minWidth: anchorElInstitute
                   ? Math.max(280, anchorElInstitute.clientWidth)
                   : 280,
-                borderRadius: 'var(--radius-lg)',
               },
             }}
           >
@@ -327,7 +330,7 @@ function DashboardContent({ onSidebarOpen, language }) {
                 );
               }
               return otherInstitutes.map((inst, idx) => {
-                const instName = inst.institution_name || inst.full_name || inst.name || "";
+                const instName = inst.primary_name || inst.full_name || inst.name || "";
                 const instParts = instName ? instName.split(' / ') : [];
                 const iPrimary = instParts.length >= 1 ? capitalizeFirstLetter(instParts[0].trim()) : capitalizeFirstLetter(instName);
                 const iSecondary = instParts.length >= 2 ? capitalizeFirstLetter(instParts[1].trim()) : "";
@@ -341,7 +344,7 @@ function DashboardContent({ onSidebarOpen, language }) {
                     sx={{ py: 1.5, px: 2 }}
                   >
                     <ListItemIcon sx={{ minWidth: 36 }}>
-                      <SchoolIcon fontSize="small" sx={{ color: "var(--color-primary)" }} />
+                      <AccountBalanceIcon fontSize="small" sx={{ color: "var(--color-primary)" }} />
                     </ListItemIcon>
                     <ListItemText
                       primary={iPrimary}
@@ -396,11 +399,7 @@ function DashboardContent({ onSidebarOpen, language }) {
           className="user_info"
           style={{ cursor: "pointer" }}
           onClick={() => {
-            if (profile?.role === "institute" || profile?.role === "organisation") {
-              router.push("/dashboard/home/institute-profile");
-            } else {
-              router.push("/dashboard/home/profile");
-            }
+            router.push("/dashboard/home/profile");
           }}
         >
           <div className="user_icon">
@@ -467,7 +466,7 @@ function DashboardContent({ onSidebarOpen, language }) {
               )}
             </Box>
             <div className="user_role" style={{ color: "var(--color-success)", fontWeight: 'var(--font-medium)' }}>
-              {loading ? <Skeleton variant="text" sx={{ width: 60 }} /> : (profile?.role === 'institute' || profile?.role === 'organisation' ? 'Admin' : (profile?.role || "छात्र"))}
+              {loading ? <Skeleton variant="text" sx={{ width: 60 }} /> : (profile?.role === 'institute' || profile?.role === 'admin' ? 'Admin' : (profile?.role || "छात्र"))}
             </div>
           </div>
         </div>

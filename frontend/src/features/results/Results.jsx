@@ -10,7 +10,7 @@ export default function Results() {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
         <PollIcon sx={{ fontSize: 32, color: "var(--color-success)" }} />
         <Typography variant="h5" fontWeight="bold" color="var(--color-primary)">परिणाम</Typography>
       </Box>

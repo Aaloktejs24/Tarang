@@ -3,7 +3,7 @@ import { Box } from '@mui/material';
 import { DropdownListPopup } from './DropdownListPopup';
 import { useFormLoading } from '../../contexts/FormLoadingContext';
 
-const CentralDropdown = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, value, onChange, options = [], error = false, disabled = false, updateRequested = false, searchable = undefined, freeSolo = false, multiple = false, sx }) => {
+const CentralDropdown = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, value, onChange, options = [], error = false, disabled = false, updateRequested = false, searchable = undefined, freeSolo = false, multiple = false, required = false, sx }) => {
   const isFormLoading = useFormLoading();
   const finalDisabled = disabled || isFormLoading;
   const [focused, setFocused] = React.useState(false);
@@ -36,8 +36,8 @@ const CentralDropdown = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px
     return newOptions;
   }, [options, value, multiple]);
 
-  // Auto-enable search if there are more than 10 options, unless explicitly set
-  const isSearchable = searchable !== undefined ? searchable : finalOptions.length > 10;
+  // Enable search by default for all dropdowns, unless explicitly set to false
+  const isSearchable = searchable !== undefined ? searchable : true;
 
   const isFloating = focused || isOpen || (multiple ? (Array.isArray(value) && value.length > 0) : (value !== undefined && value !== null && value.toString().length > 0));
 
@@ -68,14 +68,23 @@ const CentralDropdown = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px
   if (error) borderColor = 'var(--color-error)';
   else if (updateRequested) borderColor = 'var(--color-warning)';
   else if (focused || isOpen) borderColor = 'var(--color-primary)';
-  else if (hovered) borderColor = 'rgba(30, 79, 163, 0.4)';
 
   const nL = notchL;
   const nT = notchT;
   const nR = nL + legendWidth;
-  const clipPath = isFloating && legendWidth > 0
-    ? `polygon(0px 0px, ${nL}px 0px, ${nL}px ${nT}px, ${nR}px ${nT}px, ${nR}px 0px, 100% 0px, 100% 100%, 0px 100%)`
-    : undefined;
+  const maskStyles = isFloating && legendWidth > 0 ? {
+    WebkitMaskImage: 'linear-gradient(black, black), linear-gradient(black, black), linear-gradient(black, black)',
+    WebkitMaskPosition: `0 0, 100% 0, ${nL}px ${nT}px`,
+    WebkitMaskSize: `${nL}px 100%, calc(100% - ${nR}px) 100%, ${legendWidth}px calc(100% - ${nT}px)`,
+    WebkitMaskRepeat: 'no-repeat',
+    maskImage: 'linear-gradient(black, black), linear-gradient(black, black), linear-gradient(black, black)',
+    maskPosition: `0 0, 100% 0, ${nL}px ${nT}px`,
+    maskSize: `${nL}px 100%, calc(100% - ${nR}px) 100%, ${legendWidth}px calc(100% - ${nT}px)`,
+    maskRepeat: 'no-repeat',
+  } : {
+    WebkitMaskImage: 'none',
+    maskImage: 'none'
+  };
 
   let displayText = '';
   let displayFlag = null;
@@ -84,12 +93,12 @@ const CentralDropdown = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px
     if (value.length > 0) {
       displayText = value.map(v => {
         const opt = finalOptions.find(o => o.value === v);
-        return opt ? opt.label : v;
+        return opt ? (opt.displayLabel || opt.label) : v;
       }).join(', ');
     }
   } else {
     const selectedOption = finalOptions.find(opt => opt.value === value);
-    displayText = (isFloating || (value !== undefined && value !== null && value !== "")) && selectedOption ? selectedOption.label : '';
+    displayText = (isFloating || (value !== undefined && value !== null && value !== "")) && selectedOption ? (selectedOption.displayLabel || selectedOption.label) : '';
     displayFlag = (isFloating || (value !== undefined && value !== null && value !== "")) && selectedOption ? selectedOption.flagUrl : null;
   }
 
@@ -106,8 +115,6 @@ const CentralDropdown = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px
     <Box
       ref={containerRef}
       sx={{ position: 'relative', width: 'var(--size-full)', opacity: finalDisabled ? 0.6 : 1, pointerEvents: finalDisabled ? 'none' : 'auto', ...sx }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
     >
       <Box
         sx={{ position: 'relative', width: 'var(--size-full)', cursor: finalDisabled ? 'default' : 'pointer' }}
@@ -121,28 +128,28 @@ const CentralDropdown = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px
         {/* White fill with clip-path notch at exactly label width */}
         <Box sx={{
           position: 'absolute', top: (focused ? focusedBorderWidth : defaultBorderWidth), left: (focused ? focusedBorderWidth : defaultBorderWidth), right: (focused ? focusedBorderWidth : defaultBorderWidth), bottom: (focused ? focusedBorderWidth : defaultBorderWidth),
-          backgroundColor: finalDisabled ? 'rgba(241, 245, 249, 0.5)' : 'rgba(255, 255, 255, 0.3)',
+          backgroundColor: finalDisabled ? 'rgba(241, 245, 249, 0.5)' : 'var(--glass-bg)',
           backdropFilter: 'blur(30px)',
           WebkitBackdropFilter: 'blur(30px)',
           borderRadius: 'var(--radius-md)', zIndex: 0,
-          clipPath: clipPath,
-          transition: 'clip-path 0.05s ease-in-out',
+          ...maskStyles,
+          transition: 'mask-size 0.05s ease-in-out',
         }} />
 
         <Box
           style={{
             width: 'var(--size-full)', padding: '0 14px', fontSize: 'var(--font-base)',
             backgroundColor: 'transparent', border: 'none', outline: 'none',
-            boxSizing: 'border-box', fontFamily: 'inherit', color: 'var(--color-slate-900)',
+            boxSizing: 'border-box', color: 'var(--color-slate-900)',
             position: 'relative', zIndex: 2, height: 'var(--box-height)',
             display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
           }}
         >
           {displayFlag && (
-            <img 
-              src={displayFlag} 
-              alt="" 
-              style={{ width: '20px', height: '15px', objectFit: 'cover' }} 
+            <img
+              src={displayFlag}
+              alt=""
+              style={{ width: '20px', height: '15px', objectFit: 'cover' }}
               onError={(e) => {
                 if (!e.target.dataset.fallbackApplied) {
                   e.target.dataset.fallbackApplied = 'true';
@@ -168,6 +175,7 @@ const CentralDropdown = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px
             background: 'none',
             transition: 'border-color var(--transition-base), border-width var(--transition-base)',
             zIndex: 1, boxSizing: 'border-box',
+            ...maskStyles,
           }}>
           <legend
             ref={legendRef}
@@ -179,7 +187,7 @@ const CentralDropdown = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px
               transition: 'max-width 50ms cubic-bezier(0.0, 0, 0.2, 1) 0ms',
             }}
           >
-            <span style={{ padding: label ? '0 4px' : 0, display: 'inline-block' }}>{label}</span>
+            <span style={{ padding: label ? '0 4px' : 0, display: 'inline-block' }}>{label}{required && <span style={{ color: 'var(--color-error)' }}> *</span>}</span>
           </legend>
         </fieldset>
       </Box>
@@ -187,16 +195,20 @@ const CentralDropdown = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px
       <label
         style={{
           position: 'absolute', left: '12px',
-          top: isFloating ? '-7px' : '50%',
+          top: isFloating ? '-9px' : '50%',
           transform: isFloating ? 'translateY(0)' : 'translateY(-50%)',
           fontSize: isFloating ? '12px' : '15px',
           color: error ? 'var(--color-error)' : (focused || isOpen) ? 'var(--color-primary)' : disabled ? 'var(--color-slate-500)' : 'var(--color-slate-500)',
-          backgroundColor: 'transparent', padding: '0 4px',
+          backgroundColor: 'transparent', padding: '2px 4px',
           transition: 'all var(--transition-base)', pointerEvents: 'none', zIndex: 3,
-          lineHeight: '14px',
+          lineHeight: isFloating ? '14px' : 'var(--line-height-base)',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          maxWidth: isFloating ? 'calc(100% - 24px)' : 'calc(100% - 44px)',
         }}
       >
-        {label}
+        {label}{required && <span style={{ color: 'var(--color-error)' }}> *</span>}
       </label>
 
       <Box sx={{

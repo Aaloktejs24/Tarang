@@ -2,7 +2,7 @@
 .ProseMirror {
   font-family: 'Inter', sans-serif;
   color: #1e293b;
-  line-height: 1.6;
+  line-height: var(--line-height-base);
 }
 
 .ProseMirror p {

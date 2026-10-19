@@ -1,0 +1,813 @@
+commit b95e4bb3900a9b4f07d0d9031b60a17578427f6f
+Author: Aalok Tejas <aaloktejas@Aaloks-MacBook-Air.local>
+Date:   Sat Aug 15 10:30:55 2026 +0530
+
+    Continuous
+
+diff --git a/frontend/src/features/profile/components/InstituteUpdateModal.jsx b/frontend/src/features/profile/components/InstituteUpdateModal.jsx
+index 2b9abc7..f6102f5 100644
+--- a/frontend/src/features/profile/components/InstituteUpdateModal.jsx
++++ b/frontend/src/features/profile/components/InstituteUpdateModal.jsx
+@@ -319,13 +319,8 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+     }
+ 
+     return (
+-      <Box sx={{ mb: 4 }}>
+-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+-          <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-900)' }}>
+-            पते की जानकारी
+-          </Typography>
+-        </Box>
+-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 1.5 }}>
++      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
++        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 1.5, alignItems: 'flex-start' }}>
+           <CustomFloatingCountrySelect label="देश" required value={sourceData.country} onChange={handleAddressFieldChange('country')} error={!!formErrors['address.country']} />
+           <CustomFloatingSelect label="राज्य" required value={sourceData.state} onChange={handleAddressFieldChange('state')} error={!!formErrors['address.state']} disabled={stateOptions.length === 0} options={stateOptions} />
+           <CustomFloatingSelect label="ज़िला" required value={sourceData.district} onChange={handleAddressFieldChange('district')} error={!!formErrors['address.district']} disabled={districtOptions.length === 0} options={districtOptions} />
+@@ -690,7 +685,7 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+         );
+       case 1:
+         return (
+-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, width: "var(--size-full)", mt: 2 }}>
++          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, width: "var(--size-full)" }}>
+             <Box sx={{ display: "grid", gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 1.5, alignItems: "flex-start" }}>
+               <CustomFloatingPhoneInput
+                 label="आधिकारिक फ़ोन"
+@@ -742,7 +737,7 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+         );
+       case 2:
+         return (
+-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, width: "var(--size-full)", mt: 2 }}>
++          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, width: "var(--size-full)" }}>
+             <Box sx={{ display: "grid", gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 1.5, alignItems: "flex-start" }}>
+               <CustomFloatingSearchableSelect
+                 multiple={true}
+@@ -798,7 +793,7 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+                 onChange={(e) => setFormData(p => ({ ...p, campus_type: e.target.value }))}
+                 options={campusTypes.map(c => ({ label: c, value: c }))}
+               />
+-              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
++              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5, alignItems: 'flex-start' }}>
+                 <CustomTimePicker
+                   label="खुलने का समय"
+                   value={openTime}
+@@ -815,8 +810,8 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+         );
+       case 3:
+         return (
+-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, width: "var(--size-full)", mt: 2 }}>
+-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 1.5 }}>
++          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, width: "var(--size-full)" }}>
++            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 1.5, alignItems: 'flex-start' }}>
+               <CustomFloatingFileInput
+                 label="संबद्धता दस्तावेज़"
+                 accept=".pdf,.png,.jpg,.jpeg"
+@@ -976,7 +971,7 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+                     fontSize: 'var(--font-2xl)',
+                   }}
+                 >
+-                  संस्थान प्रोफ़ाइल संपादित करें
++                  संस्थान प्रोफ़ाइल
+                 </Typography>
+                 <Typography
+                   variant="body2"
+
+commit a2ca2d15d9f25eb87e547dc0e4016b87c586f777
+Author: Aalok Tejas <aaloktejas@Aaloks-MacBook-Air.local>
+Date:   Sat Aug 15 09:33:04 2026 +0530
+
+    Continuous
+
+diff --git a/frontend/src/features/profile/components/InstituteUpdateModal.jsx b/frontend/src/features/profile/components/InstituteUpdateModal.jsx
+index 586e8e2..2b9abc7 100644
+--- a/frontend/src/features/profile/components/InstituteUpdateModal.jsx
++++ b/frontend/src/features/profile/components/InstituteUpdateModal.jsx
+@@ -5,6 +5,9 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
+ import { Box, Typography, TextField, Paper, IconButton, CircularProgress, Autocomplete, InputAdornment, Avatar, List, ListItemButton, Button } from "@mui/material";
+ import { motion as Motion } from "framer-motion";
+ import CloseIcon from "@mui/icons-material/Close";
++import { BroomIcon } from "../../institute/admissions/BroomIcon";
++import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
++import { CustomTooltip } from "../../../components/common/CustomTooltip";
+ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+ import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
+ import BusinessIcon from "@mui/icons-material/Business";
+@@ -72,7 +75,7 @@ const menuPaperSx = {
+   margin: "6px 0",
+   border: "none",
+   backdropFilter: "blur(30px)",
+-  backgroundColor: "rgba(255, 255, 255, 0.7)", /* Glassy Theme */
++  backgroundColor: "var(--glass-bg)", /* Glassy Theme */
+   "& .MuiAutocomplete-listbox, & .MuiList-root": {
+     padding: "4px",
+     maxHeight: "220px",
+@@ -378,6 +381,28 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+   const handleNext = () => setActiveStep((prev) => prev + 1);
+   const handleBack = () => setActiveStep((prev) => prev - 1);
+ 
++  const handleClear = () => {
++    if (activeStep === 0) {
++      setFormData(prev => ({...prev, primary_name: "", secondary_name: "", institute_type: "", affiliation_board: "", established_year: "", registration_number: "", bio: ""}));
++    } else if (activeStep === 1) {
++      setFormData(prev => ({...prev, official_phone: "", official_email: "", website_url: "", alternate_contact: "", address: { country: "", state: "", district: "", areaType: "", localBodyType: "", localBodyName: "", wardOrSector: "", houseNoAndName: "", landmark: "", street: "", pincode: "" } }));
++    } else if (activeStep === 2) {
++      setFormData(prev => ({...prev, courses_offered: [], education_levels: [], student_count: "", faculty_count: "", campus_type: "", operating_hours: "" }));
++      setOpenTime(null);
++      setCloseTime(null);
++    } else if (activeStep === 3) {
++      setFormData(prev => ({...prev, accreditation_docs: "", license_certificate_url: ""}));
++      setUploadedFileNames(prev => ({...prev, accreditation_docs: "", license_certificate_url: ""}));
++    }
++  };
++
++  const handleDiscard = () => {
++    if (window.confirm("क्या आप बदलाव रद्द करना चाहते हैं?")) {
++        onClose();
++    }
++  };
++
++
+   const handleAddressFieldChange = (field) => (e) => {
+     const val = e.target.value;
+     setFormData(prev => {
+@@ -913,6 +938,25 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+             position: "relative",
+           }}
+         >
++                    {/* Top-Right Absolute Close Button */}
++          <Box sx={{ position: "absolute", top: { xs: 16, sm: 24 }, right: { xs: 16, sm: 24 }, zIndex: 10, display: "flex", gap: 1 }}>
++            <CustomTooltip title="रद्द करें">
++              <IconButton onClick={handleDiscard} disableRipple sx={{ color: "var(--color-error)", "&:hover": { bgcolor: "transparent" } }}>
++                <DeleteOutlineIcon />
++              </IconButton>
++            </CustomTooltip>
++            <CustomTooltip title="साफ़ करें">
++              <IconButton onClick={handleClear} disableRipple sx={{ color: "var(--color-slate-500)", "&:hover": { bgcolor: "transparent" } }}>
++                <BroomIcon />
++              </IconButton>
++            </CustomTooltip>
++            <CustomTooltip title="बंद करें">
++              <IconButton onClick={onClose} disableRipple sx={{ color: "var(--color-slate-500)", "&:hover": { bgcolor: "transparent" } }}>
++                <CloseIcon />
++              </IconButton>
++            </CustomTooltip>
++          </Box>
++
+           {/* Fixed Header Section */}
+           <Box sx={{ px: { xs: 3, sm: 8 }, pt: { xs: 6, sm: 8 }, pb: 2, width: "var(--size-full)", boxSizing: "border-box", flexShrink: 0 }}>
+             <Box
+@@ -987,22 +1031,48 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+             </Box>
+ 
+             {/* Fixed Footer */}
+-            <Box sx={{ px: { xs: 3, sm: 8 }, pt: 3, pb: { xs: 6, sm: 8 }, display: 'flex', justifyContent: 'space-between', flexShrink: 0 }}>
+-              <TarangButton
+-                variant="outlined"
+-                onClick={activeStep === 0 ? onClose : handleBack}
+-                sx={{ minWidth: { xs: '100px', sm: '130px' } }}
+-              >
+-                {activeStep === 0 ? "रद्द करें" : "पीछे"}
+-              </TarangButton>
+-              <TarangButton
+-                type="submit"
+-                loading={activeStep === 3 ? loading : false}
+-                disabled={loading || uploadingBanner || uploadingAvatar || uploadingAccreditation || uploadingLicense}
+-                sx={{ minWidth: { xs: '100px', sm: '130px' } }}
+-              >
+-                {activeStep === 3 ? "सबमिट करें" : "आगे"}
+-              </TarangButton>
++            <Box sx={{ 
++              px: { xs: 3, sm: 8 }, 
++              pt: 3, 
++              pb: { xs: 6, sm: 8 }, 
++              display: "flex",
++              flexDirection: { xs: "column", sm: "row" },
++              justifyContent: "flex-end",
++              alignItems: { xs: "stretch", sm: "center" },
++              gap: { xs: 1.5, sm: 2 },
++              flexShrink: 0,
++            }}>
++              <Box sx={{ display: "flex", gap: { xs: 1.5, sm: 2 }, flexWrap: { xs: "wrap", sm: "nowrap" }, width: { xs: "var(--size-full)", sm: "auto" } }}>
++                {activeStep > 0 && (
++                  <TarangButton
++                    variant="outlined"
++                    onClick={handleBack}
++                    sx={{
++                      flex: { xs: "1 1 calc(50% - 6px)", sm: "0 0 auto" },
++                      minWidth: { xs: 0, sm: "120px" },
++                      height: { xs: "44px", sm: "48px" },
++                      fontSize: { xs: 'var(--font-xs)', sm: 'var(--font-sm)' },
++                      order: { xs: 1, sm: 0 },
++                    }}
++                  >
++                    पीछे
++                  </TarangButton>
++                )}
++                <TarangButton
++                  type="submit"
++                  loading={activeStep === 3 ? loading : false}
++                  disabled={loading || uploadingBanner || uploadingAvatar || uploadingAccreditation || uploadingLicense}
++                  sx={{
++                    flex: { xs: "1 1 calc(50% - 6px)", sm: "0 0 auto" },
++                    minWidth: { xs: 0, sm: "120px" },
++                    height: { xs: "44px", sm: "48px" },
++                    fontSize: { xs: 'var(--font-xs)', sm: 'var(--font-sm)' },
++                    order: { xs: 2, sm: 1 },
++                  }}
++                >
++                  {activeStep === 3 ? "सबमिट करें" : "आगे"}
++                </TarangButton>
++              </Box>
+             </Box>
+           </form>
+         </Paper>
+
+commit a30d7059fdd6e07f71779968b095650a103be854
+Author: Aalok Tejas <aaloktejas@Aaloks-MacBook-Air.local>
+Date:   Sat Aug 15 08:46:57 2026 +0530
+
+    Continuous
+
+diff --git a/frontend/src/features/profile/components/InstituteUpdateModal.jsx b/frontend/src/features/profile/components/InstituteUpdateModal.jsx
+index 1069b93..586e8e2 100644
+--- a/frontend/src/features/profile/components/InstituteUpdateModal.jsx
++++ b/frontend/src/features/profile/components/InstituteUpdateModal.jsx
+@@ -109,8 +109,8 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+ 
+   const [uploadingBanner, setUploadingBanner] = useState(false);
+   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+-  const [uploadingVerificationDoc, setUploadingVerificationDoc] = useState(false);
+-  const [uploadingContactDoc, setUploadingContactDoc] = useState(false);
++  const [uploadingAccreditation, setUploadingAccreditation] = useState(false);
++  const [uploadingLicense, setUploadingLicense] = useState(false);
+   const [uploadedFileNames, setUploadedFileNames] = useState({});
+ 
+   const [searchQuery, setSearchQuery] = useState("");
+@@ -796,11 +796,31 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+                 label="संबद्धता दस्तावेज़"
+                 accept=".pdf,.png,.jpg,.jpeg"
+                 savedValue={formData.accreditation_docs}
+-                onChange={(e) => {
++                onChange={async (e) => {
+                   const file = e.target.files[0] || null;
+-                  setFormData(prev => ({ ...prev, accreditation_docs: file }));
+-                  if (file && formErrors.accreditation_docs) setFormErrors(p => ({ ...p, accreditation_docs: false }));
++                  const oldURL = formData.accreditation_docs;
++                  if (!file) {
++                    setFormData(prev => ({ ...prev, accreditation_docs: "" }));
++                    setUploadedFileNames(prev => ({ ...prev, accreditation_docs: "" }));
++                    return;
++                  }
++                  setUploadedFileNames(prev => ({ ...prev, accreditation_docs: file.name }));
++                  try {
++                    setUploadingAccreditation(true);
++                    const url = await uploadToMinIO(file, profile, 'institute', 'accreditation_docs', typeof oldURL === 'string' && oldURL.startsWith('http') ? oldURL : null);
++                    if (url) {
++                      setFormData(prev => ({ ...prev, accreditation_docs: url }));
++                      if (formErrors.accreditation_docs) setFormErrors(p => ({ ...p, accreditation_docs: false }));
++                      setUploadedFileNames(prev => ({ ...prev, accreditation_docs: url.split('/').pop().split('?')[0] }));
++                    }
++                  } catch (err) {
++                    console.error("Upload failed", err);
++                  } finally {
++                    setUploadingAccreditation(false);
++                  }
+                 }}
++                disabled={uploadingAccreditation}
++                customDisplayText={uploadedFileNames.accreditation_docs || (typeof formData.accreditation_docs === 'string' && formData.accreditation_docs.includes('/') ? formData.accreditation_docs.split('/').pop().split('?')[0] : undefined)}
+                 error={!!formErrors.accreditation_docs}
+                 helperText={formErrors.accreditation_docs}
+               />
+@@ -808,11 +828,31 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+                 label="पंजीकरण दस्तावेज़ *"
+                 accept=".pdf,.png,.jpg,.jpeg"
+                 savedValue={formData.license_certificate_url}
+-                onChange={(e) => {
++                onChange={async (e) => {
+                   const file = e.target.files[0] || null;
+-                  setFormData(prev => ({ ...prev, license_certificate_url: file }));
+-                  if (file && formErrors.license_certificate_url) setFormErrors(p => ({ ...p, license_certificate_url: false }));
++                  const oldURL = formData.license_certificate_url;
++                  if (!file) {
++                    setFormData(prev => ({ ...prev, license_certificate_url: "" }));
++                    setUploadedFileNames(prev => ({ ...prev, license_certificate_url: "" }));
++                    return;
++                  }
++                  setUploadedFileNames(prev => ({ ...prev, license_certificate_url: file.name }));
++                  try {
++                    setUploadingLicense(true);
++                    const url = await uploadToMinIO(file, profile, 'institute', 'license_certificate_url', typeof oldURL === 'string' && oldURL.startsWith('http') ? oldURL : null);
++                    if (url) {
++                      setFormData(prev => ({ ...prev, license_certificate_url: url }));
++                      if (formErrors.license_certificate_url) setFormErrors(p => ({ ...p, license_certificate_url: false }));
++                      setUploadedFileNames(prev => ({ ...prev, license_certificate_url: url.split('/').pop().split('?')[0] }));
++                    }
++                  } catch (err) {
++                    console.error("Upload failed", err);
++                  } finally {
++                    setUploadingLicense(false);
++                  }
+                 }}
++                disabled={uploadingLicense}
++                customDisplayText={uploadedFileNames.license_certificate_url || (typeof formData.license_certificate_url === 'string' && formData.license_certificate_url.includes('/') ? formData.license_certificate_url.split('/').pop().split('?')[0] : undefined)}
+                 error={!!formErrors.license_certificate_url}
+                 helperText={formErrors.license_certificate_url}
+               />
+@@ -958,7 +998,7 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+               <TarangButton
+                 type="submit"
+                 loading={activeStep === 3 ? loading : false}
+-                disabled={loading || uploadingBanner || uploadingAvatar || uploadingVerificationDoc || uploadingContactDoc}
++                disabled={loading || uploadingBanner || uploadingAvatar || uploadingAccreditation || uploadingLicense}
+                 sx={{ minWidth: { xs: '100px', sm: '130px' } }}
+               >
+                 {activeStep === 3 ? "सबमिट करें" : "आगे"}
+
+commit 7a87b437fcdb41b7b0ac1a5f7922742bf219d807
+Author: Aalok Tejas <aaloktejas@Aaloks-MacBook-Air.local>
+Date:   Fri Aug 14 19:09:00 2026 +0530
+
+    Continuous
+
+diff --git a/frontend/src/features/profile/components/InstituteUpdateModal.jsx b/frontend/src/features/profile/components/InstituteUpdateModal.jsx
+index 993a0c4..1069b93 100644
+--- a/frontend/src/features/profile/components/InstituteUpdateModal.jsx
++++ b/frontend/src/features/profile/components/InstituteUpdateModal.jsx
+@@ -454,11 +454,6 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+     const addErr = (key, msg) => { if (msg) newErrors[key] = msg; };
+ 
+     if (activeStep === 0) {
+-      if (!formData.banner_url || formData.banner_url === 'null' || formData.banner_url.trim() === '')
+-        newErrors.banner = "बैनर अपलोड करना आवश्यक है";
+-      if (!formData.profile_pic_url || formData.profile_pic_url === 'null' || formData.profile_pic_url.trim() === '')
+-        newErrors.profile = "प्रोफ़ाइल फ़ोटो अपलोड करना आवश्यक है";
+-
+       addErr('primary_name', validateInstitutionName(formData.primary_name));
+       addErr('secondary_name', validateInstitutionName(formData.secondary_name));
+       if (!formData.institute_type) newErrors.institute_type = "संस्थान का प्रकार चुनें";
+@@ -524,6 +519,16 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+         street: addr.street || ""
+       });
+ 
++      let final_accreditation = formData.accreditation_docs;
++      if (typeof final_accreditation === 'object' && final_accreditation !== null && final_accreditation.name) {
++        final_accreditation = await uploadToMinIO(final_accreditation, profile, 'institute', 'accreditation_docs');
++      }
++
++      let final_license = formData.license_certificate_url;
++      if (typeof final_license === 'object' && final_license !== null && final_license.name) {
++        final_license = await uploadToMinIO(final_license, profile, 'institute', 'license_certificate_url');
++      }
++
+       const institute_profile = {
+         institute_type: formData.institute_type,
+         established_year: parseInt(formData.established_year) || 0,
+@@ -542,8 +547,8 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+         faculty_count: parseInt(formData.faculty_count) || 0,
+         campus_type: formData.campus_type,
+         operating_hours: formData.operating_hours,
+-        license_certificate_url: formData.license_certificate_url,
+-        accreditation_docs: formData.accreditation_docs ? (Array.isArray(formData.accreditation_docs) ? formData.accreditation_docs : [formData.accreditation_docs]) : [],
++        license_certificate_url: final_license,
++        accreditation_docs: final_accreditation ? (Array.isArray(final_accreditation) ? final_accreditation : [final_accreditation]) : [],
+         pincode: addr.pincode,
+         short_description: formData.bio,
+         address_line: address_line,
+@@ -576,75 +581,6 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+       case 0:
+         return (
+           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, width: "var(--size-full)" }}>
+-            <Box sx={{ position: 'relative', mb: 5.5 }}>
+-              <Box
+-                sx={{
+-                  width: 'var(--size-full)', height: 160, borderRadius: 'var(--radius-lg)',
+-                  background: 'linear-gradient(135deg, var(--color-primary) 0%, #1e3a8a 100%)', backdropFilter: 'var(--card-blur)',
+-                  display: 'flex', justifyContent: 'center', alignItems: 'center',
+-                  border: formErrors.banner ? '1px solid #ef4444' : ((formData.banner_url && formData.banner_url !== 'null' && formData.banner_url !== 'undefined' && formData.banner_url.trim() !== '') ? 'var(--border-thin) solid var(--color-slate-200)' : '1px solid var(--card-border)'), cursor: 'pointer', overflow: 'hidden', position: 'relative'
+-                }}
+-                onClick={() => { bannerInputRef.current?.click(); if (formErrors.banner) setFormErrors(p => ({ ...p, banner: false })); }}
+-              >
+-                {(formData.banner_url && formData.banner_url !== 'null' && formData.banner_url !== 'undefined' && formData.banner_url.trim() !== '') && (
+-                  <Box
+-                    component="img"
+-                    src={formData.banner_url}
+-                    alt="Cover"
+-                    onError={(e) => { e.target.style.display = 'none'; }}
+-                    sx={{ width: 'var(--size-full)', height: 'var(--size-full)', objectFit: 'cover', position: 'absolute', top: 0, left: 0, zIndex: 0 }}
+-                  />
+-                )}
+-                {(!formData.banner_url || formData.banner_url === 'null' || formData.banner_url === 'undefined' || formData.banner_url.trim() === '') && !uploadingBanner && <CloudUploadIcon sx={{ color: formErrors.banner ? 'var(--color-error)' : 'rgba(255, 255, 255, 0.8)', fontSize: 48, position: 'relative', zIndex: 1 }} />}
+-                {uploadingBanner && <CircularProgress size={32} sx={{ position: 'relative', zIndex: 1, color: 'rgba(255, 255, 255, 0.8)' }} />}
+-                <input type="file" hidden ref={bannerInputRef} accept="image/*" onChange={(e) => handleFileUpload(e, 'banner', setUploadingBanner)} />
+-              </Box>
+-
+-              <Box sx={{ position: 'absolute', bottom: -44, left: 32, zIndex: 'var(--z-sticky)' }}>
+-                <Box sx={{ position: 'relative', display: 'inline-flex', p: "2px", border: formErrors.profile ? '2px solid #ef4444' : '2px solid var(--color-primary)', borderRadius: 'var(--radius-full)', bgcolor: "var(--card-bg)" }}>
+-                  <Avatar
+-                    src={formData.profile_pic_url}
+-                    sx={{
+-                      width: 104,
+-                      height: 104,
+-                      border: 'none',
+-                      bgcolor: 'var(--card-bg)', backdropFilter: 'var(--card-blur)',
+-                      fontSize: '36px',
+-                      fontFamily: fontFam,
+-                      fontWeight: 'var(--font-semibold)',
+-                      color: 'var(--color-slate-500)'
+-                    }}
+-                  >
+-                    {formData.primary_name?.charAt(0) || <BusinessIcon sx={{ fontSize: 48, color: 'var(--color-slate-500)' }} />}
+-                  </Avatar>
+-                  <IconButton
+-                    disabled={uploadingAvatar}
+-                    onClick={() => avatarInputRef.current?.click()}
+-                    sx={{
+-                      position: 'absolute',
+-                      bottom: 0,
+-                      right: 0,
+-                      bgcolor: 'rgba(255, 255, 255, 0.9) !important',
+-                      color: 'var(--color-slate-900)',
+-                      border: 'var(--border-thin) solid var(--color-slate-200)',
+-                      '&:hover': { bgcolor: 'var(--color-white) !important' },
+-                      opacity: '1 !important'
+-                    }}
+-                    size="small"
+-                  >
+-                    {uploadingAvatar ? <CircularProgress size={16} sx={{ color: 'var(--color-primary)' }} /> : <PhotoCameraIcon sx={{ fontSize: 16 }} />}
+-                    <input
+-                      type="file"
+-                      ref={avatarInputRef}
+-                      style={{ display: 'none' }}
+-                      accept="image/*"
+-                      onChange={(e) => handleFileUpload(e, 'profile', setUploadingAvatar)}
+-                    />
+-                  </IconButton>
+-                </Box>
+-              </Box>
+-            </Box>
+-
+             <Box sx={{ display: "grid", gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 1.5, alignItems: "flex-start" }}>
+               <CustomFloatingInput
+                 label="संस्थान का नाम (प्राथमिक भाषा)"
+@@ -856,24 +792,26 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+         return (
+           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, width: "var(--size-full)", mt: 2 }}>
+             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 1.5 }}>
+-              <CustomFloatingDocumentUpload
+-                label="प्रमाणीकरण/संबद्धता दस्तावेज़"
++              <CustomFloatingFileInput
++                label="संबद्धता दस्तावेज़"
+                 accept=".pdf,.png,.jpg,.jpeg"
+                 savedValue={formData.accreditation_docs}
+-                onUploadComplete={(jobId) => {
+-                  setFormData(prev => ({ ...prev, accreditation_docs: jobId }));
+-                  if (formErrors.accreditation_docs) setFormErrors(p => ({ ...p, accreditation_docs: false }));
++                onChange={(e) => {
++                  const file = e.target.files[0] || null;
++                  setFormData(prev => ({ ...prev, accreditation_docs: file }));
++                  if (file && formErrors.accreditation_docs) setFormErrors(p => ({ ...p, accreditation_docs: false }));
+                 }}
+                 error={!!formErrors.accreditation_docs}
+                 helperText={formErrors.accreditation_docs}
+               />
+-              <CustomFloatingDocumentUpload
+-                label="लाइसेंस/पंजीकरण दस्तावेज़ *"
++              <CustomFloatingFileInput
++                label="पंजीकरण दस्तावेज़ *"
+                 accept=".pdf,.png,.jpg,.jpeg"
+                 savedValue={formData.license_certificate_url}
+-                onUploadComplete={(jobId) => {
+-                  setFormData(prev => ({ ...prev, license_certificate_url: jobId }));
+-                  if (formErrors.license_certificate_url) setFormErrors(p => ({ ...p, license_certificate_url: false }));
++                onChange={(e) => {
++                  const file = e.target.files[0] || null;
++                  setFormData(prev => ({ ...prev, license_certificate_url: file }));
++                  if (file && formErrors.license_certificate_url) setFormErrors(p => ({ ...p, license_certificate_url: false }));
+                 }}
+                 error={!!formErrors.license_certificate_url}
+                 helperText={formErrors.license_certificate_url}
+
+commit 7eb140f4c602ab9b4a1df50dc9da9ed1eee33188
+Author: Aalok Tejas <aaloktejas@Aaloks-MacBook-Air.local>
+Date:   Fri Aug 14 13:32:50 2026 +0530
+
+    Continuous
+
+diff --git a/frontend/src/features/profile/components/InstituteUpdateModal.jsx b/frontend/src/features/profile/components/InstituteUpdateModal.jsx
+index 91de9b5..993a0c4 100644
+--- a/frontend/src/features/profile/components/InstituteUpdateModal.jsx
++++ b/frontend/src/features/profile/components/InstituteUpdateModal.jsx
+@@ -1,4 +1,5 @@
+ "use client";
++import { uploadToMinIO } from '../../../utils/uploadUtil';
+ 
+ import React, { useState, useEffect, useMemo, useRef } from "react";
+ import { Box, Typography, TextField, Paper, IconButton, CircularProgress, Autocomplete, InputAdornment, Avatar, List, ListItemButton, Button } from "@mui/material";
+@@ -422,21 +423,19 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+ 
+     setUploading(true);
+     try {
+-      const { data } = await apiClient.get(`/s3/sign`, {
+-        params: { user_id: profile.id, username: profile.username, type: fieldName, filename: fieldName, mime: mimeType }
+-      });
+-      await fetch(data.upload_url, {
+-        method: "PUT",
+-        body: file,
+-        headers: { "Content-Type": file.type }
+-      });
++      let oldURL = null;
++      if (fieldName === 'banner') oldURL = formData.banner_url_db;
++      else if (fieldName === 'profile') oldURL = formData.profile_pic_url_db;
++      else oldURL = formData[fieldName];
++
++      const fileUrl = await uploadToMinIO(file, profile, fieldName, fieldName, oldURL);
+ 
+       if (fieldName === 'banner') {
+-        setFormData(p => ({ ...p, banner_url: URL.createObjectURL(file), banner_url_db: data.file_url }));
++        setFormData(p => ({ ...p, banner_url: URL.createObjectURL(file), banner_url_db: fileUrl }));
+       } else if (fieldName === 'profile') {
+-        setFormData(p => ({ ...p, profile_pic_url: URL.createObjectURL(file), profile_pic_url_db: data.file_url }));
++        setFormData(p => ({ ...p, profile_pic_url: URL.createObjectURL(file), profile_pic_url_db: fileUrl }));
+       } else {
+-        setFormData(p => ({ ...p, [fieldName]: data.file_url }));
++        setFormData(p => ({ ...p, [fieldName]: fileUrl }));
+         setUploadedFileNames(p => ({ ...p, [fieldName]: file.name }));
+       }
+ 
+
+commit 4789ec1634ba5d675fd01c6eec6d68a58273a205
+Author: Aalok Tejas <aaloktejas@Aaloks-MacBook-Air.local>
+Date:   Fri Aug 7 17:30:08 2026 +0530
+
+    Continuous
+
+diff --git a/frontend/src/features/profile/components/InstituteUpdateModal.jsx b/frontend/src/features/profile/components/InstituteUpdateModal.jsx
+index 5f08764..91de9b5 100644
+--- a/frontend/src/features/profile/components/InstituteUpdateModal.jsx
++++ b/frontend/src/features/profile/components/InstituteUpdateModal.jsx
+@@ -423,7 +423,7 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+     setUploading(true);
+     try {
+       const { data } = await apiClient.get(`/s3/sign`, {
+-        params: { user_id: profile.id, type: fieldName, mime: mimeType }
++        params: { user_id: profile.id, username: profile.username, type: fieldName, filename: fieldName, mime: mimeType }
+       });
+       await fetch(data.upload_url, {
+         method: "PUT",
+
+commit a9c452fdf8456b3c5804285594b01f5d269cdfea
+Author: Aalok Tejas <aaloktejas@Aaloks-MacBook-Air.local>
+Date:   Wed Aug 5 22:53:41 2026 +0530
+
+    Continuous
+
+diff --git a/frontend/src/features/profile/components/InstituteUpdateModal.jsx b/frontend/src/features/profile/components/InstituteUpdateModal.jsx
+index 0774afd..5f08764 100644
+--- a/frontend/src/features/profile/components/InstituteUpdateModal.jsx
++++ b/frontend/src/features/profile/components/InstituteUpdateModal.jsx
+@@ -63,7 +63,7 @@ const affiliationOptionsMap = {
+   'Affiliated Non-Autonomous College (Central Univ)': centralUniversitiesList
+ };
+ 
+-const THEME_BORDER = "var(--color-slate-300)";
++const THEME_BORDER = "var(--card-border)";
+ const themeBorderSx = `var(--border-thin) solid ${THEME_BORDER}`;
+ 
+ const menuPaperSx = {
+@@ -583,7 +583,7 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+                   width: 'var(--size-full)', height: 160, borderRadius: 'var(--radius-lg)',
+                   background: 'linear-gradient(135deg, var(--color-primary) 0%, #1e3a8a 100%)', backdropFilter: 'var(--card-blur)',
+                   display: 'flex', justifyContent: 'center', alignItems: 'center',
+-                  border: formErrors.banner ? '1px solid #ef4444' : ((formData.banner_url && formData.banner_url !== 'null' && formData.banner_url !== 'undefined' && formData.banner_url.trim() !== '') ? 'var(--border-thin) solid var(--color-slate-200)' : '1px solid var(--color-slate-300)'), cursor: 'pointer', overflow: 'hidden', position: 'relative'
++                  border: formErrors.banner ? '1px solid #ef4444' : ((formData.banner_url && formData.banner_url !== 'null' && formData.banner_url !== 'undefined' && formData.banner_url.trim() !== '') ? 'var(--border-thin) solid var(--color-slate-200)' : '1px solid var(--card-border)'), cursor: 'pointer', overflow: 'hidden', position: 'relative'
+                 }}
+                 onClick={() => { bannerInputRef.current?.click(); if (formErrors.banner) setFormErrors(p => ({ ...p, banner: false })); }}
+               >
+
+commit 5c3c20864b3e1b64422f97d46e77c73250d22e59
+Author: Aalok Tejas <aaloktejas@Aaloks-MacBook-Air.local>
+Date:   Wed Aug 5 00:23:47 2026 +0530
+
+    Continuous
+
+diff --git a/frontend/src/features/profile/components/InstituteUpdateModal.jsx b/frontend/src/features/profile/components/InstituteUpdateModal.jsx
+index 4b74bcf..0774afd 100644
+--- a/frontend/src/features/profile/components/InstituteUpdateModal.jsx
++++ b/frontend/src/features/profile/components/InstituteUpdateModal.jsx
+@@ -100,6 +100,7 @@ const menuPaperSx = {
+ 
+ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+   const router = useAppRouter();
++  const isSubmitting = React.useRef(false);
+   const [activeStep, setActiveStep] = useState(0);
+   const [loading, setLoading] = useState(false);
+ 
+@@ -504,6 +505,8 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+       handleNext();
+       return;
+     }
++    if (isSubmitting.current) return;
++    isSubmitting.current = true;
+     setLoading(true);
+     try {
+ 
+@@ -564,6 +567,7 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+       console.error(err);
+       showToast(err.response?.data?.error || "अद्यतन विफल रहा। कृपया सुनिश्चित करें कि सभी आवश्यक जानकारी सही है।");
+     } finally {
++      isSubmitting.current = false;
+       setLoading(false);
+     }
+   };
+@@ -612,7 +616,7 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+                       color: 'var(--color-slate-500)'
+                     }}
+                   >
+-                    {formData.primary_name?.charAt(0) || <BusinessIcon sx={{ fontSize: 48, color: 'var(--color-slate-400)' }} />}
++                    {formData.primary_name?.charAt(0) || <BusinessIcon sx={{ fontSize: 48, color: 'var(--color-slate-500)' }} />}
+                   </Avatar>
+                   <IconButton
+                     disabled={uploadingAvatar}
+
+commit ef5fdd851bde2cc89f99ed2e8294845020d76bee
+Author: Aalok Tejas <aaloktejas@Aaloks-MacBook-Air.local>
+Date:   Sat Aug 1 12:32:49 2026 +0530
+
+    Continuous
+
+diff --git a/frontend/src/features/profile/components/InstituteUpdateModal.jsx b/frontend/src/features/profile/components/InstituteUpdateModal.jsx
+index 856e0d9..4b74bcf 100644
+--- a/frontend/src/features/profile/components/InstituteUpdateModal.jsx
++++ b/frontend/src/features/profile/components/InstituteUpdateModal.jsx
+@@ -321,9 +321,9 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+           </Typography>
+         </Box>
+         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 1.5 }}>
+-          <CustomFloatingCountrySelect label="देश *" value={sourceData.country} onChange={handleAddressFieldChange('country')} error={!!formErrors['address.country']} />
+-          <CustomFloatingSelect label="राज्य *" value={sourceData.state} onChange={handleAddressFieldChange('state')} error={!!formErrors['address.state']} disabled={stateOptions.length === 0} options={stateOptions} />
+-          <CustomFloatingSelect label="ज़िला *" value={sourceData.district} onChange={handleAddressFieldChange('district')} error={!!formErrors['address.district']} disabled={districtOptions.length === 0} options={districtOptions} />
++          <CustomFloatingCountrySelect label="देश" required value={sourceData.country} onChange={handleAddressFieldChange('country')} error={!!formErrors['address.country']} />
++          <CustomFloatingSelect label="राज्य" required value={sourceData.state} onChange={handleAddressFieldChange('state')} error={!!formErrors['address.state']} disabled={stateOptions.length === 0} options={stateOptions} />
++          <CustomFloatingSelect label="ज़िला" required value={sourceData.district} onChange={handleAddressFieldChange('district')} error={!!formErrors['address.district']} disabled={districtOptions.length === 0} options={districtOptions} />
+ 
+           <CustomFloatingSelect
+             label="क्षेत्र का प्रकार"
+@@ -366,7 +366,7 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+           <CustomFloatingInput label="मकान नंबर और नाम" value={sourceData.houseNoAndName} onChange={handleAddressFieldChange('houseNoAndName')} />
+           <CustomFloatingInput label="लैंडमार्क" value={sourceData.landmark} onChange={handleAddressFieldChange('landmark')} />
+           <CustomFloatingInput label="गली / मोहल्ला" value={sourceData.street} onChange={handleAddressFieldChange('street')} />
+-          <CustomFloatingInput label="पिनकोड *" value={sourceData.pincode} onChange={handleAddressFieldChange('pincode')} error={!!formErrors.pincode} helperText={typeof formErrors.pincode === 'string' ? formErrors.pincode : ''} type="number" />
++          <CustomFloatingInput label="पिनकोड" required value={sourceData.pincode} onChange={handleAddressFieldChange('pincode')} error={!!formErrors.pincode} helperText={typeof formErrors.pincode === 'string' ? formErrors.pincode : ''} type="number" />
+         </Box>
+       </Box>
+     );
+@@ -644,7 +644,8 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+ 
+             <Box sx={{ display: "grid", gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 1.5, alignItems: "flex-start" }}>
+               <CustomFloatingInput
+-                label="संस्थान का नाम (प्राथमिक भाषा) *"
++                label="संस्थान का नाम (प्राथमिक भाषा)"
++                required
+                 name="primary_name"
+                 value={formData.primary_name}
+                 onChange={handleChange}
+@@ -652,7 +653,8 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+                 helperText={typeof formErrors.primary_name === 'string' ? formErrors.primary_name : ''}
+               />
+               <CustomFloatingInput
+-                label="संस्थान का नाम (द्वितीय भाषा) *"
++                label="संस्थान का नाम (द्वितीय भाषा)"
++                required
+                 name="secondary_name"
+                 value={formData.secondary_name}
+                 onChange={handleChange}
+@@ -660,7 +662,8 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+                 helperText={typeof formErrors.secondary_name === 'string' ? formErrors.secondary_name : ''}
+               />
+               <CustomFloatingSelect
+-                label="संस्थान का प्रकार *"
++                label="संस्थान का प्रकार"
++                required
+                 name="institute_type"
+                 value={formData.institute_type}
+                 onChange={(e) => setFormData(p => ({ ...p, institute_type: e.target.value, affiliation_board: "" }))}
+@@ -671,7 +674,8 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+ 
+               {formData.institute_type && !noChildTypes.includes(formData.institute_type) && (
+                 <CustomFloatingSearchableSelect
+-                  label={['National Board', 'State Board', 'International Board'].includes(formData.institute_type) ? "बोर्ड का नाम *" : "विश्वविद्यालय का नाम *"}
++                  label={['National Board', 'State Board', 'International Board'].includes(formData.institute_type) ? "बोर्ड का नाम" : "विश्वविद्यालय का नाम"}
++                  required
+                   options={Reflect.get(affiliationOptionsMap, formData.institute_type) || []}
+                   value={formData.affiliation_board || ""}
+                   onChange={(e) => setFormData(p => ({ ...p, affiliation_board: e.target.value }))}
+@@ -681,7 +685,8 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+               )}
+ 
+               <CustomFloatingSelect
+-                label="स्थापना वर्ष *"
++                label="स्थापना वर्ष"
++                required
+                 name="established_year"
+                 value={formData.established_year ? formData.established_year.toString() : ""}
+                 onChange={(e) => setFormData(p => ({ ...p, established_year: e.target.value }))}
+@@ -690,7 +695,8 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+                 helperText={typeof formErrors.established_year === 'string' ? formErrors.established_year : ''}
+               />
+               <CustomFloatingInput
+-                label="पंजीकरण संख्या *"
++                label="पंजीकरण संख्या"
++                required
+                 name="registration_number"
+                 value={formData.registration_number}
+                 onChange={(e) => setFormData(prev => ({ ...prev, registration_number: e.target.value.toUpperCase() }))}
+@@ -700,7 +706,8 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+             </Box>
+ 
+             <CustomFloatingInput
+-              label="संस्थान के बारे में *"
++              label="संस्थान के बारे में"
++              required
+               name="bio"
+               value={formData.bio}
+               onChange={handleChange}
+@@ -722,7 +729,8 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, width: "var(--size-full)", mt: 2 }}>
+             <Box sx={{ display: "grid", gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 1.5, alignItems: "flex-start" }}>
+               <CustomFloatingPhoneInput
+-                label="आधिकारिक फ़ोन *"
++                label="आधिकारिक फ़ोन"
++                required
+                 countryCode={formData.official_country_code}
+                 onCountryCodeChange={(val) => setFormData(p => ({ ...p, official_country_code: val }))}
+                 value={formData.official_phone}
+@@ -731,7 +739,8 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+                 helperText={typeof formErrors.official_phone === 'string' ? formErrors.official_phone : ''}
+               />
+               <CustomFloatingInput
+-                label="आधिकारिक ईमेल *"
++                label="आधिकारिक ईमेल"
++                required
+                 name="official_email"
+                 value={formData.official_email}
+                 onChange={handleChange}
+@@ -742,7 +751,8 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+ 
+             <Box sx={{ display: "grid", gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 1.5, alignItems: "flex-start" }}>
+               <CustomFloatingInput
+-                label="वेबसाइट URL *"
++                label="वेबसाइट URL"
++                required
+                 name="website_url"
+                 value={formData.website_url}
+                 onChange={handleChange}
+@@ -750,7 +760,8 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+                 helperText={typeof formErrors.website_url === 'string' ? formErrors.website_url : ''}
+               />
+               <CustomFloatingPhoneInput
+-                label="वैकल्पिक संपर्क *"
++                label="वैकल्पिक संपर्क"
++                required
+                 countryCode={formData.alternate_country_code}
+                 onCountryCodeChange={(val) => setFormData(p => ({ ...p, alternate_country_code: val }))}
+                 value={formData.alternate_contact}
+@@ -772,7 +783,8 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+               <CustomFloatingSearchableSelect
+                 multiple={true}
+                 freeSolo={true}
+-                label="ऑफ़र किए गए कोर्स *"
++                label="ऑफ़र किए गए कोर्स"
++                required
+                 options={courseOptions}
+                 value={Array.isArray(formData.courses_offered) ? formData.courses_offered : []}
+                 onChange={(e) => {
+@@ -784,7 +796,8 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+               />
+               <CustomFloatingSearchableSelect
+                 multiple={true}
+-                label="शिक्षा स्तर *"
++                label="शिक्षा स्तर"
++                required
+                 options={educationLevels}
+                 value={Array.isArray(formData.education_levels) ? formData.education_levels : []}
+                 onChange={(e) => {
+
+commit 82f1d30f29ac45884f974b3f17cd35a3722baed2
+Author: Aalok Tejas <aaloktejas@Aaloks-MacBook-Air.local>
+Date:   Sat Aug 1 10:04:22 2026 +0530
+
+    Continuous
+
+diff --git a/frontend/src/features/profile/components/InstituteUpdateModal.jsx b/frontend/src/features/profile/components/InstituteUpdateModal.jsx
+index adda28d..856e0d9 100644
+--- a/frontend/src/features/profile/components/InstituteUpdateModal.jsx
++++ b/frontend/src/features/profile/components/InstituteUpdateModal.jsx
+@@ -950,7 +950,7 @@ export default function InstituteUpdateModal({ profile, onClose, onSuccess }) {
+             </Box>
+ 
+             {/* Step Indicator Progress Bar */}
+-            <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
++            <Box sx={{ display: "flex", gap: 1.5, mt: 3 }}>
+               {stepLabels.map((s, index) => (
+                 <Box
+                   key={index}

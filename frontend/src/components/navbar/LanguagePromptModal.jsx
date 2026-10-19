@@ -21,14 +21,17 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 import BackdropBlur from '../common/BackdropBlur';
-import TarangButton from '../common/TarangButton';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAccessibility } from '../../contexts/AccessibilityContext';
+import TarangButton from '../common/TarangButton';
+import { glassPaperSx } from '../../styles/commonStyles';
 import useScrollLock from '../../hooks/useScrollLock';
 import countryToCurrency from 'country-to-currency';
 
 const { POPULAR_COUNTRIES } = miscData;
 
 export default function LanguagePromptModal() {
+  const isSubmitting = React.useRef(false);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [manualMode, setManualMode] = useState(false);
@@ -74,6 +77,8 @@ export default function LanguagePromptModal() {
   };
 
   const handleDetectLocation = () => {
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
     setLoading(true);
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -107,16 +112,19 @@ export default function LanguagePromptModal() {
             console.error("Error detecting location:", error);
             setManualMode(true);
           } finally {
+            isSubmitting.current = false;
             setLoading(false);
           }
         },
         (error) => {
           console.error("Geolocation error:", error);
+          isSubmitting.current = false;
           setLoading(false);
           setManualMode(true);
         }
       );
     } else {
+      isSubmitting.current = false;
       setLoading(false);
       setManualMode(true);
     }
@@ -195,6 +203,7 @@ export default function LanguagePromptModal() {
       color: 'var(--color-slate-500)'
     },
     '& .MuiInputBase-input::placeholder': {
+      color: 'var(--input-placeholder)',
       opacity: 0.6,
       fontWeight: 'var(--font-regular)'
     },
@@ -205,8 +214,7 @@ export default function LanguagePromptModal() {
     }
   };
   const autocompletePaperSx = {
-    borderRadius: 'var(--radius-md)',
-    border: 'var(--border-thin) solid var(--color-slate-200)',
+    ...glassPaperSx,
     '& .MuiAutocomplete-listbox': {
       maxHeight: 280,
       padding: '8px',
@@ -366,7 +374,7 @@ export default function LanguagePromptModal() {
 
           {/* Manual Selection Mode */}
           {!loading && manualMode && !showOptions && (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, textAlign: 'left', mb: 3 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, textAlign: 'left', mb: 3 }}>
               <Box>
                 <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)', textAlign: 'left' }}>
                   {"Select Country"}

@@ -34,3 +34,8 @@ export const getInstituteApplications = async (username) => {
   const response = await apiClient.get(`/admissions/institutes/${username}/applications`);
   return response.data;
 };
+
+export const deleteApplication = async (applicationId) => {
+  const response = await apiClient.delete(`/admissions/applications/${applicationId}`);
+  return response.data;
+};

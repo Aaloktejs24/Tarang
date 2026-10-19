@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { useEffect } from "react";
 import TarangButton from "../../../components/common/TarangButton";
-import AuthMessage from "./AuthMessage";
 import { FormLoadingProvider } from '../../../contexts/FormLoadingContext';
 
 export default function ForgotStep2({ setStep, formData, updateFormData, isLoading, error, setError, onResendOtp, resendTimer, resetOtp, success, setSuccess, maskedEmail }) {
@@ -32,29 +31,13 @@ export default function ForgotStep2({ setStep, formData, updateFormData, isLoadi
                 </Typography>
             </Box>
 
-            <AnimatePresence mode="wait">
-                {(error || success) && (
-                    <motion.div
-                        key={error ? "error" : "success"}
-                        initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                        animate={{ opacity: 1, height: "auto", marginTop: 8 }}
-                        exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                        style={{ overflow: "hidden", textAlign: "center", width: "100%" }}
-                    >
-                        {error ? (
-                            <AuthMessage type="error" message={error} />
-                        ) : (
-                            <AuthMessage type="success" message={success} />
-                        )}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            
 
             <Box>
                 <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
                     वेरिफिकेशन कोड
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                     <OtpInput
                         value={formData.otp}
                         onChange={(val) => {
@@ -73,7 +56,7 @@ export default function ForgotStep2({ setStep, formData, updateFormData, isLoadi
                                 handleResendClick();
                             }
                         }}
-                        sx={{ color: resendTimer > 0 ? '#64748b' : 'var(--color-primary)', p: 0, minWidth: 'auto', minHeight: 'auto', '&:hover': { background: 'transparent', textDecoration: 'underline' }, whiteSpace: 'nowrap' }}
+                        sx={{ color: 'var(--color-primary)', p: 0, minWidth: 'auto', minHeight: 'auto', '&.Mui-disabled': { color: 'var(--color-primary)', opacity: 0.8 }, '&:hover': { background: 'transparent', textDecoration: 'underline' }, whiteSpace: 'nowrap' }}
                     >
                         {resendTimer > 0 ? (
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -89,7 +72,7 @@ export default function ForgotStep2({ setStep, formData, updateFormData, isLoadi
 
 
 
-            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
+            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 1.5 }}>
                 <TarangButton
                     variant="outlined"
                     disabled={isLoading}

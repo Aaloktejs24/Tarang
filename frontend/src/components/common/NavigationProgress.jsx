@@ -10,7 +10,7 @@ const NPROGRESS_STYLES = `
     background: var(--color-primary);
     position: fixed;
     z-index: 1199;
-    top: 72px;
+    top: 70px;
     left: 0;
     width: var(--size-full);
     height: 2px;
@@ -67,7 +67,7 @@ export const navProgressStart = (href) => {
     try {
       const targetPathname = new URL(href, window.location.href).pathname;
       if (targetPathname === window.location.pathname) return;
-    } catch (e) {}
+    } catch (e) { }
   }
   window.dispatchEvent(new Event("navigation-start"));
 };

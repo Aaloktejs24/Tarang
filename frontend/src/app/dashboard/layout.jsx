@@ -11,12 +11,11 @@ import DynamicFeedIcon from "@mui/icons-material/DynamicFeed";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import FilterListIcon from '@mui/icons-material/FilterList';
-import SetupModal from "../../features/auth/components/SetupModal";
-import InstituteSetupModal from "../../features/auth/components/InstituteSetupModal";
 import InstituteSkeleton from "../../features/institute/InstituteSkeleton";
 import ExploreLoading from "./explore/loading";
 import FeedSkeleton from "../../features/feed/FeedSkeleton";
 import ProfileSkeleton from "../../features/profile/ProfileSkeleton";
+import InstituteProfileSkeleton from "../../features/profile/InstituteProfileSkeleton";
 
 import { usePathname } from "next/navigation";
 import { useAppRouter } from "../../hooks/useAppRouter";;
@@ -44,16 +43,22 @@ export default function DashboardLayout({ children }) {
 
   if (isLoading) {
     let SkeletonComponent = null;
-    const isInstitutePage = pathname?.includes("/institute") || (pathname?.includes("/explore/") && pathname !== "/dashboard/explore/");
-    const isProfilePage = pathname?.includes("/profile");
-    
-    if (isInstitutePage) {
-      SkeletonComponent = InstituteSkeleton;
+
+    const isInstituteProfilePage = pathname === "/dashboard/home/institute-profile";
+    const isProfilePage = pathname === "/dashboard/home/profile";
+    const isExploreInstitutePage = /^\/dashboard\/explore\/[^/]+$/.test(pathname || "");
+    const isInstitutePage = pathname === "/dashboard/home/institute" || isExploreInstitutePage;
+    const isFeedPage = pathname === "/dashboard/home/feed";
+
+    if (isInstituteProfilePage) {
+      SkeletonComponent = InstituteProfileSkeleton;
     } else if (isProfilePage) {
       SkeletonComponent = ProfileSkeleton;
+    } else if (isInstitutePage) {
+      SkeletonComponent = InstituteSkeleton;
     } else if (pathname === "/dashboard/explore") {
       SkeletonComponent = ExploreLoading;
-    } else if (pathname?.includes("/feed")) {
+    } else if (isFeedPage) {
       SkeletonComponent = FeedSkeleton;
     }
 
@@ -61,7 +66,7 @@ export default function DashboardLayout({ children }) {
       <>
         {!hideLayoutExtras && <Navbar />}
         <Box className={!hideLayoutExtras ? "user-content margin-top-72" : ""}>
-          {SkeletonComponent ? <SkeletonComponent hideLayoutExtras={hideLayoutExtras} /> : <Box sx={{ minHeight: 'calc(100vh - 72px)' }} />}
+          {SkeletonComponent ? <SkeletonComponent hideLayoutExtras={hideLayoutExtras} /> : children}
         </Box>
       </>
     );
@@ -69,14 +74,13 @@ export default function DashboardLayout({ children }) {
 
   if (!isAuthenticated) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100vw', bgcolor: 'var(--color-slate-50)' }}>
-        <Loader />
-      </Box>
+      <Loader />
     );
   }
 
-  const isManagement = profile?.role === 'institute' || profile?.role === 'organisation';
-  const showViewTabs = !isManagement && (pathname?.includes("/institute") || pathname?.includes("/feed"));
+  const isManagement = profile?.role === 'institute' || profile?.role === 'admin';
+  const isTopLevelPage = pathname === "/dashboard/home/institute" || pathname === "/dashboard/home/feed";
+  const showViewTabs = !profileLoading && !isManagement && isTopLevelPage;
 
   return (
     <BreadcrumbProvider>
@@ -98,19 +102,12 @@ export default function DashboardLayout({ children }) {
           <Navbar />
         </>
       )}
-      <Box className={!hideLayoutExtras ? "user-content margin-top-72" : ""}>
+      <Box 
+        className={!hideLayoutExtras ? "user-content margin-top-72" : ""}
+      >
         <GlobalBreadcrumbs />
         {children}
       </Box>
-
-      {/* Show Profile Setup Overlay if profile is incomplete */}
-      {false && !profileLoading && profile && !profile.is_profile_completed && (
-        isManagement ? (
-          <InstituteSetupModal profile={profile} />
-        ) : (
-          <SetupModal profile={profile} />
-        )
-      )}
 
       {/* ─── GLOBAL DOCK PANNEL - CENTERED ─── */}
       {!hideLayoutExtras && showViewTabs && (

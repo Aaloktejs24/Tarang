@@ -58,7 +58,7 @@ export default function InstituteProfileSkeleton() {
           {/* Connect Card Skeleton */}
           <PremiumCard variant="profile" sx={{ p: { xs: 2.5, sm: 4 }, mt: 3 }}>
             <Skeleton variant="text" width="30%" height={24} sx={{ mb: 1.5 }} />
-            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+            <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
               {[1, 2, 3, 4].map(i => (
                 <Skeleton key={i} variant="circular" width={32} height={32} />
               ))}
@@ -108,8 +108,9 @@ export default function InstituteProfileSkeleton() {
             display: "flex",
             gap: 0.5,
             overflowX: "hidden",
-            bgcolor: "rgba(15, 23, 42, 0.04)",
-            border: "1px solid rgba(15, 23, 42, 0.08)",
+            bgcolor: "var(--card-bg)",
+            backdropFilter: "var(--card-blur)",
+            border: "var(--border-thin) solid var(--card-border)",
             p: 0.5,
             borderRadius: 'var(--radius-md)',
             mr: { xs: 0, sm: 2 },
@@ -140,21 +141,23 @@ export default function InstituteProfileSkeleton() {
             <Grid size={{ xs: 12 }} sx={{ display: 'flex', flexDirection: 'column', pl: "0 !important" }}>
               {/* "मेरे बारे में" Section */}
               <Box sx={{ mb: 4 }}>
-                <Skeleton variant="text" width="20%" height={28} sx={{ mb: 2 }} />
-                <Stack spacing={1}>
-                  <Skeleton variant="text" width="100%" height={20} />
-                  <Skeleton variant="text" width="100%" height={20} />
-                  <Skeleton variant="text" width="100%" height={20} />
-                  <Skeleton variant="text" width="80%" height={20} />
-                </Stack>
+                <Typography variant="subtitle1" sx={{ mb: 2 }}><Skeleton variant="text" width="20%" /></Typography>
+                <Box sx={{ p: { xs: 2.5, sm: 4 }, bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)", borderRadius: "var(--radius-lg)", border: "var(--border-thin) solid var(--card-border)" }}>
+                  <Typography sx={{ fontSize: 'var(--font-base)', lineHeight: 1.8 }}>
+                    <Skeleton variant="text" width="100%" />
+                    <Skeleton variant="text" width="100%" />
+                    <Skeleton variant="text" width="100%" />
+                    <Skeleton variant="text" width="80%" />
+                  </Typography>
+                </Box>
               </Box>
 
               {/* "सीखने के आँकड़े" Section */}
               <Box sx={{ mb: 4 }}>
                 <Skeleton variant="text" width="25%" height={28} sx={{ mb: 2 }} />
-                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 2 }}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 1.5 }}>
                   {[1, 2, 3, 4, 5, 6].map((item) => (
-                    <PremiumCard variant="stat" key={item} sx={{ width: "var(--size-full)", height: "var(--size-full)", minHeight: 90, display: "flex", flexDirection: "row", alignItems: "center", gap: 2, px: 2 }}>
+                    <PremiumCard variant="stat" key={item} sx={{ width: "var(--size-full)", height: "var(--size-full)", minHeight: 90, display: "flex", flexDirection: "row", alignItems: "center", gap: 1.5, px: 2 }}>
                       <Skeleton variant="circular" width={40} height={40} />
                       <Box sx={{ flexGrow: 1 }}>
                         <Skeleton variant="text" width="70%" height={24} />

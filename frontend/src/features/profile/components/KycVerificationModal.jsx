@@ -5,7 +5,7 @@ import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
 import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
 import SmartphoneOutlinedIcon from "@mui/icons-material/SmartphoneOutlined";
 import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
-import CustomDialog from "../../../components/common/CustomDialog";
+import CustomModal from "../../../components/common/CustomModal";
 import { startAadhaarOtp, verifyAadhaarOtp, startDigilocker, getProfile } from "../../auth/authService";
 import TarangButton from "../../../components/common/TarangButton";
 
@@ -16,6 +16,7 @@ export default function KycVerificationModal({ open, onClose, userId, onSuccess 
   const [refId, setRefId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const isSubmitting = React.useRef(false);
 
   useEffect(() => {
     if (open) {
@@ -29,6 +30,8 @@ export default function KycVerificationModal({ open, onClose, userId, onSuccess 
   }, [open]);
 
   const handleDigilocker = async () => {
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
     try {
       setLoading(true); setError("");
       const res = await startDigilocker(userId);
@@ -39,12 +42,15 @@ export default function KycVerificationModal({ open, onClose, userId, onSuccess 
     } catch (err) {
       setError(err.response?.data?.error || "Error initializing DigiLocker");
     } finally {
+      isSubmitting.current = false;
       setLoading(false);
     }
   };
 
   const handleStartOtp = async () => {
     if (aadhaar.length !== 12) return setError("Please enter a valid 12-digit Aadhaar number");
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
     try {
       setLoading(true); setError("");
       const res = await startAadhaarOtp(userId, aadhaar);
@@ -52,12 +58,15 @@ export default function KycVerificationModal({ open, onClose, userId, onSuccess 
     } catch (err) {
       setError(err.response?.data?.error || "Failed to send OTP.");
     } finally {
+      isSubmitting.current = false;
       setLoading(false);
     }
   };
 
   const handleVerifyOtp = async () => {
     if (otp.length < 6) return setError("Please enter a valid OTP");
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
     try {
       setLoading(true); setError("");
       await verifyAadhaarOtp(userId, aadhaar, refId, otp);
@@ -66,11 +75,14 @@ export default function KycVerificationModal({ open, onClose, userId, onSuccess 
     } catch (err) {
       setError(err.response?.data?.error || "Invalid OTP.");
     } finally {
+      isSubmitting.current = false;
       setLoading(false);
     }
   };
 
   const checkDigilockerStatus = async () => {
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
     try {
       setLoading(true);
       const profile = await getProfile();
@@ -83,6 +95,7 @@ export default function KycVerificationModal({ open, onClose, userId, onSuccess 
     } catch {
       setError("Failed to check status.");
     } finally {
+      isSubmitting.current = false;
       setLoading(false);
     }
   };
@@ -96,11 +109,11 @@ export default function KycVerificationModal({ open, onClose, userId, onSuccess 
   const onBack = (step !== "method_select" && step !== "success") ? () => setStep("method_select") : undefined;
 
   return (
-    <CustomDialog 
+    <CustomModal 
       open={open} 
       onClose={step !== "success" ? onClose : undefined} 
       onBack={onBack}
-      innerBoxSx={{ pt: { xs: 4, sm: 6 } }}
+      innerBoxSx={{ pt: { xs: 6, sm: 8 } }}
     >
       <AnimatePresence mode="wait">
         
@@ -192,6 +205,6 @@ export default function KycVerificationModal({ open, onClose, userId, onSuccess 
           </Box>
         )}
       </AnimatePresence>
-    </CustomDialog>
+    </CustomModal>
   );
 }

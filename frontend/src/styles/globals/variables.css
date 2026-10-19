@@ -3,7 +3,7 @@
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
-  --radius-full: 50%;
+  --radius-full: 9999px;
 
   /* Typography */
   --font-xs: 12px;
@@ -12,6 +12,7 @@
   --font-lg: 20px;
   --font-xl: 24px;
   --font-2xl: 32px;
+  --line-height-base: 1.5;
 
   /* Opacity / Transparency */
   --opacity-sm: 10%;
@@ -99,19 +100,27 @@
   --border-thick: 2px;
   --border-heavy: 4px;
 
+  /* Base Glass */
+  --glass-bg: rgba(255, 255, 255, 0.30);
+
   /* Card Glass Hierarchy — same color, same opacity, blur stacks naturally */
   --card-blur: blur(30px);
-  --card-bg: rgba(255, 255, 255, 0.3);           /* Base card */
+  --card-bg: var(--glass-bg);           /* Base card */
   --card-border: rgba(30, 79, 163, 0.2);          /* Base card border */
-  --card-inner-bg: rgba(255, 255, 255, 0.3);      /* Chips / sub-cards — same opacity, blur stacks */
-  --card-inner-border: rgba(255, 255, 255, 0.6);  /* Sub-card border */
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --card-inner-bg: var(--glass-bg);      /* Chips / sub-cards — same opacity, blur stacks */
 
   /* Consistent Hover Interactions */
   --hover-lift: translateY(-2px);
-  --hover-scale: scale(1.02);
+  --hover-scale: none;
+
+  /* Global Popover / Dropdown */
+  --popover-bg: var(--glass-bg);
+  --popover-blur: blur(20px);
+
+  /* Global Input Fields */
+  --input-bg: var(--glass-bg);
+  --input-disabled-bg: rgba(241, 245, 249, 0.5);
+  --input-text: var(--color-slate-900);
+  --input-label: var(--color-slate-500);
+  --input-placeholder: var(--color-slate-400);
 }

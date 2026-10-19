@@ -59,7 +59,7 @@ export default function FeedMobileFilter() {
           sx: {
             borderTopLeftRadius: "28px",
             borderTopRightRadius: "28px",
-            background: "rgba(255, 255, 255, 0.85)",
+            background: "var(--glass-bg)",
             backdropFilter: "blur(30px)",
             WebkitBackdropFilter: "blur(30px)",
             borderTop: "var(--border-thin) solid rgba(255,255,255,0.4)",

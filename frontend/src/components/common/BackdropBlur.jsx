@@ -23,28 +23,25 @@ const BackdropBlur = forwardRef(function BackdropBlur(props, ref) {
         onClick={onClick}
         aria-hidden={!open}
         {...other}
-        sx={{
+        style={{
           position: "fixed",
           inset: 0,
           zIndex: zIndex,
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          background: `
-            radial-gradient(circle at 15% 15%, rgba(0, 86, 179, 0.15) 0%, transparent 60%),
-            radial-gradient(circle at 85% 85%, rgba(40, 167, 69, 0.12) 0%, transparent 60%),
-            rgba(255, 255, 255, 0.15)
-          `,
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          p: 2,
+          backgroundColor: "rgba(0, 86, 179, 0.1)",
+          backdropFilter: "blur(15px)",
+          WebkitBackdropFilter: "blur(15px)",
+          padding: "16px",
           overflow: "auto",
-          // Smooth fade instead of abrupt null-return
           opacity: open ? 1 : 0,
           pointerEvents: open ? "auto" : "none",
-          transition: "opacity var(--transition-base)",
-          ...other.sx,
+          transition: "opacity 0.25s ease",
+          WebkitTransform: "translateZ(0)",
+          willChange: "opacity"
         }}
+        sx={other.sx}
       >
         {children}
       </Box>

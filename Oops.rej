@@ -1,0 +1,38 @@
+@@ -83,4 +91,37 @@
+ 	col := r.db.Collection("courses")
+ 	_, err := col.DeleteOne(ctx, bson.M{"id": id})
+ 	return err
+ }
++
++func (r *repository) EnrollCourse(ctx context.Context, courseID string, studentID string) error {
++	col := r.db.Collection("enrollments")
++	filter := bson.M{"course_id": courseID, "student_id": studentID}
++	update := bson.M{"$setOnInsert": bson.M{"course_id": courseID, "student_id": studentID, "enrolled_at": "now"}}
++	opts := go_mongodb_org_mongo_driver_mongo_options.Update().SetUpsert(true)
++	// Wait, I need to import options. Let me just use InsertOne and ignore duplicate keys for simplicity.
++	// Actually, let's just do a find first to prevent duplicates.
++	count, _ := col.CountDocuments(ctx, filter)
++	if count == 0 {
++		_, err := col.InsertOne(ctx, Enrollment{CourseID: courseID, StudentID: studentID, EnrolledAt: "now"})
++		return err
++	}
++	return nil
++}
++
++func (r *repository) GetEnrolledCourses(ctx context.Context, studentID string) ([]*lmspb.Course, error) {
++	col := r.db.Collection("enrollments")
++	cursor, err := col.Find(ctx, bson.M{"student_id": studentID})
++	if err != nil {
++		return nil, err
++	}
++	var enrollments []Enrollment
++	if err = cursor.All(ctx, &enrollments); err != nil {
++		return nil, err
++	}
++	var courses []*lmspb.Course
++	for _, e := range enrollments {
++		course, _ := r.GetCourseByID(ctx, e.CourseID)
++		if course != nil {
++			courses = append(courses, course)
++		}
++	}

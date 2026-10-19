@@ -7,7 +7,7 @@ import { refreshAuthToken } from "../features/auth/authService";
 export const AuthContext = createContext({
   isAuthenticated: false,
   isLoading: true,
-  checkAuth: async () => {},
+  checkAuth: async () => { },
 });
 
 export const AuthProvider = ({ children }) => {

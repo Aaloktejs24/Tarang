@@ -52,7 +52,16 @@ func NewMinioClient(ctx context.Context) (*MinioClient, error) {
 		o.BaseEndpoint = aws.String(endpoint)
 	})
 
-	presignClient := s3.NewPresignClient(client)
+	publicEndpoint := os.Getenv("MINIO_PUBLIC_URL")
+	if publicEndpoint == "" {
+		publicEndpoint = endpoint
+	}
+
+	presignBaseClient := s3.NewFromConfig(cfg, func(o *s3.Options) {
+		o.UsePathStyle = true
+		o.BaseEndpoint = aws.String(publicEndpoint)
+	})
+	presignClient := s3.NewPresignClient(presignBaseClient)
 
 	return &MinioClient{
 		S3Client:    client,
@@ -67,11 +76,17 @@ func (m *MinioClient) GetObject(ctx context.Context, bucketName, objectKey strin
 	})
 }
 
-func (m *MinioClient) GeneratePresignedUploadURL(ctx context.Context, bucketName, objectKey string, lifetime time.Duration) (string, error) {
-	req, err := m.PresignClient.PresignPutObject(ctx, &s3.PutObjectInput{
+func (m *MinioClient) GeneratePresignedUploadURL(ctx context.Context, bucketName, objectKey, contentType string, lifetime time.Duration) (string, error) {
+	input := &s3.PutObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(objectKey),
-	}, func(opts *s3.PresignOptions) {
+	}
+	
+	if contentType != "" {
+		input.ContentType = aws.String(contentType)
+	}
+
+	req, err := m.PresignClient.PresignPutObject(ctx, input, func(opts *s3.PresignOptions) {
 		opts.Expires = lifetime
 	})
 	if err != nil {

@@ -3032,7 +3032,7 @@ const defaultOptions = {
     kind: OptionKind.VIEWER
   },
   disablePageLabels: {
-    value: false,
+    value: true,
     kind: OptionKind.VIEWER + OptionKind.PREFERENCE
   },
   enablePermissions: {
@@ -12568,7 +12568,7 @@ class BasePreferences {
     "cursorToolOnLoad": 0,
     "defaultZoomDelay": 400,
     "defaultZoomValue": "",
-    "disablePageLabels": false,
+    "disablePageLabels": true,
     "enablePermissions": false,
     "enablePrintAutoRotate": true,
     "enableScripting": true,

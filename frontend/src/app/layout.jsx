@@ -3,6 +3,8 @@ import 'katex/dist/katex.min.css';
 import { AccessibilityProvider } from "../contexts/AccessibilityContext";
 import { AuthProvider } from "../contexts/AuthContext";
 import { ProfileProvider } from "../contexts/ProfileContext";
+import { ToastProvider } from "../contexts/ToastContext";
+import { ConfirmProvider } from "../contexts/ConfirmContext";
 import AccessibilityMenu from "../components/navbar/AccessibilityMenu";
 import LanguagePromptModal from "../components/navbar/LanguagePromptModal";
 import GlobalBackground from "../components/common/GlobalBackground";
@@ -29,17 +31,21 @@ export default function RootLayout({ children }) {
         <AppRouterCacheProvider>
           <AuthProvider>
             <ProfileProvider>
-              <Suspense fallback={null}>
-                <LoadingProvider>
-                  <AccessibilityProvider>
-                    <GlobalBackground />
-                    <NavigationProgress />
-                    <AccessibilityMenu />
-                    <LanguagePromptModal />
-                    {children}
-                  </AccessibilityProvider>
-                </LoadingProvider>
-              </Suspense>
+              <ToastProvider>
+                <Suspense fallback={null}>
+                  <LoadingProvider>
+                    <AccessibilityProvider>
+                      <ConfirmProvider>
+                        <GlobalBackground />
+                        <NavigationProgress />
+                        <AccessibilityMenu />
+                        <LanguagePromptModal />
+                        {children}
+                      </ConfirmProvider>
+                    </AccessibilityProvider>
+                  </LoadingProvider>
+                </Suspense>
+              </ToastProvider>
             </ProfileProvider>
           </AuthProvider>
         </AppRouterCacheProvider>

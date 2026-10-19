@@ -18,6 +18,7 @@ export default function AdminRegister() {
   const params = useParams();
   const router = useRouter();
   const adminToken = params.adminToken;
+  const isSubmitting = React.useRef(false);
   
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
@@ -56,6 +57,8 @@ export default function AdminRegister() {
 
   const handleStartRegistration = async (e) => {
     e.preventDefault();
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
     setLoading(true);
     setError('');
     
@@ -79,12 +82,15 @@ export default function AdminRegister() {
     } catch (err) {
       setError(err.message);
     } finally {
+      isSubmitting.current = false;
       setLoading(false);
     }
   };
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
     setLoading(true);
     setError('');
     
@@ -101,12 +107,15 @@ export default function AdminRegister() {
     } catch (err) {
       setError(err.message);
     } finally {
+      isSubmitting.current = false;
       setLoading(false);
     }
   };
 
   const handleCompleteRegistration = async (e) => {
     e.preventDefault();
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
     setLoading(true);
     setError('');
     
@@ -136,6 +145,7 @@ export default function AdminRegister() {
     } catch (err) {
       setError(err.message);
     } finally {
+      isSubmitting.current = false;
       setLoading(false);
     }
   };
@@ -169,7 +179,7 @@ export default function AdminRegister() {
             border: 'none' }}
         >
           <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <Box component="img" src="/logo.svg" alt="Tarang Logo" sx={{ width: 48, height: 48, objectFit: 'contain' }} />
               <Typography variant="h5" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', letterSpacing: '-1px', fontSize: '26px' }}>
                 Admin Setup
@@ -224,7 +234,7 @@ export default function AdminRegister() {
                       fontWeight: 'var(--font-bold)',
                       background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)" }}
                   >
-                    {loading ? <CircularProgress size={24} color="inherit" /> : 'Continue'}
+                    {loading ? <CircularProgress size={24} sx={{ color: 'var(--color-primary)' }} /> : 'Continue'}
                   </Button>
                 </form>
               )}
@@ -258,7 +268,7 @@ export default function AdminRegister() {
                       fontWeight: 'var(--font-bold)',
                       background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)" }}
                   >
-                    {loading ? <CircularProgress size={24} color="inherit" /> : 'Verify Email'}
+                    {loading ? <CircularProgress size={24} sx={{ color: 'var(--color-primary)' }} /> : 'Verify Email'}
                   </Button>
                 </form>
               )}
@@ -329,7 +339,7 @@ export default function AdminRegister() {
                       fontWeight: 'var(--font-bold)',
                       background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)" }}
                   >
-                    {loading ? <CircularProgress size={24} color="inherit" /> : 'Complete Registration'}
+                    {loading ? <CircularProgress size={24} sx={{ color: 'var(--color-primary)' }} /> : 'Complete Registration'}
                   </Button>
                 </form>
               )}

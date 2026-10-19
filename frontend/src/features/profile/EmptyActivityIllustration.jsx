@@ -48,7 +48,7 @@ export default function EmptyActivityIllustration({ sx, ...props }) {
       {/* Main Illustration Elements */}
       
       <g>
-        <rect x="60" y="55" width="120" height="80" rx="6" fill="rgba(255,255,255,0.3)" stroke="rgba(255,255,255,0.5)" strokeWidth="1" />
+        <rect x="60" y="55" width="120" height="80" rx="6" fill="var(--glass-bg)" stroke="rgba(255,255,255,0.5)" strokeWidth="1" />
         <rect x="60" y="55" width="120" height="15" rx="6" fill="rgba(255,255,255,0.4)" />
         {/* Dashboard Header Dots */}
         <circle cx="70" cy="62.5" r="2.5" fill="#fca5a5" />

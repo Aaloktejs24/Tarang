@@ -1,18 +1,24 @@
 import { useEffect } from 'react';
 
+// Global lock counter to handle multiple modals opening/closing
+let lockCount = 0;
+
 export default function useScrollLock(isLocked = true) {
   useEffect(() => {
-    if (isLocked) {
+    if (!isLocked) return;
+
+    lockCount++;
+    if (lockCount === 1) {
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
     }
 
     return () => {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
+      lockCount = Math.max(0, lockCount - 1);
+      if (lockCount === 0) {
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+      }
     };
   }, [isLocked]);
 }

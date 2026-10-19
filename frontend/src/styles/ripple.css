@@ -3,7 +3,7 @@
   border-radius: var(--radius-full);
   transform: scale(0);
   animation: ripple-animation 600ms linear;
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: var(--glass-bg);
   pointer-events: none;
   z-index: 1;
 }

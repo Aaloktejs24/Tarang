@@ -30,6 +30,8 @@ func NewUserHandler(s *user.Service, minioClient *storage.MinioClient, cfg *conf
 func (h *UserHandler) RegisterRoutes(r chi.Router) {
 	r.Get("/profile", h.getProfile)
 	r.Get("/s3/sign", h.getUploadUrl)
+	r.Get("/s3/get", h.getDownloadUrl)
+	r.Post("/s3/delete", h.deleteFiles)
 	r.Post("/profile/update-pic", h.updateProfilePic)
 	r.Post("/profile/update-banner", h.updateBanner)
 	r.Post("/profile/update-bio", h.updateBio)
@@ -105,34 +107,47 @@ func (h *UserHandler) getProfile(w http.ResponseWriter, r *http.Request) {
 		bio = *u.Bio
 	}
 
+	location := ""
+	if u.Location != nil {
+		location = *u.Location
+	}
+	demographic := ""
+	if u.Demographic != nil {
+		demographic = *u.Demographic
+	}
+
+	isCompleted := fullName != "" && bio != "" && location != "" && len(u.Languages) > 0 && demographic != ""
+
 	resp := map[string]any{
-		"id":                u.ID,
-		"username":          u.Username,
-		"email":             u.Email,
-		"role":              u.Role,
-		"kyc_verified":      u.KycVerifiedAt != nil,
-		"kyc_status":        h.getKycStatus(u),
-		"full_name":         fullName,
-		"dob":               dob,
-		"gender":            gender,
-		"phone":             u.Phone,
-		"religion":          u.Religion,
-		"caste":             u.Caste,
-		"subcaste":          u.Subcaste,
-		"nationality":       u.Nationality,
-		"profile_pic_url":   profilePic,
-		"banner_url":        banner,
-		"bio":               bio,
-		"social_links":      u.SocialLinks,
-		"skills":            u.Skills,
-		"recognitions":      u.Recognitions,
-		"location":          u.Location,
-		"languages":         u.Languages,
-		"demographic":       u.Demographic,
-		"institution_name":  u.InstitutionName,
-		"institute_profile": u.InstituteProfile,
-		"addresses":         u.Addresses,
-		"academic_records":  u.AcademicRecords,
+		"id":                   u.ID,
+		"username":             u.Username,
+		"email":                u.Email,
+		"role":                 u.Role,
+		"kyc_verified":         u.KycVerifiedAt != nil,
+		"kyc_status":           h.getKycStatus(u),
+		"full_name":            fullName,
+		"dob":                  dob,
+		"gender":               gender,
+		"phone":                u.Phone,
+		"religion":             u.Religion,
+		"caste":                u.Caste,
+		"subcaste":             u.Subcaste,
+		"nationality":          u.Nationality,
+		"profile_pic_url":      profilePic,
+		"banner_url":           banner,
+		"bio":                  bio,
+		"social_links":         u.SocialLinks,
+		"skills":               u.Skills,
+		"recognitions":         u.Recognitions,
+		"primary_name":         u.PrimaryName,
+		"secondary_name":       u.SecondaryName,
+		"is_profile_completed": isCompleted,
+		"location":             u.Location,
+		"languages":            u.Languages,
+		"demographic":          u.Demographic,
+		"institute_profile":    u.InstituteProfile,
+		"addresses":            u.Addresses,
+		"academic_records":     u.AcademicRecords,
 	}
 
 	bucket := "tarang-user-service"
@@ -151,6 +166,24 @@ func (h *UserHandler) getProfile(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+	if u.InstituteProfile != nil {
+		ip := *u.InstituteProfile
+		if ip.LogoURL != "" {
+			if key := h.getStorageKeyFromURL(ip.LogoURL); key != "" {
+				if signed, err := h.minio.GenerateDownloadURL(r.Context(), bucket, key, 1*time.Hour); err == nil {
+					ip.LogoURL = signed
+				}
+			}
+		}
+		if ip.BannerURL != "" {
+			if key := h.getStorageKeyFromURL(ip.BannerURL); key != "" {
+				if signed, err := h.minio.GenerateDownloadURL(r.Context(), bucket, key, 1*time.Hour); err == nil {
+					ip.BannerURL = signed
+				}
+			}
+		}
+		resp["institute_profile"] = &ip
+	}
 
 	respondJSON(w, http.StatusOK, resp)
 }
@@ -162,7 +195,15 @@ func (h *UserHandler) getPublicProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u, err := h.svc.GetByUsername(r.Context(), username)
+	var u *user.User
+	var err error
+
+	if parsedID, parseErr := uuid.Parse(username); parseErr == nil {
+		u, err = h.svc.GetByID(r.Context(), parsedID)
+	} else {
+		u, err = h.svc.GetByUsername(r.Context(), username)
+	}
+
 	if err != nil {
 		respondError(w, http.StatusNotFound, errors.ErrUserNotFound)
 		return
@@ -202,7 +243,8 @@ func (h *UserHandler) getPublicProfile(w http.ResponseWriter, r *http.Request) {
 		"recognitions":      u.Recognitions,
 		"location":          u.Location,
 		"languages":         u.Languages,
-		"institution_name":  u.InstitutionName,
+		"primary_name":      u.PrimaryName,
+		"secondary_name":    u.SecondaryName,
 		"institute_profile": u.InstituteProfile,
 	}
 
@@ -222,6 +264,24 @@ func (h *UserHandler) getPublicProfile(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+	if u.InstituteProfile != nil {
+		ip := *u.InstituteProfile
+		if ip.LogoURL != "" {
+			if key := h.getStorageKeyFromURL(ip.LogoURL); key != "" {
+				if signed, err := h.minio.GenerateDownloadURL(r.Context(), bucket, key, 1*time.Hour); err == nil {
+					ip.LogoURL = signed
+				}
+			}
+		}
+		if ip.BannerURL != "" {
+			if key := h.getStorageKeyFromURL(ip.BannerURL); key != "" {
+				if signed, err := h.minio.GenerateDownloadURL(r.Context(), bucket, key, 1*time.Hour); err == nil {
+					ip.BannerURL = signed
+				}
+			}
+		}
+		resp["institute_profile"] = &ip
+	}
 
 	respondJSON(w, http.StatusOK, resp)
 }
@@ -229,10 +289,10 @@ func (h *UserHandler) getPublicProfile(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) getUploadUrl(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	uidStr := r.URL.Query().Get("user_id")
-	fileType := r.URL.Query().Get("type") // "profile" or "banner"
-	mimeType := r.URL.Query().Get("mime") // "image/jpeg", etc.
-
-	fmt.Printf("DEBUG: getUploadUrl - user_id: %s, type: %s, mime: %s\n", uidStr, fileType, mimeType)
+	fileType := r.URL.Query().Get("type")     // "profile", "banner", "document", "thumbnail", etc.
+	mimeType := r.URL.Query().Get("mime")     // "image/jpeg", etc.
+	username := r.URL.Query().Get("username") // required for central naming
+	filename := r.URL.Query().Get("filename") // descriptive label: "casteProof", "profilePic", etc.
 
 	if uidStr == "" || fileType == "" || mimeType == "" {
 		respondError(w, http.StatusBadRequest, errors.ErrFileMetadataRequired)
@@ -245,6 +305,14 @@ func (h *UserHandler) getUploadUrl(w http.ResponseWriter, r *http.Request) {
 		"image/png":       ".png",
 		"image/webp":      ".webp",
 		"application/pdf": ".pdf",
+		"video/mp4":       ".mp4",
+		"video/webm":      ".webm",
+		"video/ogg":       ".ogg",
+		"audio/mpeg":      ".mp3",
+		"audio/wav":       ".wav",
+		"audio/ogg":       ".ogg",
+		"audio/mp3":       ".mp3",
+		"audio/*":         ".mp3",
 	}
 	ext, ok := allowedMime[mimeType]
 	if !ok {
@@ -252,7 +320,16 @@ func (h *UserHandler) getUploadUrl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fileName := fmt.Sprintf("users/%s/%s/current%s", uidStr, fileType, ext)
+	// Central naming: username_filename_(date+time)_tarang.ext
+	timestamp := time.Now().Format("20060102_150405")
+	var fileName string
+	if username != "" && filename != "" {
+		fileName = fmt.Sprintf("users/%s/%s/%s_%s_%s_tarang%s", uidStr, fileType, username, filename, timestamp, ext)
+	} else if username != "" {
+		fileName = fmt.Sprintf("users/%s/%s/%s_%s_%s_tarang%s", uidStr, fileType, username, fileType, timestamp, ext)
+	} else {
+		fileName = fmt.Sprintf("users/%s/%s/%s_%s_tarang%s", uidStr, fileType, fileType, timestamp, ext)
+	}
 	bucket := "tarang-user-service"
 
 	url, err := h.minio.GenerateUploadURL(ctx, bucket, fileName, 15*time.Minute)
@@ -268,6 +345,78 @@ func (h *UserHandler) getUploadUrl(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// getDownloadUrl generates a short-lived presigned GET URL for a private MinIO object.
+// Called by the Next.js proxy (/api/proxy/file.pdf) to serve documents without exposing credentials.
+func (h *UserHandler) getDownloadUrl(w http.ResponseWriter, r *http.Request) {
+	fileURL := r.URL.Query().Get("url")
+	if fileURL == "" {
+		respondError(w, http.StatusBadRequest, errors.ErrFileMetadataRequired)
+		return
+	}
+
+	bucket := "tarang-user-service"
+	key := h.getStorageKeyFromURL(fileURL)
+	if key == "" {
+		// URL is not a MinIO URL we recognise – return it as-is so the proxy can try directly
+		respondJSON(w, http.StatusOK, map[string]string{"signed_url": fileURL})
+		return
+	}
+
+	signed, err := h.minio.GenerateDownloadURL(r.Context(), bucket, key, 1*time.Hour)
+	if err != nil {
+		fmt.Printf("ERROR generating download URL: %v\n", err)
+		respondError(w, http.StatusInternalServerError, errors.ErrFailedToGenerateUploadURL)
+		return
+	}
+
+	respondJSON(w, http.StatusOK, map[string]string{"signed_url": signed})
+}
+
+// deleteFiles deletes files from MinIO given their public URLs.
+// Used for cascading cleanup: re-uploads, application withdrawal, etc.
+func (h *UserHandler) deleteFiles(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var in struct {
+		FileURLs []string `json:"file_urls"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
+		return
+	}
+
+	if len(in.FileURLs) == 0 {
+		respondJSON(w, http.StatusOK, map[string]interface{}{"deleted": 0})
+		return
+	}
+
+	bucket := "tarang-user-service"
+	publicPrefix := fmt.Sprintf("%s/%s/", h.cfg.MinioPublicURL, bucket)
+
+	deleted := 0
+	for _, fileURL := range in.FileURLs {
+		// Extract MinIO key from public URL
+		if !strings.HasPrefix(fileURL, publicPrefix) {
+			fmt.Printf("[deleteFiles] Skipping non-MinIO URL: %s\n", fileURL)
+			continue
+		}
+		key := strings.TrimPrefix(fileURL, publicPrefix)
+		if key == "" {
+			continue
+		}
+
+		err := h.minio.RemoveObject(ctx, bucket, key)
+		if err != nil {
+			fmt.Printf("[deleteFiles] Failed to delete %s: %v\n", key, err)
+			continue
+		}
+		deleted++
+		fmt.Printf("[deleteFiles] Deleted: %s\n", key)
+	}
+
+	respondJSON(w, http.StatusOK, map[string]interface{}{"deleted": deleted})
+}
+
 func (h *UserHandler) updateProfilePic(w http.ResponseWriter, r *http.Request) {
 	var in struct {
 		UserID string `json:"user_id"`
@@ -277,8 +426,6 @@ func (h *UserHandler) updateProfilePic(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
-
-	fmt.Printf("DEBUG: updateProfilePic - user_id: %s, url: %s\n", in.UserID, in.URL)
 
 	uid, err := uuid.Parse(in.UserID)
 	if err != nil {
@@ -303,8 +450,6 @@ func (h *UserHandler) updateBanner(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
-
-	fmt.Printf("DEBUG: updateBanner - user_id: %s, url: %s\n", in.UserID, in.URL)
 
 	uid, err := uuid.Parse(in.UserID)
 	if err != nil {
@@ -357,7 +502,8 @@ func (h *UserHandler) updateProfile(w http.ResponseWriter, r *http.Request) {
 		Location         string                      `json:"location"`
 		Languages        []string                    `json:"languages"`
 		Demographic      string                      `json:"demographic"`
-		InstitutionName  string                      `json:"institution_name"`
+		PrimaryName      string                      `json:"primary_name"`
+		SecondaryName    string                      `json:"secondary_name"`
 		InstituteProfile *user.InstituteProfileInput `json:"institute_profile"`
 		Religion         string                      `json:"religion"`
 		Caste            string                      `json:"caste"`
@@ -368,40 +514,47 @@ func (h *UserHandler) updateProfile(w http.ResponseWriter, r *http.Request) {
 		WorkExperiences  []*user.UserWorkExperience  `json:"work_experiences"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+		fmt.Printf("[UserHandler] Decode error: %v\n", err)
 		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
 
 	uid, err := uuid.Parse(in.UserID)
 	if err != nil {
+		fmt.Printf("[UserHandler] Invalid UUID: %v\n", in.UserID)
 		respondError(w, http.StatusBadRequest, errors.ErrInvalidUserIdentifier)
 		return
 	}
 
 	if in.InstituteProfile != nil {
 		if in.InstituteProfile.InstituteType == "" {
+			fmt.Printf("[UserHandler] Missing InstituteType\n")
 			respondError(w, http.StatusBadRequest, errors.ErrInstituteTypeRequired)
 			return
 		}
 		if in.InstituteProfile.EstablishedYear < 1800 {
+			fmt.Printf("[UserHandler] Invalid EstablishedYear: %d\n", in.InstituteProfile.EstablishedYear)
 			respondError(w, http.StatusBadRequest, errors.ErrEstablishedYearInvalid)
 			return
 		}
 		if in.InstituteProfile.RegistrationNumber == "" {
+			fmt.Printf("[UserHandler] Missing RegistrationNumber\n")
 			respondError(w, http.StatusBadRequest, errors.ErrRegistrationNumberRequired)
 			return
 		}
 		if len(in.InstituteProfile.CoursesOffered) == 0 {
+			fmt.Printf("[UserHandler] Missing CoursesOffered\n")
 			respondError(w, http.StatusBadRequest, errors.ErrCoursesOfferedRequired)
 			return
 		}
 		if in.InstituteProfile.StudentCount < 0 || in.InstituteProfile.FacultyCount < 0 {
+			fmt.Printf("[UserHandler] Negative Counts\n")
 			respondError(w, http.StatusBadRequest, errors.ErrCountsCannotBeNegative)
 			return
 		}
 	}
 
-	if err := h.svc.UpdateProfile(r.Context(), uid, in.FullName, in.DOB, in.Gender, in.Bio, in.SocialLinks, in.Skills, in.Recognitions, in.Location, in.Languages, in.Demographic, in.InstitutionName, in.InstituteProfile, in.Religion, in.Caste, in.Subcaste, in.Nationality, in.Addresses, in.AcademicRecords, in.WorkExperiences); err != nil {
+	if err := h.svc.UpdateProfile(r.Context(), uid, in.FullName, in.DOB, in.Gender, in.Bio, in.SocialLinks, in.Skills, in.Recognitions, in.Location, in.Languages, in.Demographic, in.PrimaryName, in.SecondaryName, in.InstituteProfile, in.Religion, in.Caste, in.Subcaste, in.Nationality, in.Addresses, in.AcademicRecords, in.WorkExperiences); err != nil {
 		fmt.Printf("[UserHandler] UpdateProfile error: %v\n", err)
 		respondError(w, http.StatusInternalServerError, errors.ErrFailedToUpdateProfile)
 		return
@@ -490,17 +643,18 @@ func (h *UserHandler) getInstitutes(w http.ResponseWriter, r *http.Request) {
 		}
 
 		results = append(results, map[string]any{
-			"id":               u.ID,
-			"username":         u.Username,
-			"full_name":        fullName,
-			"profile_pic_url":  profilePic,
-			"banner_url":       banner,
-			"location":         u.Location,
-			"languages":        u.Languages,
-			"demographic":      u.Demographic,
-			"bio":              u.Bio,
-			"recognitions":     u.Recognitions,
-			"institution_name": u.InstitutionName,
+			"id":              u.ID,
+			"username":        u.Username,
+			"full_name":       fullName,
+			"profile_pic_url": profilePic,
+			"banner_url":      banner,
+			"location":        u.Location,
+			"languages":       u.Languages,
+			"demographic":     u.Demographic,
+			"bio":             u.Bio,
+			"recognitions":    u.Recognitions,
+			"primary_name":    u.PrimaryName,
+			"secondary_name":  u.SecondaryName,
 		})
 	}
 

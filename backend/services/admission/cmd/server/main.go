@@ -10,14 +10,14 @@ import (
 	"backend/services/admission/internal/admission"
 	admissiongrpc "backend/services/admission/internal/grpc"
 	v1 "backend/services/admission/internal/http/v1"
+	"backend/services/admission/internal/jobs"
 
-	"database/sql"
-	_ "github.com/lib/pq"
-	
 	"backend/shared/config"
+	"backend/shared/database"
 	"backend/shared/env"
 	"backend/shared/logger"
 	"backend/shared/tracing"
+	"backend/shared/redis"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
@@ -45,23 +45,37 @@ func main() {
 		logger.Log.Fatal("invalid config", zap.Error(err))
 	}
 
-	db, err := sql.Open("postgres", cfg.AdmissionDBURL)
+	err = database.ConnectMongoDB(cfg.MongoURI, "admissions_db")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer func() { _ = db.Close() }()
+	defer database.DisconnectMongoDB()
 
-	repo := admission.NewRepository(db)
+	redisClient, err := redis.ConnectRedis(
+		ctx,
+		cfg.RedisAddr,
+		cfg.RedisPassword,
+		cfg.RedisDB,
+	)
+	if err != nil {
+		log.Fatalf("redis connection failed: %v", err)
+	}
+	defer func() { _ = redisClient.Close() }()
+
+	repo := admission.NewRepository(database.MongoDatabase, redisClient)
 	admissionService := admission.NewService(repo, cfg)
 
-	admissionHandler := v1.NewAdmissionHandler(admissionService)
+	// Start background cleanup for abandoned drafts and applications (every 24h)
+	jobs.StartAbandonedCleanupJob(admissionService)
+
+	admissionHandler := v1.NewAdmissionHandler(admissionService, redisClient)
 
 	r := chi.NewRouter()
 
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173", "http://localhost:3000", "http://localhost:3001"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "Idempotency-Key"},
 		AllowCredentials: true,
 	}))
 

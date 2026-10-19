@@ -68,8 +68,8 @@ message Attachment {
 message Program {
   string id = 1;
   string institute_id = 2;
-  string workflow_title = 3;
-  string workflow_desc = 4;
+  string form_title = 3;
+  string form_desc = 4;
   string image_url = 5;
   string last_date = 6;
   int32 seats = 7;
@@ -88,8 +88,8 @@ message DeleteProgramRequest {
 
 message CreateProgramRequest {
   string institute_id = 1;
-  string workflow_title = 2;
-  string workflow_desc = 3;
+  string form_title = 2;
+  string form_desc = 3;
   string image_url = 4;
   string last_date = 5;
   int32 seats = 6;
@@ -104,8 +104,8 @@ message CreateProgramRequest {
 message UpdateProgramRequest {
   string id = 1;
   string institute_id = 2;
-  string workflow_title = 3;
-  string workflow_desc = 4;
+  string form_title = 3;
+  string form_desc = 4;
   string image_url = 5;
   string last_date = 6;
   int32 seats = 7;

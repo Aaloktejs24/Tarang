@@ -17,8 +17,9 @@ import TarangButton from "../../../components/common/TarangButton";
 import { useState, useEffect } from "react";
 import { checkUsername, checkEmail } from "../authService";
 import { validateEmail, validatePhone, validateUsername, validateName, validatePassword, getPasswordStrength, RULES } from "../../../utils/validationUtils";
-import AuthMessage from "./AuthMessage";
 import { RuleRow } from "../../../components/common/PasswordStrength";
+import { CustomTooltip } from '../../../components/common/CustomTooltip';
+
 
 
 
@@ -187,7 +188,7 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
 
   return (
     <FormLoadingProvider isLoading={isLoading}>
-      <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 1.5 }}>
       <Box>
         <Typography variant="h5" sx={{ fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)', mb: 1 }}>
           नया अकाउंट बनाएँ
@@ -197,23 +198,7 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
         </Typography>
       </Box>
 
-      <AnimatePresence mode="wait">
-        {(error || success) && (
-          <motion.div
-            key={error ? "error" : "success"}
-            initial={{ opacity: 0, height: 0, marginTop: 0 }}
-            animate={{ opacity: 1, height: "auto", marginTop: 8 }}
-            exit={{ opacity: 0, height: 0, marginTop: 0 }}
-            style={{ overflow: "hidden", textAlign: "center", width: "100%" }}
-          >
-            {error ? (
-              <AuthMessage type="error" message={error} />
-            ) : (
-              <AuthMessage type="success" message={success} />
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      
 
       <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
 
@@ -221,7 +206,8 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
         <Box sx={{ display: "flex", gap: 1.5 }}>
           <Box sx={{ width: "calc(50% - 6px)" }}>
             <CustomFloatingInput
-              label="पूरा नाम *"
+              label="पूरा नाम"
+              required
 
               value={formData.full_name || ""}
               onChange={(e) => {
@@ -238,7 +224,8 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
           </Box>
           <Box sx={{ width: "calc(50% - 6px)" }}>
             <CustomFloatingDatePicker
-              label="जन्म तिथि *"
+              label="जन्म तिथि"
+              required
               value={formData.dob || ""}
               onChange={(e) => {
                 updateFormData({ dob: e.target.value });
@@ -254,7 +241,8 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
         <Box sx={{ display: "flex", gap: 1.5 }}>
           <Box sx={{ width: "calc(50% - 6px)", position: 'relative' }}>
             <CustomFloatingInput
-              label="ईमेल पता *"
+              label="ईमेल पता"
+              required
               type="email"
               value={formData.email || ""}
               onChange={(e) => {
@@ -281,7 +269,8 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
           </Box>
           <Box sx={{ width: "calc(50% - 6px)" }}>
             <CustomFloatingSelect
-              label="भूमिका *"
+              label="भूमिका"
+              required
               value={formData.role || ""}
               onChange={(e) => {
                 updateFormData({ role: e.target.value });
@@ -292,7 +281,7 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
               options={[
                 { value: "student", label: "छात्र" },
                 { value: "teacher", label: "शिक्षक" },
-                { value: "organisation", label: "प्रशासक" }
+                { value: "admin", label: "प्रशासक" }
               ]}
             />
           </Box>
@@ -301,7 +290,8 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
         <Box sx={{ display: "flex", gap: 1.5 }}>
           <Box sx={{ width: "calc(50% - 6px)" }}>
             <CustomFloatingPhoneInput
-              label="फ़ोन नंबर *"
+              label="फ़ोन नंबर"
+              required
               countryCode={formData.countryCode || "+91"}
               onCountryCodeChange={(code) => updateFormData({ countryCode: code })}
               value={formData.phone || ""}
@@ -316,7 +306,8 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
           <Box sx={{ width: "calc(50% - 6px)" }}>
             <Box sx={{ width: 'var(--size-full)' }}>
               <CustomFloatingInput
-                label="यूज़रनेम *"
+                label="यूज़रनेम"
+                required
 
                 value={formData.username}
                 onChange={(e) => {
@@ -340,17 +331,10 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
           </Box>
         </Box>
 
-        {error && (
-          <Box sx={{ display: "flex", flexDirection: "column" }}>
-            <Typography color="error" variant="body2" sx={{ mt: 1, fontSize: 'var(--font-xs)' }}>{error}</Typography>
-          </Box>
-        )}
-
-
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
           <Box sx={{ display: "flex", gap: 1.5, alignItems: "flex-start", mt: 0 }}>
             <Box sx={{ width: "calc(50% - 6px)" }}>
-              <Tooltip
+              <CustomTooltip
                 placement="top"
                 arrow
                 PopperProps={{ sx: { zIndex: 'var(--z-tooltip)' } }}
@@ -378,7 +362,8 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
               >
                 <Box sx={{ width: 'var(--size-full)' }}>
                   <CustomFloatingInput
-                    label="पासवर्ड *"
+                    label="पासवर्ड"
+                    required
 
                     type={showPassword ? "text" : "password"}
                     value={formData.password}
@@ -410,12 +395,13 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
                     }}
                   />
                 </Box>
-              </Tooltip>
+              </CustomTooltip>
             </Box>
 
             <Box sx={{ width: "calc(50% - 6px)" }}>
               <CustomFloatingInput
-                label="पुष्टि करें *"
+                label="पुष्टि करें"
+                required
 
                 type={showPassword ? "text" : "password"}
                 value={formData.confirmPassword}
@@ -476,7 +462,7 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
 
 
 
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
         <Box sx={{ display: "flex", gap: 1.5 }}>
           {onClose && (
             <TarangButton

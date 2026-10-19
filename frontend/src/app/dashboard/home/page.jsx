@@ -11,7 +11,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!loading && profile) {
-      if (profile.role === "institute" || profile.role === "organisation") {
+      if (profile.role === "institute" || profile.role === "admin") {
         router.replace("/dashboard/home/institute");
       } else {
         router.replace("/dashboard/home/feed");

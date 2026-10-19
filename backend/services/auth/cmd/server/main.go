@@ -10,6 +10,7 @@ import (
 	"backend/services/auth/internal/auth"
 	authclient "backend/services/auth/internal/client"
 	v1 "backend/services/auth/internal/http/v1"
+	"backend/services/auth/internal/http/v1/authhandler"
 	"backend/services/auth/internal/jobs"
 
 	"backend/shared/config"
@@ -123,6 +124,8 @@ func main() {
 	c.Start()
 	defer c.Stop()
 
+	jobs.StartCleanupJob(authRepo)
+
 	//---------------------------------------------------
 	// 7️⃣ gRPC User Client
 	//---------------------------------------------------
@@ -149,7 +152,7 @@ func main() {
 	// 🔟 Handler
 	//---------------------------------------------------
 
-	authHandler := v1.NewAuthHandler(authSvc)
+	authHandler := authhandler.NewAuthHandler(authSvc)
 
 	//---------------------------------------------------
 	// 🔟 Router

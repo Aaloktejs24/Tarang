@@ -147,13 +147,12 @@ func (r *Repository) UpdateProfile(ctx context.Context, u *User) error {
 	_, err = tx.Exec(ctx, `
 		UPDATE users 
 		SET full_name=$1, dob=$2, gender=$3, bio=$4, 
-		    social_links=$5, skills=$6, recognitions=$7, 
-		    institution_name=$8, location=$9, languages=$10, demographic=$11,
+		    profile_pic_url=$5, banner_url=$6, primary_name=$7, secondary_name=$8, location=$9, languages=$10, demographic=$11,
 			religion=$12, caste=$13, subcaste=$14, nationality=$15,
 		    updated_at=NOW()
 		WHERE id=$16
 	`, r.encrypt(u.FullName), u.DOB, u.Gender, u.Bio,
-		u.SocialLinks, u.Skills, u.Recognitions, u.InstitutionName,
+		u.ProfilePicURL, u.BannerURL, u.PrimaryName, u.SecondaryName,
 		u.Location, u.Languages, u.Demographic,
 		r.encrypt(u.Religion), r.encrypt(u.Caste), r.encrypt(u.Subcaste), u.Nationality,
 		u.ID)
@@ -308,14 +307,14 @@ func (r *Repository) GetByID(ctx context.Context, id uuid.UUID) (*User, error) {
 	err := r.db.QueryRow(ctx, `
 		SELECT id, username, email, role,
 		       kyc_verified_at, kyc_reference_id, aadhaar_hash, full_name, dob, gender,
-		       profile_pic_url, banner_url, bio, institution_name, social_links, skills, recognitions,
+		       profile_pic_url, banner_url, bio, primary_name, secondary_name, social_links, skills, recognitions,
 		       created_at, updated_at,
 		       location, languages, demographic,
 			   religion, caste, subcaste, nationality, phone
 		FROM users WHERE id=$1
 	`, id).Scan(&u.ID, &u.Username, &u.Email, &u.Role,
 		&u.KycVerifiedAt, &u.KycReferenceID, &u.AadhaarHash, &u.FullName, &u.DOB, &u.Gender,
-		&u.ProfilePicURL, &u.BannerURL, &u.Bio, &u.InstitutionName, &u.SocialLinks, &u.Skills, &u.Recognitions,
+		&u.ProfilePicURL, &u.BannerURL, &u.Bio, &u.PrimaryName, &u.SecondaryName, &u.SocialLinks, &u.Skills, &u.Recognitions,
 		&u.CreatedAt, &u.UpdatedAt,
 		&u.Location, &u.Languages, &u.Demographic,
 		&u.Religion, &u.Caste, &u.Subcaste, &u.Nationality, &u.Phone)
@@ -329,38 +328,56 @@ func (r *Repository) GetByID(ctx context.Context, id uuid.UUID) (*User, error) {
 	u.Phone = r.decrypt(u.Phone)
 	r.loadExtendedProfile(ctx, &u)
 	
-	if u.Role == "institute" || u.Role == "organisation" {
+	if u.Role == "institute" || u.Role == "admin" {
 		inst := &InstituteProfileInput{}
 		var coursesBytes, eduBytes, accDocsBytes []byte
-		var banner, logo, phone, email *string
+		var banner, logo, phone, email, websiteUrl, shortDesc, address, campusType, operatingHours, altPhone, regNum, instType, licenseUrl, pincode *string
+		var estYear, studentCount, facultyCount *int
 		q := `
-			SELECT i.institute_type, i.established_year, i.registration_number, i.website_url, i.short_description, i.logo_url, i.banner_url,
-			       c.address, c.campus_type, c.operating_hours,
+			SELECT i.institute_type, i.established_year, i.registration_number, i.website_url, i.short_description, i.logo_url, i.banner_url, i.license_certificate_url,
+			       c.address, c.campus_type, c.operating_hours, c.pincode,
 			       a.courses_offered, a.education_levels, a.student_count, a.faculty_count, a.accreditation_docs,
-			       cnt.phone, cnt.email
+			       cnt.phone, cnt.email,
+			       cnt2.phone as alt_phone
 			FROM institute_users iu
 			JOIN institutes i ON iu.institute_id = i.id
 			LEFT JOIN institute_campuses c ON c.institute_id = i.id AND c.name = 'Main Campus'
 			LEFT JOIN institute_academics a ON a.campus_id = c.id
 			LEFT JOIN institute_contacts cnt ON cnt.institute_id = i.id AND cnt.is_primary = true
+			LEFT JOIN institute_contacts cnt2 ON cnt2.institute_id = i.id AND cnt2.is_primary = false
 			WHERE iu.user_id = $1 AND iu.role = 'owner'
 			LIMIT 1
 		`
 		err = r.db.QueryRow(ctx, q, u.ID).Scan(
-			&inst.InstituteType, &inst.EstablishedYear, &inst.RegistrationNumber, &inst.WebsiteURL, &inst.ShortDescription, &logo, &banner,
-			&inst.AddressLine, &inst.CampusType, &inst.OperatingHours,
-			&coursesBytes, &eduBytes, &inst.StudentCount, &inst.FacultyCount, &accDocsBytes,
-			&phone, &email,
+			&instType, &estYear, &regNum, &websiteUrl, &shortDesc, &logo, &banner, &licenseUrl,
+			&address, &campusType, &operatingHours, &pincode,
+			&coursesBytes, &eduBytes, &studentCount, &facultyCount, &accDocsBytes,
+			&phone, &email, &altPhone,
 		)
 		if err == nil {
-			if banner != nil { inst.BannerURL = *banner }
+			if instType != nil { inst.InstituteType = *instType }
+			if estYear != nil { inst.EstablishedYear = *estYear }
+			if regNum != nil { inst.RegistrationNumber = *regNum }
+			if websiteUrl != nil { inst.WebsiteURL = *websiteUrl }
+			if shortDesc != nil { inst.ShortDescription = *shortDesc }
 			if logo != nil { inst.LogoURL = *logo }
+			if banner != nil { inst.BannerURL = *banner }
+			if licenseUrl != nil { inst.LicenseCertificateURL = *licenseUrl }
+			if address != nil { inst.AddressLine = *address }
+			if campusType != nil { inst.CampusType = *campusType }
+			if operatingHours != nil { inst.OperatingHours = *operatingHours }
+			if pincode != nil { inst.Pincode = *pincode }
 			if phone != nil { inst.OfficialPhone = *phone }
 			if email != nil { inst.OfficialEmail = *email }
+			if altPhone != nil { inst.AlternateContact = *altPhone }
+			if studentCount != nil { inst.StudentCount = *studentCount }
+			if facultyCount != nil { inst.FacultyCount = *facultyCount }
 			_ = json.Unmarshal(coursesBytes, &inst.CoursesOffered)
 			_ = json.Unmarshal(eduBytes, &inst.EducationLevels)
 			_ = json.Unmarshal(accDocsBytes, &inst.AccreditationDocs)
 			u.InstituteProfile = inst
+		} else {
+			fmt.Printf("[GetByID] Error scanning institute profile: %v\n", err)
 		}
 	}
 
@@ -386,14 +403,14 @@ func (r *Repository) GetByUsername(ctx context.Context, username string) (*User,
 	err := r.db.QueryRow(ctx, `
 		SELECT id, username, email, role,
 		       kyc_verified_at, kyc_reference_id, aadhaar_hash, full_name, dob, gender,
-		       profile_pic_url, banner_url, bio, institution_name, social_links, skills, recognitions,
+		       profile_pic_url, banner_url, bio, primary_name, secondary_name, social_links, skills, recognitions,
 		       created_at, updated_at,
 		       location, languages, demographic,
 			   religion, caste, subcaste, nationality, phone
 		FROM users WHERE username=$1
 	`, username).Scan(&u.ID, &u.Username, &u.Email, &u.Role,
 		&u.KycVerifiedAt, &u.KycReferenceID, &u.AadhaarHash, &u.FullName, &u.DOB, &u.Gender,
-		&u.ProfilePicURL, &u.BannerURL, &u.Bio, &u.InstitutionName, &u.SocialLinks, &u.Skills, &u.Recognitions,
+		&u.ProfilePicURL, &u.BannerURL, &u.Bio, &u.PrimaryName, &u.SecondaryName, &u.SocialLinks, &u.Skills, &u.Recognitions,
 		&u.CreatedAt, &u.UpdatedAt,
 		&u.Location, &u.Languages, &u.Demographic,
 		&u.Religion, &u.Caste, &u.Subcaste, &u.Nationality, &u.Phone)
@@ -407,38 +424,56 @@ func (r *Repository) GetByUsername(ctx context.Context, username string) (*User,
 	u.Phone = r.decrypt(u.Phone)
 	r.loadExtendedProfile(ctx, &u)
 	
-	if u.Role == "institute" || u.Role == "organisation" {
+	if u.Role == "institute" || u.Role == "admin" {
 		inst := &InstituteProfileInput{}
 		var coursesBytes, eduBytes, accDocsBytes []byte
-		var banner, logo, phone, email *string
+		var banner, logo, phone, email, websiteUrl, shortDesc, address, campusType, operatingHours, altPhone, regNum, instType, licenseUrl, pincode *string
+		var estYear, studentCount, facultyCount *int
 		q := `
-			SELECT i.institute_type, i.established_year, i.registration_number, i.website_url, i.short_description, i.logo_url, i.banner_url,
-			       c.address, c.campus_type, c.operating_hours,
+			SELECT i.institute_type, i.established_year, i.registration_number, i.website_url, i.short_description, i.logo_url, i.banner_url, i.license_certificate_url,
+			       c.address, c.campus_type, c.operating_hours, c.pincode,
 			       a.courses_offered, a.education_levels, a.student_count, a.faculty_count, a.accreditation_docs,
-			       cnt.phone, cnt.email
+			       cnt.phone, cnt.email,
+			       cnt2.phone as alt_phone
 			FROM institute_users iu
 			JOIN institutes i ON iu.institute_id = i.id
 			LEFT JOIN institute_campuses c ON c.institute_id = i.id AND c.name = 'Main Campus'
 			LEFT JOIN institute_academics a ON a.campus_id = c.id
 			LEFT JOIN institute_contacts cnt ON cnt.institute_id = i.id AND cnt.is_primary = true
+			LEFT JOIN institute_contacts cnt2 ON cnt2.institute_id = i.id AND cnt2.is_primary = false
 			WHERE iu.user_id = $1 AND iu.role = 'owner'
 			LIMIT 1
 		`
 		err = r.db.QueryRow(ctx, q, u.ID).Scan(
-			&inst.InstituteType, &inst.EstablishedYear, &inst.RegistrationNumber, &inst.WebsiteURL, &inst.ShortDescription, &logo, &banner,
-			&inst.AddressLine, &inst.CampusType, &inst.OperatingHours,
-			&coursesBytes, &eduBytes, &inst.StudentCount, &inst.FacultyCount, &accDocsBytes,
-			&phone, &email,
+			&instType, &estYear, &regNum, &websiteUrl, &shortDesc, &logo, &banner, &licenseUrl,
+			&address, &campusType, &operatingHours, &pincode,
+			&coursesBytes, &eduBytes, &studentCount, &facultyCount, &accDocsBytes,
+			&phone, &email, &altPhone,
 		)
 		if err == nil {
-			if banner != nil { inst.BannerURL = *banner }
+			if instType != nil { inst.InstituteType = *instType }
+			if estYear != nil { inst.EstablishedYear = *estYear }
+			if regNum != nil { inst.RegistrationNumber = *regNum }
+			if websiteUrl != nil { inst.WebsiteURL = *websiteUrl }
+			if shortDesc != nil { inst.ShortDescription = *shortDesc }
 			if logo != nil { inst.LogoURL = *logo }
+			if banner != nil { inst.BannerURL = *banner }
+			if licenseUrl != nil { inst.LicenseCertificateURL = *licenseUrl }
+			if address != nil { inst.AddressLine = *address }
+			if campusType != nil { inst.CampusType = *campusType }
+			if operatingHours != nil { inst.OperatingHours = *operatingHours }
+			if pincode != nil { inst.Pincode = *pincode }
 			if phone != nil { inst.OfficialPhone = *phone }
 			if email != nil { inst.OfficialEmail = *email }
+			if altPhone != nil { inst.AlternateContact = *altPhone }
+			if studentCount != nil { inst.StudentCount = *studentCount }
+			if facultyCount != nil { inst.FacultyCount = *facultyCount }
 			_ = json.Unmarshal(coursesBytes, &inst.CoursesOffered)
 			_ = json.Unmarshal(eduBytes, &inst.EducationLevels)
 			_ = json.Unmarshal(accDocsBytes, &inst.AccreditationDocs)
 			u.InstituteProfile = inst
+		} else {
+			fmt.Printf("[GetByUsername] Error scanning institute profile: %v\n", err)
 		}
 	}
 
@@ -455,13 +490,20 @@ func (r *Repository) GetByUsername(ctx context.Context, username string) (*User,
 // GetInstitutes fetches a paginated list of users with the 'institute' role.
 func (r *Repository) GetInstitutes(ctx context.Context, limit, offset int) ([]*User, error) {
 	rows, err := r.db.Query(ctx, `
-		SELECT id, username, role,
-		       kyc_verified_at, kyc_reference_id, aadhaar_hash, full_name, dob, gender,
-		       profile_pic_url, banner_url, bio, institution_name, social_links, skills, recognitions,
-		       created_at, updated_at,
-		       location, languages, demographic
-		FROM users WHERE role IN ('institute', 'organisation')
-		ORDER BY created_at DESC
+		SELECT u.id, u.username, u.role,
+		       u.kyc_verified_at, u.kyc_reference_id, u.aadhaar_hash, u.full_name, u.dob, u.gender,
+		       COALESCE(NULLIF(i.logo_url, ''), u.profile_pic_url) as profile_pic_url, 
+               COALESCE(NULLIF(i.banner_url, ''), u.banner_url) as banner_url, 
+               COALESCE(NULLIF(i.short_description, ''), u.bio) as bio, 
+               COALESCE(NULLIF(i.name, ''), u.primary_name) as primary_name, 
+               u.secondary_name, u.social_links, u.skills, u.recognitions,
+		       u.created_at, u.updated_at,
+		       u.location, u.languages, u.demographic
+		FROM users u
+        LEFT JOIN institute_users iu ON u.id = iu.user_id AND iu.role = 'owner'
+        LEFT JOIN institutes i ON iu.institute_id = i.id
+		WHERE u.role IN ('institute', 'admin')
+		ORDER BY u.created_at DESC
 		LIMIT $1 OFFSET $2
 	`, limit, offset)
 	if err != nil {
@@ -474,7 +516,7 @@ func (r *Repository) GetInstitutes(ctx context.Context, limit, offset int) ([]*U
 		var u User
 		err := rows.Scan(&u.ID, &u.Username, &u.Role,
 		&u.KycVerifiedAt, &u.KycReferenceID, &u.AadhaarHash, &u.FullName, &u.DOB, &u.Gender,
-		&u.ProfilePicURL, &u.BannerURL, &u.Bio, &u.InstitutionName, &u.SocialLinks, &u.Skills, &u.Recognitions,
+		&u.ProfilePicURL, &u.BannerURL, &u.Bio, &u.PrimaryName, &u.SecondaryName, &u.SocialLinks, &u.Skills, &u.Recognitions,
 		&u.CreatedAt, &u.UpdatedAt,
 		&u.Location, &u.Languages, &u.Demographic)
 		if err != nil {
@@ -586,9 +628,9 @@ func (r *Repository) UpsertInstituteProfile(ctx context.Context, userID uuid.UUI
 		instituteID = uuid.New()
 		fmt.Printf("[UpsertInstituteProfile] INSERT institutes id=%v\n", instituteID)
 		_, err = tx.Exec(ctx, `
-			INSERT INTO institutes (id, name, institute_type, established_year, registration_number, website_url, short_description, logo_url, banner_url)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-		`, instituteID, nameToUse, inst.InstituteType, inst.EstablishedYear, inst.RegistrationNumber, inst.WebsiteURL, inst.ShortDescription, inst.LogoURL, inst.BannerURL)
+			INSERT INTO institutes (id, name, institute_type, established_year, registration_number, website_url, short_description, logo_url, banner_url, license_certificate_url)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+		`, instituteID, nameToUse, inst.InstituteType, inst.EstablishedYear, inst.RegistrationNumber, inst.WebsiteURL, inst.ShortDescription, inst.LogoURL, inst.BannerURL, inst.LicenseCertificateURL)
 		if err != nil { fmt.Printf("[UpsertInstituteProfile] INSERT institutes error: %v\n", err); return err }
 
 		fmt.Printf("[UpsertInstituteProfile] INSERT institute_users\n")
@@ -602,9 +644,9 @@ func (r *Repository) UpsertInstituteProfile(ctx context.Context, userID uuid.UUI
 		campusID := uuid.New()
 		fmt.Printf("[UpsertInstituteProfile] INSERT institute_campuses id=%v\n", campusID)
 		_, err = tx.Exec(ctx, `
-			INSERT INTO institute_campuses (id, institute_id, name, address, campus_type, operating_hours)
-			VALUES ($1, $2, 'Main Campus', $3, $4, $5)
-		`, campusID, instituteID, inst.AddressLine, inst.CampusType, inst.OperatingHours)
+			INSERT INTO institute_campuses (id, institute_id, name, address, campus_type, operating_hours, pincode)
+			VALUES ($1, $2, 'Main Campus', $3, $4, $5, $6)
+		`, campusID, instituteID, inst.AddressLine, inst.CampusType, inst.OperatingHours, inst.Pincode)
 		if err != nil { fmt.Printf("[UpsertInstituteProfile] INSERT institute_campuses error: %v\n", err); return err }
 
 		fmt.Printf("[UpsertInstituteProfile] INSERT institute_academics courses=%s edu=%s\n", string(coursesJSON), string(eduLevelsJSON))
@@ -621,13 +663,21 @@ func (r *Repository) UpsertInstituteProfile(ctx context.Context, userID uuid.UUI
 		`, instituteID, nameToUse, inst.OfficialPhone, inst.OfficialEmail)
 		if err != nil { fmt.Printf("[UpsertInstituteProfile] INSERT institute_contacts error: %v\n", err); return err }
 
+		if inst.AlternateContact != "" {
+			_, err = tx.Exec(ctx, `
+				INSERT INTO institute_contacts (institute_id, name, phone, email, is_primary)
+				VALUES ($1, $2, $3, $4, false)
+			`, instituteID, nameToUse, inst.AlternateContact, "")
+			if err != nil { fmt.Printf("[UpsertInstituteProfile] INSERT alternate contact error: %v\n", err); return err }
+		}
+
 	} else { // Found — update existing records
 		fmt.Printf("[UpsertInstituteProfile] UPDATE institutes id=%v\n", instituteID)
 		_, err = tx.Exec(ctx, `
 			UPDATE institutes
-			SET name=$1, institute_type=$2, established_year=$3, registration_number=$4, website_url=$5, short_description=$6, logo_url=$7, banner_url=$8, updated_at=NOW()
-			WHERE id=$9
-		`, nameToUse, inst.InstituteType, inst.EstablishedYear, inst.RegistrationNumber, inst.WebsiteURL, inst.ShortDescription, inst.LogoURL, inst.BannerURL, instituteID)
+			SET name=$1, institute_type=$2, established_year=$3, registration_number=$4, website_url=$5, short_description=$6, logo_url=$7, banner_url=$8, license_certificate_url=$9, updated_at=NOW()
+			WHERE id=$10
+		`, nameToUse, inst.InstituteType, inst.EstablishedYear, inst.RegistrationNumber, inst.WebsiteURL, inst.ShortDescription, inst.LogoURL, inst.BannerURL, inst.LicenseCertificateURL, instituteID)
 		if err != nil { fmt.Printf("[UpsertInstituteProfile] UPDATE institutes error: %v\n", err); return err }
 
 		// Update or create main campus
@@ -637,17 +687,17 @@ func (r *Repository) UpsertInstituteProfile(ctx context.Context, userID uuid.UUI
 			campusID = uuid.New()
 			fmt.Printf("[UpsertInstituteProfile] INSERT main campus id=%v\n", campusID)
 			_, err = tx.Exec(ctx, `
-				INSERT INTO institute_campuses (id, institute_id, name, address, campus_type, operating_hours)
-				VALUES ($1, $2, 'Main Campus', $3, $4, $5)
-			`, campusID, instituteID, inst.AddressLine, inst.CampusType, inst.OperatingHours)
+				INSERT INTO institute_campuses (id, institute_id, name, address, campus_type, operating_hours, pincode)
+				VALUES ($1, $2, 'Main Campus', $3, $4, $5, $6)
+			`, campusID, instituteID, inst.AddressLine, inst.CampusType, inst.OperatingHours, inst.Pincode)
 			if err != nil { fmt.Printf("[UpsertInstituteProfile] INSERT campus error: %v\n", err); return err }
 		} else {
 			fmt.Printf("[UpsertInstituteProfile] UPDATE campus id=%v\n", campusID)
 			_, err = tx.Exec(ctx, `
 				UPDATE institute_campuses
-				SET address=$1, campus_type=$2, operating_hours=$3, updated_at=NOW()
-				WHERE id=$4
-			`, inst.AddressLine, inst.CampusType, inst.OperatingHours, campusID)
+				SET address=$1, campus_type=$2, operating_hours=$3, pincode=$4, updated_at=NOW()
+				WHERE id=$5
+			`, inst.AddressLine, inst.CampusType, inst.OperatingHours, inst.Pincode, campusID)
 			if err != nil { fmt.Printf("[UpsertInstituteProfile] UPDATE campus error: %v\n", err); return err }
 		}
 
@@ -668,6 +718,28 @@ func (r *Repository) UpsertInstituteProfile(ctx context.Context, userID uuid.UUI
 			WHERE institute_id=$3 AND is_primary=true
 		`, inst.OfficialPhone, inst.OfficialEmail, instituteID)
 		if err != nil { fmt.Printf("[UpsertInstituteProfile] UPDATE institute_contacts error: %v\n", err); return err }
+
+		if inst.AlternateContact != "" {
+			var altContactID uuid.UUID
+			errAlt := tx.QueryRow(ctx, `SELECT id FROM institute_contacts WHERE institute_id=$1 AND is_primary=false LIMIT 1`, instituteID).Scan(&altContactID)
+			if errAlt != nil {
+				_, err = tx.Exec(ctx, `
+					INSERT INTO institute_contacts (institute_id, name, phone, email, is_primary)
+					VALUES ($1, $2, $3, $4, false)
+				`, instituteID, nameToUse, inst.AlternateContact, "")
+				if err != nil { fmt.Printf("[UpsertInstituteProfile] INSERT alt contact error: %v\n", err); return err }
+			} else {
+				_, err = tx.Exec(ctx, `
+					UPDATE institute_contacts
+					SET phone=$1, updated_at=NOW()
+					WHERE id=$2
+				`, inst.AlternateContact, altContactID)
+				if err != nil { fmt.Printf("[UpsertInstituteProfile] UPDATE alt contact error: %v\n", err); return err }
+			}
+		} else {
+			_, err = tx.Exec(ctx, `DELETE FROM institute_contacts WHERE institute_id=$1 AND is_primary=false`, instituteID)
+			if err != nil { fmt.Printf("[UpsertInstituteProfile] DELETE alt contact error: %v\n", err); return err }
+		}
 	}
 
 	return tx.Commit(ctx)

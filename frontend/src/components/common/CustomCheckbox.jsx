@@ -24,6 +24,7 @@ export default function CustomCheckbox({
   error = false,
   disabled = false,
   size = 18,
+  alignTop = false,
   sx = {},
 }) {
   const isFormLoading = useFormLoading();
@@ -42,9 +43,12 @@ export default function CustomCheckbox({
     <Box
       component="label"
       sx={{
-        display: "flex",
-        alignItems: "center",
+        display: "inline-flex",
+        alignItems: alignTop ? "flex-start" : "center",
+        verticalAlign: "middle",
         gap: 1,
+        m: 0,
+        lineHeight: 0,
         cursor: finalDisabled ? "not-allowed" : "pointer",
         userSelect: "none",
         opacity: finalDisabled ? 0.5 : 1,
@@ -58,6 +62,7 @@ export default function CustomCheckbox({
           width: size,
           height: size,
           flexShrink: 0,
+          mt: alignTop ? '3px' : 0,
           border: `1.5px solid ${borderColor}`,
           borderRadius: "var(--radius-sm)",
           backgroundColor: bgColor,

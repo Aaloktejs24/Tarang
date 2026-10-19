@@ -6,35 +6,21 @@ export const CustomTooltip = styled(({ className, ...props }) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))(({ theme }) => ({
   [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: alpha(theme.palette.primary.main, 0.75),
-    backdropFilter: 'blur(12px)',
-    WebkitBackdropFilter: 'blur(12px)',
-    border: `var(--border-thin) solid ${alpha(theme.palette.common.white, 0.2)}`,
-    color: theme.palette.common.white,
-    fontSize: 'var(--font-xs)',
-    fontWeight: 'var(--font-semibold)',
-    borderRadius: 'var(--radius-lg)',
+    backgroundColor: 'var(--popover-bg)',
+    backdropFilter: 'var(--popover-blur)',
+    WebkitBackdropFilter: 'var(--popover-blur)',
+    border: 'var(--border-thin) solid var(--card-border)',
+    color: 'var(--color-slate-900)',
+    fontSize: '0.75rem',
+    fontWeight: 600,
+    fontFamily: 'inherit',
+    borderRadius: 'var(--radius-md)',
     padding: '8px 12px',
   },
   [`& .${tooltipClasses.arrow}`]: {
-    color: alpha(theme.palette.primary.main, 0.75),
-  },
-}));
-
-export const AmberTooltip = styled(({ className, ...props }) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(({ theme }) => ({
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: alpha('var(--color-warning)', 0.95),
-    backdropFilter: 'blur(12px)',
-    WebkitBackdropFilter: 'blur(12px)',
-    border: `var(--border-thin) solid ${alpha(theme.palette.common.white, 0.4)}`,
-    color: 'var(--color-slate-900)', // Black text for better contrast on yellow
-    fontSize: 'var(--font-xs)',
-    borderRadius: 'var(--radius-lg)',
-    padding: '8px 12px',
-  },
-  [`& .${tooltipClasses.arrow}`]: {
-    color: alpha('var(--color-warning)', 0.95),
+    color: 'var(--popover-bg)',
+    "&::before": {
+      border: 'var(--border-thin) solid var(--card-border)',
+    }
   },
 }));

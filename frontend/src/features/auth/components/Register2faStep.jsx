@@ -117,7 +117,7 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                     display: "flex",
                     flexDirection: { xs: "column", sm: "row" },
                     alignItems: { xs: "center", sm: "flex-start" },
-                    gap: 2,
+                    gap: 1.5,
                     width: "var(--size-full)",
                     mb: 0.5
                 }}>

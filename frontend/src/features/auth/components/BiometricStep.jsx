@@ -5,7 +5,8 @@ import { startRegistration, startAuthentication } from '@simplewebauthn/browser'
 import TarangButton from '../../../components/common/TarangButton';
 import { FormLoadingProvider } from '../../../contexts/FormLoadingContext';
 
-export default function BiometricStep({ role, identifier, onFinish, isRegistering, API_URL }) {
+export default function BiometricStep({ role, identifier, isRegistering, onFinish, API_URL }) {
+  const isSubmitting = React.useRef(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const hasTriggered = useRef(false);
@@ -19,6 +20,8 @@ export default function BiometricStep({ role, identifier, onFinish, isRegisterin
   }, []);
 
   const handleBiometric = async () => {
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
     setLoading(true);
     setError('');
     
@@ -72,6 +75,7 @@ export default function BiometricStep({ role, identifier, onFinish, isRegisterin
     } catch (err) {
       setError(err.message || 'Biometric authentication failed');
     } finally {
+      isSubmitting.current = false;
       setLoading(false);
     }
   };

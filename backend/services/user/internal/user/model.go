@@ -22,7 +22,8 @@ type User struct {
 	ProfilePicURL  *string           `db:"profile_pic_url" json:"profile_pic_url,omitempty"`
 	BannerURL      *string           `db:"banner_url" json:"banner_url,omitempty"`
 	Bio            *string           `db:"bio" json:"bio,omitempty"`
-	InstitutionName *string          `db:"institution_name" json:"institution_name,omitempty"`
+	PrimaryName    *string           `db:"primary_name" json:"primary_name,omitempty"`
+	SecondaryName  *string           `db:"secondary_name" json:"secondary_name,omitempty"`
 	SocialLinks    map[string]string `db:"social_links" json:"social_links,omitempty"`
 	Skills         []string          `db:"skills" json:"skills,omitempty"`
 	Recognitions   []string          `db:"recognitions" json:"recognitions,omitempty"`
@@ -110,6 +111,7 @@ type InstituteProfileInput struct {
 	ShortDescription      string   `json:"short_description"`
 	LogoURL               string   `json:"logo_url"`
 	BannerURL             string   `json:"banner_url"`
+	AlternateContact      string   `json:"alternate_contact"`
 }
 
 

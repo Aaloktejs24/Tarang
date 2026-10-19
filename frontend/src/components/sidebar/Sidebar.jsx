@@ -43,7 +43,10 @@ export default function Sidebar({ open, toggleDrawer }) {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      await logoutUser();
+      await Promise.all([
+        logoutUser(),
+        new Promise(resolve => setTimeout(resolve, 600)) // UX delay to ensure spinner doesn't freeze instantly
+      ]);
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
@@ -129,7 +132,7 @@ export default function Sidebar({ open, toggleDrawer }) {
             </Link>
           </div>
         </div>
-        {profile?.institution_name && (
+        {profile?.primary_name && (
           <div className="school_s">
             <div className="ins_icon">
               <SchoolIcon sx={{ width: "25px", height: "25px", color: "var(--color-white)" }} />
@@ -139,7 +142,7 @@ export default function Sidebar({ open, toggleDrawer }) {
                 className="ins_name"
                 style={{ color: "var(--color-white)", fontSize: 'var(--font-sm)', margin: "0 0 0 3px" }}
               >
-                {profile.institution_name}
+                {profile.primary_name}
               </div>
               <div className="user_role" style={{ margin: "0 0 0 3px" }}>
                 {profile.institution_type || "संबद्ध संस्थान"}
@@ -461,10 +464,10 @@ export default function Sidebar({ open, toggleDrawer }) {
       <SwipeableDrawer
         anchor="left"
         open={open}
-      onClose={toggleDrawer(false)}
-      onOpen={toggleDrawer(true)}
-    >
-      {list}
+        onClose={toggleDrawer(false)}
+        onOpen={toggleDrawer(true)}
+      >
+        {list}
       </SwipeableDrawer>
     </>
   );

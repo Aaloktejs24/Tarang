@@ -5,7 +5,7 @@ import { Box, Container, Typography, Paper } from "@mui/material";
 import { useTranslation } from "../../../hooks/useTranslation";
 import Navbar from "../../../components/navbar/Navbar";
 import LandingFooter from "../../../components/footer/LandingFooter";
-import LoginForm from "../../../features/auth/LoginForm";
+import AuthModal from "../../../features/auth/AuthModal";
 import { AnimatePresence } from "framer-motion";
 import { useBgPreloader } from "../../../hooks/useBgPreloader";
 
@@ -97,7 +97,7 @@ export default function ArticlePage() {
 
       {/* Login Modal */}
       <AnimatePresence>
-        {isLoginOpen && <LoginForm onClose={() => setIsLoginOpen(false)} />}
+        {isLoginOpen && <AuthModal onClose={() => setIsLoginOpen(false)} />}
       </AnimatePresence>
     </Box>
   );

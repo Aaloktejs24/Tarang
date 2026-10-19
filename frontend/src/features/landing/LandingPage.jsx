@@ -4,7 +4,7 @@ import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { TextField } from '@mui/material';
 import Navbar from "../../components/navbar/Navbar";
-import LoginForm from "../../features/auth/LoginForm";
+import AuthModal from "../../features/auth/AuthModal";
 import logo from "../../assets/logo.svg";
 import { useBgPreloader } from "../../hooks/useBgPreloader";
 
@@ -686,7 +686,7 @@ NOTE: This file contains all scripts for the actual Template.
         <section className="mt-md-n5 mt-4 position-relative z-index-9">
           <div className="container">
             <form className="course-form border-radius" style={{
-              background: 'rgba(255, 255, 255, 0.75)',
+              background: 'var(--glass-bg)',
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
               border: 'var(--border-thin) solid rgba(255, 255, 255, 0.5)'
@@ -1561,7 +1561,7 @@ NOTE: This file contains all scripts for the actual Template.
 
 
       </div>
-      {isLoginOpen && <LoginForm onClose={() => setIsLoginOpen(false)} />}
+      {isLoginOpen && <AuthModal onClose={() => setIsLoginOpen(false)} />}
 
 
 

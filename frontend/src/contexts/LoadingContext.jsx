@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import BackdropBlur from "../components/common/BackdropBlur";
+import { useSmartLoading } from "../hooks/useSmartLoading";
 
 /**
  * Global loading context.
@@ -13,9 +14,9 @@ import BackdropBlur from "../components/common/BackdropBlur";
  */
 const LoadingContext = createContext({
   isLoading: false,
-  startLoading: () => {},
-  stopLoading: () => {},
-  resetLoading: () => {},
+  startLoading: () => { },
+  stopLoading: () => { },
+  resetLoading: () => { },
 });
 
 export const useLoading = () => useContext(LoadingContext);
@@ -32,31 +33,25 @@ export function SyncLoading({ isLoading }) {
 }
 
 export const LoadingProvider = ({ children }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [internalLoading, setInternalLoading] = useState(false);
   const countRef = React.useRef(0);
-  const debounceRef = React.useRef(null);
-
-  // Clear any pending hide-timer
-  const clearDebounce = () => {
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-      debounceRef.current = null;
-    }
-  };
 
   const startLoading = React.useCallback(() => {
     countRef.current += 1;
-    clearDebounce();
-    setIsLoading(true);
+    if (countRef.current === 1) {
+      setInternalLoading(true);
+    }
   }, []);
 
   const stopLoading = React.useCallback(() => {
     countRef.current = Math.max(0, countRef.current - 1);
     if (countRef.current === 0) {
-      // Small debounce prevents flicker when multiple async ops chain quickly
-      debounceRef.current = setTimeout(() => setIsLoading(false), 150);
+      setInternalLoading(false);
     }
   }, []);
+
+  // Use the global smart delay: wait 100ms before showing full-window loader, minimum 1000ms
+  const isLoading = useSmartLoading(internalLoading, 100, 1000);
 
   /** Force-reset — use when you suspect the counter got out of sync. */
   const resetLoading = React.useCallback(() => {

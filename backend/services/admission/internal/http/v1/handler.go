@@ -5,15 +5,18 @@ import (
 	"net/http"
 	"backend/proto/admissionpb"
 	"backend/services/admission/internal/admission"
+	"backend/services/admission/internal/middleware"
 	"github.com/go-chi/chi/v5"
+	"github.com/redis/go-redis/v9"
 )
 
 type AdmissionHandler struct {
-	service admission.Service
+	service     admission.Service
+	redisClient *redis.Client
 }
 
-func NewAdmissionHandler(service admission.Service) *AdmissionHandler {
-	return &AdmissionHandler{service: service}
+func NewAdmissionHandler(service admission.Service, redisClient *redis.Client) *AdmissionHandler {
+	return &AdmissionHandler{service: service, redisClient: redisClient}
 }
 
 func RegisterRoutes(r chi.Router, h *AdmissionHandler) {
@@ -24,6 +27,9 @@ func RegisterRoutes(r chi.Router, h *AdmissionHandler) {
 
 		// Protected routes (Only Institutes should be able to create)
 		r.Group(func(r chi.Router) {
+			if h.redisClient != nil {
+				r.Use(middleware.Idempotency(h.redisClient))
+			}
 			r.Post("/programs", h.CreateProgram)
 			r.Put("/programs/{id}", h.UpdateProgram)
 			r.Delete("/programs/{id}", h.DeleteProgram)
@@ -40,6 +46,7 @@ func RegisterRoutes(r chi.Router, h *AdmissionHandler) {
 		r.Get("/applications/{id}", h.GetApplicationHistory) // History + App state
 		r.Get("/users/{id}/applications", h.GetUserApplications)
 		r.Get("/institutes/{username}/applications", h.GetInstituteApplications)
+		r.Delete("/applications/{id}", h.DeleteApplication)
 	})
 }
 
@@ -262,4 +269,16 @@ func (h *AdmissionHandler) GetInstituteApplications(w http.ResponseWriter, r *ht
 	}
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(res)
+}
+
+func (h *AdmissionHandler) DeleteApplication(w http.ResponseWriter, r *http.Request) {
+	appID := chi.URLParam(r, "id")
+	
+	err := h.service.DeleteApplication(r.Context(), appID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

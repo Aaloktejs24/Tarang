@@ -10,7 +10,7 @@ export default function Tasks() {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
         <AssignmentIcon sx={{ fontSize: 32, color: "var(--color-slate-500)" }} />
         <Typography variant="h5" fontWeight="bold" color="var(--color-primary)">आपके टास्क</Typography>
       </Box>

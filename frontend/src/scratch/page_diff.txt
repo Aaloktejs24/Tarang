@@ -1,0 +1,774 @@
+diff --git a/frontend/src/app/dashboard/explore/[username]/admission/[programId]/page.jsx b/frontend/src/app/dashboard/explore/[username]/admission/[programId]/page.jsx
+index fd8f476..af56fe4 100644
+--- a/frontend/src/app/dashboard/explore/[username]/admission/[programId]/page.jsx
++++ b/frontend/src/app/dashboard/explore/[username]/admission/[programId]/page.jsx
+@@ -67,7 +67,7 @@ import { CustomTooltip } from '../../../../../../components/common/CustomTooltip
+ import { useToast } from "../../../../../../contexts/ToastContext";
+ import TarangButton from "../../../../../../components/common/TarangButton";
+ 
+-import { CustomFloatingInput, CustomFloatingSelect, CustomFloatingPhoneInput, CustomFloatingDatePicker, CustomFloatingCountrySelect, CustomFloatingFileInput } from '../../../../../../components/common/CustomFloatingFields';
++import { CustomFloatingInput, CustomFloatingSelect, CustomFloatingPhoneInput, CustomFloatingDatePicker, CustomFloatingCountrySelect, CustomFloatingMinIOUpload } from '../../../../../../components/common/CustomFloatingFields';
+ 
+ const maskEmail = (email) => {
+   if (!email) return '';
+@@ -117,8 +117,8 @@ export default function AdmissionProgramPage() {
+   const [loadingApp, setLoadingApp] = useState(false);
+   const [transactions, setTransactions] = useState([]);
+   const [uploadedDocs, setUploadedDocs] = useState({});
+-  const [uploadingDoc, setUploadingDoc] = useState(null);
+-  const [fileNames, setFileNames] = useState({});
++  const [activeUploads, setActiveUploads] = useState(0);
++  
+ 
+   const [savingProgress, setSavingProgress] = useState(false);
+   const isSubmitting = React.useRef(false);
+@@ -664,7 +664,7 @@ export default function AdmissionProgramPage() {
+                     });
+                   }
+ 
+-                  setFileNames(prev => ({ ...prev, ...newFileNames }));
++                  
+                 }
+               } catch (e) {
+                 console.error("Failed to parse draft metadata", e);
+@@ -993,7 +993,7 @@ export default function AdmissionProgramPage() {
+       else if (file.name.toLowerCase().endsWith('.png')) mimeType = 'image/png';
+     }
+ 
+-    setFileNames(prev => ({ ...prev, [reqName]: file.name }));
++    
+ 
+     // Cascade: delete old file if re-uploading
+     const oldURL = uploadedDocs[reqName];
+@@ -1001,7 +1001,7 @@ export default function AdmissionProgramPage() {
+       deleteOldFile(oldURL);
+     }
+ 
+-    setUploadingDoc(reqName);
++    setActiveUploads(prev => prev + 1);
+     try {
+       const { data } = await apiClient.get(`/s3/sign`, {
+         params: { user_id: profile.id, username: profile.username, type: 'document', filename: reqName, mime: mimeType }
+@@ -1017,12 +1017,12 @@ export default function AdmissionProgramPage() {
+         ...prev,
+         [reqName]: data.file_url
+       }));
+-      setFileNames(prev => ({ ...prev, [reqName]: file.name }));
++      
+     } catch (err) {
+       console.error(`Upload failed for ${reqName}:`, err);
+       showToast("File upload failed.");
+     } finally {
+-      setUploadingDoc(null);
++      setActiveUploads(prev => prev + 1);
+     }
+   };
+ 
+@@ -1166,13 +1166,21 @@ export default function AdmissionProgramPage() {
+           {/* Address Proof Upload */}
+           {!disabled && (type === 'permanentAddress' ? sf('perm_address_proof') : sf('corr_address_proof')) && (
+             <Box sx={{ gridColumn: 'auto' }}>
+-              <CustomFloatingFileInput
++              <CustomFloatingMinIOUpload
+                 label="Address Proof"
+                 accept=".pdf,.png,.jpg,.jpeg"
+-                onChange={handleBasicDetailsFile(`${type}Proof`)}
+-                error={!!basicDetailsErrors[`${type}Proof`]}
+-                helperText={basicDetailsErrors[`${type}Proof`]}
+-                customDisplayText={fileNames[`${type}Proof`]}
++                savedValue={basicDetails[`${type}Proof`]}
++                profile={profile}
++                type="document"
++                fieldName={`${type}Proof`}
++                onUploadStart={() => setActiveUploads(prev => prev + 1)}
++                onUploadComplete={(url) => {
++                  setBasicDetails(prev => ({ ...prev, [`${type}Proof`]: url || '' })); if (url && basicDetailsErrors[`${type}Proof`]) setBasicDetailsErrors(prev => ({ ...prev, [`${type}Proof`]: '' }));
++                  setActiveUploads(prev => Math.max(0, prev - 1));
++                }}
++                onUploadError={() => setActiveUploads(prev => Math.max(0, prev - 1))}
++                error={!!basicDetailsErrors[`${type}
++                helperText={basicDetailsErrors[`${type}
+               />
+             </Box>
+           )}
+@@ -1519,49 +1527,94 @@ export default function AdmissionProgramPage() {
+           {sf('full_name_proof', 'dob_proof', 'gender_proof', 'caste_proof', 'nationality_proof') && (
+             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', md: 'repeat(3, minmax(0, 1fr))' }, gap: 1.5, mb: 3, width: 'var(--size-full)' }}>
+               {sf('full_name_proof') && <Box sx={{ gridColumn: 'auto' }}>
+-                <CustomFloatingFileInput
+-                  label="Full Name Proof"
+-                  accept=".pdf,.png,.jpg,.jpeg"
+-                  onChange={handleBasicDetailsFile('nameProof')}
+-                  error={!!basicDetailsErrors.nameProof}
+-                  customDisplayText={fileNames['nameProof']}
+-                />
++                <CustomFloatingMinIOUpload
++                label="Full Name Proof"
++                accept=".pdf,.png,.jpg,.jpeg"
++                savedValue={basicDetails['nameProof']}
++                profile={profile}
++                type="document"
++                fieldName={'nameProof'}
++                onUploadStart={() => setActiveUploads(prev => prev + 1)}
++                onUploadComplete={(url) => {
++                  setBasicDetails(prev => ({ ...prev, nameProof: url || '' })); if (url && basicDetailsErrors['nameProof']) setBasicDetailsErrors(prev => ({ ...prev, nameProof: '' }));
++                  setActiveUploads(prev => Math.max(0, prev - 1));
++                }}
++                onUploadError={() => setActiveUploads(prev => Math.max(0, prev - 1))}
++                error={!!basicDetailsErrors.nameProof}
++                helperText={undefined}
++              />
+               </Box>}
+               {sf('dob_proof') && <Box sx={{ gridColumn: 'auto' }}>
+-                <CustomFloatingFileInput
+-                  label="Date of Birth Proof"
+-                  accept=".pdf,.png,.jpg,.jpeg"
+-                  onChange={handleBasicDetailsFile('dobProof')}
+-                  error={!!basicDetailsErrors.dobProof}
+-                  customDisplayText={fileNames['dobProof']}
+-                />
++                <CustomFloatingMinIOUpload
++                label="Date of Birth Proof"
++                accept=".pdf,.png,.jpg,.jpeg"
++                savedValue={basicDetails['dobProof']}
++                profile={profile}
++                type="document"
++                fieldName={'dobProof'}
++                onUploadStart={() => setActiveUploads(prev => prev + 1)}
++                onUploadComplete={(url) => {
++                  setBasicDetails(prev => ({ ...prev, dobProof: url || '' })); if (url && basicDetailsErrors['dobProof']) setBasicDetailsErrors(prev => ({ ...prev, dobProof: '' }));
++                  setActiveUploads(prev => Math.max(0, prev - 1));
++                }}
++                onUploadError={() => setActiveUploads(prev => Math.max(0, prev - 1))}
++                error={!!basicDetailsErrors.dobProof}
++                helperText={undefined}
++              />
+               </Box>}
+               {sf('gender_proof') && <Box sx={{ gridColumn: 'auto' }}>
+-                <CustomFloatingFileInput
+-                  label="Gender Proof"
+-                  accept=".pdf,.png,.jpg,.jpeg"
+-                  onChange={handleBasicDetailsFile('genderProof')}
+-                  error={!!basicDetailsErrors.genderProof}
+-                  customDisplayText={fileNames['genderProof']}
+-                />
++                <CustomFloatingMinIOUpload
++                label="Gender Proof"
++                accept=".pdf,.png,.jpg,.jpeg"
++                savedValue={basicDetails['genderProof']}
++                profile={profile}
++                type="document"
++                fieldName={'genderProof'}
++                onUploadStart={() => setActiveUploads(prev => prev + 1)}
++                onUploadComplete={(url) => {
++                  setBasicDetails(prev => ({ ...prev, genderProof: url || '' })); if (url && basicDetailsErrors['genderProof']) setBasicDetailsErrors(prev => ({ ...prev, genderProof: '' }));
++                  setActiveUploads(prev => Math.max(0, prev - 1));
++                }}
++                onUploadError={() => setActiveUploads(prev => Math.max(0, prev - 1))}
++                error={!!basicDetailsErrors.genderProof}
++                helperText={undefined}
++              />
+               </Box>}
+               {sf('caste_proof') && <Box sx={{ gridColumn: 'auto' }}>
+-                <CustomFloatingFileInput
+-                  label="Caste Proof"
+-                  accept=".pdf,.png,.jpg,.jpeg"
+-                  onChange={handleBasicDetailsFile('casteProof')}
+-                  error={!!basicDetailsErrors.casteProof}
+-                  customDisplayText={fileNames['casteProof']}
+-                />
++                <CustomFloatingMinIOUpload
++                label="Caste Proof"
++                accept=".pdf,.png,.jpg,.jpeg"
++                savedValue={basicDetails['casteProof']}
++                profile={profile}
++                type="document"
++                fieldName={'casteProof'}
++                onUploadStart={() => setActiveUploads(prev => prev + 1)}
++                onUploadComplete={(url) => {
++                  setBasicDetails(prev => ({ ...prev, casteProof: url || '' })); if (url && basicDetailsErrors['casteProof']) setBasicDetailsErrors(prev => ({ ...prev, casteProof: '' }));
++                  setActiveUploads(prev => Math.max(0, prev - 1));
++                }}
++                onUploadError={() => setActiveUploads(prev => Math.max(0, prev - 1))}
++                error={!!basicDetailsErrors.casteProof}
++                helperText={undefined}
++              />
+               </Box>}
+               {sf('nationality_proof') && <Box sx={{ gridColumn: 'auto' }}>
+-                <CustomFloatingFileInput
+-                  label="Nationality Proof"
+-                  accept=".pdf,.png,.jpg,.jpeg"
+-                  onChange={handleBasicDetailsFile('nationalityProof')}
+-                  error={!!basicDetailsErrors.nationalityProof}
+-                  customDisplayText={fileNames['nationalityProof']}
+-                />
++                <CustomFloatingMinIOUpload
++                label="Nationality Proof"
++                accept=".pdf,.png,.jpg,.jpeg"
++                savedValue={basicDetails['nationalityProof']}
++                profile={profile}
++                type="document"
++                fieldName={'nationalityProof'}
++                onUploadStart={() => setActiveUploads(prev => prev + 1)}
++                onUploadComplete={(url) => {
++                  setBasicDetails(prev => ({ ...prev, nationalityProof: url || '' })); if (url && basicDetailsErrors['nationalityProof']) setBasicDetailsErrors(prev => ({ ...prev, nationalityProof: '' }));
++                  setActiveUploads(prev => Math.max(0, prev - 1));
++                }}
++                onUploadError={() => setActiveUploads(prev => Math.max(0, prev - 1))}
++                error={!!basicDetailsErrors.nationalityProof}
++                helperText={undefined}
++              />
+               </Box>}
+             </Box>
+           )}
+@@ -1618,13 +1671,21 @@ export default function AdmissionProgramPage() {
+               error={!!basicDetailsErrors[`academic_${index}_percentageCgpa`]}
+             />
+             <Box sx={{ gridColumn: 'auto' }}>
+-              <CustomFloatingFileInput
++              <CustomFloatingMinIOUpload
+                 label="Qualification Document"
+                 accept=".pdf,.png,.jpg,.jpeg"
+-                onChange={(e) => handleAcademicFile(index, 'academicDoc', e.target.files[0])}
+-                error={!!basicDetailsErrors[`academic_${index}_academicDoc`]}
+-                helperText={basicDetailsErrors[`academic_${index}_academicDoc`]}
+-                customDisplayText={fileNames[`academic_${index}_academicDoc`]}
++                savedValue={record.academicDoc}
++                profile={profile}
++                type="document"
++                fieldName={`academic_${index}_academicDoc`}
++                onUploadStart={() => setActiveUploads(prev => prev + 1)}
++                onUploadComplete={(url) => {
++                  setAcademicDetails(prev => { const newRecs = [...prev]; newRecs[index] = { ...newRecs[index], academicDoc: url || '' }; return newRecs; }); if (url && academicErrors[`academic_${index}_academicDoc`]) setAcademicErrors(prev => ({ ...prev, [`academic_${index}_academicDoc`]: '' }));
++                  setActiveUploads(prev => Math.max(0, prev - 1));
++                }}
++                onUploadError={() => setActiveUploads(prev => Math.max(0, prev - 1))}
++                error={!!basicDetailsErrors[`academic_${index}
++                helperText={basicDetailsErrors[`academic_${index}
+               />
+             </Box>
+ 
+@@ -1664,14 +1725,22 @@ export default function AdmissionProgramPage() {
+                       error={!!basicDetailsErrors[`academic_${index}_achievement_${achIndex}_recognizedBy`]}
+                     />
+                     <Box sx={{ gridColumn: 'auto' }}>
+-                      <CustomFloatingFileInput
+-                        label="Achievement Document"
+-                        accept=".pdf,.png,.jpg,.jpeg"
+-                        onChange={(e) => handleAchievementFile(index, achIndex, e.target.files[0])}
+-                        error={!!basicDetailsErrors[`academic_${index}_achievement_${achIndex}_doc`]}
+-                        helperText={basicDetailsErrors[`academic_${index}_achievement_${achIndex}_doc`]}
+-                        customDisplayText={fileNames[`academic_${index}_achievement_${achIndex}_doc`]}
+-                      />
++                      <CustomFloatingMinIOUpload
++                label="Achievement Document"
++                accept=".pdf,.png,.jpg,.jpeg"
++                savedValue={ach.doc_url}
++                profile={profile}
++                type="document"
++                fieldName={`academic_${academicIndex}_achievement_${achIndex}_doc`}
++                onUploadStart={() => setActiveUploads(prev => prev + 1)}
++                onUploadComplete={(url) => {
++                  setAcademicDetails(prev => { const newRecs = [...prev]; const achs = [...newRecs[index].achievements]; achs[achIndex] = { ...achs[achIndex], doc_url: url || '' }; newRecs[index].achievements = achs; return newRecs; });
++                  setActiveUploads(prev => Math.max(0, prev - 1));
++                }}
++                onUploadError={() => setActiveUploads(prev => Math.max(0, prev - 1))}
++                error={!!basicDetailsErrors[`academic_${index}
++                helperText={basicDetailsErrors[`academic_${index}
++              />
+                     </Box>
+                   </Box>
+                 ))}
+@@ -1728,12 +1797,21 @@ export default function AdmissionProgramPage() {
+             />}
+ 
+             {sf('father_doc_proof') && <Box sx={{ gridColumn: 'auto' }}>
+-              <CustomFloatingFileInput
++              <CustomFloatingMinIOUpload
+                 label="Father&apos;s Document Proof"
+                 accept=".pdf,.png,.jpg,.jpeg"
+-                onChange={handleBasicDetailsFile('fatherRelationDoc')}
++                savedValue={basicDetails['fatherRelationDoc']}
++                profile={profile}
++                type="document"
++                fieldName={'fatherRelationDoc'}
++                onUploadStart={() => setActiveUploads(prev => prev + 1)}
++                onUploadComplete={(url) => {
++                  setBasicDetails(prev => ({ ...prev, fatherRelationDoc: url || '' })); if (url && basicDetailsErrors['fatherRelationDoc']) setBasicDetailsErrors(prev => ({ ...prev, fatherRelationDoc: '' }));
++                  setActiveUploads(prev => Math.max(0, prev - 1));
++                }}
++                onUploadError={() => setActiveUploads(prev => Math.max(0, prev - 1))}
+                 error={!!basicDetailsErrors.fatherRelationDoc}
+-                customDisplayText={fileNames['fatherRelationDoc']}
++                helperText={undefined}
+               />
+             </Box>}
+ 
+@@ -1753,12 +1831,21 @@ export default function AdmissionProgramPage() {
+             />}
+ 
+             {sf('mother_doc_proof') && <Box sx={{ gridColumn: 'auto' }}>
+-              <CustomFloatingFileInput
++              <CustomFloatingMinIOUpload
+                 label="Mother&apos;s Document Proof"
+                 accept=".pdf,.png,.jpg,.jpeg"
+-                onChange={handleBasicDetailsFile('motherRelationDoc')}
++                savedValue={basicDetails['motherRelationDoc']}
++                profile={profile}
++                type="document"
++                fieldName={'motherRelationDoc'}
++                onUploadStart={() => setActiveUploads(prev => prev + 1)}
++                onUploadComplete={(url) => {
++                  setBasicDetails(prev => ({ ...prev, motherRelationDoc: url || '' })); if (url && basicDetailsErrors['motherRelationDoc']) setBasicDetailsErrors(prev => ({ ...prev, motherRelationDoc: '' }));
++                  setActiveUploads(prev => Math.max(0, prev - 1));
++                }}
++                onUploadError={() => setActiveUploads(prev => Math.max(0, prev - 1))}
+                 error={!!basicDetailsErrors.motherRelationDoc}
+-                customDisplayText={fileNames['motherRelationDoc']}
++                helperText={undefined}
+               />
+             </Box>}
+             <CustomFloatingSelect
+@@ -1792,13 +1879,22 @@ export default function AdmissionProgramPage() {
+                 />
+ 
+                 <Box sx={{ gridColumn: 'auto' }}>
+-                  <CustomFloatingFileInput
+-                    label="Guardian&apos;s Document Proof"
+-                    accept=".pdf,.png,.jpg,.jpeg"
+-                    onChange={handleBasicDetailsFile('guardianRelationDoc')}
+-                    error={!!basicDetailsErrors.guardianRelationDoc}
+-                    customDisplayText={fileNames['guardianRelationDoc']}
+-                  />
++                  <CustomFloatingMinIOUpload
++                label="Guardian&apos;s Document Proof"
++                accept=".pdf,.png,.jpg,.jpeg"
++                savedValue={basicDetails['guardianRelationDoc']}
++                profile={profile}
++                type="document"
++                fieldName={'guardianRelationDoc'}
++                onUploadStart={() => setActiveUploads(prev => prev + 1)}
++                onUploadComplete={(url) => {
++                  setBasicDetails(prev => ({ ...prev, guardianRelationDoc: url || '' })); if (url && basicDetailsErrors['guardianRelationDoc']) setBasicDetailsErrors(prev => ({ ...prev, guardianRelationDoc: '' }));
++                  setActiveUploads(prev => Math.max(0, prev - 1));
++                }}
++                onUploadError={() => setActiveUploads(prev => Math.max(0, prev - 1))}
++                error={!!basicDetailsErrors.guardianRelationDoc}
++                helperText={undefined}
++              />
+                 </Box>
+               </>
+             )}
+@@ -1843,13 +1939,22 @@ export default function AdmissionProgramPage() {
+                     />
+ 
+                     <Box sx={{ gridColumn: 'auto' }}>
+-                      <CustomFloatingFileInput
+-                        label="Sibling's Document Proof"
+-                        accept=".pdf,.png,.jpg,.jpeg"
+-                        onChange={(e) => handleSiblingFile(index, e.target.files[0])}
+-                        error={!!basicDetailsErrors[`sibling_${index}_relationDoc`]}
+-                        customDisplayText={fileNames[`sibling_${index}_relationDoc`]}
+-                      />
++                      <CustomFloatingMinIOUpload
++                label="Sibling's Document Proof"
++                accept=".pdf,.png,.jpg,.jpeg"
++                savedValue={sib.siblingDoc}
++                profile={profile}
++                type="document"
++                fieldName={`sibling_${index}_siblingDoc`}
++                onUploadStart={() => setActiveUploads(prev => prev + 1)}
++                onUploadComplete={(url) => {
++                  setFamilyDetails(prev => { const newSibs = [...prev.siblings]; newSibs[index] = { ...newSibs[index], siblingDoc: url || '' }; return { ...prev, siblings: newSibs }; }); if (url && familyErrors[`sibling_${index}_siblingDoc`]) setFamilyErrors(prev => ({ ...prev, [`sibling_${index}_siblingDoc`]: '' }));
++                  setActiveUploads(prev => Math.max(0, prev - 1));
++                }}
++                onUploadError={() => setActiveUploads(prev => Math.max(0, prev - 1))}
++                error={!!basicDetailsErrors[`sibling_${index}
++                helperText={undefined}
++              />
+                     </Box>
+                   </Box>
+                 ))}
+@@ -1906,13 +2011,22 @@ export default function AdmissionProgramPage() {
+                   error={!!basicDetailsErrors.fatherLocation}
+                 />
+                 <Box sx={{ gridColumn: 'auto' }}>
+-                  <CustomFloatingFileInput
+-                    label="Father&apos;s Income Proof"
+-                    accept=".pdf,.png,.jpg,.jpeg"
+-                    onChange={handleBasicDetailsFile('fatherIncomeDoc')}
+-                    error={!!basicDetailsErrors.fatherIncomeDoc}
+-                    customDisplayText={fileNames['fatherIncomeDoc']}
+-                  />
++                  <CustomFloatingMinIOUpload
++                label="Father&apos;s Income Proof"
++                accept=".pdf,.png,.jpg,.jpeg"
++                savedValue={basicDetails['fatherIncomeDoc']}
++                profile={profile}
++                type="document"
++                fieldName={'fatherIncomeDoc'}
++                onUploadStart={() => setActiveUploads(prev => prev + 1)}
++                onUploadComplete={(url) => {
++                  setBasicDetails(prev => ({ ...prev, fatherIncomeDoc: url || '' })); if (url && basicDetailsErrors['fatherIncomeDoc']) setBasicDetailsErrors(prev => ({ ...prev, fatherIncomeDoc: '' }));
++                  setActiveUploads(prev => Math.max(0, prev - 1));
++                }}
++                onUploadError={() => setActiveUploads(prev => Math.max(0, prev - 1))}
++                error={!!basicDetailsErrors.fatherIncomeDoc}
++                helperText={undefined}
++              />
+                 </Box>
+               </Box>
+             </Box>
+@@ -1944,13 +2058,22 @@ export default function AdmissionProgramPage() {
+                   error={!!basicDetailsErrors.motherLocation}
+                 />
+                 <Box sx={{ gridColumn: 'auto' }}>
+-                  <CustomFloatingFileInput
+-                    label="Mother&apos;s Income Proof"
+-                    accept=".pdf,.png,.jpg,.jpeg"
+-                    onChange={handleBasicDetailsFile('motherIncomeDoc')}
+-                    error={!!basicDetailsErrors.motherIncomeDoc}
+-                    customDisplayText={fileNames['motherIncomeDoc']}
+-                  />
++                  <CustomFloatingMinIOUpload
++                label="Mother&apos;s Income Proof"
++                accept=".pdf,.png,.jpg,.jpeg"
++                savedValue={basicDetails['motherIncomeDoc']}
++                profile={profile}
++                type="document"
++                fieldName={'motherIncomeDoc'}
++                onUploadStart={() => setActiveUploads(prev => prev + 1)}
++                onUploadComplete={(url) => {
++                  setBasicDetails(prev => ({ ...prev, motherIncomeDoc: url || '' })); if (url && basicDetailsErrors['motherIncomeDoc']) setBasicDetailsErrors(prev => ({ ...prev, motherIncomeDoc: '' }));
++                  setActiveUploads(prev => Math.max(0, prev - 1));
++                }}
++                onUploadError={() => setActiveUploads(prev => Math.max(0, prev - 1))}
++                error={!!basicDetailsErrors.motherIncomeDoc}
++                helperText={undefined}
++              />
+                 </Box>
+               </Box>
+             </Box>
+@@ -1982,13 +2105,22 @@ export default function AdmissionProgramPage() {
+                   error={!!basicDetailsErrors.guardianLocation}
+                 />
+                 <Box sx={{ gridColumn: 'auto' }}>
+-                  <CustomFloatingFileInput
+-                    label="Guardian&apos;s Income Proof"
+-                    accept=".pdf,.png,.jpg,.jpeg"
+-                    onChange={handleBasicDetailsFile('guardianIncomeDoc')}
+-                    error={!!basicDetailsErrors.guardianIncomeDoc}
+-                    customDisplayText={fileNames['guardianIncomeDoc']}
+-                  />
++                  <CustomFloatingMinIOUpload
++                label="Guardian&apos;s Income Proof"
++                accept=".pdf,.png,.jpg,.jpeg"
++                savedValue={basicDetails['guardianIncomeDoc']}
++                profile={profile}
++                type="document"
++                fieldName={'guardianIncomeDoc'}
++                onUploadStart={() => setActiveUploads(prev => prev + 1)}
++                onUploadComplete={(url) => {
++                  setBasicDetails(prev => ({ ...prev, guardianIncomeDoc: url || '' })); if (url && basicDetailsErrors['guardianIncomeDoc']) setBasicDetailsErrors(prev => ({ ...prev, guardianIncomeDoc: '' }));
++                  setActiveUploads(prev => Math.max(0, prev - 1));
++                }}
++                onUploadError={() => setActiveUploads(prev => Math.max(0, prev - 1))}
++                error={!!basicDetailsErrors.guardianIncomeDoc}
++                helperText={undefined}
++              />
+                 </Box>
+               </Box>
+             </Box>
+@@ -2021,13 +2153,22 @@ export default function AdmissionProgramPage() {
+                     error={!!basicDetailsErrors[`sibling_${index}_location`]}
+                   />
+                   <Box sx={{ gridColumn: 'auto' }}>
+-                    <CustomFloatingFileInput
+-                      label="Sibling's Income Proof"
+-                      accept=".pdf,.png,.jpg,.jpeg"
+-                      onChange={(e) => handleSiblingFile(index, e.target.files[0], 'incomeDoc')}
+-                      error={!!basicDetailsErrors[`sibling_${index}_incomeDoc`]}
+-                      customDisplayText={fileNames[`sibling_${index}_incomeDoc`]}
+-                    />
++                    <CustomFloatingMinIOUpload
++                label="Sibling's Income Proof"
++                accept=".pdf,.png,.jpg,.jpeg"
++                savedValue={sib.incomeDoc}
++                profile={profile}
++                type="document"
++                fieldName={`sibling_${index}_incomeDoc`}
++                onUploadStart={() => setActiveUploads(prev => prev + 1)}
++                onUploadComplete={(url) => {
++                  setFamilyDetails(prev => { const newSibs = [...prev.siblings]; newSibs[index] = { ...newSibs[index], incomeDoc: url || '' }; return { ...prev, siblings: newSibs }; });
++                  setActiveUploads(prev => Math.max(0, prev - 1));
++                }}
++                onUploadError={() => setActiveUploads(prev => Math.max(0, prev - 1))}
++                error={!!basicDetailsErrors[`sibling_${index}
++                helperText={undefined}
++              />
+                   </Box>
+                 </Box>
+               </Box>
+@@ -2045,12 +2186,21 @@ export default function AdmissionProgramPage() {
+               error={!!basicDetailsErrors.familyIncome}
+             />
+             <Box sx={{ gridColumn: 'auto' }}>
+-              <CustomFloatingFileInput
++              <CustomFloatingMinIOUpload
+                 label="Family Income Proof"
+                 accept=".pdf,.png,.jpg,.jpeg"
+-                onChange={handleBasicDetailsFile('incomeDoc')}
++                savedValue={basicDetails['incomeDoc']}
++                profile={profile}
++                type="document"
++                fieldName={'incomeDoc'}
++                onUploadStart={() => setActiveUploads(prev => prev + 1)}
++                onUploadComplete={(url) => {
++                  setBasicDetails(prev => ({ ...prev, incomeDoc: url || '' })); if (url && basicDetailsErrors['incomeDoc']) setBasicDetailsErrors(prev => ({ ...prev, incomeDoc: '' }));
++                  setActiveUploads(prev => Math.max(0, prev - 1));
++                }}
++                onUploadError={() => setActiveUploads(prev => Math.max(0, prev - 1))}
+                 error={!!basicDetailsErrors.incomeDoc}
+-                customDisplayText={fileNames['incomeDoc']}
++                helperText={undefined}
+               />
+             </Box>
+           </Box>
+@@ -2104,13 +2254,22 @@ export default function AdmissionProgramPage() {
+               error={!!basicDetailsErrors.hasCriminalRecord}
+             />
+ 
+-            <CustomFloatingFileInput
+-              label="Police Verification Proof"
+-              accept=".pdf,.png,.jpg,.jpeg"
+-              onChange={handleBasicDetailsFile('policeVerificationDoc')}
+-              error={!!basicDetailsErrors.policeVerificationDoc}
+-              customDisplayText={fileNames['policeVerificationDoc']}
+-            />
++            <CustomFloatingMinIOUpload
++                label="Police Verification Proof"
++                accept=".pdf,.png,.jpg,.jpeg"
++                savedValue={basicDetails['policeVerificationDoc']}
++                profile={profile}
++                type="document"
++                fieldName={'policeVerificationDoc'}
++                onUploadStart={() => setActiveUploads(prev => prev + 1)}
++                onUploadComplete={(url) => {
++                  setBasicDetails(prev => ({ ...prev, policeVerificationDoc: url || '' })); if (url && basicDetailsErrors['policeVerificationDoc']) setBasicDetailsErrors(prev => ({ ...prev, policeVerificationDoc: '' }));
++                  setActiveUploads(prev => Math.max(0, prev - 1));
++                }}
++                onUploadError={() => setActiveUploads(prev => Math.max(0, prev - 1))}
++                error={!!basicDetailsErrors.policeVerificationDoc}
++                helperText={undefined}
++              />
+           </Box>
+ 
+           {basicDetails.hasCriminalRecord === 'Yes' && (
+@@ -2226,34 +2385,7 @@ export default function AdmissionProgramPage() {
+ 
+   // Upload handled via centralized uploadToMinIO
+ 
+-  const handleBasicDetailsFile = (field) => async (e) => {
+-    const file = e.target.files[0];
+-    const oldURL = basicDetails[field];
+-
+-    if (!file) {
+-      setFileNames(prev => ({ ...prev, [field]: '' }));
+-      setBasicDetails(prev => ({ ...prev, [field]: null }));
+-      return;
+-    }
+-    setFileNames(prev => ({ ...prev, [field]: file.name }));
+-
+-    try {
+-      setUploadingDoc(field);
+-      const url = await uploadToMinIO(file, profile, 'document', field, typeof oldURL === 'string' && oldURL.startsWith('http') ? oldURL : null);
+-      if (url) {
+-        setBasicDetails(prev => ({ ...prev, [field]: url }));
+-        setBasicDetailsErrors(prev => ({ ...prev, [field]: '' }));
+-        setFileNames(prev => ({ ...prev, [field]: url.split('/').pop().split('?')[0] }));
+-      }
+-    } catch (err) {
+-      console.error(`Upload failed for ${field}:`, err);
+-      showToast("File upload failed.");
+-    } finally {
+-      setUploadingDoc(null);
+-    }
+-  };
+-
+-  const handleCriminalRecordChange = (index, field) => (e) => {
++    const handleCriminalRecordChange = (index, field) => (e) => {
+     const value = e.target.value;
+     setBasicDetails(prev => {
+       const newRecords = [...prev.criminalRecords];
+@@ -2299,40 +2431,6 @@ export default function AdmissionProgramPage() {
+     setBasicDetailsErrors(prev => ({ ...prev, [`sibling_${index}_${field}`]: '' }));
+   };
+ 
+-  const handleSiblingFile = async (index, file, field = 'relationDoc') => {
+-    const oldURL = basicDetails.siblings[index]?.[field];
+-
+-    if (!file) {
+-      setFileNames(prev => ({ ...prev, [`sibling_${index}_${field}`]: '' }));
+-      setBasicDetails(prev => {
+-        const newSiblings = [...prev.siblings];
+-        newSiblings[index] = { ...newSiblings[index], [field]: null };
+-        return { ...prev, siblings: newSiblings };
+-      });
+-      return;
+-    }
+-    setFileNames(prev => ({ ...prev, [`sibling_${index}_${field}`]: file.name }));
+-
+-    try {
+-      setUploadingDoc(`sibling_${index}_${field}`);
+-      const url = await uploadToMinIO(file, profile, 'document', `sibling_${index}_${field}`, typeof oldURL === 'string' && oldURL.startsWith('http') ? oldURL : null);
+-      if (url) {
+-        setBasicDetails(prev => {
+-          const newSiblings = [...prev.siblings];
+-          newSiblings[index] = { ...newSiblings[index], [field]: url };
+-          return { ...prev, siblings: newSiblings };
+-        });
+-        setBasicDetailsErrors(prev => ({ ...prev, [`sibling_${index}_${field}`]: '' }));
+-        setFileNames(prev => ({ ...prev, [`sibling_${index}_${field}`]: url.split('/').pop().split('?')[0] }));
+-      }
+-    } catch (err) {
+-      console.error(`Upload failed for sibling_${index}_${field}:`, err);
+-      showToast("File upload failed.");
+-    } finally {
+-      setUploadingDoc(null);
+-    }
+-  };
+-
+   const addSibling = () => {
+     setBasicDetails(prev => ({
+       ...prev,
+@@ -2357,73 +2455,7 @@ export default function AdmissionProgramPage() {
+     setBasicDetailsErrors(prev => ({ ...prev, [`academic_${index}_${field}`]: '' }));
+   };
+ 
+-  const handleAcademicFile = async (index, field, file) => {
+-    const oldURL = basicDetails.academicRecords[index]?.[field];
+-
+-    if (!file) {
+-      setFileNames(prev => ({ ...prev, [`academic_${index}_${field}`]: '' }));
+-      setBasicDetails(prev => {
+-        const newRecords = [...prev.academicRecords];
+-        newRecords[index] = { ...newRecords[index], [field]: null };
+-        return { ...prev, academicRecords: newRecords };
+-      });
+-      return;
+-    }
+-    setFileNames(prev => ({ ...prev, [`academic_${index}_${field}`]: file.name }));
+-
+-    try {
+-      setUploadingDoc(`academic_${index}_${field}`);
+-      const url = await uploadToMinIO(file, profile, 'document', `academic_${index}_${field}`, typeof oldURL === 'string' && oldURL.startsWith('http') ? oldURL : null);
+-      if (url) {
+-        setBasicDetails(prev => {
+-          const newRecords = [...prev.academicRecords];
+-          newRecords[index] = { ...newRecords[index], [field]: url };
+-          return { ...prev, academicRecords: newRecords };
+-        });
+-        setBasicDetailsErrors(prev => ({ ...prev, [`academic_${index}_${field}`]: '' }));
+-        setFileNames(prev => ({ ...prev, [`academic_${index}_${field}`]: url.split('/').pop().split('?')[0] }));
+-      }
+-    } catch (err) {
+-      console.error(`Upload failed for academic_${index}_${field}:`, err);
+-      showToast("File upload failed.");
+-    } finally {
+-      setUploadingDoc(null);
+-    }
+-  };
+-
+-  const addAcademicRecord = () => {
+-    setBasicDetails(prev => ({
+-      ...prev,
+-      academicRecords: [...prev.academicRecords, { qualification: '', passingYear: '', percentageCgpa: '', academicDoc: null, achievements: [] }]
+-    }));
+-  };
+-
+-  const addAchievement = (academicIndex) => {
+-    setBasicDetails(prev => {
+-      const newRecords = [...prev.academicRecords];
+-      newRecords[academicIndex] = {
+-        ...newRecords[academicIndex],
+-        achievements: [
+-          ...(newRecords[academicIndex].achievements || []),
+-          { type: '', details: '', recognizedBy: '', doc: null }
+-        ]
+-      };
+-      return { ...prev, academicRecords: newRecords };
+-    });
+-  };
+-
+-  const removeAchievement = (academicIndex, achIndex) => {
+-    setBasicDetails(prev => {
+-      const newRecords = [...prev.academicRecords];
+-      newRecords[academicIndex] = {
+-        ...newRecords[academicIndex],
+-        achievements: newRecords[academicIndex].achievements.filter((_, i) => i !== achIndex)
+-      };
+-      return { ...prev, academicRecords: newRecords };
+-    });
+-  };
+-
+-  const handleAchievementChange = (academicIndex, achIndex, field) => (e) => {
++    const handleAchievementChange = (academicIndex, achIndex, field) => (e) => {
+     const value = e.target.value;
+     setBasicDetails(prev => {
+       const newRecords = [...prev.academicRecords];
+@@ -2441,7 +2473,7 @@ export default function AdmissionProgramPage() {
+     const oldURL = basicDetails.academicRecords[academicIndex]?.achievements?.[achIndex]?.doc;
+ 
+     if (!file) {
+-      setFileNames(prev => ({ ...prev, [`academic_${academicIndex}_achievement_${achIndex}_doc`]: '' }));
++      
+       setBasicDetails(prev => {
+         const newRecords = [...prev.academicRecords];
+         const academicRecord = { ...newRecords[academicIndex] };
+@@ -2453,10 +2485,10 @@ export default function AdmissionProgramPage() {
+       });
+       return;
+     }
+-    setFileNames(prev => ({ ...prev, [`academic_${academicIndex}_achievement_${achIndex}_doc`]: file.name }));
++    
+ 
+     try {
+-      setUploadingDoc(`academic_${academicIndex}_achievement_${achIndex}_doc`);
++      setActiveUploads(prev => prev + 1);
+       const url = await uploadToMinIO(file, profile, 'document', `academic_${academicIndex}_achievement_${achIndex}_doc`, typeof oldURL === 'string' && oldURL.startsWith('http') ? oldURL : null);
+       if (url) {
+         setBasicDetails(prev => {
+@@ -2469,13 +2501,13 @@ export default function AdmissionProgramPage() {
+           return { ...prev, academicRecords: newRecords };
+         });
+         setBasicDetailsErrors(prev => ({ ...prev, [`academic_${academicIndex}_achievement_${achIndex}_doc`]: '' }));
+-        setFileNames(prev => ({ ...prev, [`academic_${academicIndex}_achievement_${achIndex}_doc`]: url.split('/').pop().split('?')[0] }));
++        
+       }
+     } catch (err) {
+       console.error(`Upload failed for achievement:`, err);
+       showToast("File upload failed.");
+     } finally {
+-      setUploadingDoc(null);
++      setActiveUploads(prev => prev + 1);
+     }
+   };
+ 
+@@ -2545,7 +2577,7 @@ export default function AdmissionProgramPage() {
+               <Grid container spacing={2}>
+                 {(stage.requirements || []).map((req, index) => {
+                   const isUploaded = !!uploadedDocs[req];
+-                  const isUploading = uploadingDoc === req;
++                  const isUploading = activeUploads > 0 && false === req;
+                   const comment = commentsByLabel[req];
+                   return (
+                     <Grid size={{ xs: 12, sm: 6 }} key={index}>
+@@ -2928,7 +2960,7 @@ export default function AdmissionProgramPage() {
+                                   <TarangButton
+                                     variant="gradient"
+                                     onClick={handleNext}
+-                                    disabled={savingProgress || uploadingDoc !== null}
++                                    disabled={savingProgress || activeUploads > 0}
+                                     loading={savingProgress}
+                                     sx={{
+                                       flex: { xs: "0 0 100%", sm: "0 0 auto" },

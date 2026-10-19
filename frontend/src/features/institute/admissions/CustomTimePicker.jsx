@@ -2,9 +2,6 @@ import React, { useState, useCallback } from "react";
 import {
   Box,
   Button,
-  Popover,
-  TextField,
-  InputAdornment,
   Typography,
   IconButton,
 } from "@mui/material";
@@ -12,12 +9,13 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import ClearIcon from "@mui/icons-material/Clear";
 import dayjs from "dayjs";
 import { CustomFloatingInput } from "../../../components/common/CustomFloatingFields";
+import { GlassPopover } from "../../../components/common/GlassPopover";
 
 // ── clock geometry ────────────────────────────────────────
-const CLOCK_SIZE  = 216;
-const CENTER      = CLOCK_SIZE / 2;   // 108
+const CLOCK_SIZE = 216;
+const CENTER = CLOCK_SIZE / 2;   // 108
 const HAND_RADIUS = 78;
-const NUM_SIZE    = 30;
+const NUM_SIZE = 30;
 
 const getPos = (idx) => {
   const angle = (idx * 30 - 90) * (Math.PI / 180);
@@ -27,7 +25,7 @@ const getPos = (idx) => {
   };
 };
 
-const HOUR_ITEMS   = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+const HOUR_ITEMS = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 const MINUTE_ITEMS = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 
 const to24 = (h12, mer) =>
@@ -42,12 +40,13 @@ const CustomTimePicker = ({
   minTime,
   maxTime,
   minuteStep = 5,
+  required = false,
   sx = {},
 }) => {
-  const [anchorEl, setAnchorEl]           = useState(null);
-  const [view, setView]                   = useState("hours");
-  const [meridiem, setMeridiem]           = useState("AM");
-  const [selectedHour, setSelectedHour]   = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [view, setView] = useState("hours");
+  const [meridiem, setMeridiem] = useState("AM");
+  const [selectedHour, setSelectedHour] = useState(null);
   const [selectedMinute, setSelectedMinute] = useState(null);
 
   const open = Boolean(anchorEl);
@@ -69,14 +68,14 @@ const CustomTimePicker = ({
 
   const isMeridiemDisabled = (mer) => {
     if (mer === "AM" && minTime && minTime.hour() >= 12) return true;
-    if (mer === "PM" && maxTime && maxTime.hour() < 12)  return true;
+    if (mer === "PM" && maxTime && maxTime.hour() < 12) return true;
     return false;
   };
 
   const handleOpen = (e) => {
     if (disabled) return;
     if (value) {
-      const h   = value.hour();
+      const h = value.hour();
       const mer = h >= 12 ? "PM" : "AM";
       setMeridiem(mer);
       setSelectedHour(h === 0 ? 12 : h > 12 ? h - 12 : h);
@@ -148,20 +147,21 @@ const CustomTimePicker = ({
   };
   const handPos = getHandPos();
 
-  const hourDisplay   = selectedHour   !== null ? String(selectedHour).padStart(2, "0")   : "--";
+  const hourDisplay = selectedHour !== null ? String(selectedHour).padStart(2, "0") : "--";
   const minuteDisplay = selectedMinute !== null ? String(selectedMinute).padStart(2, "0") : "--";
-  const displayValue  = value ? value.format("hh:mm A") : "";
+  const displayValue = value ? value.format("hh:mm A") : "";
 
   const ACCENT = "var(--color-primary)";
 
   return (
-    <>
+    <Box sx={{ position: "relative", ...sx }}>
       <CustomFloatingInput
         label={label}
         value={displayValue}
         placeholder="HH:MM AM"
         onClick={handleOpen}
         disabled={disabled}
+        required={required}
         inputProps={{ readOnly: true, style: { cursor: disabled ? "not-allowed" : "pointer" } }}
         InputProps={{
           endAdornment: (
@@ -174,20 +174,16 @@ const CustomTimePicker = ({
         }}
       />
 
-      <Popover
+      <GlassPopover
         open={open}
         anchorEl={anchorEl}
         onClose={handleClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
         transformOrigin={{ vertical: "top", horizontal: "left" }}
-        PaperProps={{
-          elevation: 4,
-          sx: {
-            borderRadius: 'var(--radius-lg)',
-            overflow: "hidden",
-            userSelect: "none",
-            width: 300,
-          },
+        sx={{
+          overflow: "hidden",
+          userSelect: "none",
+          width: 300,
         }}
       >
         {/* ── Header ── */}
@@ -273,7 +269,8 @@ const CustomTimePicker = ({
               width: CLOCK_SIZE,
               height: CLOCK_SIZE,
               borderRadius: 'var(--radius-full)',
-              background: "var(--color-slate-50)",
+              background: "var(--glass-bg)",
+              border: "var(--border-thin) solid var(--card-border)",
               position: "relative",
             }}
           >
@@ -386,8 +383,8 @@ const CustomTimePicker = ({
             OK
           </Button>
         </Box>
-      </Popover>
-    </>
+      </GlassPopover>
+    </Box>
   );
 };
 

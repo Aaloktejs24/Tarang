@@ -1,21 +1,24 @@
 "use client";
 import { useAppRouter as useRouter } from '../../../../../hooks/useAppRouter';
 import React, { useState } from 'react';
-import { Box, Typography, TextField, Button, Grid, Paper, IconButton, Divider, CircularProgress } from '@mui/material';
+import { Box, Typography, TextField, Grid, Paper, IconButton, Divider, CircularProgress, Button } from '@mui/material';
 import CentralDropdown from '../../../../../components/common/CentralDropdown';
 import CustomCheckbox from '../../../../../components/common/CustomCheckbox';
 import { DeleteOutline, AddCircleOutline } from '@mui/icons-material';
 import { apiClient } from '../../../../../lib/apiClient';
 import { useProfile } from '../../../../../hooks/useProfile';
+import { useToast } from '../../../../../contexts/ToastContext';
+import TarangButton from '../../../../../components/common/TarangButton';
 
 export default function CreateAdmissionProgram() {
   const { profile } = useProfile();
   const router = useRouter();
+  const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
-    workflow_title: '',
-    workflow_desc: '',
+    form_title: '',
+    form_desc: '',
     image_url: '',
     last_date: '',
     seats: 0,
@@ -107,11 +110,11 @@ export default function CreateAdmissionProgram() {
       };
 
       await apiClient.post('/admissions/programs', payload);
-      alert("Admission program created successfully!");
+      showToast("Admission program created successfully!", "success");
       router.push(`/dashboard/explore/${profile?.username}/admission`);
     } catch (error) {
       console.error(error);
-      alert("Failed to create admission program: " + (error.response?.data || error.message));
+      showToast("Failed to create admission program: " + (error.response?.data || error.message));
     } finally {
       setLoading(false);
     }
@@ -128,13 +131,13 @@ export default function CreateAdmissionProgram() {
           <Typography variant="h6" sx={{ fontWeight: 'var(--font-semibold)', mb: 3 }}>Program Details</Typography>
           <Grid container spacing={3}>
             <Grid size={{xs: 12, sm: 6}}>
-              <TextField fullWidth label="Workflow Title" name="workflow_title" value={formData.workflow_title} onChange={handleChange} required />
+              <TextField fullWidth label="Program Title" name="form_title" value={formData.form_title} onChange={handleChange} required />
             </Grid>
             <Grid size={{xs: 12, sm: 6}}>
               <TextField fullWidth label="Academic Year" name="academic_year" placeholder="e.g. 2026-2030" value={formData.academic_year} onChange={handleChange} required />
             </Grid>
             <Grid size={{xs: 12}}>
-              <TextField fullWidth multiline rows={3} label="Workflow Description" name="workflow_desc" value={formData.workflow_desc} onChange={handleChange} required />
+              <TextField fullWidth multiline rows={3} label="Program Description" name="form_desc" value={formData.form_desc} onChange={handleChange} required />
             </Grid>
             <Grid size={{xs: 12, sm: 6}}>
               <TextField fullWidth label="Last Date to Apply" name="last_date" placeholder="e.g. 15 August 2026" value={formData.last_date} onChange={handleChange} required />
@@ -258,14 +261,14 @@ export default function CreateAdmissionProgram() {
           </Paper>
         ))}
 
-        <Button variant="outlined" startIcon={<AddCircleOutline />} onClick={addStage} sx={{ mb: 4 }}>
+        <TarangButton variant="outlined" startIcon={<AddCircleOutline />} onClick={addStage} sx={{ mb: 4 }}>
           Add Another Stage
-        </Button>
+        </TarangButton>
 
         <Box sx={{ mt: 4, pt: 3, borderTop: 'var(--border-thin) solid var(--color-slate-200)', display: 'flex', justifyContent: 'flex-end' }}>
-          <Button type="submit" variant="contained" disabled={loading} sx={{ px: 6, py: 1.5, bgcolor: 'var(--color-primary)', '&:hover': { bgcolor: 'var(--color-primary-hover)' } }}>
-            {loading ? <CircularProgress size={24} color="inherit" /> : 'Publish Admission Program'}
-          </Button>
+          <TarangButton type="submit" loading={loading} disabled={loading} sx={{ px: 6 }}>
+            Publish Admission Program
+          </TarangButton>
         </Box>
       </form>
     </Box>

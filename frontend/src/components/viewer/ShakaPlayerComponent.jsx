@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import shaka from "shaka-player";
 
-export default function ShakaPlayerComponent({ manifestUrl }) {
+export default function ShakaPlayerComponent({ manifestUrl, jobId }) {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
   const [error, setError] = useState(null);
@@ -24,10 +24,11 @@ export default function ShakaPlayerComponent({ manifestUrl }) {
 
       // Configure DRM ClearKey License Server
       if (jobId) {
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
         player.configure({
           drm: {
             servers: {
-              'org.w3.clearkey': `http://localhost:8083/api/v1/streaming/license/${jobId}`
+              'org.w3.clearkey': `${baseUrl}/streaming/license/${jobId}`
             }
           }
         });

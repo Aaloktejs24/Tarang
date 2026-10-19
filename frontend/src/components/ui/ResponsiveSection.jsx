@@ -1,26 +1,23 @@
 import React from "react";
-import { Box, Typography, Paper, Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
+import { Box, Typography, Paper } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { CustomAccordion, CustomAccordionSummary, CustomAccordionDetails } from "../common/CustomAccordion";
 
 import PremiumCard from "./PremiumCard";
 
 const ResponsiveSection = ({ isMobile, title, action, children, sxParams = {}, customTitleNode }) => {
   if (isMobile) {
     return (
-      <Accordion 
-        disableGutters
-        elevation={0}
+      <CustomAccordion 
         sx={{
-          borderRadius: { xs: "16px", sm: "20px", md: "24px" },
-          overflow: "hidden",
-          background: "rgba(255, 255, 255, 0.7)",
+          borderRadius: { xs: "16px", sm: "20px", md: "24px" } + " !important",
+          background: "var(--glass-bg)",
           backdropFilter: "blur(16px)",
           border: "1px solid rgba(255, 255, 255, 0.6)",
-          "&:before": { display: "none" },
           ...sxParams
         }}
       >
-        <AccordionSummary 
+        <CustomAccordionSummary 
           expandIcon={<ExpandMoreIcon sx={{ color: "var(--color-primary)" }} />}
           sx={{ px: { xs: 2.5, sm: 4 }, py: 1 }}
         >
@@ -28,11 +25,11 @@ const ResponsiveSection = ({ isMobile, title, action, children, sxParams = {}, c
             {customTitleNode ? customTitleNode : <Typography variant="h6" fontWeight={900} color="var(--color-slate-900)">{title}</Typography>}
             {action && <Box onClick={(e) => e.stopPropagation()}>{action}</Box>}
           </Box>
-        </AccordionSummary>
-        <AccordionDetails sx={{ px: { xs: 2.5, sm: 4 }, pb: 4, pt: 0 }}>
+        </CustomAccordionSummary>
+        <CustomAccordionDetails sx={{ px: { xs: 2.5, sm: 4 }, pb: 4, pt: 0 }}>
           {children}
-        </AccordionDetails>
-      </Accordion>
+        </CustomAccordionDetails>
+      </CustomAccordion>
     );
   }
 

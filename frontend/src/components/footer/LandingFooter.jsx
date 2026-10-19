@@ -39,7 +39,7 @@ export default function LandingFooter() {
                 {t("landing.footer.subscribeDesc")}
               </Typography>
             </Box>
-            <Box sx={{ display: "flex", width: { xs: "var(--size-full)", md: "450px" }, gap: 2, alignItems: "stretch" }}>
+            <Box sx={{ display: "flex", width: { xs: "var(--size-full)", md: "450px" }, gap: 1.5, alignItems: "stretch" }}>
               <Box
                 component="input"
                 placeholder={t("landing.footer.enterEmail")}
@@ -101,7 +101,7 @@ export default function LandingFooter() {
             <Grid container spacing={4} sx={{ mb: 8 }}>
               {/* Column 1: Logo & Socials */}
               <Grid size={{ xs: 12, md: 3 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
                   <img src={logo.src} alt="Tarang" style={{ height: 'var(--box-height)' }} />
                   <Typography variant="h4" sx={{ color: "var(--color-success)" }}>
                     Tarang
@@ -169,19 +169,19 @@ export default function LandingFooter() {
                   {t("landing.footer.contactDesc")}
                 </Typography>
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                  <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
+                  <Box sx={{ display: "flex", gap: 1.5, alignItems: "flex-start" }}>
                     <LocationOnIcon sx={{ color: "var(--color-success)", fontSize: 20 }} />
                     <Typography sx={{ color: "rgba(255,255,255,0.9)", fontSize: 'var(--font-base)', lineHeight: 1.5 }}>
                       6580 Allison Turnpike Creminfort, AL 32808-4509
                     </Typography>
                   </Box>
-                  <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                  <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
                     <PhoneIcon sx={{ color: "var(--color-success)", fontSize: 20 }} />
                     <Typography sx={{ color: "var(--color-white)", fontWeight: 'var(--font-bold)', fontSize: 'var(--font-base)' }}>
                       +(123) 456-7890
                     </Typography>
                   </Box>
-                  <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                  <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
                     <EmailIcon sx={{ color: "var(--color-success)", fontSize: 20 }} />
                     <Typography sx={{ color: "rgba(255,255,255,0.9)", fontSize: 'var(--font-base)' }}>
                       letstalk@tarang.com
