@@ -1,0 +1,35 @@
+# OS
+.DS_Store
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+vendor/
+
+# Build outputs
+build/
+dist/
+bin/
+.next/
+.vite/
+
+# Compiled Go binaries (service executables)
+backend/main
+backend/services/*/server
+backend/services/*/tmp_*
+*.exe
+*.out
+*.test
+
+# Runtime log files
+*.log
+
+# Scratch / one-off scripts (prefer keeping these in /tmp)
+patch_*.js
+
+# Misc
+README.md

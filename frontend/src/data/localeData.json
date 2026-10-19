@@ -1,0 +1,3644 @@
+{
+  "languageFonts": {
+    "en": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Playfair Display",
+        "value": "'Playfair Display', serif"
+      },
+      {
+        "name": "Noto Sans",
+        "value": "'Noto Sans', sans-serif"
+      },
+      {
+        "name": "Inter",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Russo One",
+        "value": "'Russo One', sans-serif"
+      }
+    ],
+    "hi": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Rozha One",
+        "value": "'Rozha One', serif"
+      },
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Annapurna SIL",
+        "value": "'Annapurna SIL', serif"
+      },
+      {
+        "name": "Sarpanch",
+        "value": "'Sarpanch', sans-serif"
+      }
+    ],
+    "bn": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Galada",
+        "value": "'Galada', cursive"
+      },
+      {
+        "name": "Noto Sans Bengali",
+        "value": "'Noto Sans Bengali', sans-serif"
+      },
+      {
+        "name": "Hind Siliguri",
+        "value": "'Hind Siliguri', sans-serif"
+      },
+      {
+        "name": "Kumar One",
+        "value": "'Kumar One', cursive"
+      }
+    ],
+    "te": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Ramabhadra",
+        "value": "'Ramabhadra', sans-serif"
+      },
+      {
+        "name": "Noto Sans Telugu",
+        "value": "'Noto Sans Telugu', sans-serif"
+      },
+      {
+        "name": "NTR",
+        "value": "'NTR', sans-serif"
+      },
+      {
+        "name": "Dhurjati",
+        "value": "'Dhurjati', sans-serif"
+      }
+    ],
+    "mr": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Rozha One",
+        "value": "'Rozha One', serif"
+      },
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Annapurna SIL",
+        "value": "'Annapurna SIL', serif"
+      },
+      {
+        "name": "Sarpanch",
+        "value": "'Sarpanch', sans-serif"
+      }
+    ],
+    "ta": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Kavivanar",
+        "value": "'Kavivanar', cursive"
+      },
+      {
+        "name": "Noto Sans Tamil",
+        "value": "'Noto Sans Tamil', sans-serif"
+      },
+      {
+        "name": "Catamaran",
+        "value": "'Catamaran', sans-serif"
+      },
+      {
+        "name": "Catamaran",
+        "value": "'Catamaran', sans-serif"
+      }
+    ],
+    "ur": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Amiri",
+        "value": "'Amiri', serif"
+      },
+      {
+        "name": "Noto Nastaliq Urdu",
+        "value": "'Noto Nastaliq Urdu', serif"
+      },
+      {
+        "name": "Cairo",
+        "value": "'Cairo', sans-serif"
+      },
+      {
+        "name": "Changa",
+        "value": "'Changa', sans-serif"
+      }
+    ],
+    "gu": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Shrikhand",
+        "value": "'Shrikhand', cursive"
+      },
+      {
+        "name": "Noto Sans Gujarati",
+        "value": "'Noto Sans Gujarati', sans-serif"
+      },
+      {
+        "name": "Farsan",
+        "value": "'Farsan', sans-serif"
+      },
+      {
+        "name": "Kumar One",
+        "value": "'Kumar One', cursive"
+      }
+    ],
+    "kn": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Tiro Kannada",
+        "value": "'Tiro Kannada', serif"
+      },
+      {
+        "name": "Noto Sans Kannada",
+        "value": "'Noto Sans Kannada', sans-serif"
+      },
+      {
+        "name": "Baloo Tamma 2",
+        "value": "'Baloo Tamma 2', cursive"
+      },
+      {
+        "name": "Hubballi",
+        "value": "'Hubballi', sans-serif"
+      }
+    ],
+    "or": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Kalinga",
+        "value": "'Kalinga', serif"
+      },
+      {
+        "name": "Noto Sans Oriya",
+        "value": "'Noto Sans Oriya', sans-serif"
+      },
+      {
+        "name": "Utkal",
+        "value": "'Utkal', sans-serif"
+      },
+      {
+        "name": "Kalinga",
+        "value": "'Kalinga', serif"
+      }
+    ],
+    "ml": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Chilanka",
+        "value": "'Chilanka', cursive"
+      },
+      {
+        "name": "Noto Sans Malayalam",
+        "value": "'Noto Sans Malayalam', sans-serif"
+      },
+      {
+        "name": "Manjari",
+        "value": "'Manjari', sans-serif"
+      },
+      {
+        "name": "Uroob",
+        "value": "'Uroob', sans-serif"
+      }
+    ],
+    "pa": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Baloo Bhaina 2",
+        "value": "'Baloo Bhaina 2', cursive"
+      },
+      {
+        "name": "Noto Sans Gurmukhi",
+        "value": "'Noto Sans Gurmukhi', sans-serif"
+      },
+      {
+        "name": "Mukta Mahee",
+        "value": "'Mukta Mahee', sans-serif"
+      },
+      {
+        "name": "Saab",
+        "value": "'Saab', sans-serif"
+      }
+    ],
+    "as": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Galada",
+        "value": "'Galada', cursive"
+      },
+      {
+        "name": "Noto Sans Bengali",
+        "value": "'Noto Sans Bengali', sans-serif"
+      },
+      {
+        "name": "Hind Siliguri",
+        "value": "'Hind Siliguri', sans-serif"
+      },
+      {
+        "name": "Kumar One",
+        "value": "'Kumar One', cursive"
+      }
+    ],
+    "mai": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Rozha One",
+        "value": "'Rozha One', serif"
+      },
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Annapurna SIL",
+        "value": "'Annapurna SIL', serif"
+      },
+      {
+        "name": "Sarpanch",
+        "value": "'Sarpanch', sans-serif"
+      }
+    ],
+    "sat": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Santal",
+        "value": "'Santal', serif"
+      },
+      {
+        "name": "Noto Sans Ol Chiki",
+        "value": "'Noto Sans Ol Chiki', sans-serif"
+      },
+      {
+        "name": "Ol Chiki Classic",
+        "value": "'Ol Chiki Classic', sans-serif"
+      },
+      {
+        "name": "Santal",
+        "value": "'Santal', serif"
+      }
+    ],
+    "ks": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Amiri",
+        "value": "'Amiri', serif"
+      },
+      {
+        "name": "Noto Nastaliq Urdu",
+        "value": "'Noto Nastaliq Urdu', serif"
+      },
+      {
+        "name": "Cairo",
+        "value": "'Cairo', sans-serif"
+      },
+      {
+        "name": "Changa",
+        "value": "'Changa', sans-serif"
+      }
+    ],
+    "ne": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Rozha One",
+        "value": "'Rozha One', serif"
+      },
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Annapurna SIL",
+        "value": "'Annapurna SIL', serif"
+      },
+      {
+        "name": "Sarpanch",
+        "value": "'Sarpanch', sans-serif"
+      }
+    ],
+    "kok": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Rozha One",
+        "value": "'Rozha One', serif"
+      },
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Annapurna SIL",
+        "value": "'Annapurna SIL', serif"
+      },
+      {
+        "name": "Sarpanch",
+        "value": "'Sarpanch', sans-serif"
+      }
+    ],
+    "sd": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Rozha One",
+        "value": "'Rozha One', serif"
+      },
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Annapurna SIL",
+        "value": "'Annapurna SIL', serif"
+      },
+      {
+        "name": "Sarpanch",
+        "value": "'Sarpanch', sans-serif"
+      }
+    ],
+    "doi": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Rozha One",
+        "value": "'Rozha One', serif"
+      },
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Annapurna SIL",
+        "value": "'Annapurna SIL', serif"
+      },
+      {
+        "name": "Sarpanch",
+        "value": "'Sarpanch', sans-serif"
+      }
+    ],
+    "mni": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Eeyek",
+        "value": "'Eeyek', serif"
+      },
+      {
+        "name": "Noto Sans Meetei Mayek",
+        "value": "'Noto Sans Meetei Mayek', sans-serif"
+      },
+      {
+        "name": "Meetei Mayek",
+        "value": "'Meetei Mayek', sans-serif"
+      },
+      {
+        "name": "Eeyek",
+        "value": "'Eeyek', serif"
+      }
+    ],
+    "brx": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Rozha One",
+        "value": "'Rozha One', serif"
+      },
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Annapurna SIL",
+        "value": "'Annapurna SIL', serif"
+      },
+      {
+        "name": "Sarpanch",
+        "value": "'Sarpanch', sans-serif"
+      }
+    ],
+    "sa": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Rozha One",
+        "value": "'Rozha One', serif"
+      },
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Annapurna SIL",
+        "value": "'Annapurna SIL', serif"
+      },
+      {
+        "name": "Sarpanch",
+        "value": "'Sarpanch', sans-serif"
+      }
+    ],
+    "ru": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Playfair Display",
+        "value": "'Playfair Display', serif"
+      },
+      {
+        "name": "Noto Sans",
+        "value": "'Noto Sans', sans-serif"
+      },
+      {
+        "name": "Roboto",
+        "value": "'Roboto', sans-serif"
+      },
+      {
+        "name": "Russo One",
+        "value": "'Russo One', sans-serif"
+      }
+    ],
+    "uk": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Playfair Display",
+        "value": "'Playfair Display', serif"
+      },
+      {
+        "name": "Noto Sans",
+        "value": "'Noto Sans', sans-serif"
+      },
+      {
+        "name": "Roboto",
+        "value": "'Roboto', sans-serif"
+      },
+      {
+        "name": "Russo One",
+        "value": "'Russo One', sans-serif"
+      }
+    ],
+    "bg": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Playfair Display",
+        "value": "'Playfair Display', serif"
+      },
+      {
+        "name": "Noto Sans",
+        "value": "'Noto Sans', sans-serif"
+      },
+      {
+        "name": "Roboto",
+        "value": "'Roboto', sans-serif"
+      },
+      {
+        "name": "Russo One",
+        "value": "'Russo One', sans-serif"
+      }
+    ],
+    "sr": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Playfair Display",
+        "value": "'Playfair Display', serif"
+      },
+      {
+        "name": "Noto Sans",
+        "value": "'Noto Sans', sans-serif"
+      },
+      {
+        "name": "Roboto",
+        "value": "'Roboto', sans-serif"
+      },
+      {
+        "name": "Russo One",
+        "value": "'Russo One', sans-serif"
+      }
+    ],
+    "kk": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Playfair Display",
+        "value": "'Playfair Display', serif"
+      },
+      {
+        "name": "Noto Sans",
+        "value": "'Noto Sans', sans-serif"
+      },
+      {
+        "name": "Roboto",
+        "value": "'Roboto', sans-serif"
+      },
+      {
+        "name": "Russo One",
+        "value": "'Russo One', sans-serif"
+      }
+    ],
+    "mn": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Playfair Display",
+        "value": "'Playfair Display', serif"
+      },
+      {
+        "name": "Noto Sans",
+        "value": "'Noto Sans', sans-serif"
+      },
+      {
+        "name": "Roboto",
+        "value": "'Roboto', sans-serif"
+      },
+      {
+        "name": "Russo One",
+        "value": "'Russo One', sans-serif"
+      }
+    ],
+    "el": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Playfair Display",
+        "value": "'Playfair Display', serif"
+      },
+      {
+        "name": "Noto Sans",
+        "value": "'Noto Sans', sans-serif"
+      },
+      {
+        "name": "Roboto",
+        "value": "'Roboto', sans-serif"
+      },
+      {
+        "name": "Jura",
+        "value": "'Jura', sans-serif"
+      }
+    ],
+    "hy": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Gohar",
+        "value": "'Gohar', serif"
+      },
+      {
+        "name": "Noto Sans Armenian",
+        "value": "'Noto Sans Armenian', sans-serif"
+      },
+      {
+        "name": "Montserrat Armenian",
+        "value": "'Montserrat Armenian', sans-serif"
+      },
+      {
+        "name": "Yerevan",
+        "value": "'Yerevan', sans-serif"
+      }
+    ],
+    "ka": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Fedora",
+        "value": "'Fedora', serif"
+      },
+      {
+        "name": "Noto Sans Georgian",
+        "value": "'Noto Sans Georgian', sans-serif"
+      },
+      {
+        "name": "Tinos",
+        "value": "'Tinos', serif"
+      },
+      {
+        "name": "Fedora",
+        "value": "'Fedora', sans-serif"
+      }
+    ],
+    "bho": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Rozha One",
+        "value": "'Rozha One', serif"
+      },
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Annapurna SIL",
+        "value": "'Annapurna SIL', serif"
+      },
+      {
+        "name": "Sarpanch",
+        "value": "'Sarpanch', sans-serif"
+      }
+    ],
+    "th": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Itim",
+        "value": "'Itim', cursive"
+      },
+      {
+        "name": "Noto Sans Thai",
+        "value": "'Noto Sans Thai', sans-serif"
+      },
+      {
+        "name": "Kanit",
+        "value": "'Kanit', sans-serif"
+      },
+      {
+        "name": "Chakra Petch",
+        "value": "'Chakra Petch', sans-serif"
+      }
+    ],
+    "km": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Koulen",
+        "value": "'Koulen', cursive"
+      },
+      {
+        "name": "Noto Sans Khmer",
+        "value": "'Noto Sans Khmer', sans-serif"
+      },
+      {
+        "name": "Hanuman",
+        "value": "'Hanuman', serif"
+      },
+      {
+        "name": "Koulen",
+        "value": "'Koulen', cursive"
+      }
+    ],
+    "my": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Padauk",
+        "value": "'Padauk', sans-serif"
+      },
+      {
+        "name": "Noto Sans Myanmar",
+        "value": "'Noto Sans Myanmar', sans-serif"
+      },
+      {
+        "name": "Myanmar Sans Pro",
+        "value": "'Myanmar Sans Pro', sans-serif"
+      },
+      {
+        "name": "Tharlon",
+        "value": "'Tharlon', sans-serif"
+      }
+    ],
+    "fa": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Amiri",
+        "value": "'Amiri', serif"
+      },
+      {
+        "name": "Noto Sans Arabic",
+        "value": "'Noto Sans Arabic', sans-serif"
+      },
+      {
+        "name": "Cairo",
+        "value": "'Cairo', sans-serif"
+      },
+      {
+        "name": "Changa",
+        "value": "'Changa', sans-serif"
+      }
+    ],
+    "ps": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Amiri",
+        "value": "'Amiri', serif"
+      },
+      {
+        "name": "Noto Sans Arabic",
+        "value": "'Noto Sans Arabic', sans-serif"
+      },
+      {
+        "name": "Cairo",
+        "value": "'Cairo', sans-serif"
+      },
+      {
+        "name": "Changa",
+        "value": "'Changa', sans-serif"
+      }
+    ],
+    "ku": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Amiri",
+        "value": "'Amiri', serif"
+      },
+      {
+        "name": "Noto Sans Arabic",
+        "value": "'Noto Sans Arabic', sans-serif"
+      },
+      {
+        "name": "Cairo",
+        "value": "'Cairo', sans-serif"
+      },
+      {
+        "name": "Changa",
+        "value": "'Changa', sans-serif"
+      }
+    ],
+    "he": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Tinos",
+        "value": "'Tinos', serif"
+      },
+      {
+        "name": "Noto Sans Hebrew",
+        "value": "'Noto Sans Hebrew', sans-serif"
+      },
+      {
+        "name": "Heebo",
+        "value": "'Heebo', sans-serif"
+      },
+      {
+        "name": "Rubik",
+        "value": "'Rubik', sans-serif"
+      }
+    ],
+    "yi": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Tinos",
+        "value": "'Tinos', serif"
+      },
+      {
+        "name": "Noto Sans Hebrew",
+        "value": "'Noto Sans Hebrew', sans-serif"
+      },
+      {
+        "name": "Heebo",
+        "value": "'Heebo', sans-serif"
+      },
+      {
+        "name": "Rubik",
+        "value": "'Rubik', sans-serif"
+      }
+    ],
+    "zh-CN": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "ZCOOL XiaoWei",
+        "value": "'ZCOOL XiaoWei', serif"
+      },
+      {
+        "name": "Noto Sans SC",
+        "value": "'Noto Sans SC', sans-serif"
+      },
+      {
+        "name": "Ma Shan Zheng",
+        "value": "'Ma Shan Zheng', cursive"
+      },
+      {
+        "name": "ZCOOL QingKe HuangYou",
+        "value": "'ZCOOL QingKe HuangYou', sans-serif"
+      }
+    ],
+    "zh-TW": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "ZCOOL XiaoWei",
+        "value": "'ZCOOL XiaoWei', serif"
+      },
+      {
+        "name": "Noto Sans TC",
+        "value": "'Noto Sans TC', sans-serif"
+      },
+      {
+        "name": "Ma Shan Zheng",
+        "value": "'Ma Shan Zheng', cursive"
+      },
+      {
+        "name": "ZCOOL QingKe HuangYou",
+        "value": "'ZCOOL QingKe HuangYou', sans-serif"
+      }
+    ],
+    "ja": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Noto Serif JP",
+        "value": "'Noto Serif JP', serif"
+      },
+      {
+        "name": "Noto Sans JP",
+        "value": "'Noto Sans JP', sans-serif"
+      },
+      {
+        "name": "M PLUS Rounded 1c",
+        "value": "'M PLUS Rounded 1c', sans-serif"
+      },
+      {
+        "name": "Dela Gothic One",
+        "value": "'Dela Gothic One', cursive"
+      }
+    ],
+    "ko": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Gowun Batang",
+        "value": "'Gowun Batang', serif"
+      },
+      {
+        "name": "Noto Sans KR",
+        "value": "'Noto Sans KR', sans-serif"
+      },
+      {
+        "name": "Nanum Gothic",
+        "value": "'Nanum Gothic', sans-serif"
+      },
+      {
+        "name": "Black Han Sans",
+        "value": "'Black Han Sans', sans-serif"
+      }
+    ],
+    "am": [
+      {
+        "name": "Times New Roman",
+        "value": "'Times New Roman', Times, serif"
+      },
+      {
+        "name": "Abyssinica SIL",
+        "value": "'Abyssinica SIL', serif"
+      },
+      {
+        "name": "Noto Sans Ethiopic",
+        "value": "'Noto Sans Ethiopic', sans-serif"
+      },
+      {
+        "name": "Nyala",
+        "value": "'Nyala', sans-serif"
+      },
+      {
+        "name": "Nyala",
+        "value": "'Nyala', sans-serif"
+      }
+    ],
+    "kha": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      },
+      {
+        "name": "Yantramanav (Sans)",
+        "value": "'Yantramanav', sans-serif"
+      },
+      {
+        "name": "Rozha One (Serif)",
+        "value": "'Rozha One', serif"
+      }
+    ],
+    "bra": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      },
+      {
+        "name": "Yantramanav (Sans)",
+        "value": "'Yantramanav', sans-serif"
+      },
+      {
+        "name": "Rozha One (Serif)",
+        "value": "'Rozha One', serif"
+      }
+    ],
+    "roh": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      },
+      {
+        "name": "Yantramanav (Sans)",
+        "value": "'Yantramanav', sans-serif"
+      },
+      {
+        "name": "Rozha One (Serif)",
+        "value": "'Rozha One', serif"
+      }
+    ],
+    "kan": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      },
+      {
+        "name": "Yantramanav (Sans)",
+        "value": "'Yantramanav', sans-serif"
+      },
+      {
+        "name": "Rozha One (Serif)",
+        "value": "'Rozha One', serif"
+      }
+    ],
+    "awa": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      },
+      {
+        "name": "Yantramanav (Sans)",
+        "value": "'Yantramanav', sans-serif"
+      },
+      {
+        "name": "Rozha One (Serif)",
+        "value": "'Rozha One', serif"
+      }
+    ],
+    "bun": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      },
+      {
+        "name": "Yantramanav (Sans)",
+        "value": "'Yantramanav', sans-serif"
+      },
+      {
+        "name": "Rozha One (Serif)",
+        "value": "'Rozha One', serif"
+      }
+    ],
+    "bag": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      },
+      {
+        "name": "Yantramanav (Sans)",
+        "value": "'Yantramanav', sans-serif"
+      },
+      {
+        "name": "Rozha One (Serif)",
+        "value": "'Rozha One', serif"
+      }
+    ],
+    "pah": [
+      {
+        "name": "Noto Nastaliq Urdu",
+        "value": "'Noto Nastaliq Urdu', serif"
+      },
+      {
+        "name": "Noto Sans Arabic",
+        "value": "'Noto Sans Arabic', sans-serif"
+      }
+    ],
+    "bhd": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      }
+    ],
+    "ksw": [
+      {
+        "name": "Noto Nastaliq Urdu",
+        "value": "'Noto Nastaliq Urdu', serif"
+      },
+      {
+        "name": "Noto Sans Arabic",
+        "value": "'Noto Sans Arabic', sans-serif"
+      }
+    ],
+    "srz": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      }
+    ],
+    "phr": [
+      {
+        "name": "Noto Nastaliq Urdu",
+        "value": "'Noto Nastaliq Urdu', serif"
+      },
+      {
+        "name": "Noto Sans Arabic",
+        "value": "'Noto Sans Arabic', sans-serif"
+      }
+    ],
+    "scl": [
+      {
+        "name": "Noto Nastaliq Urdu",
+        "value": "'Noto Nastaliq Urdu', serif"
+      },
+      {
+        "name": "Noto Sans Arabic",
+        "value": "'Noto Sans Arabic', sans-serif"
+      }
+    ],
+    "bft": [
+      {
+        "name": "Noto Nastaliq Urdu",
+        "value": "'Noto Nastaliq Urdu', serif"
+      },
+      {
+        "name": "Noto Sans Arabic",
+        "value": "'Noto Sans Arabic', sans-serif"
+      }
+    ],
+    "khw": [
+      {
+        "name": "Noto Nastaliq Urdu",
+        "value": "'Noto Nastaliq Urdu', serif"
+      },
+      {
+        "name": "Noto Sans Arabic",
+        "value": "'Noto Sans Arabic', sans-serif"
+      }
+    ],
+    "bsk": [
+      {
+        "name": "Noto Nastaliq Urdu",
+        "value": "'Noto Nastaliq Urdu', serif"
+      },
+      {
+        "name": "Noto Sans Arabic",
+        "value": "'Noto Sans Arabic', sans-serif"
+      }
+    ],
+    "lad": [
+      {
+        "name": "Noto Sans Tibetan",
+        "value": "'Noto Sans Tibetan', sans-serif"
+      },
+      {
+        "name": "Noto Serif Tibetan",
+        "value": "'Noto Serif Tibetan', serif"
+      }
+    ],
+    "prg": [
+      {
+        "name": "Noto Nastaliq Urdu",
+        "value": "'Noto Nastaliq Urdu', serif"
+      },
+      {
+        "name": "Noto Sans Arabic",
+        "value": "'Noto Sans Arabic', sans-serif"
+      }
+    ],
+    "zan": [
+      {
+        "name": "Noto Sans Tibetan",
+        "value": "'Noto Sans Tibetan', sans-serif"
+      },
+      {
+        "name": "Noto Serif Tibetan",
+        "value": "'Noto Serif Tibetan', serif"
+      }
+    ],
+    "cng": [
+      {
+        "name": "Noto Sans Tibetan",
+        "value": "'Noto Sans Tibetan', sans-serif"
+      },
+      {
+        "name": "Noto Serif Tibetan",
+        "value": "'Noto Serif Tibetan', serif"
+      }
+    ],
+    "chm": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "kgr": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "kul": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "mnd": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "una": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      }
+    ],
+    "bls": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "sln": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "shm": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "srm": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "knn": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "maj": [
+      {
+        "name": "Noto Sans Gurmukhi",
+        "value": "'Noto Sans Gurmukhi', sans-serif"
+      }
+    ],
+    "doa": [
+      {
+        "name": "Noto Sans Gurmukhi",
+        "value": "'Noto Sans Gurmukhi', sans-serif"
+      }
+    ],
+    "mal": [
+      {
+        "name": "Noto Sans Gurmukhi",
+        "value": "'Noto Sans Gurmukhi', sans-serif"
+      }
+    ],
+    "har": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "ahi": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "bgi": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "kau": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "mew": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "gar": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "kum": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "mwr": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "mtr": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "dhd": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "swv": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "hoj": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "wbr": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "mlv": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "ajm": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "mag": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "ang": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "sur": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      },
+      {
+        "name": "Poppins (Sans)",
+        "value": "'Poppins', sans-serif"
+      }
+    ],
+    "mjw": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "dis": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "mon": [
+      {
+        "name": "Noto Sans Tibetan",
+        "value": "'Noto Sans Tibetan', sans-serif"
+      },
+      {
+        "name": "Noto Serif Tibetan",
+        "value": "'Noto Serif Tibetan', serif"
+      }
+    ],
+    "njy": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "apt": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "tgj": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "adl": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "adi": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "clk": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "mxj": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "mhu": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "kht": [
+      {
+        "name": "Noto Sans Myanmar",
+        "value": "'Noto Sans Myanmar', sans-serif"
+      }
+    ],
+    "nst": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "njb": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "nnp": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "njm": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "nag": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "nsm": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "njo": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "njh": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "nri": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "nsa": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "yim": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "nbc": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "khi": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "nbe": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "nze": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "npo": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "nmf": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "thd": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "nmo": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "nma": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "ron": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "anm": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "lus": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "mrh": [
+      {
+        "name": "Inter (Sans)",
+        "value": "'Inter', sans-serif"
+      },
+      {
+        "name": "Roboto (Sans)",
+        "value": "'Roboto', sans-serif"
+      }
+    ],
+    "trp": [
+      {
+        "name": "Noto Sans Bengali",
+        "value": "'Noto Sans Bengali', sans-serif"
+      }
+    ],
+    "sck": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      }
+    ],
+    "koc": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      }
+    ],
+    "kyw": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      }
+    ],
+    "tdb": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      }
+    ],
+    "hoc": [
+      {
+        "name": "Noto Sans Warang Citi",
+        "value": "'Noto Sans Warang Citi', sans-serif"
+      }
+    ],
+    "hne": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      }
+    ],
+    "sgj": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      }
+    ],
+    "hlb": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      }
+    ],
+    "gon": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      }
+    ],
+    "kru": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      }
+    ],
+    "noe": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      }
+    ],
+    "mhk": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      }
+    ],
+    "bhb": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif"
+      },
+      {
+        "name": "Mukta (Sans)",
+        "value": "'Mukta', sans-serif"
+      }
+    ],
+    "kvd": [
+      {
+        "name": "Noto Sans Gujarati",
+        "value": "'Noto Sans Gujarati', sans-serif"
+      }
+    ],
+    "dac": [
+      {
+        "name": "Noto Sans Gujarati",
+        "value": "'Noto Sans Gujarati', sans-serif"
+      }
+    ],
+    "sgu": [
+      {
+        "name": "Noto Sans Gujarati",
+        "value": "'Noto Sans Gujarati', sans-serif"
+      }
+    ],
+    "kui": [
+      {
+        "name": "Noto Sans Oriya",
+        "value": "'Noto Sans Oriya', sans-serif"
+      }
+    ],
+    "dso": [
+      {
+        "name": "Noto Sans Oriya",
+        "value": "'Noto Sans Oriya', sans-serif"
+      }
+    ],
+    "tcy": [
+      {
+        "name": "Noto Sans Kannada",
+        "value": "'Noto Sans Kannada', sans-serif"
+      }
+    ],
+    "kfa": [
+      {
+        "name": "Noto Sans Kannada",
+        "value": "'Noto Sans Kannada', sans-serif"
+      }
+    ]
+  },
+  "languageNames": {
+    "en": "English",
+    "hi": "हिंदी",
+    "bn": "বাংলা",
+    "te": "తెలుగు",
+    "mr": "मराठी",
+    "ta": "தமிழ்",
+    "ur": "Urdu",
+    "gu": "ગુજરાતી",
+    "kn": "ಕನ್ನಡ",
+    "or": "ଓଡିଆ",
+    "ml": "മലയാളം",
+    "pa": "ਪੰਜਾਬੀ",
+    "as": "অসমীয়া",
+    "mai": "मैथिली",
+    "sat": "Santali",
+    "ks": "Kashmiri",
+    "ne": "नेपाली",
+    "kok": "कोंकणी",
+    "sd": "سنڌي",
+    "doi": "डोगरी",
+    "mni": "ꯃꯦꯏꯇꯦꯏ꯫",
+    "brx": "Bodo",
+    "sa": "संस्कृत",
+    "bho": "भोजपुरी",
+    "kha": "Khasi",
+    "bra": "Braj",
+    "roh": "Rohilkhandi",
+    "kan": "Kannauji",
+    "awa": "Awadhi",
+    "bun": "Bundeli",
+    "bag": "Bagheli",
+    "pah": "Pahari",
+    "bhd": "Bhaderwahi",
+    "ksw": "Kishtwari",
+    "srz": "Sarazi",
+    "phr": "Pahari Pothohari",
+    "scl": "Shina",
+    "bft": "Balti",
+    "khw": "Khowar",
+    "bsk": "Burushaski",
+    "lad": "Ladakhi",
+    "prg": "Purigi",
+    "zan": "Zanskari",
+    "cng": "Changthangi",
+    "chm": "Chambeali",
+    "kgr": "Kangri",
+    "kul": "Kulluvi",
+    "mnd": "Mandeali",
+    "una": "Punjabi Pahari",
+    "bls": "Kahluri",
+    "sln": "Baghati",
+    "shm": "Mahasuvi",
+    "srm": "Sirmauri",
+    "knn": "Kinnauri",
+    "maj": "Majhi",
+    "doa": "Doabi",
+    "mal": "Malwai",
+    "har": "Haryanvi",
+    "ahi": "Ahirwati",
+    "bgi": "Bagri",
+    "kau": "Kauravi",
+    "mew": "Mewati",
+    "gar": "Garhwali",
+    "kum": "Kumaoni",
+    "mwr": "Marwari",
+    "mtr": "Mewari",
+    "dhd": "Dhundari",
+    "swv": "Shekhawati",
+    "hoj": "Hadoti",
+    "wbr": "Wagdi",
+    "mlv": "Malvi",
+    "ajm": "Ajmeri",
+    "mag": "Magahi",
+    "ang": "Angika",
+    "sur": "Surjapuri",
+    "mjw": "Karbi",
+    "dis": "Dimasa",
+    "mon": "Monpa",
+    "njy": "Nyishi",
+    "apt": "Apatani",
+    "tgj": "Tagin",
+    "adl": "Galo",
+    "adi": "Adi",
+    "clk": "Idu Mishmi",
+    "mxj": "Miju Mishmi",
+    "mhu": "Digaru Mishmi",
+    "kht": "Tai Khamti",
+    "nst": "Tangsa",
+    "njb": "Nocte",
+    "nnp": "Wancho",
+    "njm": "Angami",
+    "nag": "Nagamese",
+    "nsm": "Sumi",
+    "njo": "Ao",
+    "njh": "Lotha",
+    "nri": "Chakhesang",
+    "nsa": "Sangtam",
+    "yim": "Yimkhiung",
+    "nbc": "Chang",
+    "khi": "Khiamniungan",
+    "nbe": "Konyak",
+    "nze": "Zeliang",
+    "npo": "Pochury",
+    "nmf": "Tangkhul",
+    "thd": "Thadou Kuki",
+    "nmo": "Mao",
+    "nma": "Maram",
+    "ron": "Rongmei",
+    "anm": "Anal",
+    "lus": "Mizo tawng",
+    "mrh": "Mara",
+    "trp": "Kokborok",
+    "sck": "Nagpuri",
+    "koc": "Khortha",
+    "kyw": "Kurmali",
+    "tdb": "Panchpargania",
+    "hoc": "Ho",
+    "hne": "Chhattisgarhi",
+    "sgj": "Surgujia",
+    "hlb": "Halbi",
+    "gon": "Gondi",
+    "kru": "Kurukh",
+    "noe": "Nimadi",
+    "mhk": "Mahakosheli",
+    "bhb": "Bhili",
+    "kvd": "Kathiyawadi",
+    "dac": "Dangi",
+    "sgu": "South Gujarati",
+    "kui": "Kui",
+    "dso": "Desiya",
+    "tcy": "Tulu",
+    "kfa": "Kodava",
+    "es": "español español",
+    "fr": "français français",
+    "de": "Deutsch Deutsch",
+    "vi": "Tiếng Việt",
+    "tr": "Türkçe",
+    "id": "Indonesia",
+    "ru": "Русский",
+    "uk": "українська",
+    "bg": "български",
+    "sr": "српски",
+    "kk": "қазақ",
+    "mn": "Монгол",
+    "el": "ελληνικά",
+    "hy": "հայկ",
+    "ka": "ქართული",
+    "th": "แบบไทย",
+    "km": "ខ្មែរ",
+    "my": "ဗမာ မြန်မာ",
+    "fa": "فارسی فارسی",
+    "ps": "پښتو",
+    "ku": "Kurdî",
+    "he": "Hebrew",
+    "yi": "יידיש",
+    "zh-CN": "中国人",
+    "zh-TW": "繁體中文",
+    "ja": "日本語",
+    "ko": "한국인",
+    "am": "አማርኛ",
+    "lbj": "Ladakhi",
+    "kcm_bil": "Bilaspuri/Kehluri",
+    "kff": "Koya",
+    "lep": "Lepcha",
+    "grt": "Garo",
+    "pbv": "Pnar",
+    "srb": "Sora",
+    "anp": "Angika"
+  },
+  "languagesHindiMap": {
+    "Assamese": "असमिया",
+    "Bengali": "बंगाली",
+    "Bodo": "बोडो",
+    "Dogri": "डोगरी",
+    "English": "अंग्रेजी",
+    "Gujarati": "गुजराती",
+    "Hindi": "हिंदी",
+    "Kannada": "कन्नड़",
+    "Kashmiri": "कश्मीरी",
+    "Konkani": "कोंकणी",
+    "Maithili": "मैथिली",
+    "Malayalam": "मलयालम",
+    "Manipuri": "मणिपुरी",
+    "Marathi": "मराठी",
+    "Nepali": "नेपाली",
+    "Odia": "ओडिया",
+    "Punjabi": "पंजाबी",
+    "Sanskrit": "संस्कृत",
+    "Santali": "संताली",
+    "Sindhi": "सिंधी",
+    "Tamil": "तमिल",
+    "Telugu": "तेलुगु",
+    "Urdu": "उर्दू"
+  },
+  "writingSystems": {
+    "systems": [
+      {
+        "name": "Alphabets (True Alphabets)",
+        "description": "Isme Vowels (स्वर) aur Consonants (व्यंजन) dono ke liye alag aur barabar ke letters hote hain. Yeh left-to-right likhi jaati hain.",
+        "scripts": [
+          {
+            "name": "Latin Script",
+            "languages": [
+              "English",
+              "Spanish",
+              "French",
+              "German",
+              "Vietnamese",
+              "Turkish",
+              "Indonesian"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "Playfair Display",
+              "Noto Sans",
+              "Inter",
+              "Russo One"
+            ]
+          },
+          {
+            "name": "Cyrillic Script",
+            "languages": [
+              "Russian",
+              "Ukrainian",
+              "Bulgarian",
+              "Serbian",
+              "Kazakh",
+              "Mongolian"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "Playfair Display",
+              "Noto Sans",
+              "Roboto",
+              "Russo One"
+            ]
+          },
+          {
+            "name": "Greek Script",
+            "languages": [
+              "Greek"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "Playfair Display",
+              "Noto Sans",
+              "Roboto",
+              "Jura"
+            ]
+          },
+          {
+            "name": "Armenian Script",
+            "languages": [
+              "Armenian"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "Gohar",
+              "Noto Sans Armenian",
+              "Montserrat Armenian",
+              "Yerevan"
+            ]
+          },
+          {
+            "name": "Georgian Script",
+            "languages": [
+              "Georgian"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "Fedora",
+              "Noto Sans Georgian",
+              "Tinos",
+              "Fedora"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Abugidas / Alphasyllabaries (Segmental Scripts)",
+        "description": "Isme main unit ek consonant hota hai jisme default \"a\" sound juda hota hai. Baaki vowels ko dikhane ke liye matraon (diacritics) ka use kiya jata hai jo consonant ke upar, neeche, aage ya peeche lagti hain.",
+        "scripts": [
+          {
+            "name": "Devanagari Script",
+            "languages": [
+              "Hindi",
+              "Marathi",
+              "Nepali",
+              "Sanskrit",
+              "Bhojpuri",
+              "Konkani"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "Rozha One",
+              "Noto Sans Devanagari",
+              "Annapurna SIL",
+              "Sarpanch"
+            ]
+          },
+          {
+            "name": "Bengali-Assamese Script",
+            "languages": [
+              "Bengali",
+              "Assamese",
+              "Manipuri"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "Galada",
+              "Noto Sans Bengali",
+              "Hind Siliguri",
+              "Kumar One"
+            ]
+          },
+          {
+            "name": "Gurmukhi Script",
+            "languages": [
+              "Punjabi"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "Baloo Bhaina 2",
+              "Noto Sans Gurmukhi",
+              "Mukta Mahee",
+              "Saab"
+            ]
+          },
+          {
+            "name": "Gujarati Script",
+            "languages": [
+              "Gujarati"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "Shrikhand",
+              "Noto Sans Gujarati",
+              "Farsan",
+              "Kumar One"
+            ]
+          },
+          {
+            "name": "Tamil Script",
+            "languages": [
+              "Tamil"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "Kavivanar",
+              "Noto Sans Tamil",
+              "Catamaran",
+              "Catamaran"
+            ]
+          },
+          {
+            "name": "Telugu Script",
+            "languages": [
+              "Telugu"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "Ramabhadra",
+              "Noto Sans Telugu",
+              "NTR",
+              "Dhurjati"
+            ]
+          },
+          {
+            "name": "Kannada Script",
+            "languages": [
+              "Kannada",
+              "Tulu"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "Tiro Kannada",
+              "Noto Sans Kannada",
+              "Baloo Tamma 2",
+              "Hubballi"
+            ]
+          },
+          {
+            "name": "Malayalam Script",
+            "languages": [
+              "Malayalam"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "Chilanka",
+              "Noto Sans Malayalam",
+              "Manjari",
+              "Uroob"
+            ]
+          },
+          {
+            "name": "Thai Script",
+            "languages": [
+              "Thai"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "Itim",
+              "Noto Sans Thai",
+              "Kanit",
+              "Chakra Petch"
+            ]
+          },
+          {
+            "name": "Khmer Script",
+            "languages": [
+              "Khmer (Cambodia)"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "Koulen",
+              "Noto Sans Khmer",
+              "Hanuman",
+              "Koulen"
+            ]
+          },
+          {
+            "name": "Myanmar (Burmese) Script",
+            "languages": [
+              "Burmese"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "Padauk",
+              "Noto Sans Myanmar",
+              "Myanmar Sans Pro",
+              "Tharlon"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Abjads (Consonant-based Scripts)",
+        "description": "Isme sirf Consonants likhe jaate hain. Vowels ko context ke hisab se khud samajhna padta hai ya fir optionally chote dots/marks (diacritics) se dikhaya jata hai. Yeh majorly Right-to-Left (daayein se baayein) likhi jaati hain.",
+        "scripts": [
+          {
+            "name": "Arabic Script",
+            "languages": [
+              "Arabic",
+              "Persian (Farsi)",
+              "Urdu (Nastaliq variant)",
+              "Pashto",
+              "Kurdish"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "Amiri",
+              "Noto Sans Arabic",
+              "Cairo",
+              "Changa"
+            ]
+          },
+          {
+            "name": "Hebrew Script",
+            "languages": [
+              "Hebrew",
+              "Yiddish"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "Tinos",
+              "Noto Sans Hebrew",
+              "Heebo",
+              "Rubik"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "4. Logographic & Syllabic Systems (Block / Character Based)",
+        "description": "Isme alphabets nahi hote. Ek single character ya toh ek poore concept/word ko represent karta hai (Logogram) ya fir ek poore syllable/sound-block ko (Syllabary).",
+        "scripts": [
+          {
+            "name": "Hanzi / Han Script (Logographic)",
+            "languages": [
+              "Mandarin Chinese",
+              "Cantonese",
+              "Taiwanese"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "ZCOOL XiaoWei",
+              "Noto Sans SC",
+              "Ma Shan Zheng",
+              "ZCOOL QingKe HuangYou"
+            ]
+          },
+          {
+            "name": "Kana System (Japanese Syllabary)",
+            "languages": [
+              "Japanese"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "Noto Serif JP",
+              "Noto Sans JP",
+              "M PLUS Rounded 1c",
+              "Dela Gothic One"
+            ],
+            "note": "Japanese me Hanzi (Kanji) ke sath do phonetic scripts mix hoti hain: Hiragana aur Katakana."
+          },
+          {
+            "name": "Hangul (Korean Featural Alphabet)",
+            "languages": [
+              "Korean"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "Gowun Batang",
+              "Noto Sans KR",
+              "Nanum Gothic",
+              "Black Han Sans"
+            ],
+            "note": "Yeh dikhne me Chinese character block jaisa lagta hai, par actually yeh duniya ka sabse scientific system hai jahan alag-alag letters ko ek square block me assemble karke syllable banaya jata hai."
+          }
+        ]
+      },
+      {
+        "name": "5. Ge'ez / Ethiopic (Syllabic-Abugida Hybrid)",
+        "description": "Isme har ek character ek consonant + vowel ka combination hota hai, jise ek alag unit ke roop me hi likha jata hai.",
+        "scripts": [
+          {
+            "name": "Ethiopic Script",
+            "languages": [
+              "Amharic",
+              "Oromo",
+              "Tigrinya"
+            ],
+            "fonts": [
+              "Times New Roman",
+              "Abyssinica SIL",
+              "Noto Sans Ethiopic",
+              "Nyala",
+              "Nyala"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "indiaLocationLanguages": {
+    "default": "hi",
+    "states": {
+      "Andaman and Nicobar Islands": "bn",
+      "Arunachal Pradesh": "en",
+      "Bihar": "hi",
+      "Chhattisgarh": "hi",
+      "Delhi": "hi",
+      "Gujarat": "gu",
+      "Himachal Pradesh": "hi",
+      "Jharkhand": "hi",
+      "Kerala": "ml",
+      "Lakshadweep": "ml",
+      "Maharashtra": "mr",
+      "Meghalaya": "en",
+      "Nagaland": "en",
+      "Puducherry": "ta",
+      "Rajasthan": "hi",
+      "Tamil Nadu": "ta",
+      "Tripura": "bn",
+      "Uttarakhand": "hi",
+      "Andhra Pradesh": "te",
+      "Assam": "as",
+      "Chandigarh": "pa",
+      "Dadra and Nagar Haveli and Daman and Diu": "gu",
+      "Goa": "kok",
+      "Haryana": "hi",
+      "Jammu and Kashmir": "ks",
+      "Karnataka": "kn",
+      "Ladakh": "lbj",
+      "Madhya Pradesh": "hi",
+      "Manipur": "mni",
+      "Mizoram": "lus",
+      "Odisha": "or",
+      "Punjab": "pa",
+      "Sikkim": "ne",
+      "Telangana": "te",
+      "West Bengal": "bn",
+      "Uttar Pradesh": "hi"
+    },
+    "stateAliases": {
+      "_comment": "Alternate/historical state names → canonical key in 'states'",
+      "Orissa": "Odisha",
+      "Pondicherry": "Puducherry",
+      "Pondicheri": "Puducherry",
+      "NCT of Delhi": "Delhi",
+      "National Capital Territory of Delhi": "Delhi",
+      "New Delhi": "Delhi",
+      "Jammu & Kashmir": "Jammu and Kashmir",
+      "Andaman & Nicobar Islands": "Andaman and Nicobar Islands"
+    },
+    "districts": {
+      "Nicobars": "bn",
+      "North And Middle Andaman": "bn",
+      "South Andamans": "bn",
+      "Anjaw": "mxj",
+      "Bichom": "en",
+      "Changlang": "nst",
+      "Dibang Valley": "clk",
+      "East Kameng": "njy",
+      "East Siang": "adi",
+      "Kamle": "en",
+      "Keyi Panyor": "apt",
+      "Kra Daadi": "njy",
+      "Kurung Kumey": "njy",
+      "Leparada": "adl",
+      "Lohit": "mhu",
+      "Longding": "nnp",
+      "Lower Dibang Valley": "clk",
+      "Lower Siang": "adl",
+      "Lower Subansiri": "apt",
+      "Namsai": "kht",
+      "Pakke Kessang": "en",
+      "Papum Pare": "njy",
+      "Shi Yomi": "adl",
+      "Siang": "adi",
+      "Tawang": "mon",
+      "Tirap": "njb",
+      "Upper Siang": "adi",
+      "Upper Subansiri": "tgj",
+      "West Kameng": "mon",
+      "West Siang": "adl",
+      "Araria": "sur",
+      "Arwal": "mag",
+      "Aurangabad": "mag",
+      "Banka": "ang",
+      "Begusarai": "mai",
+      "Bhagalpur": "ang",
+      "Bhojpur": "bho",
+      "Buxar": "bho",
+      "Darbhanga": "mai",
+      "Gaya": "mag",
+      "Gopalganj": "bho",
+      "Jamui": "ang",
+      "Jehanabad": "mag",
+      "Kaimur (Bhabua)": "hi",
+      "Katihar": "sur",
+      "Khagaria": "mai",
+      "Kishanganj": "sur",
+      "Lakhisarai": "mag",
+      "Madhepura": "mai",
+      "Madhubani": "mai",
+      "Munger": "ang",
+      "Muzaffarpur": "hi",
+      "Nalanda": "mag",
+      "Nawada": "mag",
+      "Pashchim Champaran": "hi",
+      "Samastipur": "mai",
+      "Saran": "bho",
+      "Sheikhpura": "mag",
+      "Sheohar": "mai",
+      "Sitamarhi": "mai",
+      "Patna": "mag",
+      "Purbi Champaran": "hi",
+      "Purnia": "sur",
+      "Rohtas": "bho",
+      "Saharsa": "mai",
+      "Siwan": "bho",
+      "Supaul": "mai",
+      "Vaishali": "hi",
+      "Balod": "hne",
+      "Balodabazar-Bhatapara": "hne",
+      "Balrampur-Ramanujganj": "sgj",
+      "Bastar": "gon",
+      "Bemetara": "hne",
+      "Bijapur": "gon",
+      "Bilaspur": "kcm_bil",
+      "Dakshin Bastar Dantewada": "gon",
+      "Dhamtari": "hne",
+      "Durg": "hne",
+      "Gariyaband": "hne",
+      "Gaurela-Pendra-Marwahi": "hi",
+      "Janjgir-Champa": "hne",
+      "Jashpur": "kru",
+      "Kabeerdham": "hne",
+      "Khairagarh-Chhuikhadan-Gandai": "hi",
+      "Kondagaon": "hlb",
+      "Korba": "hne",
+      "Korea": "sgj",
+      "Mahasamund": "hne",
+      "Manendragarh-Chirmiri-Bharatpur(M C B)": "hi",
+      "Mohla-Manpur-Ambagarh Chouki": "hi",
+      "Mungeli": "hne",
+      "Narayanpur": "gon",
+      "Raigarh": "hne",
+      "Raipur": "hne",
+      "Rajnandgaon": "hne",
+      "Sakti": "hne",
+      "Sarangarh-Bilaigarh": "hne",
+      "Sukma": "gon",
+      "Surajpur": "sgj",
+      "Surguja": "sgj",
+      "Uttar Bastar Kanker": "hlb",
+      "Central": "hi",
+      "Central North": "hi",
+      "East": "hi",
+      "New Delhi": "hi",
+      "North": "hi",
+      "North East": "hi",
+      "North West": "hi",
+      "Old Delhi": "hi",
+      "Outer North": "hi",
+      "South": "hi",
+      "South East": "hi",
+      "South West": "hi",
+      "West": "hi",
+      "Ahmedabad": "gu",
+      "Amreli": "kvd",
+      "Anand": "gu",
+      "Arvalli": "gu",
+      "Banas Kantha": "gu",
+      "Bharuch": "sgu",
+      "Bhavnagar": "kvd",
+      "Botad": "kvd",
+      "Chhotaudepur": "gu",
+      "Dahod": "gu",
+      "Dangs": "gu",
+      "Devbhumi Dwarka": "kvd",
+      "Gandhinagar": "gu",
+      "Gir Somnath": "kvd",
+      "Jamnagar": "kvd",
+      "Junagadh": "kvd",
+      "Kachchh": "gu",
+      "Kheda": "gu",
+      "Mahesana": "gu",
+      "Mahisagar": "gu",
+      "Morbi": "kvd",
+      "Narmada": "sgu",
+      "Navsari": "sgu",
+      "Panch Mahals": "gu",
+      "Patan": "gu",
+      "Porbandar": "kvd",
+      "Rajkot": "kvd",
+      "Sabar Kantha": "gu",
+      "Surat": "sgu",
+      "Surendranagar": "kvd",
+      "Tapi": "sgu",
+      "Vadodara": "gu",
+      "Valsad": "sgu",
+      "Vav-Tharad": "gu",
+      "Chamba": "chm",
+      "Hamirpur": "bun",
+      "Kangra": "kgr",
+      "Kinnaur": "knn",
+      "Kullu": "kul",
+      "Lahaul And Spiti": "hi",
+      "Mandi": "mnd",
+      "Shimla": "shm",
+      "Sirmaur": "srm",
+      "Solan": "sln",
+      "Una": "una",
+      "Bokaro": "koc",
+      "Chatra": "koc",
+      "Deoghar": "ang",
+      "Dhanbad": "koc",
+      "Dumka": "sat",
+      "East Singhbum": "hoc",
+      "Garhwa": "bho",
+      "Giridih": "koc",
+      "Godda": "anp",
+      "Gumla": "sck",
+      "Hazaribagh": "koc",
+      "Jamtara": "sat",
+      "Khunti": "sck",
+      "Koderma": "koc",
+      "Latehar": "sck",
+      "Lohardaga": "sck",
+      "Pakur": "sat",
+      "Palamu": "bho",
+      "Ramgarh": "koc",
+      "Ranchi": "sck",
+      "Sahebganj": "sat",
+      "Saraikela Kharsawan": "hoc",
+      "Simdega": "sck",
+      "West Singhbhum": "hoc",
+      "Alappuzha": "ml",
+      "Ernakulam": "ml",
+      "Idukki": "ml",
+      "Kannur": "ml",
+      "Kasaragod": "ml",
+      "Kollam": "ml",
+      "Kottayam": "ml",
+      "Kozhikode": "ml",
+      "Malappuram": "ml",
+      "Palakkad": "ml",
+      "Pathanamthitta": "ml",
+      "Thiruvananthapuram": "ml",
+      "Thrissur": "ml",
+      "Wayanad": "ml",
+      "Lakshadweep District": "ml",
+      "Ahilyanagar": "mr",
+      "Akola": "mr",
+      "Amravati": "mr",
+      "Beed": "mr",
+      "Bhandara": "mr",
+      "Buldhana": "mr",
+      "Chandrapur": "gon",
+      "Chhatrapati Sambhajinagar": "mr",
+      "Dharashiv": "mr",
+      "Dhule": "mr",
+      "Gadchiroli": "gon",
+      "Gondia": "mr",
+      "Hingoli": "mr",
+      "Jalgaon": "mr",
+      "Jalna": "mr",
+      "Kolhapur": "mr",
+      "Latur": "mr",
+      "Mumbai": "mr",
+      "Mumbai Suburban": "mr",
+      "Nagpur": "mr",
+      "Nanded": "mr",
+      "Nandurbar": "bhb",
+      "Nashik": "mr",
+      "Palghar": "mr",
+      "Parbhani": "mr",
+      "Pune": "mr",
+      "Raigad": "mr",
+      "Ratnagiri": "mr",
+      "Sangli": "mr",
+      "Satara": "mr",
+      "Sindhudurg": "kok",
+      "Solapur": "mr",
+      "Thane": "mr",
+      "Wardha": "mr",
+      "Washim": "mr",
+      "Yavatmal": "mr",
+      "East Garo Hills": "grt",
+      "East Jaintia Hills": "pbv",
+      "East Khasi Hills": "kha",
+      "Eastern West Khasi Hills": "kha",
+      "North Garo Hills": "grt",
+      "Ri Bhoi": "kha",
+      "South Garo Hills": "grt",
+      "South West Garo Hills": "grt",
+      "South West Khasi Hills": "kha",
+      "West Garo Hills": "grt",
+      "West Jaintia Hills": "pbv",
+      "West Khasi Hills": "kha",
+      "Chumoukedima": "nag",
+      "Dimapur": "nag",
+      "Kiphire": "nsa",
+      "Kohima": "njm",
+      "Longleng": "en",
+      "Meluri": "npo",
+      "Mokokchung": "njo",
+      "Mon": "nbe",
+      "Niuland": "nsm",
+      "Noklak": "khi",
+      "Peren": "nze",
+      "Phek": "nri",
+      "Shamator": "yim",
+      "Tseminyu": "njm",
+      "Tuensang": "nbc",
+      "Wokha": "njh",
+      "Zunheboto": "nsm",
+      "Karaikal": "ta",
+      "Puducherry": "ta",
+      "Ajmer": "ajm",
+      "Alwar": "mew",
+      "Balotra": "mwr",
+      "Banswara": "wbr",
+      "Baran": "hoj",
+      "Barmer": "mwr",
+      "Beawar": "mwr",
+      "Bharatpur": "bra",
+      "Bhilwara": "mtr",
+      "Bikaner": "bgi",
+      "Bundi": "hoj",
+      "Chittorgarh": "mtr",
+      "Churu": "swv",
+      "Dausa": "dhd",
+      "Deeg": "mew",
+      "Dholpur": "bra",
+      "Didwana-Kuchaman": "mwr",
+      "Dungarpur": "wbr",
+      "Ganganagar": "bgi",
+      "Hanumangarh": "bgi",
+      "Jaipur": "dhd",
+      "Jaisalmer": "mwr",
+      "Jalore": "mwr",
+      "Jhalawar": "hoj",
+      "Jhunjhunu": "swv",
+      "Jodhpur": "mwr",
+      "Karauli": "bra",
+      "Khairthal-Tijara": "mew",
+      "Kota": "hoj",
+      "Kotputli-Behror": "dhd",
+      "Nagaur": "mwr",
+      "Pali": "mwr",
+      "Phalodi": "mwr",
+      "Pratapgarh": "awa",
+      "Rajsamand": "mtr",
+      "Salumbar": "mtr",
+      "Sawai Madhopur": "dhd",
+      "Sikar": "swv",
+      "Sirohi": "mwr",
+      "Tonk": "dhd",
+      "Udaipur": "mtr",
+      "Ariyalur": "ta",
+      "Chengalpattu": "ta",
+      "Chennai": "ta",
+      "Coimbatore": "ta",
+      "Cuddalore": "ta",
+      "Dharmapuri": "ta",
+      "Dindigul": "ta",
+      "Erode": "ta",
+      "Kallakurichi": "ta",
+      "Kancheepuram": "ta",
+      "Kanniyakumari": "ta",
+      "Karur": "ta",
+      "Krishnagiri": "ta",
+      "Madurai": "ta",
+      "Mayiladuthurai": "ta",
+      "Nagapattinam": "ta",
+      "Namakkal": "ta",
+      "Perambalur": "ta",
+      "Pudukkottai": "ta",
+      "Ramanathapuram": "ta",
+      "Ranipet": "ta",
+      "Salem": "ta",
+      "Sivaganga": "ta",
+      "Tenkasi": "ta",
+      "Thanjavur": "ta",
+      "The Nilgiris": "ta",
+      "Theni": "ta",
+      "Thiruvallur": "ta",
+      "Thiruvarur": "ta",
+      "Thoothukkudi": "ta",
+      "Tiruchirappalli": "ta",
+      "Tirunelveli": "ta",
+      "Tirupathur": "ta",
+      "Tiruppur": "ta",
+      "Tiruvannamalai": "ta",
+      "Vellore": "ta",
+      "Viluppuram": "ta",
+      "Virudhunagar": "ta",
+      "Dhalai": "trp",
+      "Gomati": "trp",
+      "Khowai": "trp",
+      "North Tripura": "bn",
+      "Sepahijala": "bn",
+      "South Tripura": "bn",
+      "Unakoti": "bn",
+      "West Tripura": "bn",
+      "Almora": "kum",
+      "Bageshwar": "kum",
+      "Chamoli": "gar",
+      "Champawat": "kum",
+      "Dehradun": "gar",
+      "Haridwar": "kha",
+      "Nainital": "kum",
+      "Pauri Garhwal": "gar",
+      "Pithoragarh": "kum",
+      "Rudraprayag": "gar",
+      "Tehri Garhwal": "gar",
+      "Udham Singh Nagar": "hi",
+      "Uttarkashi": "gar",
+      "Alluri Sitharama Raju": "te",
+      "Anakapalli": "te",
+      "Ananthapuramu": "te",
+      "Annamayya": "te",
+      "Bapatla": "te",
+      "Chittoor": "te",
+      "Dr. B.R. Ambedkar Konaseema": "te",
+      "East Godavari": "te",
+      "Eluru": "te",
+      "Guntur": "te",
+      "Kakinada": "te",
+      "Krishna": "te",
+      "Kurnool": "te",
+      "Markapuram": "te",
+      "Nandyal": "te",
+      "Ntr": "te",
+      "Palnadu": "te",
+      "Parvathipuram Manyam": "te",
+      "Polavaram": "te",
+      "Prakasam": "te",
+      "Sri Potti Sriramulu Nellore": "te",
+      "Sri Sathya Sai": "te",
+      "Srikakulam": "te",
+      "Tirupati": "te",
+      "Visakhapatnam": "te",
+      "Vizianagaram": "te",
+      "West Godavari": "te",
+      "Y.S.R. Kadapa": "te",
+      "Bajali": "as",
+      "Baksa": "brx",
+      "Barpeta": "as",
+      "Biswanath": "as",
+      "Bongaigaon": "as",
+      "Cachar": "bn",
+      "Charaideo": "as",
+      "Chirang": "brx",
+      "Darrang": "as",
+      "Dhemaji": "as",
+      "Dhubri": "bn",
+      "Dibrugarh": "as",
+      "Dima Hasao": "dis",
+      "Goalpara": "as",
+      "Golaghat": "as",
+      "Hailakandi": "bn",
+      "Hojai": "as",
+      "Jorhat": "as",
+      "Kamrup": "as",
+      "Kamrup Metro": "as",
+      "Karbi Anglong": "mjw",
+      "Kokrajhar": "brx",
+      "Lakhimpur": "as",
+      "Majuli": "as",
+      "Marigaon": "as",
+      "Nagaon": "as",
+      "Nalbari": "as",
+      "Sivasagar": "as",
+      "Sonitpur": "as",
+      "South Salmara Mancachar": "bn",
+      "Sribhumi": "bn",
+      "Tamulpur": "brx",
+      "Tinsukia": "as",
+      "Udalguri": "brx",
+      "West Karbi Anglong": "mjw",
+      "Chandigarh": "pa",
+      "Dadra And Nagar Haveli": "gu",
+      "Daman": "gu",
+      "Diu": "gu",
+      "Kushavati": "kok",
+      "North Goa": "kok",
+      "South Goa": "kok",
+      "Ambala": "pa",
+      "Bhiwani": "har",
+      "Charkhi Dadri": "har",
+      "Faridabad": "kau",
+      "Fatehabad": "bgi",
+      "Gurugram": "ahi",
+      "Hansi": "har",
+      "Hisar": "har",
+      "Jhajjar": "har",
+      "Jind": "har",
+      "Kaithal": "har",
+      "Karnal": "har",
+      "Kurukshetra": "har",
+      "Mahendragarh": "ahi",
+      "Nuh": "mew",
+      "Palwal": "kau",
+      "Panchkula": "pa",
+      "Panipat": "har",
+      "Rewari": "ahi",
+      "Rohtak": "har",
+      "Sirsa": "bgi",
+      "Sonipat": "har",
+      "Yamunanagar": "har",
+      "Anantnag": "ks",
+      "Bandipora": "ks",
+      "Baramulla": "ks",
+      "Budgam": "ks",
+      "Doda": "bhd",
+      "Ganderbal": "ks",
+      "Jammu": "doi",
+      "Kathua": "doi",
+      "Kishtwar": "ksw",
+      "Kulgam": "ks",
+      "Kupwara": "ks",
+      "Poonch": "pah",
+      "Pulwama": "ks",
+      "Rajouri": "pah",
+      "Ramban": "srz",
+      "Reasi": "doi",
+      "Samba": "doi",
+      "Shopian": "ks",
+      "Srinagar": "ks",
+      "Udhampur": "doi",
+      "Bagalkote": "kn",
+      "Ballari": "kn",
+      "Belagavi": "kn",
+      "Bengaluru Rural": "kn",
+      "Bengaluru South": "kn",
+      "Bengaluru Urban": "kn",
+      "Bidar": "kn",
+      "Chamarajanagar": "kn",
+      "Chikkaballapura": "kn",
+      "Chikkamagaluru": "kn",
+      "Chitradurga": "kn",
+      "Dakshina Kannada": "tcy",
+      "Davanagere": "kn",
+      "Dharwad": "kn",
+      "Gadag": "kn",
+      "Hassan": "kn",
+      "Haveri": "kn",
+      "Kalaburagi": "kn",
+      "Kodagu": "kfa",
+      "Kolar": "kn",
+      "Koppal": "kn",
+      "Mandya": "kn",
+      "Mysuru": "kn",
+      "Raichur": "kn",
+      "Shivamogga": "kn",
+      "Tumakuru": "kn",
+      "Udupi": "tcy",
+      "Uttara Kannada": "kn",
+      "Vijayanagara": "kn",
+      "Vijayapura": "kn",
+      "Yadgir": "kn",
+      "Kargil": "prg",
+      "Leh Ladakh": "lbj",
+      "Agar-Malwa": "hi",
+      "Alirajpur": "bhb",
+      "Anuppur": "gon",
+      "Ashoknagar": "hi",
+      "Balaghat": "mhk",
+      "Barwani": "noe",
+      "Betul": "gon",
+      "Bhind": "bra",
+      "Bhopal": "hi",
+      "Burhanpur": "noe",
+      "Chhatarpur": "bun",
+      "Chhindwara": "mhk",
+      "Damoh": "bun",
+      "Datia": "hi",
+      "Dewas": "mlv",
+      "Dhar": "bhb",
+      "Dindori": "mhk",
+      "Guna": "hi",
+      "Gwalior": "bra",
+      "Harda": "hi",
+      "Indore": "mlv",
+      "Jabalpur": "mhk",
+      "Jhabua": "bhb",
+      "Katni": "mhk",
+      "Khandwa (East Nimar)": "noe",
+      "Khargone (West Nimar)": "noe",
+      "MAUGANJ": "hi",
+      "Maihar": "hi",
+      "Mandla": "mhk",
+      "Mandsaur": "mlv",
+      "Morena": "bra",
+      "Narmadapuram": "hi",
+      "Narsimhapur": "hi",
+      "Neemuch": "mlv",
+      "Niwari": "bun",
+      "Pandhurna": "hi",
+      "Panna": "bun",
+      "Raisen": "hi",
+      "Rajgarh": "hi",
+      "Ratlam": "mlv",
+      "Rewa": "bag",
+      "Sagar": "bun",
+      "Satna": "bag",
+      "Sehore": "hi",
+      "Seoni": "mhk",
+      "Shahdol": "gon",
+      "Shajapur": "mlv",
+      "Sheopur": "bra",
+      "Shivpuri": "hi",
+      "Sidhi": "bag",
+      "Singrauli": "bag",
+      "Tikamgarh": "bun",
+      "Ujjain": "mlv",
+      "Umaria": "bag",
+      "Vidisha": "hi",
+      "Bishnupur": "mni",
+      "Chandel": "anm",
+      "Churachandpur": "thd",
+      "Imphal East": "mni",
+      "Imphal West": "mni",
+      "Jiribam": "mni",
+      "Kakching": "mni",
+      "Kamjong": "nmf",
+      "Kangpokpi": "thd",
+      "Noney": "nma",
+      "Pherzawl": "thd",
+      "Senapati": "nmo",
+      "Tamenglong": "ron",
+      "Tengnoupal": "thd",
+      "Thoubal": "mni",
+      "Ukhrul": "nmf",
+      "Aizawl": "lus",
+      "Champhai": "lus",
+      "Hnahthial": "lus",
+      "Khawzawl": "lus",
+      "Kolasib": "lus",
+      "Lawngtlai": "mrh",
+      "Lunglei": "lus",
+      "Mamit": "lus",
+      "Saitual": "lus",
+      "Serchhip": "lus",
+      "Siaha": "mrh",
+      "Angul": "or",
+      "Balangir": "or",
+      "Balasore": "or",
+      "Bargarh": "or",
+      "Bhadrak": "or",
+      "Boudh": "or",
+      "Cuttack": "or",
+      "Deogarh": "or",
+      "Dhenkanal": "or",
+      "Gajapati": "srb",
+      "Ganjam": "or",
+      "Jagatsinghapur": "or",
+      "Jajpur": "or",
+      "Jharsuguda": "or",
+      "Kalahandi": "or",
+      "Kandhamal": "kui",
+      "Kendrapara": "or",
+      "Keonjhar": "or",
+      "Khordha": "or",
+      "Koraput": "dso",
+      "Malkangiri": "kff",
+      "Mayurbhanj": "sat",
+      "Nabarangpur": "dso",
+      "Nayagarh": "or",
+      "Nuapada": "or",
+      "Puri": "or",
+      "Rayagada": "dso",
+      "Sambalpur": "or",
+      "Sonepur": "or",
+      "Sundargarh": "or",
+      "Amritsar": "maj",
+      "Barnala": "mal",
+      "Bathinda": "mal",
+      "Faridkot": "mal",
+      "Fatehgarh Sahib": "mal",
+      "Fazilka": "mal",
+      "Ferozepur": "pa",
+      "Gurdaspur": "maj",
+      "Hoshiarpur": "doa",
+      "Jalandhar": "doa",
+      "Kapurthala": "doa",
+      "Ludhiana": "mal",
+      "Malerkotla": "pa",
+      "Mansa": "mal",
+      "Moga": "mal",
+      "Pathankot": "maj",
+      "Patiala": "mal",
+      "Rupnagar": "doa",
+      "S.A.S Nagar": "pa",
+      "Sangrur": "mal",
+      "Shahid Bhagat Singh Nagar": "pa",
+      "Sri Muktsar Sahib": "pa",
+      "Tarn Taran": "pa",
+      "Gangtok": "ne",
+      "Gyalshing": "ne",
+      "Mangan": "lep",
+      "Namchi": "ne",
+      "Pakyong": "ne",
+      "Soreng": "ne",
+      "Adilabad": "te",
+      "Bhadradri Kothagudem": "te",
+      "Hanumakonda": "te",
+      "Hyderabad": "ur",
+      "Jagitial": "te",
+      "Jangoan": "te",
+      "Jayashankar Bhupalapally": "te",
+      "Jogulamba Gadwal": "te",
+      "Kamareddy": "te",
+      "Karimnagar": "te",
+      "Khammam": "te",
+      "Kumuram Bheem Asifabad": "te",
+      "Mahabubabad": "te",
+      "Mahabubnagar": "te",
+      "Mancherial": "te",
+      "Medak": "te",
+      "Medchal Malkajgiri": "te",
+      "Mulugu": "te",
+      "Nagarkurnool": "te",
+      "Nalgonda": "te",
+      "Narayanpet": "te",
+      "Nirmal": "te",
+      "Nizamabad": "te",
+      "Peddapalli": "te",
+      "Rajanna Sircilla": "te",
+      "Ranga Reddy": "te",
+      "Sangareddy": "te",
+      "Siddipet": "te",
+      "Suryapet": "te",
+      "Vikarabad": "te",
+      "Wanaparthy": "te",
+      "Warangal": "te",
+      "Yadadri Bhuvanagiri": "te",
+      "Alipurduar": "bn",
+      "Bankura": "bn",
+      "Birbhum": "bn",
+      "Cooch Behar": "bn",
+      "Dakshin Dinajpur": "bn",
+      "Darjeeling": "ne",
+      "Hooghly": "bn",
+      "Howrah": "bn",
+      "Jalpaiguri": "bn",
+      "Jhargram": "bn",
+      "Kalimpong": "ne",
+      "Kolkata": "bn",
+      "Malda": "bn",
+      "Murshidabad": "bn",
+      "Nadia": "bn",
+      "North 24 Parganas": "bn",
+      "Paschim Bardhaman": "bn",
+      "Paschim Medinipur": "bn",
+      "Purba Bardhaman": "bn",
+      "Purba Medinipur": "bn",
+      "Purulia": "bn",
+      "South 24 Parganas": "bn",
+      "Uttar Dinajpur": "bn",
+      "Agra": "bra",
+      "Aligarh": "bra",
+      "Ambedkar Nagar": "bho",
+      "Amethi": "awa",
+      "Amroha": "roh",
+      "Auraiya": "kan",
+      "Ayodhya": "awa",
+      "Azamgarh": "bho",
+      "Baghpat": "kha",
+      "Bahraich": "awa",
+      "Ballia": "bho",
+      "Balrampur": "awa",
+      "Banda": "bun",
+      "Bara Banki": "awa",
+      "Bareilly": "roh",
+      "Basti": "bho",
+      "Bhadohi": "bho",
+      "Bijnor": "kha",
+      "Budaun": "roh",
+      "Bulandshahr": "kha",
+      "Chandauli": "bho",
+      "Chitrakoot": "bun",
+      "Deoria": "bho",
+      "Etah": "bra",
+      "Etawah": "kan",
+      "Farrukhabad": "kan",
+      "Fatehpur": "awa",
+      "Firozabad": "bra",
+      "Gautam Buddha Nagar": "kha",
+      "Ghaziabad": "kha",
+      "Ghazipur": "bho",
+      "Gonda": "awa",
+      "Gorakhpur": "bho",
+      "Hapur": "kha",
+      "Kannauj": "kan",
+      "Kanpur Dehat": "kan",
+      "Kanpur Nagar": "kan",
+      "Kasganj": "bra",
+      "Kaushambi": "awa",
+      "Mirzapur": "bag",
+      "Moradabad": "roh",
+      "Muzaffarnagar": "kha",
+      "Pilibhit": "roh",
+      "Hardoi": "kan",
+      "Hathras": "bra",
+      "Jalaun": "bun",
+      "Jaunpur": "bho",
+      "Jhansi": "bun",
+      "Kheri": "awa",
+      "Kushinagar": "bho",
+      "Lalitpur": "bun",
+      "Lucknow": "awa",
+      "Mahoba": "bun",
+      "Prayagraj": "awa",
+      "Rae Bareli": "awa",
+      "Rampur": "roh",
+      "Saharanpur": "kha",
+      "Sambhal": "roh",
+      "Mahrajganj": "bho",
+      "Mainpuri": "bra",
+      "Mathura": "bra",
+      "Mau": "bho",
+      "Meerut": "kha",
+      "Sant Kabir Nagar": "bho",
+      "Shahjahanpur": "roh",
+      "Shamli": "kha",
+      "Shrawasti": "awa",
+      "Siddharthnagar": "bho",
+      "Sitapur": "awa",
+      "Sonbhadra": "bag",
+      "Sultanpur": "awa",
+      "Unnao": "awa",
+      "Varanasi": "bho"
+    },
+    "districtAliases": {
+      "_comment": "Alternate/historical district names → canonical key in 'districts'. Values must match exact keys in 'districts' above.",
+      "Allahabad": "Prayagraj",
+      "Faizabad": "Ayodhya",
+      "Gurgaon": "Gurugram",
+      "Osmanabad": "Dharashiv",
+      "Bellary": "Ballari",
+      "Gulbarga": "Kalaburagi",
+      "Mysore": "Mysuru",
+      "Bangalore Urban": "Bengaluru Urban",
+      "Bangalore Rural": "Bengaluru Rural",
+      "Bengalore Urban": "Bengaluru Urban",
+      "Kanpur": "Kanpur Nagar",
+      "Trivandrum": "Thiruvananthapuram",
+      "Calicut": "Kozhikode",
+      "Trichur": "Thrissur",
+      "Quilon": "Kollam",
+      "Cochin": "Ernakulam",
+      "Poona": "Pune",
+      "Madras": "Chennai",
+      "Calcutta": "Kolkata",
+      "Ahmednagar": "Ahilyanagar",
+      "Mohali": "S.A.S Nagar",
+      "Cuddapah": "Y.S.R. Kadapa",
+      "Kadapa": "Y.S.R. Kadapa",
+      "Bombay": "Mumbai",
+      "Aurangabad": "Chhatrapati Sambhajinagar"
+    }
+  }
+}

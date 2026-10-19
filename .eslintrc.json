@@ -1,0 +1,8 @@
+{
+  "root": true,
+  "ignorePatterns": [
+    "**/frontend/.next/**",
+    "**/.next/**",
+    "**/node_modules/**"
+  ]
+}

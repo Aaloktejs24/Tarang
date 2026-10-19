@@ -1,0 +1,674 @@
+{
+  "dashboardMockData": {
+    "mockEvents": [
+      {
+        "id": 1,
+        "tag": "landing.eventCards.item1.tag",
+        "title": "landing.eventCards.item1.title",
+        "date": "landing.eventCards.item1.date",
+        "time": "landing.eventCards.item1.time",
+        "desc": "landing.eventCards.item1.desc",
+        "image": "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?q=80&w=600"
+      },
+      {
+        "id": 2,
+        "tag": "landing.eventCards.item2.tag",
+        "title": "landing.eventCards.item2.title",
+        "date": "landing.eventCards.item2.date",
+        "time": "landing.eventCards.item2.time",
+        "desc": "landing.eventCards.item2.desc",
+        "image": "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=600"
+      },
+      {
+        "id": 3,
+        "tag": "landing.eventCards.item3.tag",
+        "title": "landing.eventCards.item3.title",
+        "date": "landing.eventCards.item3.date",
+        "time": "landing.eventCards.item3.time",
+        "desc": "landing.eventCards.item3.desc",
+        "image": "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?q=80&w=600"
+      },
+      {
+        "id": 4,
+        "tag": "landing.eventCards.item4.tag",
+        "title": "landing.eventCards.item4.title",
+        "date": "landing.eventCards.item4.date",
+        "time": "landing.eventCards.item4.time",
+        "desc": "landing.eventCards.item4.desc",
+        "image": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=600"
+      },
+      {
+        "id": 5,
+        "tag": "landing.eventCards.item5.tag",
+        "title": "landing.eventCards.item5.title",
+        "date": "landing.eventCards.item5.date",
+        "time": "landing.eventCards.item5.time",
+        "desc": "landing.eventCards.item5.desc",
+        "image": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=600"
+      },
+      {
+        "id": 6,
+        "tag": "landing.eventCards.item6.tag",
+        "title": "landing.eventCards.item6.title",
+        "date": "landing.eventCards.item6.date",
+        "time": "landing.eventCards.item6.time",
+        "desc": "landing.eventCards.item6.desc",
+        "image": "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=600"
+      }
+    ],
+    "competitions": [
+      {
+        "id": 1,
+        "title": "राष्ट्रीय विज्ञान ओलंपियाड 2026",
+        "subject": "विज्ञान",
+        "deadline": "20 मार्च",
+        "participants": 1240,
+        "prize": "₹50,000",
+        "status": "active",
+        "seats": 60
+      },
+      {
+        "id": 2,
+        "title": "अखिल भारतीय गणित प्रतियोगिता",
+        "subject": "गणित",
+        "deadline": "28 मार्च",
+        "participants": 890,
+        "prize": "₹30,000",
+        "status": "active",
+        "seats": 40
+      },
+      {
+        "id": 3,
+        "title": "युवा इंजीनियर चुनौती",
+        "subject": "इंजीनियरिंग",
+        "deadline": "5 अप्रैल",
+        "participants": 560,
+        "prize": "₹25,000",
+        "status": "upcoming",
+        "seats": 100
+      }
+    ],
+    "feedItems": [
+      {
+        "id": 1,
+        "types": [
+          "video",
+          "webinar"
+        ],
+        "typeLabel": "Video / Webinar",
+        "title": "Quantum Physics: Wave-Particle Duality",
+        "description": "An incredibly deep dive into the dual nature of light and matter with modern real-world examples and experiments.",
+        "uploader": "IIT Kanpur Physics",
+        "instructor": "Dr. H. C. Verma",
+        "date": "2 Hrs ago",
+        "rating": "4.9",
+        "color": "#0056b3",
+        "thumbnail": "https://picsum.photos/seed/1/600/400"
+      },
+      {
+        "id": 2,
+        "types": [
+          "code",
+          "hackathon"
+        ],
+        "typeLabel": "Hackathon",
+        "title": "Tarang CodeFest 2026",
+        "description": "Build an innovative AI Agent in 48 hours. Compete with top developers globally for a $10,000 prize pool.",
+        "uploader": "Tarang Events",
+        "instructor": "Developer Relations",
+        "date": "Starts in 2 Days",
+        "rating": "5.0",
+        "color": "#1e3a8a",
+        "thumbnail": "https://picsum.photos/seed/2/600/400"
+      },
+      {
+        "id": 3,
+        "types": [
+          "quiz",
+          "interview"
+        ],
+        "typeLabel": "Live Quiz",
+        "title": "Advanced React Context API Quiz",
+        "description": "Test your skills on state management, memoization, and optimal context structures in this timed live quiz.",
+        "uploader": "Frontend Masters",
+        "instructor": "Dan Abramov",
+        "date": "5 Hrs ago",
+        "rating": "4.8",
+        "color": "#b91c1c",
+        "thumbnail": "https://picsum.photos/seed/3/600/400"
+      },
+      {
+        "id": 4,
+        "types": [
+          "article",
+          "news"
+        ],
+        "typeLabel": "News Update",
+        "title": "NEET 2026 Examination Details Announced",
+        "description": "The National Testing Agency has officially released the schedule and syllabus changes for the upcoming NEET 2026 UG exams.",
+        "uploader": "Vidya News Network",
+        "instructor": "Editor-in-Chief",
+        "date": "11 Mins ago",
+        "rating": "4.5",
+        "color": "#1e7e34",
+        "thumbnail": "https://picsum.photos/seed/4/600/400"
+      },
+      {
+        "id": 5,
+        "types": [
+          "pdf",
+          "journal"
+        ],
+        "typeLabel": "Editorial Journal",
+        "title": "The Future of Quantum Entanglement",
+        "description": "A prestigious peer-reviewed editorial on the breakthrough discovery in macroscopic quantum entanglement across nodes.",
+        "uploader": "Nature Science Journal",
+        "instructor": "Dr. Richard Feynman",
+        "date": "1 Day ago",
+        "rating": "4.9",
+        "color": "#0f172a",
+        "thumbnail": "https://picsum.photos/seed/5/600/400"
+      },
+      {
+        "id": 6,
+        "types": [
+          "poll"
+        ],
+        "typeLabel": "Interactive Poll",
+        "title": "Which JS Framework are you using in 2026?",
+        "description": "Cast your vote! Are you sticking with React, moving to SvelteKit, or exploring new horizons like SolidJS?",
+        "uploader": "JS Developer Survey",
+        "instructor": "Community Team",
+        "date": "2 Hrs ago",
+        "rating": "4.2",
+        "color": "#ca8a04",
+        "thumbnail": "https://picsum.photos/seed/6/600/400"
+      },
+      {
+        "id": 7,
+        "types": [
+          "pdf",
+          "case_study"
+        ],
+        "typeLabel": "PDF Document",
+        "title": "Thermodynamics Notes",
+        "description": "Complete chapter notes covering the Laws of Thermodynamics, Carnot Engine, and solved numericals.",
+        "uploader": "IIT Delhi OpenCourse",
+        "instructor": "Prof. S. R. Bhat",
+        "date": "5 Hrs ago",
+        "rating": "4.8",
+        "color": "#28a745",
+        "thumbnail": "https://picsum.photos/seed/7/600/400"
+      },
+      {
+        "id": 8,
+        "types": [
+          "audio",
+          "interview"
+        ],
+        "typeLabel": "Podcast",
+        "title": "History of India: The Mauryan Empire",
+        "description": "Episode 4 explores the rise of Chandragupta Maurya and the monumental reign of Ashoka the Great. Listen now.",
+        "uploader": "National Archives",
+        "instructor": "Dr. Romila Thapar",
+        "date": "2 Days ago",
+        "rating": "4.7",
+        "color": "#006ddb",
+        "thumbnail": "https://picsum.photos/seed/8/600/400"
+      },
+      {
+        "id": 9,
+        "types": [
+          "ebook",
+          "case_study"
+        ],
+        "typeLabel": "E-Book",
+        "title": "Mastering Microservices Architecture",
+        "description": "A comprehensive 400-page book on scaling backend services with Go, Docker, and Kubernetes.",
+        "uploader": "O'Reilly Media",
+        "instructor": "Sam Newman",
+        "date": "3 Days ago",
+        "rating": "4.9",
+        "color": "#6b21a8",
+        "thumbnail": "https://picsum.photos/seed/9/600/400"
+      },
+      {
+        "id": 10,
+        "types": [
+          "code",
+          "hackathon"
+        ],
+        "typeLabel": "Source Code",
+        "title": "React Native UI Kit Pro",
+        "description": "Production-ready, highly optimized UI components repository for iOS and Android.",
+        "uploader": "Open Source Lab",
+        "instructor": "UI/UX Collective",
+        "date": "12 Hrs ago",
+        "rating": "5.0",
+        "color": "#0284c7",
+        "thumbnail": "https://picsum.photos/seed/10/600/400"
+      },
+      {
+        "id": 11,
+        "types": [
+          "video",
+          "webinar"
+        ],
+        "typeLabel": "Live Class",
+        "title": "AWS Cloud Practitioner Masterclass",
+        "description": "Join this high-intensity 3-hour live workshop covering VPC, EC2, S3, and IAM fundamentals.",
+        "uploader": "Cloud Gurus",
+        "instructor": "Stephane Maarek",
+        "date": "Starts in 1 Hr",
+        "rating": "4.9",
+        "color": "#f59e0b",
+        "thumbnail": "https://picsum.photos/seed/11/600/400"
+      },
+      {
+        "id": 12,
+        "types": [
+          "video",
+          "interview"
+        ],
+        "typeLabel": "Interview",
+        "title": "Talk Show: Future of General AI",
+        "description": "An exclusive fireside chat with leading AI researchers on AGI safety and alignment.",
+        "uploader": "Tech Talks Daily",
+        "instructor": "Lex Fridman",
+        "date": "4 Hrs ago",
+        "rating": "4.8",
+        "color": "#dc2626",
+        "thumbnail": "https://picsum.photos/seed/12/600/400"
+      },
+      {
+        "id": 13,
+        "types": [
+          "article",
+          "case_study"
+        ],
+        "typeLabel": "Case Study",
+        "title": "How Netflix Scaled to 200M Users",
+        "description": "An in-depth technical breakdown of Netflix's migration from monolithic to microservices architecture.",
+        "uploader": "Software Arch Journal",
+        "instructor": "System Design",
+        "date": "1 Week ago",
+        "rating": "5.0",
+        "color": "#0f172a",
+        "thumbnail": "https://picsum.photos/seed/13/600/400"
+      }
+    ],
+    "discussions": [
+      {
+        "id": 1,
+        "user": "आयुष शर्मा",
+        "topic": "भौतिकी",
+        "title": "न्यूटन के नियमों पर प्रश्न",
+        "body": "द्वितीय नियम में त्वरण और बल के बीच क्या संबंध है?",
+        "likes": 24,
+        "replies": 8,
+        "time": "2 घंटे पहले"
+      },
+      {
+        "id": 2,
+        "user": "प्रिया वर्मा",
+        "topic": "गणित",
+        "title": "कलन में अनंत श्रृंखला",
+        "body": "क्या कोई टेलर श्रृंखला के बारे में विस्तार से समझा सकता है?",
+        "likes": 15,
+        "replies": 5,
+        "time": "4 घंटे पहले"
+      },
+      {
+        "id": 3,
+        "user": "रोहन मेहता",
+        "topic": "रसायन",
+        "title": "बंधन ऊर्जा की गणना",
+        "body": "आयनिक और सहसंयोजक बंधों की तुलना कैसे करें?",
+        "likes": 31,
+        "replies": 12,
+        "time": "कल"
+      },
+      {
+        "id": 4,
+        "user": "नेहा गुप्ता",
+        "topic": "जीव विज्ञान",
+        "title": "कोशिका विभाजन - माइटोसिस बनाम मेयोसिस",
+        "body": "दोनों प्रक्रियाओं में मुख्य अंतर क्या हैं?",
+        "likes": 18,
+        "replies": 6,
+        "time": "कल"
+      }
+    ],
+    "results": [
+      {
+        "id": 1,
+        "title": "अर्धवार्षिक परीक्षा - भौतिकी",
+        "date": "14 मार्च 2026",
+        "score": 87,
+        "total": 100,
+        "grade": "A",
+        "rank": 4,
+        "color": "#0056b3"
+      },
+      {
+        "id": 2,
+        "title": "इकाई परीक्षण - गणित अध्याय 5",
+        "date": "8 मार्च 2026",
+        "score": 72,
+        "total": 100,
+        "grade": "B+",
+        "rank": 12,
+        "color": "#28a745"
+      },
+      {
+        "id": 3,
+        "title": "प्रायोगिक परीक्षा - रसायन",
+        "date": "1 मार्च 2026",
+        "score": 45,
+        "total": 50,
+        "grade": "A+",
+        "rank": 2,
+        "color": "#f39c12"
+      },
+      {
+        "id": 4,
+        "title": "संस्थान मॉक टेस्ट",
+        "date": "22 फरवरी 2026",
+        "score": 68,
+        "total": 100,
+        "grade": "B",
+        "rank": 18,
+        "color": "#8e44ad"
+      }
+    ],
+    "students": [
+      {
+        "rank": 1,
+        "name": "अनन्या सिंह",
+        "institute": "IIT कानपुर",
+        "score": 9850,
+        "badge": "gold"
+      },
+      {
+        "rank": 2,
+        "name": "विक्रम रेड्डी",
+        "institute": "IIT मुंबई",
+        "score": 9720,
+        "badge": "silver"
+      },
+      {
+        "rank": 3,
+        "name": "श्रेया ओझा",
+        "institute": "IIT दिल्ली",
+        "score": 9605,
+        "badge": "bronze"
+      },
+      {
+        "rank": 4,
+        "name": "आलोक",
+        "institute": "IIT कानपुर",
+        "score": 9480,
+        "badge": "",
+        "isMe": true
+      },
+      {
+        "rank": 5,
+        "name": "रिया जोशी",
+        "institute": "IIT मद्रास",
+        "score": 9310,
+        "badge": ""
+      },
+      {
+        "rank": 6,
+        "name": "कार्तिक नायर",
+        "institute": "IIT खड़गपुर",
+        "score": 9150,
+        "badge": ""
+      },
+      {
+        "rank": 7,
+        "name": "मानसी देसाई",
+        "institute": "IIT रुड़की",
+        "score": 8990,
+        "badge": ""
+      },
+      {
+        "rank": 8,
+        "name": "सिद्धार्थ राव",
+        "institute": "IIT गुवाहाटी",
+        "score": 8830,
+        "badge": ""
+      }
+    ],
+    "savedItems": [
+      {
+        "id": 1,
+        "title": "न्यूटन के गति नियम - वीडियो व्याख्यान",
+        "type": "video",
+        "subject": "भौतिकी",
+        "savedOn": "14 मार्च",
+        "duration": "42 मिनट",
+        "icon": "video"
+      },
+      {
+        "id": 2,
+        "title": "कलन: सीमा और अवकल - नोट्स",
+        "type": "document",
+        "subject": "गणित",
+        "savedOn": "12 मार्च",
+        "duration": "15 पृष्ठ",
+        "icon": "doc"
+      },
+      {
+        "id": 3,
+        "title": "आवर्त सारणी - पॉडकास्ट समीक्षा",
+        "type": "audio",
+        "subject": "रसायन",
+        "savedOn": "10 मार्च",
+        "duration": "28 मिनट",
+        "icon": "audio"
+      },
+      {
+        "id": 4,
+        "title": "कोशिका विभाजन की प्रक्रिया",
+        "type": "article",
+        "subject": "जीव विज्ञान",
+        "savedOn": "8 मार्च",
+        "duration": "8 मिनट पढ़ने का समय",
+        "icon": "article"
+      }
+    ],
+    "subjects": [
+      {
+        "name": "भौतिकी",
+        "score": 82,
+        "target": 90,
+        "color": "#0056b3"
+      },
+      {
+        "name": "गणित",
+        "score": 75,
+        "target": 85,
+        "color": "#28a745"
+      },
+      {
+        "name": "रसायन",
+        "score": 68,
+        "target": 80,
+        "color": "#f39c12"
+      },
+      {
+        "name": "जीव विज्ञान",
+        "score": 90,
+        "target": 95,
+        "color": "#e74c3c"
+      },
+      {
+        "name": "अंग्रेजी",
+        "score": 78,
+        "target": 85,
+        "color": "#8e44ad"
+      }
+    ],
+    "recentActivity": [
+      {
+        "desc": "भौतिकी परीक्षण: 45/50",
+        "time": "आज",
+        "icon": "📝"
+      },
+      {
+        "desc": "गणित असाइनमेंट जमा किया",
+        "time": "कल",
+        "icon": "✅"
+      },
+      {
+        "desc": "लाइव सत्र में भाग लिया",
+        "time": "2 दिन पहले",
+        "icon": "🎧"
+      }
+    ],
+    "rankings": [
+      {
+        "rank": 1,
+        "name": "अनन्या सिंह",
+        "subject": "भौतिकी",
+        "score": 98.5,
+        "institute": "IIT कानपुर",
+        "change": "+2"
+      },
+      {
+        "rank": 2,
+        "name": "करण मेहता",
+        "subject": "गणित",
+        "score": 97.2,
+        "institute": "IIT बॉम्बे",
+        "change": "0"
+      },
+      {
+        "rank": 3,
+        "name": "श्रेया ओझा",
+        "subject": "रसायन",
+        "score": 96.8,
+        "institute": "IIT दिल्ली",
+        "change": "+1"
+      },
+      {
+        "rank": 4,
+        "name": "आलोक",
+        "subject": "भौतिकी",
+        "score": 94.5,
+        "institute": "IIT कानपुर",
+        "change": "+3",
+        "isMe": true
+      },
+      {
+        "rank": 5,
+        "name": "रिया जोशी",
+        "subject": "जीव विज्ञान",
+        "score": 93.1,
+        "institute": "IIT मद्रास",
+        "change": "-1"
+      },
+      {
+        "rank": 6,
+        "name": "विशाल यादव",
+        "subject": "गणित",
+        "score": 91.7,
+        "institute": "IIT रुड़की",
+        "change": "0"
+      },
+      {
+        "rank": 7,
+        "name": "नेहा वर्मा",
+        "subject": "भौतिकी",
+        "score": 90.4,
+        "institute": "IIT खड़गपुर",
+        "change": "+2"
+      },
+      {
+        "rank": 8,
+        "name": "अजय कुमार",
+        "subject": "रसायन",
+        "score": 89.9,
+        "institute": "IIT गुवाहाटी",
+        "change": "-2"
+      }
+    ],
+    "certificates": [
+      {
+        "id": 1,
+        "title": "भौतिकी - उन्नत स्तर",
+        "issuer": "IIT कानपुर",
+        "date": "मार्च 2026",
+        "score": "92/100",
+        "type": "पाठ्यक्रम",
+        "color": "#0056b3"
+      },
+      {
+        "id": 2,
+        "title": "राष्ट्रीय गणित ओलंपियाड",
+        "issuer": "CBSE राष्ट्रीय बोर्ड",
+        "date": "फरवरी 2026",
+        "score": "सिल्वर मेडल",
+        "type": "प्रतियोगिता",
+        "color": "#C0C0C0"
+      },
+      {
+        "id": 3,
+        "title": "डेटा विज्ञान परिचय",
+        "issuer": "Tarang Academy",
+        "date": "जनवरी 2026",
+        "score": "88/100",
+        "type": "ऑनलाइन",
+        "color": "#28a745"
+      }
+    ],
+    "initialTasks": [
+      {
+        "id": 1,
+        "title": "भौतिकी: गति के समीकरण हल करें",
+        "subject": "भौतिकी",
+        "deadline": "आज, 5 बजे",
+        "priority": "high",
+        "progress": 60,
+        "done": false
+      },
+      {
+        "id": 2,
+        "title": "गणित: अभ्यास सेट 4 पूरा करें",
+        "subject": "गणित",
+        "deadline": "कल",
+        "priority": "medium",
+        "progress": 30,
+        "done": false
+      },
+      {
+        "id": 3,
+        "title": "रसायन: प्रयोगशाला रिपोर्ट",
+        "subject": "रसायन",
+        "deadline": "18 मार्च",
+        "priority": "low",
+        "progress": 0,
+        "done": false
+      },
+      {
+        "id": 4,
+        "title": "अंग्रेजी निबंध जमा करें",
+        "subject": "अंग्रेजी",
+        "deadline": "20 मार्च",
+        "priority": "medium",
+        "progress": 80,
+        "done": false
+      },
+      {
+        "id": 5,
+        "title": "इतिहास: अध्याय 5 नोट्स",
+        "subject": "इतिहास",
+        "deadline": "कल",
+        "priority": "low",
+        "progress": 100,
+        "done": true
+      }
+    ]
+  }
+}

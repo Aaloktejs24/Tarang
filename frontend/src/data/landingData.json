@@ -1,0 +1,221 @@
+{
+  "landingData": {
+    "heroSlides": [
+      {
+        "id": 1,
+        "image": "https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2000",
+        "title": "landing.hero.slide1.title",
+        "subtitle": "landing.hero.slide1.subtitle",
+        "desc": "landing.hero.slide1.desc"
+      },
+      {
+        "id": 2,
+        "image": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2000",
+        "title": "landing.hero.slide2.title",
+        "subtitle": "landing.hero.slide2.subtitle",
+        "desc": "landing.hero.slide2.desc"
+      },
+      {
+        "id": 3,
+        "image": "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?q=80&w=2000",
+        "title": "landing.hero.slide3.title",
+        "subtitle": "landing.hero.slide3.subtitle",
+        "desc": "landing.hero.slide3.desc"
+      }
+    ],
+    "features": [
+      {
+        "icon": "GroupsIcon",
+        "color": "#0056b3",
+        "bg": "rgba(0, 86, 179, 0.08)",
+        "title": "landing.features.item1.title",
+        "subtitle": "landing.features.item1.subtitle",
+        "desc": "landing.features.item1.desc",
+        "badge": "landing.features.item1.badge"
+      },
+      {
+        "icon": "AutoStoriesIcon",
+        "color": "#28a745",
+        "bg": "rgba(40, 167, 69, 0.08)",
+        "title": "landing.features.item2.title",
+        "subtitle": "landing.features.item2.subtitle",
+        "desc": "landing.features.item2.desc",
+        "badge": "landing.features.item2.badge"
+      },
+      {
+        "icon": "EmojiEventsIcon",
+        "color": "#0056b3",
+        "bg": "rgba(0, 86, 179, 0.08)",
+        "title": "landing.features.item3.title",
+        "subtitle": "landing.features.item3.subtitle",
+        "desc": "landing.features.item3.desc",
+        "badge": "landing.features.item3.badge"
+      },
+      {
+        "icon": "TrendingUpIcon",
+        "color": "#28a745",
+        "bg": "rgba(40, 167, 69, 0.08)",
+        "title": "landing.features.item4.title",
+        "subtitle": "landing.features.item4.subtitle",
+        "desc": "landing.features.item4.desc",
+        "badge": "landing.features.item4.badge"
+      }
+    ],
+    "stats": [
+      {
+        "value": 1790,
+        "suffix": "",
+        "label": "landing.stats.item1.label",
+        "sub": "landing.stats.item1.sub",
+        "icon": "GroupsIcon"
+      },
+      {
+        "value": 245,
+        "suffix": "",
+        "label": "landing.stats.item2.label",
+        "sub": "landing.stats.item2.sub",
+        "icon": "SchoolIcon"
+      },
+      {
+        "value": 491,
+        "suffix": "",
+        "label": "landing.stats.item3.label",
+        "sub": "landing.stats.item3.sub",
+        "icon": "VerifiedIcon"
+      },
+      {
+        "value": 1090,
+        "suffix": "",
+        "label": "landing.stats.item4.label",
+        "sub": "landing.stats.item4.sub",
+        "icon": "EmojiEventsIcon"
+      }
+    ],
+    "testimonials": [
+      {
+        "name": "landing.testimonials.item1.name",
+        "role": "landing.testimonials.item1.role",
+        "text": "landing.testimonials.item1.text",
+        "rating": 5,
+        "avatar": "P",
+        "color": "#0056b3"
+      },
+      {
+        "name": "landing.testimonials.item2.name",
+        "role": "landing.testimonials.item2.role",
+        "text": "landing.testimonials.item2.text",
+        "rating": 5,
+        "avatar": "R",
+        "color": "#28a745"
+      },
+      {
+        "name": "landing.testimonials.item3.name",
+        "role": "landing.testimonials.item3.role",
+        "text": "landing.testimonials.item3.text",
+        "rating": 5,
+        "avatar": "A",
+        "color": "#8b5cf6"
+      }
+    ],
+    "popularCourses": [
+      {
+        "id": 1,
+        "tag": "landing.courseCards.item1.tag",
+        "tagColor": "#28a745",
+        "title": "landing.courseCards.item1.title",
+        "author": "Alice Williams",
+        "students": 12,
+        "lessons": "08",
+        "oldPrice": 100,
+        "price": 50,
+        "rating": 4,
+        "image": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=600"
+      },
+      {
+        "id": 2,
+        "tag": "landing.courseCards.item2.tag",
+        "tagColor": "#28a745",
+        "title": "landing.courseCards.item2.title",
+        "author": "Mellissa Doe",
+        "students": 8,
+        "lessons": "04",
+        "oldPrice": 80,
+        "price": 40,
+        "rating": 4,
+        "image": "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=600"
+      },
+      {
+        "id": 3,
+        "tag": "landing.courseCards.item3.tag",
+        "tagColor": "#28a745",
+        "title": "landing.courseCards.item3.title",
+        "author": "Paul Flavius",
+        "students": 16,
+        "lessons": 10,
+        "oldPrice": 150,
+        "price": 80,
+        "rating": 4,
+        "image": "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?q=80&w=600"
+      },
+      {
+        "id": 4,
+        "tag": "landing.courseCards.item4.tag",
+        "tagColor": "#28a745",
+        "title": "landing.courseCards.item4.title",
+        "author": "Felica Queen",
+        "students": 21,
+        "lessons": "09",
+        "oldPrice": 180,
+        "price": 90,
+        "rating": 4,
+        "image": "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=600"
+      },
+      {
+        "id": 5,
+        "tag": "landing.courseCards.item5.tag",
+        "tagColor": "#28a745",
+        "title": "landing.courseCards.item5.title",
+        "author": "John Smith",
+        "students": 45,
+        "lessons": "12",
+        "oldPrice": 200,
+        "price": 120,
+        "rating": 5,
+        "image": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=600"
+      },
+      {
+        "id": 6,
+        "tag": "landing.courseCards.item6.tag",
+        "tagColor": "#28a745",
+        "title": "landing.courseCards.item6.title",
+        "author": "Sarah Connor",
+        "students": 34,
+        "lessons": "15",
+        "oldPrice": 120,
+        "price": 75,
+        "rating": 5,
+        "image": "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=600"
+      }
+    ],
+    "latestEvents": [
+      {
+        "id": 1,
+        "date": "landing.events.item1.date",
+        "time": "landing.events.item1.time",
+        "tag": "landing.events.item1.tag",
+        "title": "landing.events.item1.title",
+        "desc": "landing.events.item1.desc",
+        "image": "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?q=80&w=600"
+      },
+      {
+        "id": 2,
+        "date": "landing.events.item2.date",
+        "time": "landing.events.item2.time",
+        "tag": "landing.events.item2.tag",
+        "title": "landing.events.item2.title",
+        "desc": "landing.events.item2.desc",
+        "image": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=600"
+      }
+    ]
+  }
+}

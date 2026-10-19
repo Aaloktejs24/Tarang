@@ -1,0 +1,218 @@
+{
+  "lmsData": {
+    "audienceLevels": [
+      {
+        "value": "primary",
+        "label": "प्राथमिक / Primary"
+      },
+      {
+        "value": "secondary",
+        "label": "माध्यमिक / Secondary"
+      },
+      {
+        "value": "higher_secondary",
+        "label": "उच्च माध्यमिक / Higher Secondary"
+      },
+      {
+        "value": "undergraduate",
+        "label": "स्नातक / Undergraduate"
+      },
+      {
+        "value": "postgraduate",
+        "label": "स्नातकोत्तर / Postgraduate"
+      },
+      {
+        "value": "professional",
+        "label": "पेशेवर / Professional"
+      }
+    ],
+    "courseCategories": [
+      {
+        "value": "science",
+        "label": "विज्ञान / Science"
+      },
+      {
+        "value": "technology",
+        "label": "प्रौद्योगिकी / Technology"
+      },
+      {
+        "value": "commerce",
+        "label": "वाणिज्य / Commerce"
+      },
+      {
+        "value": "humanities",
+        "label": "मानविकी / Humanities"
+      },
+      {
+        "value": "languages",
+        "label": "भाषा / Languages"
+      },
+      {
+        "value": "arts",
+        "label": "कला / Arts"
+      },
+      {
+        "value": "vocational",
+        "label": "व्यावसायिक / Vocational"
+      },
+      {
+        "value": "other",
+        "label": "अन्य / Other"
+      }
+    ],
+    "tagCategories": [
+      {
+        "category": "विज्ञान / Science",
+        "tags": [
+          "Physics / भौतिकी",
+          "Chemistry / रसायन विज्ञान",
+          "Biology / जीव विज्ञान",
+          "Astronomy / खगोल विज्ञान",
+          "Environmental Science / पर्यावरण विज्ञान",
+          "Botany / वनस्पति विज्ञान",
+          "Zoology / जंतु विज्ञान",
+          "Genetics / आनुवंशिकी",
+          "Thermodynamics / ऊष्माप्रवैगिकी",
+          "Optics / प्रकाशिकी"
+        ]
+      },
+      {
+        "category": "गणित / Mathematics",
+        "tags": [
+          "Algebra / बीजगणित",
+          "Geometry / रेखागणित",
+          "Calculus / कलन",
+          "Statistics / सांख्यिकी",
+          "Probability / प्रायिकता",
+          "Trigonometry / त्रिकोणमिति",
+          "Number Theory / संख्या सिद्धांत",
+          "Linear Algebra / रैखिक बीजगणित",
+          "Arithmetic / अंकगणित",
+          "Topology / टोपोलॉजी"
+        ]
+      },
+      {
+        "category": "प्रौद्योगिकी और कंप्यूटर / Tech & CS",
+        "tags": [
+          "Programming / प्रोग्रामिंग",
+          "Web Development / वेब डेवलपमेंट",
+          "Mobile App Dev / मोबाइल ऐप डेवलपमेंट",
+          "Artificial Intelligence / कृत्रिम बुद्धिमत्ता",
+          "Machine Learning / मशीन लर्निंग",
+          "Data Science / डेटा साइंस",
+          "Cyber Security / साइबर सुरक्षा",
+          "Cloud Computing / क्लाउड कंप्यूटिंग",
+          "Databases / डेटाबेस",
+          "Robotics / रोबोटिक्स",
+          "Internet of Things (IoT) / इंटरनेट ऑफ थिंग्स",
+          "UI/UX Design / यूआई-यूएक्स डिज़ाइन",
+          "Game Development / गेम डेवलपमेंट",
+          "Blockchain / ब्लॉकचेन"
+        ]
+      },
+      {
+        "category": "मानविकी और सामाजिक विज्ञान / Humanities & Social Sciences",
+        "tags": [
+          "History / इतिहास",
+          "Geography / भूगोल",
+          "Civics / नागरिक शास्त्र",
+          "Sociology / समाजशास्त्र",
+          "Psychology / मनोविज्ञान",
+          "Economics / अर्थशास्त्र",
+          "Political Science / राजनीति विज्ञान",
+          "Philosophy / दर्शनशास्त्र",
+          "Anthropology / नृविज्ञान",
+          "Archaeology / पुरातत्व"
+        ]
+      },
+      {
+        "category": "भाषा और साहित्य / Languages & Literature",
+        "tags": [
+          "Hindi Literature / हिंदी साहित्य",
+          "English Literature / अंग्रेजी साहित्य",
+          "Sanskrit / संस्कृत",
+          "Linguistics / भाषाविज्ञान",
+          "Creative Writing / रचनात्मक लेखन",
+          "Grammar / व्याकरण",
+          "Public Speaking / सार्वजनिक भाषण",
+          "Spoken English / स्पोकन इंग्लिश",
+          "French Language / फ्रांसीसी भाषा",
+          "Spanish Language / स्पेनिश भाषा"
+        ]
+      },
+      {
+        "category": "व्यापार और वित्त / Business & Finance",
+        "tags": [
+          "Accounting / लेखांकन",
+          "Marketing / विपणन",
+          "Business Management / व्यवसाय प्रबंधन",
+          "Entrepreneurship / उद्यमिता",
+          "Personal Finance / व्यक्तिगत वित्त",
+          "Stock Market / शेयर बाजार",
+          "Financial Literacy / वित्तीय साक्षरता",
+          "Human Resources / मानव संसाधन",
+          "International Business / अंतर्राष्ट्रीय व्यापार",
+          "E-Commerce / ई-कॉमर्स"
+        ]
+      },
+      {
+        "category": "कला और शिल्प / Arts & Crafts",
+        "tags": [
+          "Painting & Drawing / चित्रकारी और रेखाचित्र",
+          "Music Theory / संगीत सिद्धांत",
+          "Classical Dance / शास्त्रीय नृत्य",
+          "Photography / फोटोग्राफी",
+          "Filmmaking / फिल्म निर्माण",
+          "Graphic Design / ग्राफिक डिजाइन",
+          "Acting & Theatre / अभिनय और थिएटर",
+          "Sculpture / मूर्तिकला",
+          "Calligraphy / सुलेख",
+          "Fashion Design / फैशन डिजाइन"
+        ]
+      },
+      {
+        "category": "प्रतियोगी परीक्षा तैयारी / Test Prep",
+        "tags": [
+          "IIT-JEE / आईआईटी-जेईई",
+          "NEET / नीट",
+          "UPSC Civil Services / यूपीएससी",
+          "SSC CGL / एसएससी सीजीएल",
+          "Banking Exams / बैंकिंग परीक्षाएं",
+          "CAT Prep / कैट तैयारी",
+          "SAT Prep / सैट तैयारी",
+          "IELTS Prep / आईईएलटीएस तैयारी",
+          "TOEFL Prep / टॉफेल तैयारी",
+          "GATE Prep / गेट तैयारी"
+        ]
+      },
+      {
+        "category": "व्यावसायिक और कौशल / Vocational & Skills",
+        "tags": [
+          "Woodworking / बढ़ईगिरी",
+          "Culinary Arts / पाक कला",
+          "Sewing & Tailoring / सिलाई और सिलाई",
+          "Electrical Work / बिजली का काम",
+          "Gardening & Farming / बागवानी और खेती",
+          "Plumbing / प्लंबिंग",
+          "Carpentry / बढ़ईगीरी",
+          "Automotive Repair / ऑटोमोटिव मरम्मत",
+          "Welding / वेल्डिंग",
+          "First Aid & CPR / प्राथमिक चिकित्सा"
+        ]
+      },
+      {
+        "category": "स्वास्थ्य और कल्याण / Health & Wellness",
+        "tags": [
+          "Yoga & Meditation / योग और ध्यान",
+          "Nutrition & Diet / पोषण और आहार",
+          "Mental Health / मानसिक स्वास्थ्य",
+          "Physical Fitness / शारीरिक फिटनेस",
+          "Anatomy / शरीर रचना विज्ञान",
+          "Physiotherapy / फिजियोथेरेपी",
+          "Ayurveda / आयुर्वेद",
+          "Homeopathy / होम्योपैथी"
+        ]
+      }
+    ]
+  }
+}

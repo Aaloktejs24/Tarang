@@ -1,0 +1,41 @@
+name: CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: actions/setup-buildx-action@v3
+
+      - name: Build Auth Service
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: services/auth/Dockerfile
+          push: false
+          tags: tarang-auth:latest
+
+      - name: Build User Service
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: services/user/Dockerfile
+          push: false
+          tags: tarang-user:latest
+
+      - name: Build Notification Worker
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: services/notification/Dockerfile
+          push: false
+          tags: tarang-notification:latest

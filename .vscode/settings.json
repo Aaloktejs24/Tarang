@@ -1,0 +1,25 @@
+{
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/frontend/.next": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/frontend/.next": true
+  },
+  "eslint.workingDirectories": [
+    "./frontend"
+  ],
+  "eslint.options": {
+    "ignorePattern": ["**/.next/**"]
+  },
+  "sonarlint.analyzerProperties": {
+    "sonar.exclusions": "**/frontend/.next/**, **/.next/**, **/node_modules/**"
+  },
+  "securecoder.exclude": [
+    "**/frontend/.next/**",
+    "**/.next/**"
+  ],
+  "eslint.ignorePaths": [".next/**", "node_modules/**"],
+  "securecoder.ignorePattern": "**/.next/**"
+}

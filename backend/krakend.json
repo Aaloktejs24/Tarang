@@ -1,0 +1,499 @@
+{
+    "version": 3,
+    "name": "Tarang API Gateway",
+    "port": 8080,
+    "timeout": "10000ms",
+    "cache_ttl": "300s",
+    "output_encoding": "json",
+    "endpoints": [
+        {
+            "endpoint": "/api/v1/s3/sign",
+            "method": "GET",
+            "output_encoding": "no-op",
+            "input_headers": ["Authorization"],
+            "input_query_strings": ["*"],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/user/s3/sign",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "GET",
+                    "host": ["http://user-service:8081"]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/auth/registration-sessions",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/auth/registration-sessions",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://auth-service:8080"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/auth/registration-sessions/{id}/send-email-otp",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/auth/registration-sessions/{id}/send-email-otp",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://auth-service:8080"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/auth/registration-sessions/{id}/verify-email-otp",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/auth/registration-sessions/{id}/verify-email-otp",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://auth-service:8080"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/auth/registration-sessions/{id}/complete",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/auth/registration-sessions/{id}/complete",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://auth-service:8080"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/auth/check-username/{username}",
+            "method": "GET",
+            "output_encoding": "no-op",
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/auth/check-username/{username}",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "GET",
+                    "host": [
+                        "http://auth-service:8080"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/auth/check-username",
+            "method": "GET",
+            "output_encoding": "no-op",
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/auth/check-username",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "GET",
+                    "host": [
+                        "http://auth-service:8080"
+                    ],
+                    "input_query_params": [
+                        "username"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/auth/forgot-password",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/auth/forgot-password",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://auth-service:8080"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/auth/reset-password",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/auth/reset-password",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://auth-service:8080"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/auth/login",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/auth/login",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://auth-service:8080"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/auth/login/otp",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "Authorization"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/auth/login/otp",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://auth-service:8080"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/auth/login/totp",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "Authorization"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/auth/login/totp",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://auth-service:8080"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/auth/logout",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "Authorization"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/auth/logout",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://auth-service:8080"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/user/profile",
+            "method": "GET",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "Authorization"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/user/profile",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "GET",
+                    "host": [
+                        "http://user-service:8081"
+                    ]
+                }
+            ]
+        },
+
+        {
+            "endpoint": "/api/v1/user/profile/update-pic",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "input_headers": ["Authorization"],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/user/profile/update-pic",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": ["http://user-service:8081"]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/user/profile/update-banner",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "input_headers": ["Authorization"],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/user/profile/update-banner",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": ["http://user-service:8081"]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/user/profile/update",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "input_headers": ["Authorization"],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/user/profile/update",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": ["http://user-service:8081"]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/user/profile/update-bio",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "input_headers": ["Authorization"],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/user/profile/update-bio",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": ["http://user-service:8081"]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/public/profile/{username}",
+            "method": "GET",
+            "output_encoding": "no-op",
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/user/public/profile/{username}",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "GET",
+                    "host": ["http://user-service:8081"]
+                }
+            ]
+        },
+
+
+        {
+            "endpoint": "/api/v1/auth/totp/setup",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "Authorization"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/auth/totp/setup",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://auth-service:8080"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/auth/totp/verify",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "Authorization"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/auth/totp/verify",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://auth-service:8080"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/auth/settings/mfa",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "Authorization"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/auth/settings/mfa",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://auth-service:8080"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/auth/{wildcard}",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "Authorization"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/auth/{wildcard}",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://auth-service:8080"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/kyc/aadhaar/otp/start",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "input_headers": ["Authorization"],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/kyc/aadhaar/otp/start",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": ["http://user-service:8081"]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/kyc/aadhaar/otp/verify",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "input_headers": ["Authorization"],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/kyc/aadhaar/otp/verify",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": ["http://user-service:8081"]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/kyc/digilocker/start",
+            "method": "GET",
+            "output_encoding": "no-op",
+            "input_headers": ["Authorization"],
+            "input_query_strings": ["user_id"],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/kyc/digilocker/start",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "GET",
+                    "host": ["http://user-service:8081"]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/kyc/digilocker/callback",
+            "method": "GET",
+            "output_encoding": "no-op",
+            "input_headers": ["Authorization"],
+            "input_query_strings": ["user_id", "session_id"],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/kyc/digilocker/callback",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "GET",
+                    "host": ["http://user-service:8081"]
+                }
+            ]
+        }
+    ],
+    "extra_config": {
+        "security/cors": {
+            "allow_origins": [
+                "http://localhost:3000",
+                "http://localhost:3001",
+                "http://localhost:5173"
+            ],
+            "allow_credentials": true,
+            "allow_methods": [
+                "POST",
+                "GET",
+                "PUT",
+                "DELETE",
+                "OPTIONS"
+            ],
+            "allow_headers": [
+                "Content-Type",
+                "Authorization",
+                "Accept"
+            ],
+            "expose_headers": [
+                "Content-Length",
+                "Content-Type"
+            ],
+            "max_age": "12h"
+        },
+        "telemetry/metrics": {
+            "collection_time": "60s",
+            "proxy_disabled": false,
+            "router_disabled": false,
+            "backend_disabled": false,
+            "endpoint_disabled": false,
+            "listen_address": ":8090"
+        }
+    }
+}

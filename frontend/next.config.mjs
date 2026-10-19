@@ -1,0 +1,19 @@
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  experimental: {
+    // Prevents vendor-chunks/@mui.js ENOENT crash on Fast Refresh full reloads
+    optimizePackageImports: ['@mui/material', '@mui/icons-material'],
+  },
+  webpack: (config) => {
+    // Ignore source-map-loader warnings for framer-motion and the specific missing map file
+    config.ignoreWarnings = [
+      ...(config.ignoreWarnings || []),
+      { module: /node_modules\/framer-motion/ },
+      { file: /LayoutGroupContext\.mjs\.map/ },
+    ];
+    return config;
+  },
+};
+
+export default nextConfig;

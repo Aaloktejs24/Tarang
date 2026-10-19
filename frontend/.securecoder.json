@@ -1,0 +1,14 @@
+{
+  "ignoreFiles": [
+    ".next/**",
+    ".next/**/*",
+    "**/.next/**",
+    "**/.next/**/*",
+    "node_modules/**",
+    "node_modules/**/*"
+  ],
+  "ignoreRules": [
+    "i18n/no-literal-string",
+    "i18next/no-literal-string"
+  ]
+}

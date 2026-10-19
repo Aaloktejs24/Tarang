@@ -1,0 +1,37 @@
+.sidebar {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.sidebar::-webkit-scrollbar {
+    display: none;
+}
+
+.school_s {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 25px;
+}
+
+.sidebar_menu_item {
+    padding: 10px 15px;
+    border-radius: 10px;
+    transition: ease-in-out 0.15s;
+}
+
+.sidebar_menu_item:hover {
+    cursor: pointer;
+    background-color: #86ffa2;
+}
+
+@media (min-width: 768px) {
+    .school_s {
+        display: none;
+    }
+}

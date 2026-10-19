@@ -1,0 +1,41 @@
+.ProseMirror {
+  outline: none;
+  min-height: 200px;
+}
+
+.ProseMirror p {
+  margin: 0;
+  margin-bottom: 0.75em;
+  line-height: 1.6;
+}
+
+.ProseMirror p.is-editor-empty:first-of-type::before {
+  color: #94a3b8;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.ProseMirror img.ProseMirror-selectednode {
+  outline: 3px solid #0056b3;
+}
+
+/* Math nodes */
+.ProseMirror .math-node {
+  background: #f8fafc;
+  border-radius: 4px;
+  padding: 0.1em 0.3em;
+  font-family: monospace;
+  color: #0056b3;
+}
+
+.ProseMirror .math-node.ProseMirror-selectednode {
+  outline: 2px solid #0056b3;
+}

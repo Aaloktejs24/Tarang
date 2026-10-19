@@ -1,0 +1,69 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.navmenu {
+  background-color: #28a745;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  color: white;
+  position: fixed;
+  width: 100%;
+  top: 64px;
+  left: 0;
+  z-index: 998;
+  border-bottom: 2px solid #ffc107;
+}
+
+.navmenu_left {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  margin-left: auto;
+  margin-right: max(calc(1.9vw - 7.5px), 15px);
+  order: 2;
+  /* Pushes the buttons to the right while leaving filters on the left */
+  flex-shrink: 0;
+}
+
+.ripple-nav {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0px 15px;
+  font-size: 16px;
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+  overflow: hidden;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.ripple-nav.active-link {
+  background-color: #ffffff52;
+}
+
+.navmenu_filters {
+  display: flex;
+  flex: 1;
+  gap: 1.38vw;
+  align-items: center;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  flex-shrink: 0;
+}
+
+.navmenu_filters>label {
+  flex-shrink: 0;
+}
+
+.navmenu_filters::-webkit-scrollbar {
+  display: none;
+}

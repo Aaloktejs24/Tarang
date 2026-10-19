@@ -1,0 +1,29 @@
+package logger
+
+import (
+	"os"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+)
+
+var Log *zap.Logger
+
+func InitLogger() {
+	config := zap.NewProductionEncoderConfig()
+	config.EncodeTime = zapcore.ISO8601TimeEncoder
+
+	consoleEncoder := zapcore.NewConsoleEncoder(config)
+
+	core := zapcore.NewTee(
+		zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), zap.DebugLevel),
+	)
+
+	Log = zap.New(core, zap.AddCaller())
+}
+
+func Sync() {
+	if Log != nil {
+		_ = Log.Sync()
+	}
+}
