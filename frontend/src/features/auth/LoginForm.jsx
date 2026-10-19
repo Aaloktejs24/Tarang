@@ -539,7 +539,19 @@ export default function LoginForm({ onClose }) {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box>
+      <Box
+        sx={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 9999,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "rgba(0, 0, 0, 0.45)",
+          backdropFilter: "blur(30px)"
+        }}
+        onClick={onClose}
+      >
         <AnimatePresence>
           {isLoading && (
             <Box

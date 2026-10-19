@@ -45,7 +45,7 @@ export default function AccessibilityMenu() {
           left: { xs: 24, md: 40 },
           width: { xs: 56, md: 64 },
           height: { xs: 56, md: 64 },
-          zIndex: 9999,
+          zIndex: 10001,
           bgcolor: '#0056b3 !important',
           boxShadow: 'none',
           border: '1.5px solid #ffc107',
@@ -62,7 +62,7 @@ export default function AccessibilityMenu() {
         open={open}
         anchorEl={anchorEl}
         onClose={handleClose}
-        sx={{ zIndex: 10000 }}
+        sx={{ zIndex: 10002 }}
         anchorOrigin={{
           vertical: 'top',
           horizontal: 'left',
