@@ -7,7 +7,8 @@ export default function EmptyState({
   actionLabel, 
   actionIcon,
   onAction,
-  illustration
+  illustration,
+  size = "medium"
 }) {
   return (
     <Box sx={{ 
@@ -22,9 +23,9 @@ export default function EmptyState({
     }}>
       <Box sx={{
         width: 'var(--size-full)',
-        maxWidth: 420,
-        height: { xs: 180, md: 200 },
-        mb: { xs: 1, md: 2 },
+        maxWidth: size === "large" ? 600 : 420,
+        height: size === "large" ? { xs: 240, md: 320, lg: 360 } : { xs: 180, md: 200 },
+        mb: 0,
         position: 'relative',
         display: 'flex',
         alignItems: 'center',
@@ -121,7 +122,7 @@ export default function EmptyState({
           onClick={onAction}
           sx={{ 
             bgcolor: 'var(--color-primary)', 
-            color: 'white', 
+            color: 'var(--color-white)', 
             textTransform: 'none', 
             fontWeight: 'var(--font-semibold)', 
             borderRadius: 'var(--radius-md)', 
@@ -131,7 +132,7 @@ export default function EmptyState({
             '&:hover': { 
               bgcolor: 'var(--color-primary-hover)', 
             },
-            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+            transition: 'all var(--transition-base)',
             zIndex: 1,
             display: 'inline-flex',
             alignItems: 'center',

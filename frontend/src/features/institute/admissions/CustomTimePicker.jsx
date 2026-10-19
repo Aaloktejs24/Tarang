@@ -211,7 +211,7 @@ const CustomTimePicker = ({
                 lineHeight: 1,
                 cursor: "pointer",
                 color: view === "hours" ? "var(--color-white)" : "rgba(255,255,255,0.45)",
-                transition: "color 0.15s",
+                transition: "color var(--transition-fast)",
                 letterSpacing: 0,
               }}
             >
@@ -228,7 +228,7 @@ const CustomTimePicker = ({
                 lineHeight: 1,
                 cursor: selectedHour !== null ? "pointer" : "default",
                 color: view === "minutes" ? "var(--color-white)" : "rgba(255,255,255,0.45)",
-                transition: "color 0.15s",
+                transition: "color var(--transition-fast)",
                 letterSpacing: 0,
               }}
             >
@@ -254,7 +254,7 @@ const CustomTimePicker = ({
                     color: sel ? "var(--color-white)" : dis ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.5)",
                     borderRadius: 'var(--radius-sm)',
                     background: sel ? "rgba(255,255,255,0.18)" : "transparent",
-                    transition: "all 0.15s",
+                    transition: "all var(--transition-fast)",
                     textAlign: "center",
                     "&:hover": !dis ? { background: "rgba(255,255,255,0.25)", color: "var(--color-white)" } : {},
                   }}
@@ -324,7 +324,7 @@ const CustomTimePicker = ({
                     color: sel ? "var(--color-white)" : dis ? "rgba(0,0,0,0.26)" : "var(--color-slate-900)",
                     fontWeight: sel ? 600 : 400,
                     fontSize: 'var(--font-sm)',
-                    transition: "background 0.1s",
+                    transition: "background var(--transition-fast)",
                     "&:hover": !dis && !sel
                       ? { background: "rgba(21,101,192,0.12)" }
                       : {},
@@ -352,7 +352,7 @@ const CustomTimePicker = ({
                 borderRadius: 'var(--radius-full)',
                 background: view === v ? ACCENT : "var(--color-slate-200)",
                 cursor: "pointer",
-                transition: "background 0.2s",
+                transition: "background var(--transition-base)",
               }}
             />
           ))}

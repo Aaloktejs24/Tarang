@@ -29,18 +29,18 @@ export default function SearchBox() {
                 minHeight: "44px",
                 borderRadius: 'var(--radius-md)',
                 marginBottom: "2px",
-                transition: "background-color 0.2s",
+                transition: "background-color var(--transition-base)",
                 "&:hover": {
-                  backgroundColor: "rgba(0, 86, 179, 0.08) !important",
+                  backgroundColor: "rgba(0, 86, 179, 0.08)",
                 },
                 "&.Mui-focused": {
                   backgroundColor: "transparent",
                 },
                 "&[aria-selected='true']": {
-                  backgroundColor: "rgba(0, 86, 179, 0.15) !important",
+                  backgroundColor: "rgba(0, 86, 179, 0.15)",
                 },
                 "&[aria-selected='true'].Mui-focused": {
-                  backgroundColor: "rgba(0, 86, 179, 0.15) !important",
+                  backgroundColor: "rgba(0, 86, 179, 0.15)",
                 }
               }
             }
@@ -76,14 +76,14 @@ export default function SearchBox() {
               fontStyle: "normal",
               color: "var(--color-primary)",
               fontWeight: 'var(--font-medium)',
-              backgroundColor: "transparent !important",
+              backgroundColor: "transparent",
               borderRadius: "0px",
-              paddingRight: "0px !important",
-              paddingLeft: "0px !important",
+              paddingRight: "0px",
+              paddingLeft: "0px",
               border: "none",
             },
             "& .MuiOutlinedInput-root": {
-              backgroundColor: "transparent !important",
+              backgroundColor: "transparent",
             },
             "& .MuiInputBase-input": {
               height: "38px",

@@ -66,7 +66,7 @@ export default function UniversalHero({ title = '', subtitle = '', bannerUrl = '
             <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 2.5, md: 4 }, flexDirection: { xs: 'column', md: 'row' }, textAlign: { xs: 'center', md: 'left' } }}>
               {!hideAvatar && (
                 <Box component={motion.div} style={{ opacity }} sx={{ borderRadius: 'var(--radius-full)', p: '3px', border: `var(--border-thick) solid ${loading ? 'rgba(0,86,179,0.3)' : 'var(--color-primary)'}`, display: 'flex' }}>
-                  {loading ? <Box className="MuiSkeleton-root" sx={{ width: { xs: 76, md: 92 }, height: { xs: 76, md: 92 }, borderRadius: '50%' }} /> :
+                  {loading ? <Box className="MuiSkeleton-root" sx={{ width: { xs: 76, md: 92 }, height: { xs: 76, md: 92 }, borderRadius: 'var(--radius-full)' }} /> :
                     <Avatar src={avatarUrl} alt={title} sx={{ width: { xs: 76, md: 92 }, height: { xs: 76, md: 92 }, bgcolor: 'var(--color-white)', color: 'var(--color-primary)', fontWeight: 900, fontSize: { xs: 32, md: 42 } }}>
                       {String(title).charAt(0)}
                     </Avatar>

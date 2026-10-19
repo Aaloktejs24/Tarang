@@ -126,7 +126,7 @@ ALTER TABLE public.user_passwords OWNER TO tarang;
 CREATE TABLE public.users (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     username public.citext NOT NULL,
-    email public.citext NOT NULL,
+    email public.citext,
     phone text,
     role text DEFAULT 'user'::text NOT NULL,
     email_verified_at timestamp with time zone,

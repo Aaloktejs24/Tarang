@@ -86,7 +86,7 @@ export default function CourseEditor() {
             variant="contained" disableElevation 
             sx={{ 
               bgcolor: 'var(--color-success)', 
-              color: 'white', 
+              color: 'var(--color-white)', 
               textTransform: 'none',
               fontWeight: 800,
               px: 4,
@@ -134,8 +134,8 @@ export default function CourseEditor() {
 
           {modules.map((module, index) => (
             <Accordion key={module.id} sx={{ 
-              margin: '0 0 16px 0 !important',
-              borderRadius: '12px !important', 
+              margin: '0 0 16px 0',
+              borderRadius: '12px', 
               border: '1.5px solid rgba(30, 79, 163, 0.15)', 
               background: "rgba(255, 255, 255, 0.4)",
               backdropFilter: "blur(20px)",
@@ -145,8 +145,8 @@ export default function CourseEditor() {
                 expandIcon={<ExpandMoreIcon sx={{ color: 'var(--color-primary)' }} />} 
                 disableRipple
                 sx={{ 
-                  borderTopLeftRadius: '12px',
-                  borderTopRightRadius: '12px',
+                  borderTopLeftRadius: 'var(--radius-lg)',
+                  borderTopRightRadius: 'var(--radius-lg)',
                   borderBottomLeftRadius: 0,
                   borderBottomRightRadius: 0,
                   px: { xs: 1.5, sm: 2.25 },
@@ -198,11 +198,11 @@ export default function CourseEditor() {
                 pl: { xs: 2, sm: '46px' },
                 pr: 2,
                 background: "rgba(255, 255, 255, 0.65)", 
-                borderBottomLeftRadius: '12px', 
-                borderBottomRightRadius: '12px' 
+                borderBottomLeftRadius: 'var(--radius-lg)', 
+                borderBottomRightRadius: 'var(--radius-lg)' 
               }}>
                 {module.lessons.map((lesson) => (
-                  <Box key={lesson.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1.25, mb: 1, bgcolor: 'var(--color-white)', border: 'var(--border-thin) solid rgba(30, 79, 163, 0.1)', transition: 'all 0.2s', '&:hover': { borderColor: 'var(--color-primary)' } }}>
+                  <Box key={lesson.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1.25, mb: 1, bgcolor: 'var(--color-white)', border: 'var(--border-thin) solid rgba(30, 79, 163, 0.1)', transition: 'all var(--transition-base)', '&:hover': { borderColor: 'var(--color-primary)' } }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexGrow: 1 }}>
                       {lesson.type === 'video' ? <OndemandVideoIcon sx={{ color: 'var(--color-primary)', fontSize: 'var(--font-lg)' }} /> : <PictureAsPdfIcon sx={{ color: 'var(--color-success)', fontSize: 'var(--font-lg)' }} />}
                       <TextField

@@ -10,9 +10,11 @@ import LockIcon from "@mui/icons-material/Lock";
 import CheckIcon from "@mui/icons-material/Check";
 import { useState, useEffect } from "react";
 import { getPasswordStrength, RULES } from "../../../utils/validationUtils";
+import { validatePassword } from "../../../utils/validationUtils";
 import { RuleRow, PasswordStrengthBars } from "../../../components/common/PasswordStrength";
 import TarangButton from "../../../components/common/TarangButton";
 import AuthMessage from "./AuthMessage";
+import { FormLoadingProvider } from '../../../contexts/FormLoadingContext';
 
 
 
@@ -53,7 +55,6 @@ export default function ForgotStep3({ formData, onResetPassword, isLoading, erro
                     justifyContent: "center",
                     margin: "0 auto",
                     mb: 1,
-                    border: "var(--border-thick) solid rgba(16, 185, 129, 0.2)",
                 }}>
                     <CheckCircleIcon sx={{ fontSize: 48, color: "rgba(16, 185, 129, 0.9)" }} />
                 </Box>
@@ -78,6 +79,7 @@ export default function ForgotStep3({ formData, onResetPassword, isLoading, erro
     }
 
     return (
+        <FormLoadingProvider isLoading={isLoading}>
         <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 3 }}>
             <Box>
                 <Typography variant="h5" sx={{ mb: 1, fontWeight: 'var(--font-extrabold)', color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)' }}>
@@ -183,5 +185,6 @@ export default function ForgotStep3({ formData, onResetPassword, isLoading, erro
                 रद्द करें और लॉगिन करें
             </TarangButton>
         </Box>
+        </FormLoadingProvider>
     );
 }

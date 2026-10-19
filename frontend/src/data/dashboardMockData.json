@@ -255,8 +255,8 @@
           "webinar"
         ],
         "typeLabel": "Live Class",
-        "title": "AWS Cloud Practitioner Masterclass",
-        "description": "Join this high-intensity 3-hour live workshop covering VPC, EC2, S3, and IAM fundamentals.",
+        "title": "Cloud Computing Masterclass",
+        "description": "Join this high-intensity 3-hour live workshop covering VPC, Compute, Storage, and IAM fundamentals.",
         "uploader": "Cloud Gurus",
         "instructor": "Stephane Maarek",
         "date": "Starts in 1 Hr",

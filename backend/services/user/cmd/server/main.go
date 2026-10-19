@@ -7,6 +7,7 @@ import (
 
 	"backend/proto/userpb"
 	usergrpc "backend/services/user/internal/grpc"
+	"backend/services/user/internal/jobs"
 	"backend/services/user/internal/user"
 
 	"backend/shared/config"
@@ -18,6 +19,7 @@ import (
 	v1 "backend/services/user/internal/http/v1"
 	"backend/shared/env"
 	"backend/shared/kyc"
+	"backend/shared/queue"
 	"backend/shared/storage"
 	"net/http"
 
@@ -72,6 +74,26 @@ func main() {
 
 	defer db.Close()
 
+	if err := database.ConnectMongoDB(cfg.MongoURI, "tarang_user_db"); err != nil {
+		logger.Log.Fatal("failed to connect to mongodb", zap.Error(err))
+	}
+	defer database.DisconnectMongoDB()
+
+	//---------------------------------------------------
+	// RabbitMQ & Publisher
+	//---------------------------------------------------
+
+	rabbitConn, rabbitCh, err := queue.ConnectRabbitMQ(cfg.RabbitURL)
+	if err != nil {
+		logger.Log.Fatal("rabbitmq connection failed", zap.Error(err))
+	}
+	defer rabbitConn.Close()
+	defer rabbitCh.Close()
+
+	pub := queue.NewPublisher(rabbitCh)
+
+	jobs.StartMongoSyncWorker(rabbitCh)
+
 	//---------------------------------------------------
 	// Redis
 	//---------------------------------------------------
@@ -86,7 +108,7 @@ func main() {
 	// Repository + Service
 	//---------------------------------------------------
 
-	repo := user.NewRepository(db, redisClient, cfg.ALEMasterKey)
+	repo := user.NewRepository(db, redisClient, cfg.ALEMasterKey, pub)
 
 	userService := user.NewService(repo, cfg, redisClient)
 

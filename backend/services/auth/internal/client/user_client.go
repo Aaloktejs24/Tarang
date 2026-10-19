@@ -112,6 +112,7 @@ func (c *UserClient) Create(ctx context.Context, u *auth.User) error {
 	req.Phone = u.Phone
 	req.Dob = u.DOB
 	req.Gender = u.Gender
+	req.Email = u.Email
 
 	jsonBytes, _ := protojson.Marshal(req)
 	log.Printf("[AuthClient] FINAL JSON TO SEND: %s", string(jsonBytes))

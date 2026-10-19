@@ -5,9 +5,17 @@ import SearchIcon from '@mui/icons-material/Search';
 import ExploreListSkeleton from '../../../features/institute/ExploreListSkeleton';
 import { useAccessibility } from '../../../contexts/AccessibilityContext';
 import CentralDropdown from '../../../components/common/CentralDropdown';
+import { useBreadcrumbs } from '../../../contexts/BreadcrumbContext';
+import { useAppRouter as useRouter } from '../../../hooks/useAppRouter';
 
 export default function ExploreLoading() {
   const { language } = useAccessibility();
+  const router = useRouter();
+  
+  useBreadcrumbs([
+    { labelEn: 'Home', labelHi: 'गृह', onClick: () => router.push('/dashboard/home') },
+    { labelEn: 'Explore', labelHi: 'खोजें' }
+  ]);
 
   return (
     <Box sx={{ minHeight: "calc(100vh - 64px)", pt: { xs: 8, md: 10 }, pb: 10, position: "relative", zIndex: 1 }}>

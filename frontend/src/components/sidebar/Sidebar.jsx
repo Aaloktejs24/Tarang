@@ -92,11 +92,11 @@ export default function Sidebar({ open, toggleDrawer }) {
                   sx={{
                     width: 56,
                     height: 56,
-                    bgcolor: "var(--color-white)",
+                    bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)",
                     color: "var(--color-primary)",
                     fontWeight: "var(--font-bold)",
                     border: "3px solid rgba(255,255,255,0.4)",
-                    borderRight: "var(--border-thin) solid #E2E8F0",
+                    borderRight: "var(--border-thin) solid var(--color-slate-200)",
                   }}
                 >
                   {profile.username.charAt(0).toUpperCase()}

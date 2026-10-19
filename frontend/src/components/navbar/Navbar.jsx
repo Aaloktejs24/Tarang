@@ -84,7 +84,7 @@ function LandingContent({ onLoginClick, language }) {
               },
               "&:hover::after": { width: "var(--size-full)" },
               "&:hover": { color: "var(--color-success)" },
-              transition: "color 0.3s ease",
+              transition: "color var(--transition-slow)",
             }}
           >
             {nt(item.key)}
@@ -118,6 +118,7 @@ function LandingContent({ onLoginClick, language }) {
 // Dashboard variant — user profile, school info, notifications, etc.
 // ---------------------------------------------------------------------------
 function DashboardContent({ onSidebarOpen, language }) {
+  const { locationName } = useAccessibility();
   const router = useAppRouter();
   const { profile, loading } = useProfile();
   const [dynamicInstitute, setDynamicInstitute] = React.useState(null);
@@ -168,7 +169,8 @@ function DashboardContent({ onSidebarOpen, language }) {
     }
   }, [profile?.id, profile?.role, profile?.institution_name]);
 
-  const locationParts = profile?.location ? profile.location.split(", ") : [];
+  const locationString = profile?.location || locationName || "";
+  const locationParts = locationString ? locationString.split(", ") : [];
   const region = locationParts.length > 0 ? locationParts[0] : "सोनभद्र";
   const country =
     locationParts.length > 1 ? locationParts[locationParts.length - 1] : "भारत";
@@ -237,7 +239,7 @@ function DashboardContent({ onSidebarOpen, language }) {
             sx={{
               borderRadius: 'var(--radius-full)',
               padding: "2px",
-              border: "var(--border-thick) solid #28a745",
+              border: "var(--border-thick) solid var(--color-success)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -251,7 +253,7 @@ function DashboardContent({ onSidebarOpen, language }) {
               <img
                 src={dynamicInstitute?.profile_pic_url || profile?.profile_pic_url}
                 alt="Institute Logo"
-                style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}
+                style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "var(--radius-full)" }}
                 onError={(e) => {
                   e.target.style.display = 'none';
                   e.target.nextSibling.style.display = 'block';
@@ -363,7 +365,7 @@ function DashboardContent({ onSidebarOpen, language }) {
                 }}
                 sx={{
                   bgcolor: "var(--color-primary)",
-                  color: "white",
+                  color: "var(--color-white)",
                   fontWeight: 'var(--font-medium)',
                   py: 1,
                   fontSize: 'var(--font-base)',
@@ -419,7 +421,7 @@ function DashboardContent({ onSidebarOpen, language }) {
               <Box
                 sx={{
                   borderRadius: 'var(--radius-full)',
-                  border: "var(--border-thick) solid #28a745",
+                  border: "var(--border-thick) solid var(--color-success)",
                   padding: "2px",
                   display: "flex",
                   alignItems: "center",

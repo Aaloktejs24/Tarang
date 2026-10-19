@@ -1,4 +1,4 @@
-import "../styles/globals.css";
+import "../styles/globals/index.css";
 import 'katex/dist/katex.min.css';
 import { AccessibilityProvider } from "../contexts/AccessibilityContext";
 import { AuthProvider } from "../contexts/AuthContext";
@@ -29,7 +29,7 @@ export default function RootLayout({ children }) {
         <AppRouterCacheProvider>
           <AuthProvider>
             <ProfileProvider>
-              <Suspense fallback={<Loader />}>
+              <Suspense fallback={null}>
                 <LoadingProvider>
                   <AccessibilityProvider>
                     <GlobalBackground />

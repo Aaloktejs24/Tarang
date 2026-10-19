@@ -17,7 +17,8 @@ import {
   verifyLoginTotp,
   startForgotPassword,
   resetPassword,
-  resendOtp
+  resendOtp,
+  setupRegistrationTotp
 } from "./authService";
 import { translateAuthError, AUTH_ERRORS } from "../../constants/errors";
 import {
@@ -278,9 +279,14 @@ export default function LoginForm({ onClose }) {
 
       await sendRegistrationEmailOtp(sessionId);
 
+      let totpData = null;
+      if (formData.twoFactorEnabled) {
+        totpData = await setupRegistrationTotp(sessionId);
+      }
+
       setAuthFlowInProgress(true);
       setMaskedEmail(getMaskedEmail(data.masked_email || email));
-      setFormData(prev => ({ ...prev, otp: "", sessionId }));
+      setFormData(prev => ({ ...prev, otp: "", sessionId, totpData }));
       setStep(2);
       setSuccess("OTP सफलतापूर्वक भेजा गया!");
       triggerOtpCooldown(email, "register", email);
@@ -446,7 +452,7 @@ export default function LoginForm({ onClose }) {
   const renderStep = () => {
     if (mode === "login") {
       switch (step) {
-        case 1: return <LoginStep setStep={setStep} setMode={setMode} formData={formData} updateFormData={updateFormData} onLogin={handleFinalLogin} isLoading={isLoading} error={error} setError={setError} success={success} setSuccess={setSuccess} />;
+        case 1: return <LoginStep setStep={setStep} setMode={setMode} formData={formData} updateFormData={updateFormData} onLogin={handleFinalLogin} isLoading={isLoading} error={error} setError={setError} success={success} setSuccess={setSuccess} onClose={onClose} />;
         case 2: return <LoginOtpStep setStep={setStep} formData={formData} updateFormData={updateFormData} handleFinalSubmit={handleVerifyLoginOtp} isLoading={isLoading} error={error} setError={setError} onResendOtp={handleResendOtp} resendTimer={resendTimer} resetOtp={resetOtp} success={success} setSuccess={setSuccess} maskedEmail={maskedEmail || getMaskedEmail(formData?.email)} mfaType={mfaType} />;
         case 3: return <Register2faStep setStep={setStep} setMode={setMode} onFinish={() => { setSuccess("MFA सक्षम हो गया! कृपया साइन इन करें।"); setStep(1); }} handleFinalSubmit={async () => ({ success: true })} isLoading={isLoading} />;
         default: return null;
@@ -454,7 +460,7 @@ export default function LoginForm({ onClose }) {
     }
     if (mode === "register") {
       switch (step) {
-        case 1: return <RegisterDetailsStep setStep={setStep} setMode={setMode} formData={formData} updateFormData={updateFormData} handleFinalRegister={handleFinalRegister} onRegisterStart={handleRegisterStart} isLoading={isLoading} error={error} setError={setError} success={success} setSuccess={setSuccess} />;
+        case 1: return <RegisterDetailsStep setStep={setStep} setMode={setMode} formData={formData} updateFormData={updateFormData} handleFinalRegister={handleFinalRegister} onRegisterStart={handleRegisterStart} isLoading={isLoading} error={error} setError={setError} success={success} setSuccess={setSuccess} onClose={onClose} />;
         case 2: return <RegisterOtpStep setStep={setStep} formData={formData} updateFormData={updateFormData} setError={setError} error={error} isLoading={isLoading} onResendOtp={handleResendOtp} onVerifyOtp={handleVerifyRegisterOtp} resendTimer={resendTimer} resetOtp={resetOtp} success={success} setSuccess={setSuccess} maskedEmail={maskedEmail || getMaskedEmail(formData?.email)} />;
         // case 3 removed as details are collected in step 1
         case 4: return <RegisterSuccessStep onProceedTo2fa={() => setStep(5)} onSkipToLogin={handleRegistrationComplete} />;
@@ -495,7 +501,7 @@ export default function LoginForm({ onClose }) {
 
   return (
     <ThemeProvider theme={mergedTheme}>
-      <BackdropBlur onClick={onClose} zIndex={9999}>
+      <BackdropBlur zIndex={9999}>
 
         <Paper
           onClick={(e) => e.stopPropagation()}
@@ -530,7 +536,7 @@ export default function LoginForm({ onClose }) {
             py: { xs: 6, sm: 8 },
           }}
         >
-          <Box sx={{ mb: 4, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <Box sx={{ mb: 2, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <Box component="img" src="/logo.svg" alt="Tarang Logo" sx={{ width: 48, height: 48, objectFit: "contain" }} />
               <Typography variant="h5" sx={{ fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-1px", fontSize: "26px" }}>Tarang</Typography>
@@ -545,7 +551,7 @@ export default function LoginForm({ onClose }) {
           </Box>
 
 
-          <Box sx={{ width: "var(--size-full)", flex: 1, position: "relative", "& .MuiTypography-root": { color: "var(--color-slate-700)" }, "& .MuiTypography-body2": { color: "var(--color-slate-500)" }, "& span": { color: "#0056b3 !important" } }}>
+          <Box sx={{ width: "var(--size-full)", flex: 1, position: "relative", "& .MuiTypography-root": { color: "var(--color-slate-900)" }, "& .MuiTypography-body2": { color: "var(--color-slate-500)" }, "& span": { color: "var(--color-primary)" } }}>
             <Box style={{ width: "var(--size-full)", display: "flex", flexDirection: "column" }}>
               {safeRenderStep()}
             </Box>

@@ -33,13 +33,10 @@ import { apiClient } from "../../../lib/apiClient";
 import useScrollLock from "../../../hooks/useScrollLock";
 import gazeteer from '../../../data/formated/gazeteer.json';
 import { useAccessibility } from '../../../contexts/AccessibilityContext';
-import { sortLocationsByDistance, getSortedLanguagesByLocation } from '../../../lib/geoNormalize';
-import langFeture from '../../../data/formated/langFeture.json';
+import { sortLocationsByDistance } from '../../../lib/geoNormalize';
+import { buildSortedLanguages } from "../../../lib/languages";
 const INDIA = gazeteer.Countries.find(c => c.code === 'IN');
 const INDIA_STATES = INDIA?.states || [];
-
-const LANGUAGE_OPTIONS = Object.entries(langFeture.languageNames).map(([e, h]) => ({ h, e })).sort((a, b) => a.h.localeCompare(b.h));
-
 const fontFam = "inherit";
 
 const { devanagariDigits } = miscData;
@@ -67,10 +64,10 @@ const fieldSx = {
     padding: "8px 14px"
   },
   "& .MuiAutocomplete-inputRoot": {
-    padding: "4px 8px !important",
+    padding: "4px 8px",
   },
   "& .MuiAutocomplete-inputRoot .MuiAutocomplete-input": {
-    padding: "8.5px 6px !important",
+    padding: "8.5px 6px",
   },
   "& .MuiFormHelperText-root": { color: "var(--color-error)", fontSize: 'var(--font-xs)', mt: 0.5 },
 };
@@ -91,11 +88,11 @@ const menuPaperSx = {
     margin: "2px 4px",
     padding: "10px 14px",
     fontSize: 'var(--font-base)',
-    color: "var(--color-slate-700)",
+    color: "var(--color-slate-900)",
     fontWeight: 'var(--font-medium)',
-    transition: "all 0.15s ease",
+    transition: "all var(--transition-fast)",
     "&[aria-selected='true']": {
-      backgroundColor: "rgba(0, 86, 179, 0.08) !important",
+      backgroundColor: "rgba(0, 86, 179, 0.08)",
       color: "var(--color-primary)",
       fontWeight: 'var(--font-semibold)'
     },
@@ -109,7 +106,7 @@ const menuPaperSx = {
 import InstituteSetupModal from "./InstituteSetupModal";
 
 const LabelTypography = ({ children }) => (
-  <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
+  <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
     {children}
   </Typography>
 );
@@ -157,33 +154,7 @@ export default function SetupModal({ profile }) {
     , [userLocation]);
 
   const sortedLanguages = useMemo(() => {
-    let lat = userLocation?.lat;
-    let lon = userLocation?.lon;
-    if (!lat || !lon) {
-      // Fallback to center of India if location is blocked
-      lat = 22.9074872;
-      lon = 79.1322059;
-    }
-    const langData = getSortedLanguagesByLocation(lat, lon);
-
-    // Ensure English and Hindi are at the top if no location
-    if (!userLocation) {
-      langData.set('hi', { priority: 1, distance: Infinity });
-      langData.set('en', { priority: 2, distance: Infinity });
-    }
-
-    return [...LANGUAGE_OPTIONS].sort((a, b) => {
-      const dataA = langData.get(a.e) || { priority: Infinity, distance: Infinity };
-      const dataB = langData.get(b.e) || { priority: Infinity, distance: Infinity };
-      if (dataA.priority !== dataB.priority) {
-        return dataA.priority - dataB.priority;
-      }
-      if (dataA.distance !== dataB.distance) {
-        return dataA.distance - dataB.distance;
-      }
-      return a.h.localeCompare(b.h);
-    });
-
+    return buildSortedLanguages(userLocation);
   }, [userLocation]);
 
   const states = useMemo(() =>
@@ -364,7 +335,7 @@ export default function SetupModal({ profile }) {
         full_name: formData.full_name,
         bio: formData.bio,
         location: fullLocationString,
-        languages: formData.languages ? [formData.languages.e || formData.languages] : [],
+        languages: formData.languages ? [formData.languages] : [],
         gender: formData.gender,
         dob: formattedDob
       });
@@ -397,11 +368,11 @@ export default function SetupModal({ profile }) {
           minHeight: { xs: "var(--size-full)", sm: "auto" },
           borderRadius: { xs: 0, sm: "28px" },
           background: `
-            radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.25) 0, transparent 50%), 
-            radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.2) 0, transparent 50%), 
-            radial-gradient(at 80% 100%, rgba(40, 167, 69, 0.15) 0, transparent 50%),
-            radial-gradient(at 20% 100%, rgba(0, 86, 179, 0.1) 0, transparent 50%),
-            #ffffff
+            radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.45) 0, transparent 50%), 
+            radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.3) 0, transparent 50%), 
+            radial-gradient(at 80% 90%, rgba(40, 167, 69, 0.2) 0, transparent 50%),
+            radial-gradient(at 20% 80%, rgba(0, 86, 179, 0.15) 0, transparent 50%),
+            #eef2f6
           `,
           border: "none",
         }}
@@ -442,9 +413,9 @@ export default function SetupModal({ profile }) {
                       width: 'var(--size-full)', height: 160, borderRadius: 'var(--radius-lg)',
                       backgroundColor: 'var(--color-slate-50)',
                       display: 'flex', justifyContent: 'center', alignItems: 'center',
-                      border: formErrors.banner ? '2px dashed #ef4444' : ((formData.banner_url && formData.banner_url !== 'null' && formData.banner_url !== 'undefined' && formData.banner_url.trim() !== '') ? 'var(--border-thin) solid #E2E8F0' : '2px dashed #CBD5E1'),
+                      border: formErrors.banner ? '2px dashed #ef4444' : ((formData.banner_url && formData.banner_url !== 'null' && formData.banner_url !== 'undefined' && formData.banner_url.trim() !== '') ? 'var(--border-thin) solid var(--color-slate-200)' : '2px dashed var(--color-slate-300)'),
                       cursor: 'pointer', overflow: 'hidden', position: 'relative',
-                      transition: 'all 0.2s',
+                      transition: 'all var(--transition-base)',
                       '&:hover': {
                         borderColor: (formData.banner_url && formData.banner_url !== 'null' && formData.banner_url !== 'undefined' && formData.banner_url.trim() !== '') ? 'var(--color-slate-200)' : 'var(--color-slate-500)',
                       }
@@ -461,7 +432,7 @@ export default function SetupModal({ profile }) {
                       />
                     )}
                     {(!formData.banner_url || formData.banner_url === 'null' || formData.banner_url === 'undefined' || formData.banner_url.trim() === '') && !uploadingBanner && <CloudUploadIcon sx={{ color: formErrors.banner ? 'var(--color-error)' : 'var(--color-slate-500)', fontSize: 48, position: 'relative', zIndex: 1 }} />}
-                    {false}
+                    {uploadingBanner && <CircularProgress size={32} sx={{ position: 'relative', zIndex: 1, color: 'var(--color-primary)' }} />}
                     <input
                       type="file"
                       ref={bannerInputRef}
@@ -472,13 +443,13 @@ export default function SetupModal({ profile }) {
                   </Box>
 
                   <Box sx={{ position: 'absolute', bottom: -44, left: 32, zIndex: 'var(--z-sticky)' }}>
-                    <Box sx={{ position: 'relative' }}>
+                    <Box sx={{ position: 'relative', display: 'inline-flex', p: "2px", border: formErrors.profile ? '2px solid #ef4444' : '2px solid var(--color-primary)', borderRadius: 'var(--radius-full)', bgcolor: "var(--card-bg)" }}>
                       <Avatar
                         src={formData.profile_pic_url}
                         sx={{
                           width: 104,
                           height: 104,
-                          border: formErrors.profile ? 'var(--border-heavy) solid #ef4444' : 'var(--border-heavy) solid #ffffff',
+                          border: 'none',
                           bgcolor: 'var(--color-slate-50)',
                           fontSize: '36px',
                           fontWeight: 'var(--font-semibold)',
@@ -496,13 +467,13 @@ export default function SetupModal({ profile }) {
                           bottom: 0,
                           right: 0,
                           bgcolor: 'var(--color-white)',
-                          color: 'var(--color-slate-700)',
-                          border: 'var(--border-thin) solid #E2E8F0',
+                          color: 'var(--color-slate-900)',
+                          border: 'var(--border-thin) solid var(--color-slate-200)',
                           '&:hover': { bgcolor: 'var(--color-slate-50)' }
                         }}
                         size="small"
                       >
-                        {uploadingAvatar ? null : <PhotoCameraIcon sx={{ fontSize: 16 }} />}
+                        {uploadingAvatar ? <CircularProgress size={16} sx={{ color: 'var(--color-primary)' }} /> : <PhotoCameraIcon sx={{ fontSize: 16 }} />}
                         <input
                           type="file"
                           ref={avatarInputRef}
@@ -657,13 +628,12 @@ export default function SetupModal({ profile }) {
                     <LabelTypography>भाषा *</LabelTypography>
                     <Autocomplete
                       options={sortedLanguages}
-                      getOptionLabel={(option) => typeof option === 'string' ? option : (option?.h || "")}
-                      value={(() => {
-                        if (!formData.languages) return null;
-                        const found = sortedLanguages.find(lo => lo.e === formData.languages || lo.h === formData.languages);
-                        return found || { h: formData.languages, e: formData.languages };
-                      })()}
-                      onChange={(e, val) => handleAutocompleteChange("languages", val?.e || "")}
+                      getOptionLabel={(option) => typeof option === 'string' ? option : (option?.label || "")}
+                      value={sortedLanguages.find(l => l.value === formData.languages) || null}
+                      onChange={(e, val) => {
+                        setFormData(p => ({ ...p, languages: val ? val.value : "" }));
+                        if (formErrors.languages) setFormErrors(prev => ({ ...prev, languages: false }));
+                      }}
                       renderInput={(params) => React.createElement(TextField, { ...params, required: true, placeholder: "चुनें", sx: fieldSx, error: !!formErrors.languages })}
                       slotProps={{ paper: { sx: menuPaperSx } }}
                     />

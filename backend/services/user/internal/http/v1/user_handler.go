@@ -10,6 +10,7 @@ import (
 
 	"backend/services/user/internal/user"
 	"backend/shared/config"
+	"backend/shared/errors"
 	"backend/shared/storage"
 
 	"github.com/go-chi/chi/v5"
@@ -61,7 +62,7 @@ func (h *UserHandler) getProfile(w http.ResponseWriter, r *http.Request) {
 	uid, _, err := h.extractUserID(r)
 	if err != nil {
 		fmt.Printf("[UserHandler] Token verification failed in getProfile: %v\n", err)
-		respondError(w, http.StatusUnauthorized, "unauthorized")
+		respondError(w, http.StatusUnauthorized, errors.ErrUnauthorized)
 		return
 	}
 
@@ -69,13 +70,12 @@ func (h *UserHandler) getProfile(w http.ResponseWriter, r *http.Request) {
 	u, err := h.svc.GetByID(r.Context(), uid)
 	if err != nil {
 		fmt.Printf("[UserHandler] User not found by ID %s in getProfile: %v\n", uid, err)
-		respondError(w, http.StatusNotFound, "user not found")
+		respondError(w, http.StatusNotFound, errors.ErrUserNotFound)
 		return
 	}
 
 	// Map user model fields back to response payload mapping from Auth service
 	// The auth service response expects certain boolean flags.
-	
 
 	fullName := ""
 	if u.FullName != nil {
@@ -106,25 +106,33 @@ func (h *UserHandler) getProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := map[string]any{
-		"id":               u.ID,
-		"username":         u.Username,
-		"role":             u.Role,
-		"kyc_verified":     u.KycVerifiedAt != nil,
-		"kyc_status":       h.getKycStatus(u),
-		"full_name":        fullName,
-		"dob":              dob,
-		"gender":           gender,
-		"profile_pic_url":  profilePic,
-		"banner_url":       banner,
-		"bio":              bio,
-		"social_links":     u.SocialLinks,
-		"skills":           u.Skills,
-		"recognitions":     u.Recognitions,
-		"location":         u.Location,
-		"languages":        u.Languages,
-		"demographic":      u.Demographic,
-		"institution_name": u.InstitutionName,
+		"id":                u.ID,
+		"username":          u.Username,
+		"email":             u.Email,
+		"role":              u.Role,
+		"kyc_verified":      u.KycVerifiedAt != nil,
+		"kyc_status":        h.getKycStatus(u),
+		"full_name":         fullName,
+		"dob":               dob,
+		"gender":            gender,
+		"phone":             u.Phone,
+		"religion":          u.Religion,
+		"caste":             u.Caste,
+		"subcaste":          u.Subcaste,
+		"nationality":       u.Nationality,
+		"profile_pic_url":   profilePic,
+		"banner_url":        banner,
+		"bio":               bio,
+		"social_links":      u.SocialLinks,
+		"skills":            u.Skills,
+		"recognitions":      u.Recognitions,
+		"location":          u.Location,
+		"languages":         u.Languages,
+		"demographic":       u.Demographic,
+		"institution_name":  u.InstitutionName,
 		"institute_profile": u.InstituteProfile,
+		"addresses":         u.Addresses,
+		"academic_records":  u.AcademicRecords,
 	}
 
 	bucket := "tarang-user-service"
@@ -150,13 +158,13 @@ func (h *UserHandler) getProfile(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) getPublicProfile(w http.ResponseWriter, r *http.Request) {
 	username := chi.URLParam(r, "username")
 	if username == "" {
-		respondError(w, http.StatusBadRequest, "username is required")
+		respondError(w, http.StatusBadRequest, errors.ErrUsernameIsRequired)
 		return
 	}
 
 	u, err := h.svc.GetByUsername(r.Context(), username)
 	if err != nil {
-		respondError(w, http.StatusNotFound, "user not found")
+		respondError(w, http.StatusNotFound, errors.ErrUserNotFound)
 		return
 	}
 
@@ -180,21 +188,21 @@ func (h *UserHandler) getPublicProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := map[string]any{
-		"id":              u.ID,
-		"username":        u.Username,
-		"role":            u.Role,
-		"kyc_verified":    u.KycVerifiedAt != nil,
-		"kyc_status":      h.getKycStatus(u),
-		"full_name":       fullName,
-		"profile_pic_url": profilePic,
-		"banner_url":      banner,
-		"bio":             bio,
-		"social_links":    u.SocialLinks,
-		"skills":          u.Skills,
-		"recognitions":    u.Recognitions,
-		"location":        u.Location,
-		"languages":       u.Languages,
-		"institution_name": u.InstitutionName,
+		"id":                u.ID,
+		"username":          u.Username,
+		"role":              u.Role,
+		"kyc_verified":      u.KycVerifiedAt != nil,
+		"kyc_status":        h.getKycStatus(u),
+		"full_name":         fullName,
+		"profile_pic_url":   profilePic,
+		"banner_url":        banner,
+		"bio":               bio,
+		"social_links":      u.SocialLinks,
+		"skills":            u.Skills,
+		"recognitions":      u.Recognitions,
+		"location":          u.Location,
+		"languages":         u.Languages,
+		"institution_name":  u.InstitutionName,
 		"institute_profile": u.InstituteProfile,
 	}
 
@@ -227,7 +235,7 @@ func (h *UserHandler) getUploadUrl(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("DEBUG: getUploadUrl - user_id: %s, type: %s, mime: %s\n", uidStr, fileType, mimeType)
 
 	if uidStr == "" || fileType == "" || mimeType == "" {
-		respondError(w, http.StatusBadRequest, "user_id, type, and mime are required")
+		respondError(w, http.StatusBadRequest, errors.ErrFileMetadataRequired)
 		return
 	}
 
@@ -240,7 +248,7 @@ func (h *UserHandler) getUploadUrl(w http.ResponseWriter, r *http.Request) {
 	}
 	ext, ok := allowedMime[mimeType]
 	if !ok {
-		respondError(w, http.StatusBadRequest, "unsupported file type")
+		respondError(w, http.StatusBadRequest, errors.ErrUnsupportedFileType)
 		return
 	}
 
@@ -250,7 +258,7 @@ func (h *UserHandler) getUploadUrl(w http.ResponseWriter, r *http.Request) {
 	url, err := h.minio.GenerateUploadURL(ctx, bucket, fileName, 15*time.Minute)
 	if err != nil {
 		fmt.Printf("ERROR generating upload URL: %v\n", err)
-		respondError(w, http.StatusInternalServerError, "failed to generate upload url")
+		respondError(w, http.StatusInternalServerError, errors.ErrFailedToGenerateUploadURL)
 		return
 	}
 
@@ -266,7 +274,7 @@ func (h *UserHandler) updateProfilePic(w http.ResponseWriter, r *http.Request) {
 		URL    string `json:"url"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		respondError(w, http.StatusBadRequest, "invalid payload")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
 
@@ -274,12 +282,12 @@ func (h *UserHandler) updateProfilePic(w http.ResponseWriter, r *http.Request) {
 
 	uid, err := uuid.Parse(in.UserID)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "invalid user id")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidUserIdentifier)
 		return
 	}
 
 	if err := h.svc.UpdateProfilePic(r.Context(), uid, in.URL); err != nil {
-		respondError(w, http.StatusInternalServerError, "failed to update profile pic")
+		respondError(w, http.StatusInternalServerError, errors.ErrFailedToUpdateProfilePic)
 		return
 	}
 
@@ -292,7 +300,7 @@ func (h *UserHandler) updateBanner(w http.ResponseWriter, r *http.Request) {
 		URL    string `json:"url"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		respondError(w, http.StatusBadRequest, "invalid payload")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
 
@@ -300,12 +308,12 @@ func (h *UserHandler) updateBanner(w http.ResponseWriter, r *http.Request) {
 
 	uid, err := uuid.Parse(in.UserID)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "invalid user id")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidUserIdentifier)
 		return
 	}
 
 	if err := h.svc.UpdateBanner(r.Context(), uid, in.URL); err != nil {
-		respondError(w, http.StatusInternalServerError, "failed to update banner")
+		respondError(w, http.StatusInternalServerError, errors.ErrFailedToUpdateBanner)
 		return
 	}
 
@@ -318,18 +326,18 @@ func (h *UserHandler) updateBio(w http.ResponseWriter, r *http.Request) {
 		Bio    string `json:"bio"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		respondError(w, http.StatusBadRequest, "invalid payload")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
 
 	uid, err := uuid.Parse(in.UserID)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "invalid user id")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidUserIdentifier)
 		return
 	}
 
 	if err := h.svc.UpdateBio(r.Context(), uid, in.Bio); err != nil {
-		respondError(w, http.StatusInternalServerError, "failed to update bio")
+		respondError(w, http.StatusInternalServerError, errors.ErrFailedToUpdateBio)
 		return
 	}
 
@@ -338,57 +346,64 @@ func (h *UserHandler) updateBio(w http.ResponseWriter, r *http.Request) {
 
 func (h *UserHandler) updateProfile(w http.ResponseWriter, r *http.Request) {
 	var in struct {
-		UserID           string                 `json:"user_id"`
-		Bio              string                 `json:"bio"`
-		SocialLinks      map[string]string      `json:"social_links"`
-		Skills           []string               `json:"skills"`
-		Recognitions     []string               `json:"recognitions"`
-		FullName         string                 `json:"full_name"`
-		DOB              string                 `json:"dob"`
-		Gender           string                 `json:"gender"`
-		Location         string                 `json:"location"`
-		Languages        []string               `json:"languages"`
-		Demographic      string                 `json:"demographic"`
-		InstitutionName  string                 `json:"institution_name"`
+		UserID           string                      `json:"user_id"`
+		Bio              string                      `json:"bio"`
+		SocialLinks      map[string]string           `json:"social_links"`
+		Skills           []string                    `json:"skills"`
+		Recognitions     []string                    `json:"recognitions"`
+		FullName         string                      `json:"full_name"`
+		DOB              string                      `json:"dob"`
+		Gender           string                      `json:"gender"`
+		Location         string                      `json:"location"`
+		Languages        []string                    `json:"languages"`
+		Demographic      string                      `json:"demographic"`
+		InstitutionName  string                      `json:"institution_name"`
 		InstituteProfile *user.InstituteProfileInput `json:"institute_profile"`
+		Religion         string                      `json:"religion"`
+		Caste            string                      `json:"caste"`
+		Subcaste         string                      `json:"subcaste"`
+		Nationality      string                      `json:"nationality"`
+		Addresses        []*user.UserAddress         `json:"addresses"`
+		AcademicRecords  []*user.UserAcademicRecord  `json:"academic_records"`
+		WorkExperiences  []*user.UserWorkExperience  `json:"work_experiences"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		respondError(w, http.StatusBadRequest, "invalid payload")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
 
 	uid, err := uuid.Parse(in.UserID)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "invalid user id")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidUserIdentifier)
 		return
 	}
 
 	if in.InstituteProfile != nil {
 		if in.InstituteProfile.InstituteType == "" {
-			respondError(w, http.StatusBadRequest, "institute_type is required")
+			respondError(w, http.StatusBadRequest, errors.ErrInstituteTypeRequired)
 			return
 		}
 		if in.InstituteProfile.EstablishedYear < 1800 {
-			respondError(w, http.StatusBadRequest, "established_year is invalid")
+			respondError(w, http.StatusBadRequest, errors.ErrEstablishedYearInvalid)
 			return
 		}
 		if in.InstituteProfile.RegistrationNumber == "" {
-			respondError(w, http.StatusBadRequest, "registration_number is required")
+			respondError(w, http.StatusBadRequest, errors.ErrRegistrationNumberRequired)
 			return
 		}
 		if len(in.InstituteProfile.CoursesOffered) == 0 {
-			respondError(w, http.StatusBadRequest, "courses_offered is required")
+			respondError(w, http.StatusBadRequest, errors.ErrCoursesOfferedRequired)
 			return
 		}
 		if in.InstituteProfile.StudentCount < 0 || in.InstituteProfile.FacultyCount < 0 {
-			respondError(w, http.StatusBadRequest, "counts cannot be negative")
+			respondError(w, http.StatusBadRequest, errors.ErrCountsCannotBeNegative)
 			return
 		}
 	}
 
-	if err := h.svc.UpdateProfile(r.Context(), uid, in.FullName, in.DOB, in.Gender, in.Bio, in.SocialLinks, in.Skills, in.Recognitions, in.Location, in.Languages, in.Demographic, in.InstitutionName, in.InstituteProfile); err != nil {
+	if err := h.svc.UpdateProfile(r.Context(), uid, in.FullName, in.DOB, in.Gender, in.Bio, in.SocialLinks, in.Skills, in.Recognitions, in.Location, in.Languages, in.Demographic, in.InstitutionName, in.InstituteProfile, in.Religion, in.Caste, in.Subcaste, in.Nationality, in.Addresses, in.AcademicRecords, in.WorkExperiences); err != nil {
 		fmt.Printf("[UserHandler] UpdateProfile error: %v\n", err)
-		respondError(w, http.StatusInternalServerError, "failed to update profile")
+		respondError(w, http.StatusInternalServerError, errors.ErrFailedToUpdateProfile)
 		return
 	}
 
@@ -402,7 +417,7 @@ func (h *UserHandler) getStorageKeyFromURL(fileURL string) string {
 			return parts[1]
 		}
 	}
-	
+
 	// Handle new MinIO URLs
 	if h.cfg.MinioPublicURL != "" && strings.Contains(fileURL, h.cfg.MinioPublicURL) {
 		parts := strings.Split(fileURL, h.cfg.MinioPublicURL+"/")
@@ -414,7 +429,7 @@ func (h *UserHandler) getStorageKeyFromURL(fileURL string) string {
 			}
 		}
 	}
-	
+
 	return ""
 }
 
@@ -443,7 +458,7 @@ func (h *UserHandler) getInstitutes(w http.ResponseWriter, r *http.Request) {
 	users, err := h.svc.GetInstitutes(r.Context(), limit, offset)
 	if err != nil {
 		fmt.Printf("[UserHandler] GetInstitutes error: %v\n", err)
-		respondError(w, http.StatusInternalServerError, "failed to fetch institutes")
+		respondError(w, http.StatusInternalServerError, errors.ErrFailedToFetchInstitutes)
 		return
 	}
 
@@ -475,18 +490,18 @@ func (h *UserHandler) getInstitutes(w http.ResponseWriter, r *http.Request) {
 		}
 
 		results = append(results, map[string]any{
-			"id":                u.ID,
-			"username":          u.Username,
-			"full_name":         fullName,
-			"profile_pic_url":   profilePic,
-			"banner_url":        banner,
-			"location":          u.Location,
-			"languages":         u.Languages,
-			"demographic":       u.Demographic,
-			"bio":               u.Bio,
-			"recognitions":      u.Recognitions,
-			"institution_name":  u.InstitutionName,
-					})
+			"id":               u.ID,
+			"username":         u.Username,
+			"full_name":        fullName,
+			"profile_pic_url":  profilePic,
+			"banner_url":       banner,
+			"location":         u.Location,
+			"languages":        u.Languages,
+			"demographic":      u.Demographic,
+			"bio":              u.Bio,
+			"recognitions":     u.Recognitions,
+			"institution_name": u.InstitutionName,
+		})
 	}
 
 	// Make sure we return an empty array instead of null if no results

@@ -11,12 +11,11 @@ import { Box } from '@mui/material';
  *
  * Variants:
  *  - <Loader />              → full-screen frosted-glass backdrop spinner
+ *  - <Loader inline />       → inline spinner centered in its container
  *  - <Loader mini />         → small inline spinner (20px), inherits color
  *  - <Loader size={n} />     → inline spinner with custom pixel size
- *
- * The full-screen variant uses BackdropBlur for a consistent look across the app.
  */
-const Loader = ({ mini = false, size }) => {
+const Loader = ({ mini = false, size, inline = false }) => {
   const theme = useTheme();
 
   // Inline / mini spinner — no backdrop
@@ -28,12 +27,23 @@ const Loader = ({ mini = false, size }) => {
     );
   }
 
-  // Full-screen spinner
+  // Standard centered inline spinner
+  if (inline) {
+    return (
+      <Box display="flex" alignItems="center" justifyContent="center" p={2} width="100%">
+        <CircularProgress sx={{ color: 'var(--color-primary)' }} />
+      </Box>
+    );
+  }
+
+  // Full-screen spinner (Default)
   return (
     <BackdropBlur zIndex={999999}>
-      <CircularProgress sx={{ color: 'var(--color-primary)' }} />
+      <CircularProgress size={40} thickness={4} sx={{ color: 'var(--color-primary)' }} />
     </BackdropBlur>
   );
 };
+
+
 
 export default Loader;

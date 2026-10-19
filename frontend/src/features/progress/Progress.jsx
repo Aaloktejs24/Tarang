@@ -16,20 +16,20 @@ export default function Progress() {
         <Chip label={`औसत: ${avg}%`} sx={{ ml: "auto", bgcolor: avg >= 80 ? "color-mix(in srgb, var(--color-success) var(--opacity-sm), transparent)" : "color-mix(in srgb, #f39c12 var(--opacity-sm), transparent)", color: avg >= 80 ? "var(--color-success)" : "var(--color-warning)", fontWeight: "var(--font-bold)" }} />
       </Box>
       <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
-        <Paper elevation={0} sx={{ p: 2.5, borderRadius: 'var(--radius-md)', border: "var(--border-thin) solid #e2e8f0", flex: 1, textAlign: "center" }}>
+        <Paper elevation={0} sx={{ p: 2.5, borderRadius: 'var(--radius-md)', border: "var(--border-thin) solid var(--color-slate-200)", flex: 1, textAlign: "center" }}>
           <Typography variant="h4" fontWeight="bold" color="var(--color-primary)">{avg}%</Typography>
           <Typography fontSize={12} color="text.secondary">कुल औसत</Typography>
         </Paper>
-        <Paper elevation={0} sx={{ p: 2.5, borderRadius: 'var(--radius-md)', border: "var(--border-thin) solid #e2e8f0", flex: 1, textAlign: "center" }}>
+        <Paper elevation={0} sx={{ p: 2.5, borderRadius: 'var(--radius-md)', border: "var(--border-thin) solid var(--color-slate-200)", flex: 1, textAlign: "center" }}>
           <Typography variant="h4" fontWeight="bold" color="var(--color-success)">4</Typography>
           <Typography fontSize={12} color="text.secondary">पूरे किए टास्क</Typography>
         </Paper>
-        <Paper elevation={0} sx={{ p: 2.5, borderRadius: 'var(--radius-md)', border: "var(--border-thin) solid #e2e8f0", flex: 1, textAlign: "center" }}>
+        <Paper elevation={0} sx={{ p: 2.5, borderRadius: 'var(--radius-md)', border: "var(--border-thin) solid var(--color-slate-200)", flex: 1, textAlign: "center" }}>
           <Typography variant="h4" fontWeight="bold" color="var(--color-warning)">12</Typography>
           <Typography fontSize={12} color="text.secondary">लर्निंग स्ट्रीक</Typography>
         </Paper>
       </Box>
-      <Paper elevation={0} sx={{ p: 3, borderRadius: 'var(--radius-md)', border: "var(--border-thin) solid #e2e8f0", mb: 3 }}>
+      <Paper elevation={0} sx={{ p: 3, borderRadius: 'var(--radius-md)', border: "var(--border-thin) solid var(--color-slate-200)", mb: 3 }}>
         <Typography fontWeight="bold" mb={2}>विषयवार प्रदर्शन</Typography>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {subjects.map(s => (
@@ -43,7 +43,7 @@ export default function Progress() {
           ))}
         </Box>
       </Paper>
-      <Paper elevation={0} sx={{ p: 3, borderRadius: 'var(--radius-md)', border: "var(--border-thin) solid #e2e8f0" }}>
+      <Paper elevation={0} sx={{ p: 3, borderRadius: 'var(--radius-md)', border: "var(--border-thin) solid var(--color-slate-200)" }}>
         <Typography fontWeight="bold" mb={2}>हाल की गतिविधि</Typography>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
           {recentActivity.map((a, i) => (

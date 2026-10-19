@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 
 	"backend/shared/config"
 	"github.com/golang-jwt/jwt/v5"
@@ -45,12 +46,16 @@ func NewService(repo *Repository, cfg *config.Config, redis *redis.Client) *Serv
 
 
 
-func (s *Service) Create(ctx context.Context, idStr string, username, fullName, role, phone, dob, gender string) (*User, error) {
-	log.Printf("Service Create: Username=%s, Role=%s", username, role)
+func (s *Service) Create(ctx context.Context, idStr string, username, email, fullName, role, phone, dob, gender string) (*User, error) {
+	log.Printf("Service Create: Username=%s, Email=%s, Role=%s", username, email, role)
 	user := &User{
 		
 		Username: username,
 		Role:     role,
+	}
+
+	if email != "" {
+		user.Email = &email
 	}
 
 	if fullName != "" {
@@ -152,7 +157,7 @@ func (s *Service) UpdateBio(ctx context.Context, userID uuid.UUID, bio string) e
 	return s.repo.SetBio(ctx, userID, bio)
 }
 
-func (s *Service) UpdateProfile(ctx context.Context, userID uuid.UUID, fullName, dob, gender, bio string, socialLinks map[string]string, skills, recognitions []string, location string, languages []string, demographic string, institutionName string, instProfile *InstituteProfileInput) error {
+func (s *Service) UpdateProfile(ctx context.Context, userID uuid.UUID, fullName, dob, gender, bio string, socialLinks map[string]string, skills, recognitions []string, location string, languages []string, demographic string, institutionName string, instProfile *InstituteProfileInput, religion, caste, subcaste, nationality string, addresses []*UserAddress, academicRecords []*UserAcademicRecord, workExperiences []*UserWorkExperience) error {
 	u, err := s.repo.GetByID(ctx, userID)
 	if err != nil {
 		return err
@@ -169,7 +174,11 @@ func (s *Service) UpdateProfile(ctx context.Context, userID uuid.UUID, fullName,
 		u.DOB = &parsedDOB
 	}
 	if gender != "" {
-		u.Gender = &gender
+		mappedGender := strings.ToLower(gender)
+		if mappedGender == "prefer not to say" {
+			mappedGender = "prefer_not_to_say"
+		}
+		u.Gender = &mappedGender
 	}
 	if bio != "" {
 		u.Bio = &bio
@@ -191,6 +200,27 @@ func (s *Service) UpdateProfile(ctx context.Context, userID uuid.UUID, fullName,
 	}
 	if demographic != "" {
 		u.Demographic = &demographic
+	}
+	if religion != "" {
+		u.Religion = &religion
+	}
+	if caste != "" {
+		u.Caste = &caste
+	}
+	if subcaste != "" {
+		u.Subcaste = &subcaste
+	}
+	if nationality != "" {
+		u.Nationality = &nationality
+	}
+	if addresses != nil {
+		u.Addresses = addresses
+	}
+	if academicRecords != nil {
+		u.AcademicRecords = academicRecords
+	}
+	if workExperiences != nil {
+		u.WorkExperiences = workExperiences
 	}
 
 	if err := s.repo.UpdateProfile(ctx, u); err != nil {

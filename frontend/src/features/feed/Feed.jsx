@@ -41,7 +41,7 @@ const checkboxStyles = {
   "& + .MuiFormControlLabel-label": {
     fontSize: 'var(--font-base)',
     fontWeight: 'var(--font-semibold)',
-    color: "var(--color-slate-700)",
+    color: "var(--color-slate-900)",
     letterSpacing: "0.2px",
   },
 };
@@ -60,7 +60,6 @@ const FilterRow = ({ icon, label, checked, onChange }) => (
     background: checked ? "rgba(0, 86, 179, 0.04)" : "transparent",
     '&:hover': {
       backgroundColor: "rgba(0, 86, 179, 0.08)",
-      transform: "translateX(4px)",
     }
   }} onClick={onChange}>
     <Box sx={{ width: "100%", display: "flex", alignItems: "center" }}>
@@ -200,7 +199,7 @@ export default function FlowPage() {
                       left: 0,
                       width: '60px',
                       height: '3px',
-                      background: 'linear-gradient(90deg, #f59e0b 0%, transparent 100%)',
+                      background: 'linear-gradient(90deg, var(--color-warning) 0%, transparent 100%)',
                       borderRadius: '2px'
                     }
                   }}>
@@ -233,7 +232,7 @@ export default function FlowPage() {
                       left: 0,
                       width: '60px',
                       height: '3px',
-                      background: 'linear-gradient(90deg, #28a745 0%, transparent 100%)',
+                      background: 'linear-gradient(90deg, var(--color-success) 0%, transparent 100%)',
                       borderRadius: '2px'
                     }
                   }}>
@@ -266,6 +265,7 @@ export default function FlowPage() {
                         sx={{ width: 'var(--size-full)', maxWidth: 450, display: "flex" }}
                       >
                         <Card
+                          className="hover-effect"
                           sx={{
                             width: "var(--size-full)",
                             display: "flex",
@@ -276,10 +276,6 @@ export default function FlowPage() {
                             WebkitBackdropFilter: "blur(30px)",
                             border: "var(--border-thin) solid rgba(30, 79, 163, 0.2)",
                             transition: "var(--transition-slow)",
-                            '&:hover': {
-                              border: "var(--border-thin) solid rgba(30, 79, 163, 0.5)",
-                              background: "rgba(255, 255, 255, 0.45)",
-                            }
                           }}
                         >
 
@@ -391,13 +387,13 @@ export default function FlowPage() {
                               {/* Styled Action Icons Flat Design */}
                               <IconButton size="small" sx={{
                                 color: "var(--color-slate-500)", bgcolor: "rgba(30,79,163,0.06)", borderRadius: 'var(--radius-lg)', width: 44, height: 44,
-                                transition: "all 0.2s", '&:hover': { color: "var(--color-success)", bgcolor: "rgba(34,197,94,0.15)" }
+                                transition: "all var(--transition-base)", '&:hover': { color: "var(--color-success)", bgcolor: "rgba(34,197,94,0.15)" }
                               }}>
                                 <ShareIcon sx={{ fontSize: 20 }} />
                               </IconButton>
                               <IconButton size="small" sx={{
                                 color: "var(--color-slate-500)", bgcolor: "rgba(30,79,163,0.06)", borderRadius: 'var(--radius-lg)', width: 44, height: 44,
-                                transition: "all 0.2s", '&:hover': { color: "var(--color-primary)", bgcolor: "rgba(59,130,246,0.15)" }
+                                transition: "all var(--transition-base)", '&:hover': { color: "var(--color-primary)", bgcolor: "rgba(59,130,246,0.15)" }
                               }}>
                                 <BookmarkBorderIcon sx={{ fontSize: 20 }} />
                               </IconButton>

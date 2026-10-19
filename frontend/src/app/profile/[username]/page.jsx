@@ -56,7 +56,7 @@ export default function PublicProfile() {
   return (
     <Box sx={{ minHeight: "var(--size-screen-h)", bgcolor: "var(--color-slate-50)", pb: 10 }}>
       {/* Navbar / Branding */}
-      <Box sx={{ bgcolor: "white", py: 2, px: 4, mb: 0, borderBottom: "var(--border-thin) solid #e2e8f0" }}>
+      <Box sx={{ bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)", py: 2, px: 4, mb: 0, borderBottom: "var(--border-thin) solid var(--color-slate-200)" }}>
         <Container maxWidth="lg">
           <Typography variant="h6" fontWeight={900} color="var(--color-primary)" sx={{ letterSpacing: "-1px" }}>
             TARANG <span style={{ color: "var(--color-slate-500)", fontWeight: 'var(--font-medium)', fontSize: 'var(--font-sm)' }}>• PUBLIC PROFILE</span>
@@ -81,7 +81,7 @@ export default function PublicProfile() {
                 style={{ width: "var(--size-full)", height: "var(--size-full)", objectFit: "cover" }}
               />
             ) : (
-              <Box sx={{ width: "var(--size-full)", height: "var(--size-full)", background: "linear-gradient(135deg, #0056b3 0%, #0056b3 100%)" }} />
+              <Box sx={{ width: "var(--size-full)", height: "var(--size-full)", background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary) 100%)" }} />
             )}
           </Box>
 
@@ -93,7 +93,7 @@ export default function PublicProfile() {
                 <Avatar
                   src={profile.profile_pic_url}
                   sx={{
-                    width: 160, height: 160, border: "6px solid white",
+                    width: 160, height: 160, border: "6px solid var(--card-inner-border)",
                     bgcolor: "var(--color-slate-200)"
                   }}
                 >
@@ -127,7 +127,7 @@ export default function PublicProfile() {
                     alert("Profile link copied!");
                   }}
                   sx={{
-                    borderRadius: "50px", textTransform: "none", fontWeight: 'var(--font-bold)',
+                    borderRadius: "var(--radius-full)", textTransform: "none", fontWeight: 'var(--font-bold)',
                     px: 3, bgcolor: "var(--color-primary)", "&:hover": { bgcolor: "var(--color-primary-hover)" }
                   }}
                 >
@@ -143,7 +143,7 @@ export default function PublicProfile() {
               <Typography variant="h6" fontWeight={800} color="var(--color-primary)" mb={2}>
                 About
               </Typography>
-              <Typography color="var(--color-slate-700)" lineHeight={1.8}>
+              <Typography color="var(--color-slate-900)" lineHeight={1.8}>
                 A passionate learner on the Tarang platform dedicated to excellence in digital education.
                 Focusing on building a professional portfolio and contributing to the digital education ecosystem.
                 {profile.kyc_status === "verified" && " Identity verified and certified by Tarang authorities."}

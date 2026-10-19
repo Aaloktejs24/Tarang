@@ -25,6 +25,7 @@ import gazeteer from '../../../data/formated/gazeteer.json';
 import { useAccessibility } from '../../../contexts/AccessibilityContext';
 import { sortLocationsByDistance } from '../../../lib/geoNormalize';
 import { AREA_TYPE_OPTIONS, RURAL_LOCAL_BODY_OPTIONS, URBAN_LOCAL_BODY_OPTIONS } from '../../../lib/admissionFormOptions';
+import { FormLoadingProvider } from '../../../contexts/FormLoadingContext';
 import {
   validateInstitutionName,
   validateRegistrationNumber,
@@ -58,7 +59,7 @@ const affiliationOptionsMap = {
   'Affiliated Non-Autonomous College (Central Univ)': centralUniversitiesList
 };
 
-const THEME_BORDER = "var(--color-slate-200)";
+const THEME_BORDER = "var(--color-slate-300)";
 const themeBorderSx = `var(--border-thin) solid ${THEME_BORDER}`;
 
 const menuPaperSx = {
@@ -77,12 +78,12 @@ const menuPaperSx = {
     margin: "2px 4px",
     padding: "10px 14px",
     fontSize: 'var(--font-base)',
-    color: "var(--color-slate-700)",
+    color: "var(--color-slate-900)",
     fontWeight: 'var(--font-medium)',
     fontFamily: fontFam,
-    transition: "all 0.15s ease",
+    transition: "all var(--transition-fast)",
     "&[aria-selected='true']": {
-      backgroundColor: "rgba(0, 86, 179, 0.08) !important",
+      backgroundColor: "rgba(0, 86, 179, 0.08)",
       color: "var(--color-primary)",
       fontWeight: 'var(--font-semibold)'
     },
@@ -494,7 +495,7 @@ export default function InstituteSetupModal({ profile, onClose }) {
                   width: 'var(--size-full)', height: 160, borderRadius: 'var(--radius-lg)',
                   backgroundColor: 'var(--color-slate-50)',
                   display: 'flex', justifyContent: 'center', alignItems: 'center',
-                  border: formErrors.banner ? '2px dashed #ef4444' : ((formData.banner_url && formData.banner_url !== 'null' && formData.banner_url !== 'undefined' && formData.banner_url.trim() !== '') ? 'var(--border-thin) solid #E2E8F0' : '2px dashed #CBD5E1'), cursor: 'pointer', overflow: 'hidden', position: 'relative'
+                  border: formErrors.banner ? '2px dashed #ef4444' : ((formData.banner_url && formData.banner_url !== 'null' && formData.banner_url !== 'undefined' && formData.banner_url.trim() !== '') ? 'var(--border-thin) solid var(--color-slate-200)' : '2px dashed var(--color-slate-300)'), cursor: 'pointer', overflow: 'hidden', position: 'relative'
                 }}
                 onClick={() => { bannerInputRef.current?.click(); if (formErrors.banner) setFormErrors(p => ({ ...p, banner: false })); }}
               >
@@ -508,17 +509,18 @@ export default function InstituteSetupModal({ profile, onClose }) {
                   />
                 )}
                 {(!formData.banner_url || formData.banner_url === 'null' || formData.banner_url === 'undefined' || formData.banner_url.trim() === '') && !uploadingBanner && <CloudUploadIcon sx={{ color: formErrors.banner ? 'var(--color-error)' : 'var(--color-slate-500)', fontSize: 48, position: 'relative', zIndex: 1 }} />}
+                {uploadingBanner && <CircularProgress size={32} sx={{ position: 'relative', zIndex: 1, color: 'var(--color-primary)' }} />}
                 <input type="file" hidden ref={bannerInputRef} accept="image/*" onChange={(e) => handleFileUpload(e, 'banner', setUploadingBanner)} />
               </Box>
 
               <Box sx={{ position: 'absolute', bottom: -44, left: 32, zIndex: 'var(--z-sticky)' }}>
-                <Box sx={{ position: 'relative' }}>
+                <Box sx={{ position: 'relative', display: 'inline-flex', p: "2px", border: formErrors.profile ? '2px solid #ef4444' : '2px solid var(--color-primary)', borderRadius: 'var(--radius-full)', bgcolor: "var(--card-bg)" }}>
                   <Avatar
                     src={formData.profile_pic_url}
                     sx={{
                       width: 104,
                       height: 104,
-                      border: formErrors.profile ? 'var(--border-heavy) solid #ef4444' : 'var(--border-heavy) solid #ffffff',
+                      border: 'none',
                       bgcolor: 'var(--color-slate-50)',
                       fontSize: '36px',
                       fontFamily: fontFam,
@@ -536,13 +538,13 @@ export default function InstituteSetupModal({ profile, onClose }) {
                       bottom: 0,
                       right: 0,
                       bgcolor: 'var(--color-white)',
-                      color: 'var(--color-slate-700)',
-                      border: 'var(--border-thin) solid #E2E8F0',
+                      color: 'var(--color-slate-900)',
+                      border: 'var(--border-thin) solid var(--color-slate-200)',
                       '&:hover': { bgcolor: 'var(--color-slate-50)' }
                     }}
                     size="small"
                   >
-                    {uploadingAvatar ? null : <PhotoCameraIcon sx={{ fontSize: 16 }} />}
+                    {uploadingAvatar ? <CircularProgress size={16} sx={{ color: 'var(--color-primary)' }} /> : <PhotoCameraIcon sx={{ fontSize: 16 }} />}
                     <input
                       type="file"
                       ref={avatarInputRef}
@@ -681,7 +683,7 @@ export default function InstituteSetupModal({ profile, onClose }) {
                     borderRadius: 'var(--radius-full)', px: 1.5, py: 0.5,
                     cursor: 'pointer', color: 'var(--color-primary)',
                     fontSize: 'var(--font-xs)', fontFamily: 'inherit', fontWeight: 500,
-                    transition: 'all 0.2s ease',
+                    transition: 'all var(--transition-base)',
                     '&:hover': { bgcolor: 'rgba(0,86,179,0.08)' },
                   }}
                 >
@@ -852,7 +854,7 @@ export default function InstituteSetupModal({ profile, onClose }) {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, width: "var(--size-full)", mt: 2 }}>
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-                <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)', fontFamily: fontFam }}>
+                <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)', fontFamily: fontFam }}>
                   मान्यता / संबद्धता प्रमाणपत्र *
                 </Typography>
                 <Button
@@ -863,7 +865,7 @@ export default function InstituteSetupModal({ profile, onClose }) {
                   sx={{
                     py: 1.5,
                     borderColor: formErrors.accreditation_docs ? 'var(--color-error)' : (formData.accreditation_docs ? 'transparent' : 'var(--color-slate-200)'),
-                    color: formErrors.accreditation_docs ? 'var(--color-error)' : (formData.accreditation_docs ? 'var(--color-success)' : 'var(--color-slate-700)'),
+                    color: formErrors.accreditation_docs ? 'var(--color-error)' : (formData.accreditation_docs ? 'var(--color-success)' : 'var(--color-slate-900)'),
                     backgroundColor: formData.accreditation_docs ? 'var(--color-slate-200)' : 'transparent',
                     textTransform: 'none',
                     fontWeight: formData.accreditation_docs ? 600 : 500,
@@ -882,7 +884,7 @@ export default function InstituteSetupModal({ profile, onClose }) {
                 )}
               </Box>
               <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-                <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)', fontFamily: fontFam }}>
+                <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)', fontFamily: fontFam }}>
                   लाइसेंस/पंजीकरण दस्तावेज़ *
                 </Typography>
                 <Button
@@ -893,7 +895,7 @@ export default function InstituteSetupModal({ profile, onClose }) {
                   sx={{
                     py: 1.5,
                     borderColor: formErrors.license_certificate_url ? 'var(--color-error)' : (formData.license_certificate_url ? 'transparent' : 'var(--color-slate-200)'),
-                    color: formErrors.license_certificate_url ? 'var(--color-error)' : (formData.license_certificate_url ? 'var(--color-success)' : 'var(--color-slate-700)'),
+                    color: formErrors.license_certificate_url ? 'var(--color-error)' : (formData.license_certificate_url ? 'var(--color-success)' : 'var(--color-slate-900)'),
                     backgroundColor: formData.license_certificate_url ? 'var(--color-slate-200)' : 'transparent',
                     textTransform: 'none',
                     fontWeight: formData.license_certificate_url ? 600 : 500,
@@ -927,7 +929,7 @@ export default function InstituteSetupModal({ profile, onClose }) {
   ];
 
   return (
-    <>
+    <FormLoadingProvider isLoading={loading}>
       <Box
         sx={{
           position: "fixed",
@@ -956,13 +958,13 @@ export default function InstituteSetupModal({ profile, onClose }) {
             minHeight: { xs: "var(--size-full)", sm: "auto" },
             borderRadius: { xs: 0, sm: "28px" },
             background: `
-            radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.18) 0, transparent 50%), 
-            radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.15) 0, transparent 50%), 
-            radial-gradient(at 80% 100%, rgba(40, 167, 69, 0.12) 0, transparent 50%),
-            radial-gradient(at 20% 100%, rgba(0, 86, 179, 0.1) 0, transparent 50%),
-            #ffffff
+            radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.45) 0, transparent 50%), 
+            radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.3) 0, transparent 50%), 
+            radial-gradient(at 80% 90%, rgba(40, 167, 69, 0.2) 0, transparent 50%),
+            radial-gradient(at 20% 80%, rgba(0, 86, 179, 0.15) 0, transparent 50%),
+            #eef2f6
           `,
-            border: themeBorderSx,
+            border: "none",
             overflow: "hidden",
             maxHeight: "92vh",
             position: "relative",
@@ -1017,7 +1019,7 @@ export default function InstituteSetupModal({ profile, onClose }) {
                       height: 4,
                       borderRadius: 'var(--radius-md)',
                       bgcolor: activeStep >= index ? "var(--color-primary)" : "var(--color-slate-200)",
-                      transition: "all 0.3s",
+                      transition: "all var(--transition-slow)",
                     }}
                   />
                   <Typography
@@ -1062,6 +1064,6 @@ export default function InstituteSetupModal({ profile, onClose }) {
           </form>
         </Paper>
       </Box>
-    </>
+    </FormLoadingProvider>
   );
 }

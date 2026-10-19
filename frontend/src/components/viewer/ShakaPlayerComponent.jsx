@@ -13,7 +13,7 @@ export default function ShakaPlayerComponent({ manifestUrl }) {
     shaka.polyfill.installAll();
 
     if (!shaka.Player.isBrowserSupported()) {
-      setError("Browser not supported for video streaming.");
+      setTimeout(() => setError("Browser not supported for video streaming."), 0);
       return;
     }
 

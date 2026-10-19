@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Box, Card, CardContent, Grid, Container, Skeleton } from "@mui/material";
+import { Box, Card, CardContent, Grid, Container, Skeleton, Stack } from "@mui/material";
 
 export default function FeedSkeleton({ count = 6 }) {
   return (
@@ -55,16 +55,18 @@ export default function FeedSkeleton({ count = 6 }) {
                         <Skeleton variant="text" sx={{ width: "80%", height: 24, mb: 1 }} />
                         
                         {/* Description Skeleton (2 lines) */}
-                        <Skeleton variant="text" sx={{ width: "100%", height: 16 }} />
-                        <Skeleton variant="text" sx={{ width: "90%", height: 16, mb: 2 }} />
+                        <Stack spacing={1} sx={{ mb: 2 }}>
+                          <Skeleton variant="text" sx={{ width: "100%", height: 16 }} />
+                          <Skeleton variant="text" sx={{ width: "90%", height: 16 }} />
+                        </Stack>
 
                         {/* Uploader Row Skeleton */}
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 'auto', pt: 2 }}>
                           <Skeleton variant="circular" sx={{ width: 42, height: 42 }} />
-                          <Box sx={{ flex: 1 }}>
-                            <Skeleton variant="text" sx={{ width: "60%", height: 18, mb: 0.5 }} />
+                          <Stack spacing={0.5} sx={{ flex: 1 }}>
+                            <Skeleton variant="text" sx={{ width: "60%", height: 18 }} />
                             <Skeleton variant="text" sx={{ width: "40%", height: 14 }} />
-                          </Box>
+                          </Stack>
                         </Box>
 
                         {/* Action Row Skeleton */}

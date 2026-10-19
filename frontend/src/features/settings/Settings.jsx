@@ -127,7 +127,7 @@ export default function Settings() {
         },
         px: { xs: 2, sm: 3, md: 4 },
         "& .MuiTypography-root, & .MuiButton-root, & .MuiChip-root": {
-          fontFamily: "inherit !important"
+          fontFamily: "inherit"
         }
       }}
     >
@@ -178,7 +178,7 @@ export default function Settings() {
               समायोजन
             </Typography>
             <Box sx={{ height: "4px", width: "60px", bgcolor: "var(--color-success)", mb: 1.5, borderRadius: "2px" }} />
-            <Typography fontSize={14} color="var(--color-slate-700)" fontWeight={500}>
+            <Typography fontSize={14} color="var(--color-slate-900)" fontWeight={500}>
               अपनी प्राथमिकताओं और एप्लिकेशन लेआउट को नियंत्रित करें
             </Typography>
           </Box>
@@ -268,7 +268,7 @@ export default function Settings() {
           <Box sx={{ px: { xs: 1, md: 2 } }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", py: 2 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                <VerifiedUserOutlinedIcon sx={{ color: profile?.kyc_status === "verified" ? "var(--color-success)" : "var(--color-slate-400)" }} />
+                <VerifiedUserOutlinedIcon sx={{ color: profile?.kyc_status === "verified" ? "var(--color-success)" : "var(--color-slate-500)" }} />
                 <Box>
                   <Typography fontSize={14} fontWeight={600} color="var(--color-slate-900)">KYC सत्यापन</Typography>
                   <Typography fontSize={12} color="var(--color-slate-500)" sx={{ mt: 0.5 }}>
@@ -301,7 +301,7 @@ export default function Settings() {
               <Button 
                 variant="outlined" 
                 size="small" 
-                sx={{ color: "var(--color-slate-600)", borderColor: "var(--color-slate-300)" }}
+                sx={{ color: "var(--color-slate-500)", borderColor: "var(--color-slate-300)" }}
               >
                 जल्द आ रहा है
               </Button>
@@ -337,7 +337,7 @@ export default function Settings() {
                   label="हिन्दी"
                   sx={{
                     bgcolor: "var(--color-primary)",
-                    color: "white",
+                    color: "var(--color-white)",
                     fontWeight: 'var(--font-semibold)',
                     px: 1,
                     "&:hover": { bgcolor: "var(--color-primary-hover)" }

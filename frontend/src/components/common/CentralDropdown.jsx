@@ -1,8 +1,11 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import { DropdownListPopup } from './DropdownListPopup';
+import { useFormLoading } from '../../contexts/FormLoadingContext';
 
 const CentralDropdown = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, value, onChange, options = [], error = false, disabled = false, updateRequested = false, searchable = undefined, freeSolo = false, multiple = false, sx }) => {
+  const isFormLoading = useFormLoading();
+  const finalDisabled = disabled || isFormLoading;
   const [focused, setFocused] = React.useState(false);
   const [hovered, setHovered] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
@@ -102,14 +105,14 @@ const CentralDropdown = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px
   return (
     <Box
       ref={containerRef}
-      sx={{ position: 'relative', width: 'var(--size-full)', ...sx }}
+      sx={{ position: 'relative', width: 'var(--size-full)', opacity: finalDisabled ? 0.6 : 1, pointerEvents: finalDisabled ? 'none' : 'auto', ...sx }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       <Box
-        sx={{ position: 'relative', width: 'var(--size-full)', cursor: disabled ? 'default' : 'pointer' }}
+        sx={{ position: 'relative', width: 'var(--size-full)', cursor: finalDisabled ? 'default' : 'pointer' }}
         onClick={() => {
-          if (!disabled) {
+          if (!finalDisabled) {
             setIsOpen(!isOpen);
             setFocused(true);
           }
@@ -118,7 +121,7 @@ const CentralDropdown = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px
         {/* White fill with clip-path notch at exactly label width */}
         <Box sx={{
           position: 'absolute', top: (focused ? focusedBorderWidth : defaultBorderWidth), left: (focused ? focusedBorderWidth : defaultBorderWidth), right: (focused ? focusedBorderWidth : defaultBorderWidth), bottom: (focused ? focusedBorderWidth : defaultBorderWidth),
-          backgroundColor: disabled ? 'rgba(241, 245, 249, 0.5)' : 'rgba(255, 255, 255, 0.3)',
+          backgroundColor: finalDisabled ? 'rgba(241, 245, 249, 0.5)' : 'rgba(255, 255, 255, 0.3)',
           backdropFilter: 'blur(30px)',
           WebkitBackdropFilter: 'blur(30px)',
           borderRadius: 'var(--radius-md)', zIndex: 0,
@@ -136,7 +139,20 @@ const CentralDropdown = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px
           }}
         >
           {displayFlag && (
-            <img src={displayFlag} alt="" style={{ width: '20px', height: '15px', objectFit: 'cover' }} />
+            <img 
+              src={displayFlag} 
+              alt="" 
+              style={{ width: '20px', height: '15px', objectFit: 'cover' }} 
+              onError={(e) => {
+                if (!e.target.dataset.fallbackApplied) {
+                  e.target.dataset.fallbackApplied = 'true';
+                  const code = e.target.src.split('/').pop().split('.')[0].toUpperCase();
+                  e.target.src = `https://purecatamphetamine.github.io/country-flag-icons/3x2/${code}.svg`;
+                } else {
+                  e.target.style.display = 'none';
+                }
+              }}
+            />
           )}
           {displayText}
         </Box>
@@ -144,26 +160,26 @@ const CentralDropdown = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px
         <fieldset
           ref={fieldsetRef}
           style={{
-            position: 'absolute', top: label ? '-5px' : 0, left: 0, right: 0, bottom: 0,
+            position: 'absolute', top: '-5px', left: 0, right: 0, bottom: 0,
             margin: 0, padding: '0 12px', pointerEvents: 'none',
             borderRadius: 'var(--radius-md)', borderStyle: 'solid',
             borderWidth: (focused || isOpen) ? '1.5px' : '1px',
             borderColor: borderColor,
             background: 'none',
-            transition: 'border-color 0.2s, border-width 0.2s',
+            transition: 'border-color var(--transition-base), border-width var(--transition-base)',
             zIndex: 1, boxSizing: 'border-box',
           }}>
           <legend
             ref={legendRef}
             style={{
-              width: 'auto', maxWidth: isFloating ? 'var(--size-full)' : '0.01px',
+              width: 'auto', maxWidth: (isFloating && label) ? 'var(--size-full)' : '0.01px',
               padding: 0, margin: 0, float: 'none', display: 'block',
               height: '11px', fontSize: 'var(--font-xs)', visibility: 'hidden',
               whiteSpace: 'nowrap', overflow: 'hidden',
               transition: 'max-width 50ms cubic-bezier(0.0, 0, 0.2, 1) 0ms',
             }}
           >
-            <span style={{ padding: '0 4px', display: 'inline-block' }}>{label}</span>
+            <span style={{ padding: label ? '0 4px' : 0, display: 'inline-block' }}>{label}</span>
           </legend>
         </fieldset>
       </Box>
@@ -176,7 +192,7 @@ const CentralDropdown = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px
           fontSize: isFloating ? '12px' : '15px',
           color: error ? 'var(--color-error)' : (focused || isOpen) ? 'var(--color-primary)' : disabled ? 'var(--color-slate-500)' : 'var(--color-slate-500)',
           backgroundColor: 'transparent', padding: '0 4px',
-          transition: 'all 0.2s ease-in-out', pointerEvents: 'none', zIndex: 3,
+          transition: 'all var(--transition-base)', pointerEvents: 'none', zIndex: 3,
           lineHeight: '14px',
         }}
       >
@@ -189,7 +205,7 @@ const CentralDropdown = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px
         color: (focused || isOpen) ? 'var(--color-primary)' : 'var(--color-slate-500)',
         zIndex: 4,
         transform: isOpen ? 'rotate(180deg)' : 'none',
-        transition: 'transform 0.2s ease, color 0.2s ease'
+        transition: 'transform var(--transition-base), color var(--transition-base)'
       }}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="6 9 12 15 18 9"></polyline>

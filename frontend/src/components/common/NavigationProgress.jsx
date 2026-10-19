@@ -9,7 +9,7 @@ const NPROGRESS_STYLES = `
   #nprogress .bar {
     background: var(--color-primary);
     position: fixed;
-    z-index: 99999;
+    z-index: 1199;
     top: 72px;
     left: 0;
     width: var(--size-full);
@@ -44,33 +44,7 @@ function NavigationProgressInner() {
   // causing the progress bar to stay stuck on the screen.
 
 
-  // <Link> aur <a href> clicks cover karo
-  useEffect(() => {
-    const handleClick = (e) => {
-      const anchor = e.target.closest("a[href]");
-      if (!anchor) return;
-      const href = anchor.getAttribute("href");
-      if (!href) return;
-      const isInternal = href.startsWith("/") || href.startsWith(window.location.origin) || !href.match(/^[a-zA-Z]+:/);
-      const isHashOnly = href.startsWith("#");
-      const isDownload = anchor.hasAttribute("download");
-      const opensNewTab = anchor.target === "_blank" || e.ctrlKey || e.metaKey || e.shiftKey;
-      
-      let targetUrl;
-      try {
-        targetUrl = new URL(href, window.location.href);
-      } catch (e) {
-        return;
-      }
-      
-      const isSamePage = targetUrl.pathname === pathname && targetUrl.search === window.location.search;
-      if (isInternal && !isSamePage && !isHashOnly && !isDownload && !opensNewTab) {
-        NProgress.start();
-      }
-    };
-    document.addEventListener("click", handleClick, true);
-    return () => document.removeEventListener("click", handleClick, true);
-  }, [pathname]);
+
 
   return null;
 }

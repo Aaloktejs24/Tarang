@@ -11,7 +11,9 @@ export const DropdownListPopup = ({
   const [coords, setCoords] = React.useState(null);
 
   React.useLayoutEffect(() => {
-    if (isOpen && anchorRef?.current) {
+    if (!isOpen || !anchorRef?.current) return;
+
+    const updateCoords = () => {
       const rect = anchorRef.current.getBoundingClientRect();
       const spaceBelow = window.innerHeight - rect.bottom - 16;
       const spaceAbove = rect.top - 16;
@@ -21,7 +23,18 @@ export const DropdownListPopup = ({
       } else {
         setCoords({ bottom: window.innerHeight - rect.top + 4, left: rect.left, width: rect.width, top: 'auto', maxHeight: Math.min(Math.max(spaceAbove, 100), MAX_HEIGHT) });
       }
-    }
+    };
+
+    updateCoords();
+    
+    // Listen to scroll events in the capture phase so it catches scrolling on any internal container
+    window.addEventListener('scroll', updateCoords, true);
+    window.addEventListener('resize', updateCoords);
+
+    return () => {
+      window.removeEventListener('scroll', updateCoords, true);
+      window.removeEventListener('resize', updateCoords);
+    };
   }, [isOpen, anchorRef]);
 
   const filteredOptions = React.useMemo(() => {
@@ -44,12 +57,12 @@ export const DropdownListPopup = ({
       ...posStyle,
       bgcolor: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)',
       borderRadius: 'var(--radius-lg)',
-      border: 'var(--border-thin) solid #cbd5e1',
+      border: 'var(--border-thin) solid var(--color-slate-300)',
       display: 'flex', flexDirection: 'column',
       overflow: 'hidden'
     }}>
       {isSearchable && (
-        <Box sx={{ px: 2, py: 1.5, borderBottom: 'var(--border-thin) solid #cbd5e1' }} onClick={(e) => e.stopPropagation()}>
+        <Box sx={{ px: 2, py: 1.5, borderBottom: 'var(--border-thin) solid var(--color-slate-300)' }} onClick={(e) => e.stopPropagation()}>
           <Box sx={{
             display: 'flex', alignItems: 'center', bgcolor: 'var(--color-slate-50)',
             borderRadius: 'var(--radius-md)', px: 1.5, py: 1
@@ -108,7 +121,7 @@ export const DropdownListPopup = ({
                     fontWeight: isSelected && opt.value !== "" ? 500 : 400,
                     fontSize: 'var(--font-sm)',
                     lineHeight: 1.25,
-                    transition: 'background-color 0.2s ease, color 0.2s ease',
+                    transition: 'background-color var(--transition-base), color var(--transition-base)',
                     '&:hover': { bgcolor: opt.value !== "" ? 'rgba(0, 86, 179, 0.1)' : 'var(--color-slate-50)' },
                     '&:active': { bgcolor: opt.value !== "" ? 'rgba(0, 86, 179, 0.2)' : 'var(--color-slate-100)' }
                   }}
@@ -119,7 +132,20 @@ export const DropdownListPopup = ({
                     </Box>
                   )}
                   {opt.flagUrl && (
-                    <img src={opt.flagUrl} alt="" style={{ width: '20px', height: '15px', objectFit: 'cover', marginRight: '8px' }} />
+                    <img 
+                      src={opt.flagUrl} 
+                      alt="" 
+                      style={{ width: '20px', height: '15px', objectFit: 'cover', marginRight: '8px' }} 
+                      onError={(e) => {
+                        if (!e.target.dataset.fallbackApplied) {
+                          e.target.dataset.fallbackApplied = 'true';
+                          const code = e.target.src.split('/').pop().split('.')[0].toUpperCase();
+                          e.target.src = `https://purecatamphetamine.github.io/country-flag-icons/3x2/${code}.svg`;
+                        } else {
+                          e.target.style.display = 'none';
+                        }
+                      }}
+                    />
                   )}
                   {opt.renderLabel ? opt.renderLabel(opt) : opt.label}
                 </Box>
@@ -155,7 +181,7 @@ export const DropdownListPopup = ({
                   fontWeight: 500,
                   fontSize: 'var(--font-sm)',
                   lineHeight: 1.25,
-                  transition: 'background-color 0.2s ease, color 0.2s ease',
+                  transition: 'background-color var(--transition-base), color var(--transition-base)',
                   '&:hover': { bgcolor: 'rgba(0, 86, 179, 0.1)' }
                 }}
               >

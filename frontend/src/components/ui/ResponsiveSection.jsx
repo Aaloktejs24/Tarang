@@ -11,7 +11,7 @@ const ResponsiveSection = ({ isMobile, title, action, children, sxParams = {}, c
         disableGutters
         elevation={0}
         sx={{
-          borderRadius: { xs: "16px !important", sm: "20px !important", md: "24px !important" },
+          borderRadius: { xs: "16px", sm: "20px", md: "24px" },
           overflow: "hidden",
           background: "rgba(255, 255, 255, 0.7)",
           backdropFilter: "blur(16px)",

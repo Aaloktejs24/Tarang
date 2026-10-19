@@ -10,6 +10,7 @@ type Config struct {
 	AuthDBURL string
 	UserDBURL string
 	AdmissionDBURL string
+	MongoURI  string
 
 	RedisAddr     string
 	RedisPassword string
@@ -59,6 +60,11 @@ func Load() *Config {
 		AdmissionDBURL: getEnv(
 			"ADMISSION_DATABASE_URL",
 			"postgresql://user:pass@localhost:5432/admission_db?sslmode=disable",
+		),
+
+		MongoURI: getEnv(
+			"MONGO_URI",
+			"mongodb://root:password@localhost:27017/",
 		),
 
 		RedisAddr:     getEnv("REDIS_ADDR", "localhost:6379"),

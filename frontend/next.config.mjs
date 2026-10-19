@@ -6,6 +6,9 @@ const nextConfig = {
     optimizePackageImports: ['@mui/material', '@mui/icons-material'],
   },
   webpack: (config) => {
+    config.resolve.alias.canvas = false;
+    config.resolve.alias.encoding = false;
+    
     // Ignore source-map-loader warnings for framer-motion and the specific missing map file
     config.ignoreWarnings = [
       ...(config.ignoreWarnings || []),
@@ -20,3 +23,4 @@ const nextConfig = {
 };
 
 export default nextConfig;
+

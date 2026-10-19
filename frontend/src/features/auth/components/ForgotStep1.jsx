@@ -8,19 +8,21 @@ import { useState } from "react";
 import { validateEmail, validateUsername } from "../../../utils/validationUtils";
 import TarangButton from "../../../components/common/TarangButton";
 import AuthMessage from "./AuthMessage";
+import { FormLoadingProvider } from '../../../contexts/FormLoadingContext';
 
 export default function ForgotStep1({ setMode, onStartRecovery, isLoading, error, setError, success }) {
     const [target, setTarget] = useState("");
     const [fieldError, setFieldError] = useState("");
 
     return (
+        <FormLoadingProvider isLoading={isLoading}>
         <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 3 }}>
             <Box>
                 <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)' }}>
                     पासवर्ड भूल गए?
                 </Typography>
                 <Typography variant="body2" sx={{ color: "var(--color-slate-500)", fontSize: 'var(--font-base)', lineHeight: 1.5 }}>
-                    पंजीकृत ईमेल दर्ज करें। एप्रकू भेजा जाएगा।
+                    पंजीकृत ईमेल दर्ज करें। OTP भेजा जाएगा।
                 </Typography>
                 <AnimatePresence mode="wait">
                     {(error || success) && (
@@ -74,7 +76,7 @@ export default function ForgotStep1({ setMode, onStartRecovery, isLoading, error
                         }}
                         sx={{ height: 'var(--box-height)', px: 3, whiteSpace: 'nowrap' }}
                     >
-                        {"एप्रकू भेजें"}
+                        {"OTP भेजें"}
                     </TarangButton>
                 </Box>
             </Box>
@@ -92,5 +94,6 @@ export default function ForgotStep1({ setMode, onStartRecovery, isLoading, error
                 </Box>
             </Typography>
         </Box>
+        </FormLoadingProvider>
     );
 }

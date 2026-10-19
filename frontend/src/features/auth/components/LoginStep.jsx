@@ -13,8 +13,9 @@ import { useTranslation } from "../../../hooks/useTranslation";
 import { validateEmail, validateUsername, validatePassword } from "../../../utils/validationUtils";
 import TarangButton from "../../../components/common/TarangButton";
 import AuthMessage from "./AuthMessage";
+import { FormLoadingProvider } from '../../../contexts/FormLoadingContext';
 
-export default function LoginStep({ setStep, setMode, formData, updateFormData, onLogin, isLoading, error, setError, success, setSuccess }) {
+export default function LoginStep({ setStep, setMode, formData, updateFormData, onLogin, isLoading, error, setError, success, setSuccess, onClose }) {
     const [showPassword, setShowPassword] = useState(false);
     const [fieldErrors, setFieldErrors] = useState({});
     const { t } = useTranslation();
@@ -45,7 +46,8 @@ export default function LoginStep({ setStep, setMode, formData, updateFormData, 
     };
 
     return (
-        <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 3 }}>
+        <FormLoadingProvider isLoading={isLoading}>
+        <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 2 }}>
             <Box>
                 <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)' }}>
                     {t('auth.loginTitle')}
@@ -53,23 +55,25 @@ export default function LoginStep({ setStep, setMode, formData, updateFormData, 
                 <Typography variant="body2" sx={{ color: "var(--color-slate-500)", fontSize: 'var(--font-base)', lineHeight: 1.5 }}>
                     {t('auth.loginSubtitle')}
                 </Typography>
-                <AnimatePresence mode="wait">
-                    {(error || success) && (
-                        <motion.div
-                            initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                            animate={{ opacity: 1, height: "auto", marginTop: 12 }}
-                            exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                            style={{ overflow: "hidden" }}
-                        >
-                            {error ? (
-                                <AuthMessage type="error" message={error} />
-                            ) : (
-                                <AuthMessage type="success" message={success} />
-                            )}
-                        </motion.div>
-                    )}
-                </AnimatePresence>
             </Box>
+
+            <AnimatePresence mode="wait">
+                {(error || success) && (
+                    <motion.div
+                        key={error ? "error" : "success"}
+                        initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                        animate={{ opacity: 1, height: "auto", marginTop: 8 }}
+                        exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                        style={{ overflow: "hidden", width: "100%" }}
+                    >
+                        {error ? (
+                            <AuthMessage type="error" message={error} />
+                        ) : (
+                            <AuthMessage type="success" message={success} />
+                        )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                 <Box>
@@ -139,25 +143,34 @@ export default function LoginStep({ setStep, setMode, formData, updateFormData, 
                 </Box>
             </Box>
 
-
-
-            <TarangButton
-                fullWidth
-                loading={isLoading}
-                disabled={isLoading}
-                onClick={async () => {
-                    setError("");
-                    if (!validateFields()) return;
-                    try {
-                        await onLogin(formData.email, formData.password);
-                    } catch {
-                        // Error handled in LoginForm
-                    }
-                }}
-                sx={{ height: 'var(--box-height)' }}
-            >
-                {t('auth.loginTitle')}
-            </TarangButton>
+            <Box sx={{ display: "flex", gap: 1.5 }}>
+                {onClose && (
+                    <TarangButton
+                        variant="outlined"
+                        onClick={onClose}
+                        sx={{ flex: 1, height: 'var(--box-height)' }}
+                        disabled={isLoading}
+                    >
+                        बंद करें
+                    </TarangButton>
+                )}
+                <TarangButton
+                    loading={isLoading}
+                    disabled={isLoading}
+                    onClick={async () => {
+                        setError("");
+                        if (!validateFields()) return;
+                        try {
+                            await onLogin(formData.email, formData.password);
+                        } catch {
+                            // Error handled in LoginForm
+                        }
+                    }}
+                    sx={{ flex: 1, height: 'var(--box-height)' }}
+                >
+                    {t('auth.loginTitle')}
+                </TarangButton>
+            </Box>
 
             <Typography variant="body2" sx={{ textAlign: "center", color: "var(--color-slate-500)" }}>
                 {t('auth.noAccount')} {" "}
@@ -170,5 +183,6 @@ export default function LoginStep({ setStep, setMode, formData, updateFormData, 
                 </Box>
             </Typography>
         </Box>
+        </FormLoadingProvider>
     );
 }

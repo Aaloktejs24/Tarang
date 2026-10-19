@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Box, Typography, IconButton, Dialog, DialogTitle, DialogContent, SpeedDial, SpeedDialIcon, SpeedDialAction, Popover } from '@mui/material';
+import { Box, Typography, IconButton, Dialog, DialogTitle, DialogContent, SpeedDial, SpeedDialIcon, SpeedDialAction, Popover, Button } from '@mui/material';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import MathExtension from '@aarkue/tiptap-math-extension';
@@ -160,14 +160,14 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
         onClick={handleOpen}
         tabIndex={0}
         sx={{
-          border: '1.5px solid #cbd5e1',
+          border: '1.5px solid var(--color-slate-300)',
           borderRadius: 'var(--radius-md)',
           p: 2,
           minHeight: '60px',
           bgcolor: 'var(--color-white)',
           cursor: 'text',
           position: 'relative',
-          transition: 'all 0.2s',
+          transition: 'all var(--transition-base)',
           display: 'flex',
           alignItems: 'center',
           outline: 'none',
@@ -181,7 +181,7 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
         <Box sx={{ flexGrow: 1, overflowX: 'auto' }}>
           {renderPreview()}
         </Box>
-        <EditOutlinedIcon className="edit-icon" sx={{ opacity: 0, color: 'var(--color-primary)', transition: 'opacity 0.2s', ml: 2, fontSize: 'var(--font-lg)' }} />
+        <EditOutlinedIcon className="edit-icon" sx={{ opacity: 0, color: 'var(--color-primary)', transition: 'opacity var(--transition-base)', ml: 2, fontSize: 'var(--font-lg)' }} />
       </Box>
 
       <Dialog
@@ -190,11 +190,11 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
         fullScreen
         PaperProps={{ sx: { 
           background: `
-            radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.15) 0, transparent 50%), 
-            radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.1) 0, transparent 50%), 
-            radial-gradient(at 80% 90%, rgba(40, 167, 69, 0.08) 0, transparent 50%),
-            radial-gradient(at 20% 80%, rgba(0, 86, 179, 0.1) 0, transparent 50%),
-            #f1f5f9
+            radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.45) 0, transparent 50%), 
+            radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.3) 0, transparent 50%), 
+            radial-gradient(at 80% 90%, rgba(40, 167, 69, 0.2) 0, transparent 50%),
+            radial-gradient(at 20% 80%, rgba(0, 86, 179, 0.15) 0, transparent 50%),
+            #eef2f6
           `,
           overscrollBehavior: 'none' 
         } }}
@@ -205,8 +205,8 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
           bgcolor: 'rgba(255, 255, 255, 0.75)',
           backdropFilter: 'blur(16px)', color: 'var(--color-slate-900)', py: 0, px: { xs: 3, md: 6 }, 
           borderBottom: 'var(--border-thick) solid transparent', 
-          borderImage: 'linear-gradient(90deg, #0056b3 0%, #28a745 50%, #f59e0b 100%) 1',
-          borderBottom: 'var(--border-thin) solid #E2E8F0', position: 'sticky', top: 0, zIndex: 'var(--z-sticky)'
+          borderImage: 'linear-gradient(90deg, var(--color-primary) 0%, var(--color-success) 50%, var(--color-warning) 100%) 1',
+          borderBottom: 'var(--border-thin) solid var(--color-slate-200)', position: 'sticky', top: 0, zIndex: 'var(--z-sticky)'
         }}>
           <Typography variant="h6" component="div" sx={{ fontWeight: 800, letterSpacing: '-1px', fontSize: '22px' }}>
             {label ? `${label}` : 'Rich Editor'}
@@ -236,8 +236,8 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
             {/* Main Document Area */}
             <Box sx={{
               flexShrink: 0, display: 'flex', flexDirection: 'column', width: 'var(--size-full)', maxWidth: '850px',
-              mx: 'auto', mt: { xs: 2, md: 5 }, mb: '120px', bgcolor: 'white',
-              border: 'var(--border-thin) solid #cbd5e1', borderRadius: { xs: 0, md: '4px' }, minHeight: '800px', overflow: 'hidden',
+              mx: 'auto', mt: { xs: 2, md: 5 }, mb: '120px', bgcolor: 'var(--color-white)',
+              border: 'var(--border-thin) solid var(--color-slate-300)', borderRadius: { xs: 0, md: '4px' }, minHeight: '800px', overflow: 'hidden',
             }}>
               <Box sx={{ p: { xs: 3, md: 6 }, flexGrow: 1, cursor: 'text' }} onClick={() => editor?.commands.focus()}>
                 <EditorContent editor={editor} style={{ minHeight: '700px', outline: 'none' }} />
@@ -252,7 +252,7 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
               position: 'fixed', bottom: { xs: 24, md: 40 }, right: { xs: 24, md: 40 }, zIndex: 'var(--z-sticky)',
               '& .MuiSpeedDialAction-fab': {
                 bgcolor: 'var(--color-white)',
-                border: '1.5px solid #e2e8f0',
+                border: '1.5px solid var(--color-slate-200)',
                 color: 'var(--color-primary)',
                 '&:hover, &:focus, &:active': { bgcolor: 'var(--color-slate-50)', }
               }
@@ -261,10 +261,10 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
               sx: {
                 width: { xs: 56, md: 64 }, 
                 height: { xs: 56, md: 64 },
-                backgroundColor: '#0056b3 !important',
-                color: '#ffffff !important',
-                border: '1.5px solid #f59e0b !important',
-                '&:hover, &:focus, &:active': { backgroundColor: '#004494 !important', }
+                backgroundColor: 'var(--color-primary)',
+                color: 'var(--color-white)',
+                border: '1.5px solid var(--color-warning)',
+                '&:hover, &:focus, &:active': { backgroundColor: '#004494', }
               }
             }}
             icon={<EditOutlinedIcon />}
@@ -291,28 +291,28 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
                 icon={<FormatListNumberedIcon sx={{ color: editor.isActive('orderedList') ? 'var(--color-white)' : 'inherit' }} />}
                 tooltipTitle="Numbered List"
                 onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                FabProps={editor.isActive('orderedList') ? { sx: { bgcolor: '#28a745 !important', border: 'none !important', color: '#ffffff !important', '&:hover, &:focus, &:active': { bgcolor: '#28A745 !important', } } } : { sx: { '&:hover, &:focus, &:active': { } } }}
+                FabProps={editor.isActive('orderedList') ? { sx: { bgcolor: 'var(--color-success)', border: 'none', color: 'var(--color-white)', '&:hover, &:focus, &:active': { bgcolor: 'var(--color-success)', } } } : { sx: { '&:hover, &:focus, &:active': { } } }}
               />,
               <SpeedDialAction
                 key="bulletList"
                 icon={<FormatListBulletedIcon sx={{ color: editor.isActive('bulletList') ? 'var(--color-white)' : 'inherit' }} />}
                 tooltipTitle="Bullet List"
                 onClick={() => editor.chain().focus().toggleBulletList().run()}
-                FabProps={editor.isActive('bulletList') ? { sx: { bgcolor: '#28a745 !important', border: 'none !important', color: '#ffffff !important', '&:hover, &:focus, &:active': { bgcolor: '#28A745 !important', } } } : { sx: { '&:hover, &:focus, &:active': { } } }}
+                FabProps={editor.isActive('bulletList') ? { sx: { bgcolor: 'var(--color-success)', border: 'none', color: 'var(--color-white)', '&:hover, &:focus, &:active': { bgcolor: 'var(--color-success)', } } } : { sx: { '&:hover, &:focus, &:active': { } } }}
               />,
               <SpeedDialAction
                 key="italic"
                 icon={<FormatItalicIcon sx={{ color: editor.isActive('italic') ? 'var(--color-white)' : 'inherit' }} />}
                 tooltipTitle="Italic"
                 onClick={() => editor.chain().focus().toggleItalic().run()}
-                FabProps={editor.isActive('italic') ? { sx: { bgcolor: '#28a745 !important', border: 'none !important', color: '#ffffff !important', '&:hover, &:focus, &:active': { bgcolor: '#28A745 !important', } } } : { sx: { '&:hover, &:focus, &:active': { } } }}
+                FabProps={editor.isActive('italic') ? { sx: { bgcolor: 'var(--color-success)', border: 'none', color: 'var(--color-white)', '&:hover, &:focus, &:active': { bgcolor: 'var(--color-success)', } } } : { sx: { '&:hover, &:focus, &:active': { } } }}
               />,
               <SpeedDialAction
                 key="bold"
                 icon={<FormatBoldIcon sx={{ color: editor.isActive('bold') ? 'var(--color-white)' : 'inherit' }} />}
                 tooltipTitle="Bold"
                 onClick={() => editor.chain().focus().toggleBold().run()}
-                FabProps={editor.isActive('bold') ? { sx: { bgcolor: '#28a745 !important', border: 'none !important', color: '#ffffff !important', '&:hover, &:focus, &:active': { bgcolor: '#28A745 !important', } } } : { sx: { '&:hover, &:focus, &:active': { } } }}
+                FabProps={editor.isActive('bold') ? { sx: { bgcolor: 'var(--color-success)', border: 'none', color: 'var(--color-white)', '&:hover, &:focus, &:active': { bgcolor: 'var(--color-success)', } } } : { sx: { '&:hover, &:focus, &:active': { } } }}
               />
             ]}
           </SpeedDial>
@@ -331,13 +331,13 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
             onClose={handleColorClose}
             anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
             transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-            sx={{ '& .MuiPopover-paper': { p: 1, display: 'flex', gap: 1, mb: 1, borderRadius: 'var(--radius-md)', border: 'var(--border-thin) solid #e2e8f0', } }}
+            sx={{ '& .MuiPopover-paper': { p: 1, display: 'flex', gap: 1, mb: 1, borderRadius: 'var(--radius-md)', border: 'var(--border-thin) solid var(--color-slate-200)', } }}
           >
             {['var(--color-slate-900)', 'var(--color-error)', 'var(--color-primary)', 'var(--color-success)', 'var(--color-warning)', 'var(--color-slate-500)'].map(color => (
               <Box 
                 key={color} 
                 onClick={() => handleColorSelect(color)}
-                sx={{ width: 28, height: 28, bgcolor: color, borderRadius: 'var(--radius-full)', cursor: 'pointer', border: '1.5px solid #e2e8f0', '&:hover': { transform: 'scale(1.1)', transition: 'transform 0.1s' } }} 
+                sx={{ width: 28, height: 28, bgcolor: color, borderRadius: 'var(--radius-full)', cursor: 'pointer', border: '1.5px solid var(--color-slate-200)', '&:hover': { transform: 'scale(1.1)', transition: 'transform var(--transition-fast)' } }} 
               />
             ))}
           </Popover>
@@ -348,7 +348,7 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
             onClose={handleSizeClose}
             anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
             transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-            sx={{ '& .MuiPopover-paper': { p: 1, mb: 1, display: 'flex', flexDirection: 'column', borderRadius: 'var(--radius-md)', border: 'var(--border-thin) solid #e2e8f0', minWidth: '120px' } }}
+            sx={{ '& .MuiPopover-paper': { p: 1, mb: 1, display: 'flex', flexDirection: 'column', borderRadius: 'var(--radius-md)', border: 'var(--border-thin) solid var(--color-slate-200)', minWidth: '120px' } }}
           >
             {[
               { label: 'Small', value: '12px' },

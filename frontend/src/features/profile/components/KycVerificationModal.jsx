@@ -113,9 +113,9 @@ export default function KycVerificationModal({ open, onClose, userId, onSuccess 
             <Typography fontSize={15} color="var(--color-slate-500)" mb={5} px={2}>तरंग पर सभी प्रीमियम सुविधाओं और प्रमाणपत्रों को अनलॉक करने के लिए अपनी पहचान सत्यापित करें।</Typography>
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-              <Paper elevation={0} onClick={!loading ? handleDigilocker : undefined} sx={{ p: 3, borderRadius: { xs: "16px", md: "20px" }, border: "var(--border-thick) solid #0056b3", cursor: "pointer", "&:hover": { bgcolor: "rgba(30, 79, 163, 0.05)" }}}>
+              <Paper elevation={0} onClick={!loading ? handleDigilocker : undefined} sx={{ p: 3, borderRadius: { xs: "16px", md: "20px" }, border: "var(--border-thick) solid var(--color-primary)", cursor: "pointer", "&:hover": { bgcolor: "rgba(30, 79, 163, 0.05)" }}}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
-                  <Box sx={{ p: 1.5, borderRadius: 'var(--radius-lg)', bgcolor: "var(--color-primary)", color: "white" }}><GppGoodOutlinedIcon /></Box>
+                  <Box sx={{ p: 1.5, borderRadius: 'var(--radius-lg)', bgcolor: "var(--color-primary)", color: "var(--color-white)" }}><GppGoodOutlinedIcon /></Box>
                   <Box sx={{ textAlign: "left" }}>
                     <Typography fontWeight={800} color="var(--color-slate-900)" fontSize={16}>तुरंत DigiLocker प्रमाणीकरण (Auth)</Typography>
                     <Typography fontSize={13} color="var(--color-success)" fontWeight={600}>अनुशंसित (Recommended) • 1 मिनट</Typography>
@@ -123,11 +123,11 @@ export default function KycVerificationModal({ open, onClose, userId, onSuccess 
                 </Box>
               </Paper>
 
-              <Paper elevation={0} onClick={!loading ? () => setStep("aadhaar_input") : undefined} sx={{ p: 3, borderRadius: { xs: "16px", md: "20px" }, border: "var(--border-thin) solid #e2e8f0", cursor: "pointer", "&:hover": { borderColor: "var(--color-slate-200)", bgcolor: "var(--color-slate-50)" }}}>
+              <Paper elevation={0} onClick={!loading ? () => setStep("aadhaar_input") : undefined} sx={{ p: 3, borderRadius: { xs: "16px", md: "20px" }, border: "var(--border-thin) solid var(--color-slate-200)", cursor: "pointer", "&:hover": { borderColor: "var(--color-slate-200)", bgcolor: "var(--color-slate-50)" }}}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
                   <Box sx={{ p: 1.5, borderRadius: 'var(--radius-lg)', bgcolor: "var(--color-slate-50)", color: "var(--color-slate-500)" }}><SmartphoneOutlinedIcon /></Box>
                   <Box sx={{ textAlign: "left" }}>
-                    <Typography fontWeight={700} color="var(--color-slate-700)" fontSize={16}>आधार OTP</Typography>
+                    <Typography fontWeight={700} color="var(--color-slate-900)" fontSize={16}>आधार OTP</Typography>
                     <Typography fontSize={13} color="var(--color-slate-500)">आधार से जुड़े मोबाइल नंबर से सत्यापित करें</Typography>
                   </Box>
                 </Box>
@@ -184,7 +184,7 @@ export default function KycVerificationModal({ open, onClose, userId, onSuccess 
           <Box component={motion.div} key="success" variants={stepVariants} initial="initial" animate="animate" exit="exit" sx={{ textAlign: "center", pt: 8, pb: 4 }}>
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}>
               <Box sx={{ width: 100, height: 100, borderRadius: 'var(--radius-full)', bgcolor: "var(--color-success)", display: "flex", alignItems: "center", justifyContent: "center", mx: "auto", mb: 3 }}>
-                <GppGoodOutlinedIcon sx={{ fontSize: 50, color: "white" }} />
+                <GppGoodOutlinedIcon sx={{ fontSize: 50, color: "var(--color-white)" }} />
               </Box>
             </motion.div>
             <Typography variant="h4" fontWeight={900} color="var(--color-slate-900)" mb={1}>सत्यापित! (Verified)</Typography>

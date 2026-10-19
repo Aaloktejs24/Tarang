@@ -924,8 +924,8 @@
             ]
         },
         {
-            "endpoint": "/api/v1/viewer/{path}",
-            "method": "*",
+            "endpoint": "/api/v1/viewer/upload-intent",
+            "method": "POST",
             "output_encoding": "no-op",
             "input_headers": [
                 "*"
@@ -935,10 +935,98 @@
             ],
             "backend": [
                 {
-                    "url_pattern": "/api/v1/viewer/{path}",
+                    "url_pattern": "/api/v1/viewer/upload-intent",
                     "encoding": "no-op",
                     "sd": "static",
-                    "method": "*",
+                    "method": "POST",
+                    "host": [
+                        "http://viewer-api:8084"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/viewer/process/{job_id}",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "*"
+            ],
+            "input_query_strings": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/viewer/process/{job_id}",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://viewer-api:8084"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/viewer/tex/compile",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "*"
+            ],
+            "input_query_strings": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/viewer/tex/compile",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://viewer-api:8084"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/viewer/{job_id}/metadata",
+            "method": "GET",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "*"
+            ],
+            "input_query_strings": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/viewer/{job_id}/metadata",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "GET",
+                    "host": [
+                        "http://viewer-api:8084"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/viewer/download/{job_id}",
+            "method": "GET",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "*"
+            ],
+            "input_query_strings": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/viewer/download/{job_id}",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "GET",
                     "host": [
                         "http://viewer-api:8084"
                     ]

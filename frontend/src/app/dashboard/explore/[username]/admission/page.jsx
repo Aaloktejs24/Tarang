@@ -289,7 +289,7 @@ export default function AdmissionPage() {
                           }
                           arrow placement="top-start"
                         >
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', transition: 'all 0.2s', cursor: 'pointer', '&:hover': { color: 'var(--color-primary)', transform: 'scale(1.1)' } }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', transition: 'all var(--transition-base)', cursor: 'pointer', '&:hover': { color: 'var(--color-primary)', transform: 'scale(1.1)' } }}>
                             <EventOutlinedIcon sx={{ fontSize: '1.4rem' }} />
                           </Box>
                         </CustomTooltip>
@@ -307,7 +307,7 @@ export default function AdmissionPage() {
                           }
                           arrow placement="top-start"
                         >
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', transition: 'all 0.2s', cursor: 'pointer', '&:hover': { color: 'var(--color-primary)', transform: 'scale(1.1)' } }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', transition: 'all var(--transition-base)', cursor: 'pointer', '&:hover': { color: 'var(--color-primary)', transform: 'scale(1.1)' } }}>
                             <EventSeatOutlinedIcon sx={{ fontSize: '1.4rem' }} />
                           </Box>
                         </CustomTooltip>
@@ -325,7 +325,7 @@ export default function AdmissionPage() {
                           }
                           arrow placement="top-start"
                         >
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', transition: 'all 0.2s', cursor: 'pointer', '&:hover': { color: 'var(--color-primary)', transform: 'scale(1.1)' } }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', transition: 'all var(--transition-base)', cursor: 'pointer', '&:hover': { color: 'var(--color-primary)', transform: 'scale(1.1)' } }}>
                             <SchoolOutlinedIcon sx={{ fontSize: '1.4rem' }} />
                           </Box>
                         </CustomTooltip>
@@ -343,7 +343,7 @@ export default function AdmissionPage() {
                           }
                           arrow placement="top-start"
                         >
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', transition: 'all 0.2s', cursor: 'pointer', '&:hover': { color: 'var(--color-primary)', transform: 'scale(1.1)' } }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', transition: 'all var(--transition-base)', cursor: 'pointer', '&:hover': { color: 'var(--color-primary)', transform: 'scale(1.1)' } }}>
                             <InfoOutlinedIcon sx={{ fontSize: '1.4rem' }} />
                           </Box>
                         </CustomTooltip>
@@ -361,7 +361,7 @@ export default function AdmissionPage() {
                           }
                           arrow placement="top-start"
                         >
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', transition: 'all 0.2s', cursor: 'pointer', '&:hover': { color: 'var(--color-primary)', transform: 'scale(1.1)' } }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', transition: 'all var(--transition-base)', cursor: 'pointer', '&:hover': { color: 'var(--color-primary)', transform: 'scale(1.1)' } }}>
                             <AccountBalanceWalletOutlinedIcon sx={{ fontSize: '1.4rem' }} />
                           </Box>
                         </CustomTooltip>
@@ -379,7 +379,7 @@ export default function AdmissionPage() {
                           }
                           arrow placement="top-start"
                         >
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', transition: 'all 0.2s', cursor: 'pointer', '&:hover': { color: 'var(--color-primary)', transform: 'scale(1.1)' } }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-slate-500)', transition: 'all var(--transition-base)', cursor: 'pointer', '&:hover': { color: 'var(--color-primary)', transform: 'scale(1.1)' } }}>
                             <AccessTimeOutlinedIcon sx={{ fontSize: '1.4rem' }} />
                           </Box>
                         </CustomTooltip>

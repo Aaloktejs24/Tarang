@@ -18,4 +18,4 @@ export const RELIGION_OPTIONS = [...options].sort((a, b) => {
   if (bi !== -1) return 1;
 
   return a.localeCompare(b);
-});
+}).map(v => ({ value: v, label: v }));

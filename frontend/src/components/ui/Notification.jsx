@@ -21,7 +21,7 @@ export default function AccessibleBadges({ count = 0, onClick }) {
         sx={{
           "& .MuiBadge-badge": {
             backgroundColor: "var(--color-success)",
-            color: "white",
+            color: "var(--color-white)",
           },
         }}
       >

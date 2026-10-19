@@ -32,3 +32,21 @@ func (p *Publisher) PublishOTP(job OTPJob) error {
 		},
 	)
 }
+
+func (p *Publisher) PublishMongoSync(job MongoSyncJob) error {
+	body, err := json.Marshal(job)
+	if err != nil {
+		return err
+	}
+
+	return p.ch.Publish(
+		"",
+		"mongo_sync_queue",
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        body,
+		},
+	)
+}

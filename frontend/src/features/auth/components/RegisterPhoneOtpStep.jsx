@@ -4,6 +4,8 @@ import { useState } from "react";
 import { confirmPhoneVerification } from "../authService";
 import { translateAuthError, AUTH_ERRORS } from "../../../constants/errors";
 import TarangButton from "../../../components/common/TarangButton";
+import AuthMessage from './AuthMessage';
+import { FormLoadingProvider } from '../../../contexts/FormLoadingContext';
 
 const fieldSx = {
     "& .MuiOutlinedInput-root": {
@@ -35,6 +37,7 @@ export default function RegisterPhoneOtpStep({ setStep, formData, isLoading, set
     };
 
     return (
+        <FormLoadingProvider isLoading={isLoading}>
         <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 2 }}>
             <Box>
                 <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)' }}>
@@ -76,5 +79,6 @@ export default function RegisterPhoneOtpStep({ setStep, formData, isLoading, set
                 </TarangButton>
             </Box>
         </Box>
+        </FormLoadingProvider>
     );
 }

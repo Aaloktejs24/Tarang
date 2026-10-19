@@ -49,9 +49,9 @@ export default function AccessibilityMenu() {
           left: { xs: 24, md: 40 },
           width: { xs: 56, md: 64 },
           height: { xs: 56, md: 64 },
-          bgcolor: '#0056b3 !important',
-          border: '1.5px solid #f59e0b',
-          '&:hover, &:focus, &:active': { bgcolor: '#004494 !important' }
+          bgcolor: 'var(--color-primary)',
+          border: '1.5px solid var(--color-warning)',
+          '&:hover, &:focus, &:active': { bgcolor: '#004494' }
         }}
       >
         <SettingsAccessibilityIcon />
@@ -78,7 +78,7 @@ export default function AccessibilityMenu() {
               #ffffff
             `,
             borderRadius: 'var(--radius-lg)',
-            border: 'var(--border-thin) solid #E2E8F0',
+            border: 'var(--border-thin) solid var(--color-slate-200)',
             minWidth: 320, maxWidth: 380,
             width: 'var(--size-full)',
           }

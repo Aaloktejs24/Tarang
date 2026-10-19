@@ -3,6 +3,7 @@ import { Box, Typography }
 import { CustomFloatingInput, CustomFloatingDatePicker, CustomFloatingSelect, CustomFloatingPhoneInput } from "../../../components/common/CustomFloatingFields";
 import { TextField, InputAdornment, IconButton, Select, MenuItem, FormControl, ListItemButton, Tooltip } from "@mui/material";
 import CustomCheckbox from "../../../components/common/CustomCheckbox";
+import { FormLoadingProvider } from '../../../contexts/FormLoadingContext';
 import { motion, AnimatePresence } from "framer-motion";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -32,7 +33,7 @@ const fieldSx = {
   "& .MuiFormHelperText-root": { color: "var(--color-error)", fontSize: 'var(--font-xs)', mt: 0.5 },
 };
 
-export default function RegisterDetailsStep({ setStep, setMode, formData, updateFormData, handleFinalRegister, onRegisterStart, isLoading, error, setError, success, setSuccess }) {
+export default function RegisterDetailsStep({ setStep, setMode, formData, updateFormData, handleFinalRegister, onRegisterStart, isLoading, error, setError, success, setSuccess, onClose }) {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
@@ -185,7 +186,8 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
     formData.termsAccepted;
 
   return (
-    <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 3 }}>
+    <FormLoadingProvider isLoading={isLoading}>
+      <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 2 }}>
       <Box>
         <Typography variant="h5" sx={{ fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)', mb: 1 }}>
           नया अकाउंट बनाएँ
@@ -193,24 +195,25 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
         <Typography variant="body2" sx={{ color: "var(--color-slate-500)", fontSize: 'var(--font-base)', lineHeight: 1.5 }}>
           हमारी कम्युनिटी से जुड़ें और अपनी यात्रा शुरू करें।
         </Typography>
-        <AnimatePresence mode="wait">
-          {(error || success) && (
-            <motion.div
-              key={error ? "error" : "success"}
-              initial={{ opacity: 0, height: 0, marginTop: 0 }}
-              animate={{ opacity: 1, height: "auto", marginTop: 12 }}
-              exit={{ opacity: 0, height: 0, marginTop: 0 }}
-              style={{ overflow: "hidden", textAlign: "center" }}
-            >
-              {error ? (
-                <AuthMessage type="error" message={error} />
-              ) : (
-                <AuthMessage type="success" message={success} />
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
       </Box>
+
+      <AnimatePresence mode="wait">
+        {(error || success) && (
+          <motion.div
+            key={error ? "error" : "success"}
+            initial={{ opacity: 0, height: 0, marginTop: 0 }}
+            animate={{ opacity: 1, height: "auto", marginTop: 8 }}
+            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+            style={{ overflow: "hidden", textAlign: "center", width: "100%" }}
+          >
+            {error ? (
+              <AuthMessage type="error" message={error} />
+            ) : (
+              <AuthMessage type="success" message={success} />
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
 
@@ -243,6 +246,7 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
               }}
               error={!!errors.dob}
               helperText={errors.dob}
+              disableFuture={true}
             />
           </Box>
         </Box>
@@ -265,7 +269,7 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
                 endAdornment: (
                   <InputAdornment position="end">
                     {isCheckingEmail && (
-                      <Box sx={{ width: 18, height: 18, border: '2px solid var(--color-primary)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite', '@keyframes spin': { to: { transform: 'rotate(360deg)' } } }} />
+                      <Box sx={{ width: 18, height: 18, border: '2px solid var(--color-primary)', borderTopColor: 'transparent', borderRadius: 'var(--radius-full)', animation: 'spin 0.7s linear infinite', '@keyframes spin': { to: { transform: 'rotate(360deg)' } } }} />
                     )}
                     {!isCheckingEmail && emailStatus === 'available' && (
                       <CheckCircleIcon sx={{ color: '#22c55e', fontSize: 20 }} />
@@ -324,7 +328,9 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      {isCheckingUsername && null}
+                      {isCheckingUsername && (
+                        <Box sx={{ width: 18, height: 18, border: '2px solid var(--color-primary)', borderTopColor: 'transparent', borderRadius: 'var(--radius-full)', animation: 'spin 0.7s linear infinite', '@keyframes spin': { to: { transform: 'rotate(360deg)' } } }} />
+                      )}
                       {!isCheckingUsername && usernameStatus === "available" && <CheckCircleIcon sx={{ color: '#22c55e', fontSize: 20 }} />}
                     </InputAdornment>
                   ),
@@ -341,7 +347,7 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
         )}
 
 
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
           <Box sx={{ display: "flex", gap: 1.5, alignItems: "flex-start", mt: 0 }}>
             <Box sx={{ width: "calc(50% - 6px)" }}>
               <Tooltip
@@ -349,8 +355,8 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
                 arrow
                 PopperProps={{ sx: { zIndex: 'var(--z-tooltip)' } }}
                 slotProps={{
-                  tooltip: { sx: { bgcolor: "white", color: "var(--color-slate-700)", border: "var(--border-thin) solid #E2E8F0" } },
-                  arrow: { sx: { color: "white" } }
+                  tooltip: { sx: { bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)", color: "var(--color-slate-900)", border: "var(--border-thin) solid var(--color-slate-200)" } },
+                  arrow: { sx: { color: "var(--card-bg)" } }
                 }}
                 title={
                   <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5, p: 0.5 }}>
@@ -448,9 +454,10 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
               />
             </Box>
           </Box>
+        </Box>
 
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 1 }}>
-            <CustomCheckbox
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 1.5 }}>
+          <CustomCheckbox
               checked={formData.termsAccepted || false}
               onChange={(e) => {
                 updateFormData({ termsAccepted: e.target.checked });
@@ -464,23 +471,33 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
               onChange={(e) => updateFormData({ twoFactorEnabled: e.target.checked })}
               label="2-स्टेप वेरिफिकेशन (2FA) चालू करें"
             />
-          </Box>
         </Box>
       </Box>
 
 
 
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-        <TarangButton
-          fullWidth
-          loading={isLoading}
-          disabled={isLoading || isCheckingUsername || usernameStatus === "taken"}
-          onClick={handleContinue}
-          sx={{ height: 'var(--box-height)' }}
-        >
-          {"एप्रकू भेजें"}
-        </TarangButton>
-        <Typography variant="body2" sx={{ textAlign: "center", color: "var(--color-slate-500)", mt: 2.5 }}>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <Box sx={{ display: "flex", gap: 1.5 }}>
+          {onClose && (
+            <TarangButton
+              variant="outlined"
+              onClick={onClose}
+              sx={{ flex: 1, height: 'var(--box-height)' }}
+              disabled={isLoading}
+            >
+              बंद करें
+            </TarangButton>
+          )}
+          <TarangButton
+            loading={isLoading}
+            disabled={isLoading || isCheckingUsername || usernameStatus === "taken" || isCheckingEmail || emailStatus === "taken"}
+            onClick={handleContinue}
+            sx={{ flex: 1, height: 'var(--box-height)' }}
+          >
+            {"OTP भेजें"}
+          </TarangButton>
+        </Box>
+        <Typography variant="body2" sx={{ textAlign: "center", color: "var(--color-slate-500)" }}>
           क्या आपका पहले से अकाउंट है?{" "}
           <Box
             component="span"
@@ -492,5 +509,6 @@ export default function RegisterDetailsStep({ setStep, setMode, formData, update
         </Typography>
       </Box>
     </Box>
+    </FormLoadingProvider>
   );
 }

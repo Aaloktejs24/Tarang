@@ -44,6 +44,7 @@ message CreateUserRequest {
   string phone = 7;
   string dob = 8;
   string gender = 9;
+  string email = 10;
 }
 
 message MarkKYCVerifiedRequest {
@@ -124,6 +125,7 @@ message UserResponse {
   string location = 16;
   repeated string languages = 17;
   string demographic = 18;
+  string email = 19;
 }
 message InstituteIDRequest {
   string institute_id = 1;

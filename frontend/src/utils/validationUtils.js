@@ -7,7 +7,7 @@ export const validateEmail = (email) => {
 };
 
 export const validatePhone = (phone) => {
-  if (!phone || phone.trim() === "+91") return true;
+  if (!phone || phone.trim() === "+91") return "फ़ोन नंबर आवश्यक है";
   // International format: Optional +, followed by 6 to 15 digits
   const regex = /^\+?[1-9]\d{5,14}$/;
   if (!regex.test(phone)) return "कृपया एक मान्य फ़ोन नंबर डालें";

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Tooltip } from '@mui/material';
+import { Box, Typography, Tooltip, CircularProgress } from '@mui/material';
 import { FieldContext } from '../../contexts/FieldContext';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
@@ -10,6 +10,7 @@ import { DropdownListPopup } from './DropdownListPopup';
 import gazeteer from '../../data/formated/gazeteer.json';
 import { useAccessibility } from '../../contexts/AccessibilityContext';
 import { sortLocationsByDistance } from '../../lib/geoNormalize';
+import { useFormLoading } from '../../contexts/FormLoadingContext';
 
 
 const withFieldState = (WrappedComponent) => React.forwardRef(function WithFieldState(props, ref) {
@@ -33,7 +34,7 @@ const withFieldState = (WrappedComponent) => React.forwardRef(function WithField
       sx={{
         position: 'relative',
         width: 'var(--size-full)',
-        '& .comment-icon': { opacity: 0, transition: 'opacity 0.2s', pointerEvents: 'none' },
+        '& .comment-icon': { opacity: 0, transition: 'opacity var(--transition-base)', pointerEvents: 'none' },
         '&:hover .comment-icon': { opacity: 1, pointerEvents: 'auto' }
       }}
     >
@@ -44,6 +45,9 @@ const withFieldState = (WrappedComponent) => React.forwardRef(function WithField
 });
 
 const BaseCustomFloatingInput = React.forwardRef(({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, value, onChange, onClick, type = 'text', disabled = false, error = false, updateRequested = false, helperText = '', multiline = false, rows = 1, InputProps, inputProps, inputRef, ownerState, sx, className, ...rest }, ref) => {
+  const isFormLoading = useFormLoading();
+  const finalDisabled = disabled || isFormLoading;
+  
   const [focused, setFocused] = React.useState(false);
   const [hovered, setHovered] = React.useState(false);
   const [legendWidth, setLegendWidth] = React.useState(0);
@@ -84,6 +88,7 @@ const BaseCustomFloatingInput = React.forwardRef(({ defaultBorderWidth = '1px', 
       ref={ref}
       sx={{
         position: 'relative', width: 'var(--size-full)', ...sx, '--bw': focused ? focusedBorderWidth : defaultBorderWidth,
+        opacity: finalDisabled ? 0.6 : 1, pointerEvents: finalDisabled ? 'none' : 'auto',
         '& input[type=number]::-webkit-inner-spin-button, & input[type=number]::-webkit-outer-spin-button': { WebkitAppearance: 'none', margin: 0 },
         '& input[type=number]': { MozAppearance: 'textfield' }
       }}
@@ -99,7 +104,7 @@ const BaseCustomFloatingInput = React.forwardRef(({ defaultBorderWidth = '1px', 
         {/* White fill with clip-path notch at exactly label width */}
         <Box sx={{
           position: 'absolute', top: (focused ? focusedBorderWidth : defaultBorderWidth), left: (focused ? focusedBorderWidth : defaultBorderWidth), right: (focused ? focusedBorderWidth : defaultBorderWidth), bottom: (focused ? focusedBorderWidth : defaultBorderWidth),
-          backgroundColor: disabled ? 'rgba(241, 245, 249, 0.5)' : 'rgba(255, 255, 255, 0.3)',
+          backgroundColor: finalDisabled ? 'rgba(241, 245, 249, 0.5)' : 'rgba(255, 255, 255, 0.3)',
           backdropFilter: 'blur(30px)',
           WebkitBackdropFilter: 'blur(30px)',
           borderRadius: 'var(--radius-md)', zIndex: 0,
@@ -114,7 +119,7 @@ const BaseCustomFloatingInput = React.forwardRef(({ defaultBorderWidth = '1px', 
           rows={multiline ? rows : undefined}
           value={value || ''}
           onChange={onChange}
-          disabled={disabled}
+          disabled={finalDisabled}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           {...inputProps}
@@ -128,7 +133,7 @@ const BaseCustomFloatingInput = React.forwardRef(({ defaultBorderWidth = '1px', 
             backgroundColor: 'transparent', border: 'none', outline: 'none',
             boxSizing: 'border-box', fontFamily: 'inherit', color: 'var(--color-slate-900)',
             position: 'relative', zIndex: 2, resize: multiline ? 'vertical' : 'none',
-            cursor: disabled ? 'default' : (onClick ? 'pointer' : 'text'), borderRadius: 'var(--radius-md)',
+            cursor: finalDisabled ? 'default' : (onClick ? 'pointer' : 'text'), borderRadius: 'var(--radius-md)',
             height: multiline ? 'auto' : 'var(--box-height)',
             ...(inputProps?.style || {})
           }}
@@ -154,21 +159,21 @@ const BaseCustomFloatingInput = React.forwardRef(({ defaultBorderWidth = '1px', 
             borderWidth: (focused ? focusedBorderWidth : defaultBorderWidth),
             borderColor: borderColor,
             background: 'none',
-            transition: 'border-color 0.2s, border-width 0.2s',
+            transition: 'border-color var(--transition-base), border-width var(--transition-base)',
             zIndex: 1, boxSizing: 'border-box',
           }}
         >
           <legend
             ref={legendRef}
             style={{
-              width: 'auto', maxWidth: isFloating ? '100%' : '0.01px',
+              width: 'auto', maxWidth: (isFloating && label) ? '100%' : '0.01px',
               padding: 0, margin: 0, float: 'none', display: 'block',
               height: '11px', fontSize: 'var(--font-xs)', opacity: 0,
               whiteSpace: 'nowrap', overflow: 'hidden',
               transition: 'max-width 50ms cubic-bezier(0.0, 0, 0.2, 1) 0ms',
             }}
           >
-            <span style={{ padding: '0 4px', display: 'inline-block' }}>{label}</span>
+            <span style={{ padding: label ? '0 4px' : 0, display: 'inline-block' }}>{label}</span>
           </legend>
         </fieldset>
       </Box>
@@ -179,9 +184,9 @@ const BaseCustomFloatingInput = React.forwardRef(({ defaultBorderWidth = '1px', 
           top: isFloating ? '-7px' : (multiline ? '12px' : '50%'),
           transform: isFloating ? 'translateY(0)' : (multiline ? 'translateY(0)' : 'translateY(-50%)'),
           fontSize: isFloating ? '12px' : '15px',
-          color: error ? 'var(--color-error)' : focused ? 'var(--color-primary)' : disabled ? 'var(--color-slate-500)' : 'var(--color-slate-500)',
+          color: error ? 'var(--color-error)' : focused ? 'var(--color-primary)' : finalDisabled ? 'var(--color-slate-500)' : 'var(--color-slate-500)',
           backgroundColor: 'transparent', padding: '0 4px',
-          transition: 'all 0.2s ease-in-out', pointerEvents: 'none', zIndex: 3,
+          transition: 'all var(--transition-base)', pointerEvents: 'none', zIndex: 3,
           lineHeight: '14px',
         }}
       >
@@ -193,6 +198,9 @@ const BaseCustomFloatingInput = React.forwardRef(({ defaultBorderWidth = '1px', 
 });
 
 const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, countryCode, onCountryCodeChange, value, onChange, error = false, disabled = false, updateRequested = false, helperText = '', endAdornment }) => {
+  const isFormLoading = useFormLoading();
+  const finalDisabled = disabled || isFormLoading;
+
   const [focused, setFocused] = React.useState(false);
   const [hovered, setHovered] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
@@ -260,14 +268,14 @@ const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorde
   return (
     <Box
       ref={containerRef}
-      sx={{ position: 'relative', width: 'var(--size-full)', '--bw': focused ? focusedBorderWidth : defaultBorderWidth }}
+      sx={{ position: 'relative', width: 'var(--size-full)', '--bw': focused ? focusedBorderWidth : defaultBorderWidth, opacity: finalDisabled ? 0.6 : 1, pointerEvents: finalDisabled ? 'none' : 'auto' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       <Box sx={{ position: 'relative', width: 'var(--size-full)', '--bw': focused ? focusedBorderWidth : defaultBorderWidth }}>
         <Box sx={{
           position: 'absolute', top: (focused ? focusedBorderWidth : defaultBorderWidth), left: (focused ? focusedBorderWidth : defaultBorderWidth), right: (focused ? focusedBorderWidth : defaultBorderWidth), bottom: (focused ? focusedBorderWidth : defaultBorderWidth),
-          backgroundColor: disabled ? 'rgba(241, 245, 249, 0.5)' : 'rgba(255, 255, 255, 0.3)',
+          backgroundColor: finalDisabled ? 'rgba(241, 245, 249, 0.5)' : 'rgba(255, 255, 255, 0.3)',
           backdropFilter: 'blur(30px)',
           WebkitBackdropFilter: 'blur(30px)',
           borderRadius: 'var(--radius-md)', zIndex: 0,
@@ -279,7 +287,7 @@ const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorde
         <Box sx={{ display: 'flex', width: 'var(--size-full)', position: 'relative', zIndex: 2, height: 'var(--box-height)', alignItems: 'center' }}>
           <Box
             onClick={() => {
-              if (!disabled) {
+              if (!finalDisabled) {
                 setIsOpen(!isOpen);
                 setFocused(true);
               }
@@ -292,7 +300,7 @@ const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorde
               border: 'none',
               outline: 'none',
               color: 'var(--color-slate-900)',
-              cursor: disabled ? 'default' : 'pointer',
+              cursor: finalDisabled ? 'default' : 'pointer',
               borderRadius: '8px 0 0 8px',
               display: 'flex',
               alignItems: 'center',
@@ -305,7 +313,7 @@ const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorde
             <svg
               style={{
                 transform: isOpen ? 'rotate(180deg)' : 'none',
-                transition: 'transform 0.2s ease, color 0.2s ease',
+                transition: 'transform var(--transition-base), color var(--transition-base)',
                 color: (focused || isOpen) ? 'var(--color-primary)' : 'var(--color-slate-500)',
                 flexShrink: 0
               }}
@@ -321,7 +329,7 @@ const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorde
             type="tel"
             value={value || ''}
             onChange={onChange}
-            disabled={disabled}
+            disabled={finalDisabled}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
             style={{
@@ -335,7 +343,7 @@ const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorde
               boxSizing: 'border-box',
               fontFamily: 'inherit',
               color: 'var(--color-slate-900)',
-              cursor: disabled ? 'default' : 'text',
+              cursor: finalDisabled ? 'default' : 'text',
               borderRadius: '0 8px 8px 0',
               paddingRight: endAdornment ? '80px' : '14px',
               minWidth: 0
@@ -363,7 +371,7 @@ const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorde
             borderWidth: (focused || isOpen) ? '1.5px' : '1px',
             borderColor: borderColor,
             background: 'none',
-            transition: 'border-color 0.2s, border-width 0.2s',
+            transition: 'border-color var(--transition-base), border-width var(--transition-base)',
             zIndex: 1, boxSizing: 'border-box',
           }}
         >
@@ -388,9 +396,9 @@ const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorde
           top: isFloating ? '-7px' : '50%',
           transform: isFloating ? 'translateY(0)' : 'translateY(-50%)',
           fontSize: isFloating ? '12px' : '15px',
-          color: error ? 'var(--color-error)' : (focused || isOpen) ? 'var(--color-primary)' : disabled ? 'var(--color-slate-500)' : 'var(--color-slate-500)',
+          color: error ? 'var(--color-error)' : (focused || isOpen) ? 'var(--color-primary)' : finalDisabled ? 'var(--color-slate-500)' : 'var(--color-slate-500)',
           backgroundColor: 'transparent', padding: '0 4px',
-          transition: 'all 0.2s ease-in-out', pointerEvents: 'none', zIndex: 3,
+          transition: 'all var(--transition-base)', pointerEvents: 'none', zIndex: 3,
           lineHeight: '14px',
         }}
       >
@@ -424,7 +432,10 @@ const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorde
 
 const BaseCustomFloatingSelect = CentralDropdown;
 
-const BaseCustomFloatingDatePicker = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, value, onChange, error, helperText, disabled, updateRequested = false, disableFuture = false }) => {
+const BaseCustomFloatingDatePicker = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, value, onChange, error, helperText, disabled, updateRequested = false, disableFuture = false, minYear, maxYear }) => {
+  const isFormLoading = useFormLoading();
+  const finalDisabled = disabled || isFormLoading;
+
   const [isOpen, setIsOpen] = React.useState(false);
   const [showMonthSelect, setShowMonthSelect] = React.useState(false);
   const [showYearSelect, setShowYearSelect] = React.useState(false);
@@ -480,25 +491,42 @@ const BaseCustomFloatingDatePicker = ({ defaultBorderWidth = '1px', focusedBorde
 
   let displayValue = '';
   if (value) {
-    const [y, m, d] = value.split('-');
-    if (y && m && d) displayValue = `${d}/${m}/${y}`;
+    if (typeof value === 'string') {
+      const cleanValue = value.split('T')[0];
+      let parts = cleanValue.includes('/') ? cleanValue.split('/') : cleanValue.split('-');
+      if (parts.length === 3) {
+        if (parts[0].length === 4) { // YYYY-MM-DD
+          displayValue = `${parts[2]}/${parts[1]}/${parts[0]}`;
+        } else { // DD-MM-YYYY
+          displayValue = `${parts[0]}/${parts[1]}/${parts[2]}`;
+        }
+      } else {
+        displayValue = value;
+      }
+    } else if (value instanceof Date) {
+      const d = String(value.getDate()).padStart(2, '0');
+      const m = String(value.getMonth() + 1).padStart(2, '0');
+      const y = value.getFullYear();
+      displayValue = `${d}/${m}/${y}`;
+    }
   }
 
   const currentYearNum = new Date().getFullYear();
-  const maxYearNum = disableFuture ? currentYearNum : currentYearNum + 19;
-  const yearsArray = Array.from({ length: maxYearNum - (currentYearNum - 100) + 1 }, (_, i) => (currentYearNum - 100) + i).reverse();
+  const maxYearNum = maxYear !== undefined ? maxYear : (disableFuture ? currentYearNum : currentYearNum + 19);
+  const minYearNum = minYear !== undefined ? minYear : currentYearNum - 100;
+  const yearsArray = Array.from({ length: Math.max(0, maxYearNum - minYearNum + 1) }, (_, i) => minYearNum + i).reverse();
 
   return (
     <Box ref={containerRef} sx={{ position: 'relative', width: 'var(--size-full)', '--bw': isOpen ? focusedBorderWidth : defaultBorderWidth }}>
       <BaseCustomFloatingInput
         label={label}
         value={displayValue}
-        onClick={() => !disabled && setIsOpen(!isOpen)}
+        onClick={() => !finalDisabled && setIsOpen(!isOpen)}
         error={error}
         helperText={helperText}
-        disabled={disabled}
+        disabled={finalDisabled}
         updateRequested={updateRequested}
-        inputProps={{ readOnly: true, style: { cursor: disabled ? 'default' : 'pointer' } }}
+        inputProps={{ readOnly: true, style: { cursor: finalDisabled ? 'default' : 'pointer' } }}
         InputProps={{
           endAdornment: (
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--color-primary)' }}>
@@ -515,7 +543,7 @@ const BaseCustomFloatingDatePicker = ({ defaultBorderWidth = '1px', focusedBorde
         <Box sx={{
           position: 'absolute', top: 'var(--size-full)', left: 0, mt: '8px', zIndex: 'var(--z-modal)',
           bgcolor: 'var(--color-white)', borderRadius: 'var(--radius-lg)', p: '28px',
-          border: 'var(--border-thin) solid #cbd5e1', width: '300px',
+          border: 'var(--border-thin) solid var(--color-slate-300)', width: '300px',
         }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, position: 'relative' }}>
@@ -541,7 +569,7 @@ const BaseCustomFloatingDatePicker = ({ defaultBorderWidth = '1px', focusedBorde
                   position: 'absolute', top: 'var(--size-full)', left: 0, mt: '2px',
                   width: '130px', maxHeight: '220px', overflowY: 'auto',
                   bgcolor: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)',
-                  borderRadius: 'var(--radius-lg)', border: 'var(--border-thin) solid #cbd5e1',
+                  borderRadius: 'var(--radius-lg)', border: 'var(--border-thin) solid var(--color-slate-300)',
                   zIndex: 'var(--z-popover)', py: '4px'
                 }}>
                   {monthNames.map((m, i) => {
@@ -568,10 +596,10 @@ const BaseCustomFloatingDatePicker = ({ defaultBorderWidth = '1px', focusedBorde
                           cursor: isDisabledMonth ? 'not-allowed' : 'pointer',
                           opacity: isDisabledMonth ? 0.4 : 1,
                           bgcolor: isSelected ? 'var(--color-slate-50)' : 'transparent',
-                          color: isSelected ? 'var(--color-primary)' : 'var(--color-slate-700)',
+                          color: isSelected ? 'var(--color-primary)' : 'var(--color-slate-900)',
                           fontWeight: isSelected ? 600 : 400,
                           fontSize: 'var(--font-sm)',
-                          transition: 'all 0.15s ease',
+                          transition: 'all var(--transition-fast)',
                           '&:hover': {
                             bgcolor: isDisabledMonth ? 'transparent' : 'var(--color-slate-50)',
                             color: isDisabledMonth ? 'inherit' : 'var(--color-slate-900)'
@@ -591,7 +619,7 @@ const BaseCustomFloatingDatePicker = ({ defaultBorderWidth = '1px', focusedBorde
                   position: 'absolute', top: 'var(--size-full)', left: '40%', mt: '2px',
                   width: '100px', maxHeight: '220px', overflowY: 'auto',
                   bgcolor: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)',
-                  borderRadius: 'var(--radius-lg)', border: 'var(--border-thin) solid #cbd5e1',
+                  borderRadius: 'var(--radius-lg)', border: 'var(--border-thin) solid var(--color-slate-300)',
                   zIndex: 'var(--z-popover)', py: '4px'
                 }}>
                   {yearsArray.map(y => {
@@ -616,10 +644,10 @@ const BaseCustomFloatingDatePicker = ({ defaultBorderWidth = '1px', focusedBorde
                           justifyContent: 'center',
                           cursor: 'pointer',
                           bgcolor: isSelected ? 'var(--color-slate-50)' : 'transparent',
-                          color: isSelected ? 'var(--color-primary)' : 'var(--color-slate-700)',
+                          color: isSelected ? 'var(--color-primary)' : 'var(--color-slate-900)',
                           fontWeight: isSelected ? 600 : 400,
                           fontSize: 'var(--font-sm)',
-                          transition: 'all 0.15s ease',
+                          transition: 'all var(--transition-fast)',
                           '&:hover': {
                             bgcolor: 'var(--color-slate-50)',
                             color: 'var(--color-slate-900)'
@@ -667,7 +695,7 @@ const BaseCustomFloatingDatePicker = ({ defaultBorderWidth = '1px', focusedBorde
                     fontSize: 'var(--font-base)', fontWeight: (isSelected || isToday) ? 700 : 500,
                     color: isSelected ? 'var(--color-slate-900)' : isToday ? 'var(--color-primary)' : 'var(--color-slate-900)',
                     bgcolor: isSelected ? 'var(--color-slate-50)' : 'transparent',
-                    border: isSelected ? 'var(--border-thin) solid #0056b3' : isToday ? '1px dashed #94a3b8' : 'var(--border-thin) solid transparent',
+                    border: isSelected ? 'var(--border-thin) solid var(--color-primary)' : isToday ? '1px dashed var(--color-slate-500)' : 'var(--border-thin) solid transparent',
                     borderRadius: 'var(--radius-full)',
                     cursor: 'pointer',
                     '&:hover': {
@@ -686,7 +714,7 @@ const BaseCustomFloatingDatePicker = ({ defaultBorderWidth = '1px', focusedBorde
   );
 };
 
-const BaseCustomFloatingCountrySelect = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, value, onChange, error, helperText, disabled, updateRequested = false }) => {
+const BaseCustomFloatingCountrySelect = ({ returnNationality = false, defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, value, onChange, error, helperText, disabled, updateRequested = false }) => {
   const { userLocation } = useAccessibility();
 
   const sortedCountries = React.useMemo(() => {
@@ -697,12 +725,12 @@ const BaseCustomFloatingCountrySelect = ({ defaultBorderWidth = '1px', focusedBo
 
   const options = React.useMemo(() => {
     return sortedCountries.map(c => ({
-      value: c.nationality || c.name,
-      label: c.nationality || c.name,
+      value: returnNationality ? (c.nationality || c.name) : c.name,
+      label: returnNationality ? (c.nationality || c.name) : c.name,
       flagUrl: c.flagUrl,
       searchStr: (c.nationality || c.name).toLowerCase() + ' ' + c.name.toLowerCase() + ' ' + (c.phoneCode || '')
     }));
-  }, [sortedCountries]);
+  }, [sortedCountries, returnNationality]);
 
   return (
     <CentralDropdown
@@ -722,6 +750,9 @@ const BaseCustomFloatingCountrySelect = ({ defaultBorderWidth = '1px', focusedBo
 };
 
 const BaseCustomFloatingFileInput = React.forwardRef(({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, error = false, helperText = '', disabled = false, updateRequested = false, onChange, ...rest }, ref) => {
+  const isFormLoading = useFormLoading();
+  const finalDisabled = disabled || isFormLoading;
+
   const [focused, setFocused] = React.useState(false);
   const [hovered, setHovered] = React.useState(false);
   const [legendWidth, setLegendWidth] = React.useState(0);
@@ -759,14 +790,14 @@ const BaseCustomFloatingFileInput = React.forwardRef(({ defaultBorderWidth = '1p
   return (
     <Box
       ref={ref}
-      sx={{ position: 'relative', width: 'var(--size-full)', '--bw': focused ? focusedBorderWidth : defaultBorderWidth }}
+      sx={{ position: 'relative', width: 'var(--size-full)', '--bw': focused ? focusedBorderWidth : defaultBorderWidth, opacity: finalDisabled ? 0.6 : 1, pointerEvents: finalDisabled ? 'none' : 'auto' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       <Box sx={{ position: 'relative', width: 'var(--size-full)', display: 'flex', alignItems: 'center' }}>
         <Box sx={{
           position: 'absolute', top: (focused ? focusedBorderWidth : defaultBorderWidth), left: (focused ? focusedBorderWidth : defaultBorderWidth), right: (focused ? focusedBorderWidth : defaultBorderWidth), bottom: (focused ? focusedBorderWidth : defaultBorderWidth),
-          backgroundColor: disabled ? 'rgba(241, 245, 249, 0.5)' : 'rgba(255, 255, 255, 0.3)',
+          backgroundColor: finalDisabled ? 'rgba(241, 245, 249, 0.5)' : 'rgba(255, 255, 255, 0.3)',
           backdropFilter: 'blur(30px)',
           WebkitBackdropFilter: 'blur(30px)',
           borderRadius: 'var(--radius-md)', zIndex: 0,
@@ -776,7 +807,7 @@ const BaseCustomFloatingFileInput = React.forwardRef(({ defaultBorderWidth = '1p
         <input
           type="file"
           onChange={onChange}
-          disabled={disabled}
+          disabled={finalDisabled}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           {...rest}
@@ -788,8 +819,9 @@ const BaseCustomFloatingFileInput = React.forwardRef(({ defaultBorderWidth = '1p
             backgroundColor: 'transparent', border: 'none', outline: 'none',
             boxSizing: 'border-box', fontFamily: 'inherit', color: 'var(--color-slate-900)',
             position: 'relative', zIndex: 2,
-            cursor: disabled ? 'default' : 'pointer', borderRadius: 'var(--radius-md)',
-            height: 'var(--box-height)',
+            cursor: finalDisabled ? 'default' : 'pointer', borderRadius: 'var(--radius-md)',
+            height: 'auto',
+            minHeight: 'var(--box-height)',
             ...(rest.style || {})
           }}
         />
@@ -797,19 +829,19 @@ const BaseCustomFloatingFileInput = React.forwardRef(({ defaultBorderWidth = '1p
         {/* Inject CSS for file-selector-button just for this component instance */}
         <style>{`
           input[type=file]::file-selector-button {
-            border: var(--border-thin) solid #cbd5e1;
+            border: var(--border-thin) solid var(--color-slate-300);
             padding: 4px 10px;
             border-radius: 6px;
             background-color: #f8fafc;
             color: #475569;
-            cursor: ${disabled ? 'default' : 'pointer'};
+            cursor: ${finalDisabled ? 'default' : 'pointer'};
             margin-right: 12px;
             font-size: 12px;
             font-weight: var(--font-medium);
             transition: var(--transition-base);
           }
           input[type=file]::file-selector-button:hover {
-            background-color: ${disabled ? 'var(--color-slate-50)' : 'var(--color-slate-50)'};
+            background-color: ${finalDisabled ? 'var(--color-slate-50)' : 'var(--color-slate-50)'};
           }
         `}</style>
 
@@ -822,7 +854,7 @@ const BaseCustomFloatingFileInput = React.forwardRef(({ defaultBorderWidth = '1p
             borderWidth: (focused ? focusedBorderWidth : defaultBorderWidth),
             borderColor: borderColor,
             background: 'none',
-            transition: 'border-color 0.2s, border-width 0.2s',
+            transition: 'border-color var(--transition-base), border-width var(--transition-base)',
             zIndex: 1, boxSizing: 'border-box',
           }}
         >
@@ -849,7 +881,7 @@ const BaseCustomFloatingFileInput = React.forwardRef(({ defaultBorderWidth = '1p
           fontSize: isFloating ? '12px' : '15px',
           color: error ? 'var(--color-error)' : focused ? 'var(--color-primary)' : disabled ? 'var(--color-slate-500)' : 'var(--color-slate-500)',
           backgroundColor: 'transparent', padding: '0 4px',
-          transition: 'all 0.2s ease-in-out', pointerEvents: 'none', zIndex: 3,
+          transition: 'all var(--transition-base)', pointerEvents: 'none', zIndex: 3,
           lineHeight: '14px',
         }}
       >
@@ -869,7 +901,7 @@ const BaseCustomFloatingFileInput = React.forwardRef(({ defaultBorderWidth = '1p
             pointerEvents: 'auto',
             zIndex: 3
           }}>
-            <ErrorOutlineIcon sx={{ fontSize: '18px', color: error ? 'var(--color-error)' : 'var(--color-slate-400)' }} />
+            <ErrorOutlineIcon sx={{ fontSize: '18px', color: error ? 'var(--color-error)' : 'var(--color-slate-500)' }} />
           </Box>
         </Tooltip>
       )}
@@ -924,3 +956,56 @@ export { WrappedCustomFloatingPhoneInput as CustomFloatingPhoneInput };
 export { WrappedCustomFloatingDatePicker as CustomFloatingDatePicker };
 export { WrappedCustomFloatingCountrySelect as CustomFloatingCountrySelect };
 export { WrappedCustomFloatingFileInput as CustomFloatingFileInput };
+
+export const CustomFloatingDocumentUpload = React.forwardRef(({ onUploadStart, onUploadComplete, onUploadError, onChange, savedValue, ...props }, ref) => {
+  const [uploading, setUploading] = React.useState(false);
+  const [progress, setProgress] = React.useState(0);
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (onChange) onChange(e); // Still bubble up the event if needed
+    
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      setProgress(0);
+      if (onUploadStart) onUploadStart(file);
+
+      // We dynamically import to avoid circular dependencies if any, or just import it at top
+      const { uploadDocument } = await import('../../lib/uploadService');
+      const jobId = await uploadDocument(file, (pct) => setProgress(pct));
+      
+      if (onUploadComplete) onUploadComplete(jobId, file);
+    } catch (error) {
+      if (onUploadError) onUploadError(error);
+      else alert("Failed to upload document");
+    } finally {
+      setUploading(false);
+      setProgress(0);
+    }
+  };
+
+  return (
+    <Box sx={{ position: 'relative', width: '100%' }}>
+      <WrappedCustomFloatingFileInput 
+        {...props} 
+        onChange={handleFileChange} 
+        disabled={props.disabled || uploading} 
+        ref={ref}
+      />
+      
+
+
+      {uploading && (
+        <Box sx={{ 
+          position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', 
+          display: 'flex', alignItems: 'center', zIndex: 10
+        }}>
+          <CircularProgress size={16} thickness={5} sx={{ color: 'var(--color-primary)' }} />
+        </Box>
+      )}
+    </Box>
+  );
+});
+CustomFloatingDocumentUpload.displayName = "CustomFloatingDocumentUpload";

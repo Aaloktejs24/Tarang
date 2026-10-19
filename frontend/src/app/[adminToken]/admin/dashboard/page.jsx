@@ -29,7 +29,7 @@ export default function AdminDashboard() {
         minHeight: 'var(--size-screen-h)', 
         display: 'flex', 
         flexDirection: 'column',
-        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)' }}>
+        background: 'linear-gradient(135deg, #f8fafc 0%, var(--color-slate-200) 100%)' }}>
         {/* Navbar */}
         <Navbar variant="admin" title="Tarang Admin" onLogout={() => router.push(`/${token}/admin`)} />
 
@@ -182,7 +182,7 @@ export default function AdminDashboard() {
             <Grid size={{ xs: 12, md: 4 }}>
               <Card sx={{ 
                 height: 'var(--size-full)', 
-                transition: 'transform 0.2s ease-in-out',
+                transition: 'transform var(--transition-base)',
                 "&:hover": {
                   transform: 'translateY(-4px)',
                 }
@@ -210,7 +210,7 @@ export default function AdminDashboard() {
             <Grid size={{ xs: 12, md: 4 }}>
               <Card sx={{ 
                 height: 'var(--size-full)', 
-                transition: 'transform 0.2s ease-in-out',
+                transition: 'transform var(--transition-base)',
                 "&:hover": {
                   transform: 'translateY(-4px)',
                 }
@@ -238,7 +238,7 @@ export default function AdminDashboard() {
             <Grid size={{ xs: 12, md: 4 }}>
               <Card sx={{ 
                 height: 'var(--size-full)', 
-                transition: 'transform 0.2s ease-in-out',
+                transition: 'transform var(--transition-base)',
                 "&:hover": {
                   transform: 'translateY(-4px)',
                 }

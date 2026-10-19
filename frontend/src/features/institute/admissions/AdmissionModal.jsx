@@ -51,6 +51,7 @@ import useScrollLock from "../../../hooks/useScrollLock";
 import { apiClient } from "../../../lib/apiClient";
 import { useProfile } from "../../../hooks/useProfile";
 import { useAppRouter } from '../../../hooks/useAppRouter';
+import { FormLoadingProvider } from '../../../contexts/FormLoadingContext';
 import CustomTimePicker from "./CustomTimePicker";
 import { CustomFloatingInput, CustomFloatingSelect } from "../../../components/common/CustomFloatingFields";
 
@@ -319,7 +320,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
     workflowDesc.trim().length > 0 ||
     maxCandidates.toString().trim().length > 0 ||
     (stages && stages.length > 0);
-  const THEME_BORDER = "var(--color-slate-200)";
+  const THEME_BORDER = "var(--color-slate-300)";
 
   const themeInputSx = {
     "& .MuiOutlinedInput-root": {
@@ -529,7 +530,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
   if (!open) return null;
 
   return (
-    <>
+    <FormLoadingProvider isLoading={loading}>
       <Box
         sx={{
           position: "fixed",
@@ -558,13 +559,13 @@ export default function AdmissionModal({ open, onClose, editData }) {
             minHeight: { xs: "var(--size-full)", sm: "auto" },
             borderRadius: { xs: 0, sm: "28px" },
             background: `
-            radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.18) 0, transparent 50%), 
-            radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.15) 0, transparent 50%), 
-            radial-gradient(at 80% 100%, rgba(40, 167, 69, 0.12) 0, transparent 50%),
-            radial-gradient(at 20% 100%, rgba(0, 86, 179, 0.1) 0, transparent 50%),
-            #ffffff
+            radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.45) 0, transparent 50%), 
+            radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.3) 0, transparent 50%), 
+            radial-gradient(at 80% 90%, rgba(40, 167, 69, 0.2) 0, transparent 50%),
+            radial-gradient(at 20% 80%, rgba(0, 86, 179, 0.15) 0, transparent 50%),
+            #eef2f6
           `,
-            border: themeBorderSx,
+            border: 'none',
             overflowY: "auto",
             maxHeight: "92vh",
             position: "relative",
@@ -641,7 +642,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                     height: 4,
                     borderRadius: 'var(--radius-md)',
                     bgcolor: activeStep >= 0 ? "var(--color-primary)" : "var(--color-slate-200)",
-                    transition: "all 0.3s",
+                    transition: "all var(--transition-slow)",
                   }}
                 />
                 <Typography
@@ -672,7 +673,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                     height: 4,
                     borderRadius: 'var(--radius-md)',
                     bgcolor: activeStep >= 1 ? "var(--color-primary)" : "var(--color-slate-200)",
-                    transition: "all 0.3s",
+                    transition: "all var(--transition-slow)",
                   }}
                 />
                 <Typography
@@ -703,7 +704,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                     height: 4,
                     borderRadius: 'var(--radius-md)',
                     bgcolor: activeStep >= 2 ? "var(--color-primary)" : "var(--color-slate-200)",
-                    transition: "all 0.3s",
+                    transition: "all var(--transition-slow)",
                   }}
                 />
                 <Typography
@@ -953,7 +954,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                         color: "var(--color-primary)",
                         fontSize: 'var(--font-xs)',
                         py: 0.5,
-                        border: "1.5px solid #0056b3",
+                        border: "1.5px solid var(--color-primary)",
                         "&:hover": {
                           border: "1.5px solid #004494",
                           backgroundColor: "rgba(0, 86, 179, 0.04)",
@@ -984,7 +985,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                             fontWeight: 'var(--font-medium)',
                             color: "var(--color-slate-900)",
                             fontSize: 'var(--font-sm)',
-                            transition: "all 0.2s",
+                            transition: "all var(--transition-base)",
                             "&:hover": {
                               backgroundColor: "rgba(0, 86, 179, 0.06)",
                             },
@@ -1002,7 +1003,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                             color: stages.some((s) => s.type === "document")
                               ? "text.disabled"
                               : "var(--color-primary)",
-                            fontSize: "14px !important",
+                            fontSize: "14px",
                           }}
                         />{" "}
                         Applicant Details
@@ -1017,7 +1018,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                             color: stages.some((s) => s.type === "quiz")
                               ? "text.disabled"
                               : "var(--color-primary)",
-                            fontSize: "14px !important",
+                            fontSize: "14px",
                           }}
                         />{" "}
                         {t("admissionBuilder.menuCreateQuiz")}
@@ -1032,7 +1033,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                             color: stages.some((s) => s.type === "interview")
                               ? "text.disabled"
                               : "var(--color-primary)",
-                            fontSize: "14px !important",
+                            fontSize: "14px",
                           }}
                         />{" "}
                         {t("admissionBuilder.menuScheduleInterview")}
@@ -1047,7 +1048,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                             color: stages.some((s) => s.type === "payment")
                               ? "text.disabled"
                               : "var(--color-primary)",
-                            fontSize: "14px !important",
+                            fontSize: "14px",
                           }}
                         />{" "}
                         Request Payment
@@ -1147,13 +1148,12 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                   borderRadius: 'var(--radius-lg)',
                                   cursor: "pointer",
                                   border: isActive
-                                    ? "1.5px solid #0056b3"
+                                    ? "1.5px solid var(--color-primary)"
                                     : "1.5px solid rgba(203,213,225,0.8)",
                                   backgroundColor: isActive
                                     ? "rgba(0,86,179,0.06)"
                                     : "rgba(255,255,255,0.7)",
-                                  transition:
-                                    "background-color 0.18s, border-color 0.18s",
+                                  transition: "background-color 0.18s, border-color 0.18s",
                                   "&:active": { cursor: "grabbing" },
                                   "&:hover": {
                                     borderColor: "var(--color-primary)",
@@ -1181,7 +1181,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                     flex: 1,
                                     fontSize: 'var(--font-sm)',
                                     fontWeight: isActive ? 700 : 500,
-                                    color: isActive ? "var(--color-primary)" : "var(--color-slate-700)",
+                                    color: isActive ? "var(--color-primary)" : "var(--color-slate-900)",
                                     whiteSpace: "nowrap",
                                     overflow: "hidden",
                                     textOverflow: "ellipsis",
@@ -1206,11 +1206,11 @@ export default function AdmissionModal({ open, onClose, editData }) {
                               disableGutters
                               defaultExpanded
                               sx={{
-                                borderRadius: "12px !important",
+                                borderRadius: "12px",
                                 border: "1.5px solid rgba(30,79,163,0.15)",
                                 background: "rgba(255,255,255,0.5)",
                                 backdropFilter: "blur(20px)",
-                                "&::before": { display: "none !important" },
+                                "&::before": { display: "none" },
                                 overflow: "hidden",
                                 transform: "translateZ(0)",
                               }}
@@ -1229,8 +1229,8 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                   transition: "none",
                                   "&&, &&:focus, &&:hover, &&:active, &&.Mui-expanded, &&.Mui-focusVisible":
                                   {
-                                    background: "#e0e7ff !important",
-                                    backgroundColor: "#e0e7ff !important",
+                                    background: "#e0e7ff",
+                                    backgroundColor: "#e0e7ff",
                                   },
                                   "& .MuiAccordionSummary-content": {
                                     alignItems: "center",
@@ -1324,8 +1324,8 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                   pl: { xs: 2, sm: "46px" },
                                   pr: 2,
                                   background: "rgba(255,255,255,0.65)",
-                                  borderBottomLeftRadius: "12px",
-                                  borderBottomRightRadius: "12px",
+                                  borderBottomLeftRadius: "var(--radius-lg)",
+                                  borderBottomRightRadius: "var(--radius-lg)",
                                   maxHeight: "calc(92vh - 534px)",
                                   overflowY: "auto",
                                   "&::-webkit-scrollbar": { width: "6px" },
@@ -1352,7 +1352,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                         sx={{
                                           mb: 3,
                                           p: 2,
-                                          bgcolor: "var(--color-white)",
+                                          bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)",
                                           borderRadius: 'var(--radius-lg)',
                                           border: themeBorderSx,
                                         }}
@@ -1741,106 +1741,106 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                         sx={{
                                           border: themeBorderSx,
                                           borderRadius: 'var(--radius-lg)',
-                                          bgcolor: "var(--color-white)",
+                                          bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)",
                                           p: 2,
                                           mb: 2,
                                         }}
                                       >
-                                      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
-                                        <Typography sx={{ fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-base)' }}>
-                                          Applicant Details
+                                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+                                          <Typography sx={{ fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-base)' }}>
+                                            Applicant Details
+                                          </Typography>
+                                          <Typography
+                                            onClick={() => {
+                                              const allOn = allVisibleFields.every(f => selected.includes(f.key));
+                                              const allKeys = allVisibleFields.flatMap(f => [f.key, ...(f.proofKey ? [f.proofKey] : [])]);
+                                              setStages(stages.map(s => s.id === stage.id ? { ...s, selectedFields: allOn ? [] : allKeys } : s));
+                                            }}
+                                            sx={{ fontSize: 'var(--font-xs)', color: "var(--color-primary)", cursor: "pointer", fontWeight: 'var(--font-medium)', "&:hover": { textDecoration: "underline" } }}
+                                          >
+                                            {allVisibleFields.every(f => selected.includes(f.key)) ? "Deselect All" : "Select All"}
+                                          </Typography>
+                                        </Box>
+                                        <Typography sx={{ fontWeight: 'var(--font-regular)', color: "var(--color-slate-500)", mb: 3, fontSize: "0.875rem" }}>
+                                          Select the fields that students must fill during this stage.
                                         </Typography>
-                                        <Typography
-                                          onClick={() => {
-                                            const allOn = allVisibleFields.every(f => selected.includes(f.key));
-                                            const allKeys = allVisibleFields.flatMap(f => [f.key, ...(f.proofKey ? [f.proofKey] : [])]);
-                                            setStages(stages.map(s => s.id === stage.id ? { ...s, selectedFields: allOn ? [] : allKeys } : s));
-                                          }}
-                                          sx={{ fontSize: 'var(--font-xs)', color: "var(--color-primary)", cursor: "pointer", fontWeight: 'var(--font-medium)', "&:hover": { textDecoration: "underline" } }}
-                                        >
-                                          {allVisibleFields.every(f => selected.includes(f.key)) ? "Deselect All" : "Select All"}
-                                        </Typography>
-                                      </Box>
-                                      <Typography sx={{ fontWeight: 'var(--font-regular)', color: "var(--color-slate-500)", mb: 3, fontSize: "0.875rem" }}>
-                                        Select the fields that students must fill during this stage.
-                                      </Typography>
 
-                                      {ALL_PI_FIELDS.map((group) => {
-                                        if (group.isCustomBuilder) {
+                                        {ALL_PI_FIELDS.map((group) => {
+                                          if (group.isCustomBuilder) {
+                                            return (
+                                              <Box key={group.group} sx={{ mb: 3 }}>
+                                                <Typography sx={{ fontWeight: 'var(--font-bold)', color: "var(--color-slate-900)", fontSize: 'var(--font-xs)', textTransform: "uppercase", letterSpacing: "0.06em", mb: 1.5 }}>
+                                                  {group.group}
+                                                </Typography>
+                                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 1, pl: 0 }}>
+                                                  {acRecords.map((rec, i) => (
+                                                    <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 1.5, py: 1.5, border: themeBorderSx, borderRadius: 'var(--radius-md)' }}>
+                                                      <input
+                                                        type="text"
+                                                        placeholder="e.g. 10th Marksheet, B.Tech Degree…"
+                                                        value={rec.name}
+                                                        onChange={(e) => updateAcRecord(i, 'name', e.target.value)}
+                                                        style={{ flex: 1, border: 'none', outline: 'none', fontSize: 'var(--font-sm)', color: 'var(--color-slate-900)', background: 'transparent' }}
+                                                      />
+                                                      <IconButton size="small" onClick={() => removeAcRecord(i)} sx={{ color: 'var(--color-error)', p: 0.4 }}>
+                                                        <DeleteOutlineIcon sx={{ fontSize: 'var(--font-base)' }} />
+                                                      </IconButton>
+                                                    </Box>
+                                                  ))}
+                                                </Box>
+                                                <Button
+                                                  variant="outlined"
+                                                  size="small"
+                                                  onClick={addAcRecord}
+                                                  startIcon={<AddIcon sx={{ fontSize: '15px' }} />}
+                                                  sx={{ textTransform: 'none', fontSize: '0.78rem', borderRadius: 'var(--radius-md)' }}
+                                                >
+                                                  Add Academic Record
+                                                </Button>
+                                              </Box>
+                                            );
+                                          }
+                                          const allGroupChecked = group.fields.every(f => selected.includes(f.key));
+                                          const someGroupChecked = group.fields.some(f => selected.includes(f.key));
                                           return (
                                             <Box key={group.group} sx={{ mb: 3 }}>
-                                              <Typography sx={{ fontWeight: 'var(--font-bold)', color: "var(--color-slate-700)", fontSize: 'var(--font-xs)', textTransform: "uppercase", letterSpacing: "0.06em", mb: 1.5 }}>
-                                                {group.group}
-                                              </Typography>
-                                              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 1, pl: 0 }}>
-                                                {acRecords.map((rec, i) => (
-                                                  <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 1.5, py: 1.5, bgcolor: 'var(--color-white)', border: themeBorderSx, borderRadius: 'var(--radius-md)' }}>
-                                                    <input
-                                                      type="text"
-                                                      placeholder="e.g. 10th Marksheet, B.Tech Degree…"
-                                                      value={rec.name}
-                                                      onChange={(e) => updateAcRecord(i, 'name', e.target.value)}
-                                                      style={{ flex: 1, border: 'none', outline: 'none', fontSize: 'var(--font-sm)', color: 'var(--color-slate-900)', background: 'transparent' }}
+                                              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+                                                <CustomCheckbox
+                                                  checked={allGroupChecked}
+                                                  indeterminate={someGroupChecked && !allGroupChecked}
+                                                  onChange={() => toggleGroup(group.fields)}
+                                                  sx={{ p: 0.5 }}
+                                                />
+                                                <Typography sx={{ fontWeight: 'var(--font-bold)', color: "var(--color-slate-900)", fontSize: 'var(--font-xs)', textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                                                  {group.group}
+                                                </Typography>
+                                              </Box>
+                                              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 0.5, pl: 3.5 }}>
+                                                {group.fields.map(field => (
+                                                  <Box key={field.key} sx={{ width: "100%", display: "flex", alignItems: "center", py: 0.5 }}>
+                                                    <CustomCheckbox
+                                                      checked={selected.includes(field.key)}
+                                                      onChange={() => toggleField(field)}
+                                                      label={
+                                                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+                                                          <Typography sx={{ fontSize: "0.875rem", color: "var(--color-slate-900)" }}>
+                                                            {field.label}
+                                                          </Typography>
+                                                          {field.required && (
+                                                            <Typography sx={{ fontSize: "0.75rem", color: "var(--color-error)", fontWeight: 'var(--font-medium)' }}>
+                                                              *
+                                                            </Typography>
+                                                          )}
+                                                        </Box>
+                                                      }
+                                                      sx={{ p: 0.5, width: "100%" }}
                                                     />
-                                                    <IconButton size="small" onClick={() => removeAcRecord(i)} sx={{ color: 'var(--color-error)', p: 0.4 }}>
-                                                      <DeleteOutlineIcon sx={{ fontSize: 'var(--font-base)' }} />
-                                                    </IconButton>
                                                   </Box>
                                                 ))}
                                               </Box>
-                                              <Button
-                                                variant="outlined"
-                                                size="small"
-                                                onClick={addAcRecord}
-                                                startIcon={<AddIcon sx={{ fontSize: '15px !important' }} />}
-                                                sx={{ textTransform: 'none', fontSize: '0.78rem', borderRadius: 'var(--radius-md)' }}
-                                              >
-                                                Add Academic Record
-                                              </Button>
                                             </Box>
                                           );
-                                        }
-                                        const allGroupChecked = group.fields.every(f => selected.includes(f.key));
-                                        const someGroupChecked = group.fields.some(f => selected.includes(f.key));
-                                        return (
-                                          <Box key={group.group} sx={{ mb: 3 }}>
-                                            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
-                                              <CustomCheckbox
-                                                checked={allGroupChecked}
-                                                indeterminate={someGroupChecked && !allGroupChecked}
-                                                onChange={() => toggleGroup(group.fields)}
-                                                sx={{ p: 0.5 }}
-                                              />
-                                              <Typography sx={{ fontWeight: 'var(--font-bold)', color: "var(--color-slate-700)", fontSize: 'var(--font-xs)', textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                                                {group.group}
-                                              </Typography>
-                                            </Box>
-                                            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 0.5, pl: 3.5 }}>
-                                              {group.fields.map(field => (
-                                                <Box key={field.key} sx={{ width: "100%", display: "flex", alignItems: "center", py: 0.5 }}>
-                                                  <CustomCheckbox
-                                                    checked={selected.includes(field.key)}
-                                                    onChange={() => toggleField(field)}
-                                                    label={
-                                                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-                                                        <Typography sx={{ fontSize: "0.875rem", color: "var(--color-slate-700)" }}>
-                                                          {field.label}
-                                                        </Typography>
-                                                        {field.required && (
-                                                          <Typography sx={{ fontSize: "0.75rem", color: "var(--color-error)", fontWeight: 'var(--font-medium)' }}>
-                                                            *
-                                                          </Typography>
-                                                        )}
-                                                      </Box>
-                                                    }
-                                                    sx={{ p: 0.5, width: "100%" }}
-                                                  />
-                                                </Box>
-                                              ))}
-                                            </Box>
-                                          </Box>
-                                        );
-                                      })}
+                                        })}
                                       </Box> {/* end bordered Applicant Details card */}
                                     </Box>
                                   );
@@ -1876,7 +1876,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                           mb: 2,
                                           p: 1.25,
                                           borderRadius: 'var(--radius-md)',
-                                          bgcolor: "var(--color-white)",
+                                          bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)",
                                           border:
                                             "var(--border-thin) solid rgba(30,79,163,0.1)",
                                           display: "flex",
@@ -1884,7 +1884,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                           alignItems: "center",
                                           gap: 2,
                                           cursor: "pointer",
-                                          transition: "all 0.2s",
+                                          transition: "all var(--transition-base)",
                                           "&:hover": {
                                             borderColor: "var(--color-primary)",
                                             bgcolor: "rgba(0,86,179,0.03)",
@@ -1947,11 +1947,11 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                                 alignItems: "center",
                                                 justifyContent: "space-between",
                                                 p: 1.25,
-                                                bgcolor: "var(--color-white)",
+                                                bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)",
                                                 border:
                                                   "var(--border-thin) solid rgba(30,79,163,0.1)",
                                                 borderRadius: 'var(--radius-md)',
-                                                transition: "all 0.2s",
+                                                transition: "all var(--transition-base)",
                                                 "&:hover": {
                                                   borderColor: "var(--color-primary)",
                                                 },
@@ -2100,7 +2100,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                             sx={{
                                               mb: 1,
                                               fontWeight: 800,
-                                              color: "var(--color-slate-700)",
+                                              color: "var(--color-slate-900)",
                                               fontSize: 'var(--font-sm)',
                                             }}
                                           >
@@ -2132,7 +2132,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                             sx={{
                                               mb: 1,
                                               fontWeight: 800,
-                                              color: "var(--color-slate-700)",
+                                              color: "var(--color-slate-900)",
                                               fontSize: 'var(--font-sm)',
                                             }}
                                           >
@@ -2165,7 +2165,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                           sx={{
                                             mb: 1,
                                             fontWeight: 800,
-                                            color: "var(--color-slate-700)",
+                                            color: "var(--color-slate-900)",
                                             fontSize: 'var(--font-sm)',
                                           }}
                                         >
@@ -2219,7 +2219,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                             sx={{
                                               mb: 1,
                                               fontWeight: 800,
-                                              color: "var(--color-slate-700)",
+                                              color: "var(--color-slate-900)",
                                               fontSize: 'var(--font-sm)',
                                             }}
                                           >
@@ -2260,7 +2260,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                             sx={{
                                               mb: 1,
                                               fontWeight: 800,
-                                              color: "var(--color-slate-700)",
+                                              color: "var(--color-slate-900)",
                                               fontSize: 'var(--font-sm)',
                                             }}
                                           >
@@ -2301,7 +2301,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                             sx={{
                                               mb: 1,
                                               fontWeight: 800,
-                                              color: "var(--color-slate-700)",
+                                              color: "var(--color-slate-900)",
                                               fontSize: 'var(--font-sm)',
                                             }}
                                           >
@@ -2376,12 +2376,12 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                                 alignItems: "center",
                                                 justifyContent: "space-between",
                                                 p: "8.5px 12px",
-                                                bgcolor: "var(--color-white)",
+                                                bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)",
                                                 border:
                                                   "var(--border-thin) solid rgba(30,79,163,0.1)",
                                                 borderRadius: 'var(--radius-md)',
                                                 width: "var(--size-full)",
-                                                transition: "all 0.2s",
+                                                transition: "all var(--transition-base)",
                                                 "&:hover": {
                                                   borderColor: "var(--color-primary)",
                                                 },
@@ -2478,7 +2478,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                                           sx={{
                                             mb: 1,
                                             fontWeight: 800,
-                                            color: "var(--color-slate-700)",
+                                            color: "var(--color-slate-900)",
                                             fontSize: 'var(--font-sm)',
                                           }}
                                         >
@@ -2720,7 +2720,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                         stageIncomplete;
                       return isDisabled
                         ? "var(--color-slate-200)"
-                        : "linear-gradient(135deg, #0056b3 0%, #28a745 100%)";
+                        : "linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)";
                     })(),
                     color: (() => {
                       const stageIncomplete =
@@ -2782,7 +2782,7 @@ export default function AdmissionModal({ open, onClose, editData }) {
                           stageIncomplete;
                         return isDisabled
                           ? "var(--color-slate-200)"
-                          : "linear-gradient(135deg, #004494 0%, #28A745 100%)";
+                          : "linear-gradient(135deg, #004494 0%, var(--color-success) 100%)";
                       })(),
                     },
                     "&.Mui-disabled": {
@@ -2957,6 +2957,6 @@ export default function AdmissionModal({ open, onClose, editData }) {
           </Alert>
         </Snackbar>
       </Box>
-    </>
+    </FormLoadingProvider>
   );
 }

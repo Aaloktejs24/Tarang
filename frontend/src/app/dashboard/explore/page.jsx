@@ -237,7 +237,7 @@ export default function ExploreInstitutes() {
                       backdropFilter: "blur(30px)",
                       WebkitBackdropFilter: "blur(30px)",
                       border: "var(--border-thin) solid rgba(30, 79, 163, 0.2)",
-                      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                      transition: "all var(--transition-slow)",
                       overflow: "visible",
                       '&:hover': {
                         transform: 'translateY(-4px)'
@@ -252,8 +252,8 @@ export default function ExploreInstitutes() {
                           : "linear-gradient(135deg, rgba(0, 86, 179, 0.85) 0%, rgba(40, 167, 69, 0.75) 100%)",
                         backgroundSize: "cover",
                         backgroundPosition: "center",
-                        borderTopLeftRadius: "16px",
-                        borderTopRightRadius: "16px",
+                        borderTopLeftRadius: "var(--radius-lg)",
+                        borderTopRightRadius: "var(--radius-lg)",
                         position: 'relative',
                         overflow: 'hidden'
                       }}>
@@ -276,7 +276,7 @@ export default function ExploreInstitutes() {
                                 width: '32px', height: '32px', borderRadius: 'var(--radius-full)',
                                 bgcolor: "transparent", color: "var(--color-primary)",
                                 border: 'none', outline: 'none',
-                                cursor: 'pointer', transition: 'all 0.2s',
+                                cursor: 'pointer', transition: 'all var(--transition-base)',
                                 '&:hover': { bgcolor: "rgba(30, 79, 163, 0.1)" }
                               }}>
                                 <EventAvailableIcon sx={{ fontSize: 18 }} />
@@ -290,7 +290,7 @@ export default function ExploreInstitutes() {
                                 width: '32px', height: '32px', borderRadius: 'var(--radius-full)',
                                 bgcolor: "transparent", color: "var(--color-primary)",
                                 border: 'none', outline: 'none',
-                                cursor: 'pointer', transition: 'all 0.2s',
+                                cursor: 'pointer', transition: 'all var(--transition-base)',
                                 '&:hover': { bgcolor: "rgba(30, 79, 163, 0.1)" }
                               }}>
                                 <EmojiEventsIcon sx={{ fontSize: 18 }} />
@@ -304,7 +304,7 @@ export default function ExploreInstitutes() {
                                 width: '32px', height: '32px', borderRadius: 'var(--radius-full)',
                                 bgcolor: "transparent", color: "var(--color-primary)",
                                 border: 'none', outline: 'none',
-                                cursor: 'pointer', transition: 'all 0.2s',
+                                cursor: 'pointer', transition: 'all var(--transition-base)',
                                 '&:hover': { bgcolor: "rgba(30, 79, 163, 0.1)" }
                               }}>
                                 <LocationOnIcon sx={{ fontSize: 18 }} />
@@ -317,7 +317,7 @@ export default function ExploreInstitutes() {
                               width: '32px', height: '32px', borderRadius: 'var(--radius-full)',
                               bgcolor: "transparent", color: "var(--color-primary)",
                               border: 'none', outline: 'none',
-                              cursor: 'pointer', transition: 'all 0.2s',
+                              cursor: 'pointer', transition: 'all var(--transition-base)',
                               '&:hover': { bgcolor: "rgba(30, 79, 163, 0.1)" }
                             }}>
                               <AttachFileIcon sx={{ fontSize: 18 }} />
@@ -326,20 +326,21 @@ export default function ExploreInstitutes() {
                         </Box>
 
                         {/* Avatar Overlapping the Banner Half-and-Half */}
-                        <Avatar
-                          src={inst.profile_pic_url}
-                          alt={inst.institution_name || inst.full_name}
-                          sx={{
-                            width: 84, height: 84,
-                            mt: "-42px", mb: 2,
-                            border: 'var(--border-heavy) solid rgba(255, 255, 255, 0.8)',
-                            fontSize: 32,
-                            bgcolor: "var(--color-white)", color: "var(--color-primary)", fontWeight: 800,
-                            position: "relative", zIndex: 1
-                          }}
-                        >
-                          {(inst.institution_name || inst.full_name || "?").charAt(0).toUpperCase()}
-                        </Avatar>
+                        <Box sx={{ position: "relative", display: "inline-flex", p: "2px", border: "2px solid var(--color-primary)", borderRadius: 'var(--radius-full)', zIndex: 2, bgcolor: "var(--card-bg)", mt: "-42px", mb: 2 }}>
+                          <Avatar
+                            src={inst.profile_pic_url}
+                            alt={inst.institution_name || inst.full_name}
+                            sx={{
+                              width: 84, height: 84,
+                              border: 'none',
+                              fontSize: 32,
+                              bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)", color: "var(--color-primary)", fontWeight: 800,
+                              position: "relative", zIndex: 1
+                            }}
+                          >
+                            {(inst.institution_name || inst.full_name || "?").charAt(0).toUpperCase()}
+                          </Avatar>
+                        </Box>
 
                         <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.5, color: 'var(--color-slate-900)', lineHeight: 1.3, textTransform: 'capitalize' }}>
                           {(() => {
@@ -410,8 +411,8 @@ export default function ExploreInstitutes() {
                             onClick={() => router.push(`/dashboard/explore/${inst.username}`)}
                             sx={{
                               flex: 1,
-                              background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)",
-                              color: "#ffffff !important",
+                              background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)",
+                              color: "var(--color-white)",
                               fontWeight: 'var(--font-semibold)',
                               py: 1,
                               borderRadius: 'var(--radius-md)',

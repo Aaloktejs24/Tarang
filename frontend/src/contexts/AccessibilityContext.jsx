@@ -26,7 +26,7 @@ export const useAccessibility = () => useContext(AccessibilityContext);
 const dropdownPaperSx = {
   borderRadius: 'var(--radius-lg)',
   marginTop: '8px',
-  border: 'var(--border-thin) solid #e2e8f0',
+  border: 'var(--border-thin) solid var(--color-slate-200)',
   backdropFilter: "blur(20px)",
   backgroundColor: "rgba(255, 255, 255, 0.85)",
   backgroundImage: "none"
@@ -50,8 +50,8 @@ const highlightedOptionSx = {
   lineHeight: 1.25,
   letterSpacing: 0,
   fontWeight: 'var(--font-semibold)',
-  color: 'var(--color-slate-700)',
-  transition: 'background-color 0.2s ease, color 0.2s ease',
+  color: 'var(--color-slate-900)',
+  transition: 'background-color var(--transition-base), color var(--transition-base)',
   backgroundColor: 'transparent',
   '& > .MuiSvgIcon-root, & > svg': {
     width: '1.45em',
@@ -60,18 +60,18 @@ const highlightedOptionSx = {
     flexShrink: 0
   },
   '&:hover': {
-    backgroundColor: '#f1f5f9 !important',
+    backgroundColor: '#f1f5f9',
     color: 'var(--color-primary)'
   },
   '&.Mui-focused': {
     backgroundColor: 'transparent',
   },
   '&.Mui-selected, &[aria-selected="true"]': {
-    backgroundColor: '#f1f5f9 !important',
+    backgroundColor: '#f1f5f9',
     color: 'var(--color-primary)',
     fontWeight: 'var(--font-bold)',
     '&:hover': {
-      backgroundColor: '#eaf0f7 !important'
+      backgroundColor: '#eaf0f7'
     }
   },
   '&:active': {
@@ -88,11 +88,21 @@ export const AccessibilityProvider = ({ children }) => {
   const [mounted, setMounted] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
+  const [locationName, setLocationName] = useState(null);
 
   const applyLocationData = useCallback((data, silent, savedLang) => {
     if (!data?.latitude || !data?.longitude) return false;
 
     setUserLocation({ lat: data.latitude, lon: data.longitude });
+
+    if (data.city || data.region) {
+      const parts = [];
+      if (data.city) parts.push(data.city);
+      if (data.region) parts.push(data.region);
+      if (data.country_name || data.country) parts.push(data.country_name || data.country);
+      else parts.push("India"); // Default country if omitted
+      setLocationName(parts.join(", "));
+    }
 
     if (!silent || !savedLang) {
       let detectedLang = 'hi';
@@ -206,8 +216,15 @@ export const AccessibilityProvider = ({ children }) => {
             setLanguage(detectedLang);
             
             // Update cache so reloading uses this new geolocation
+            const locNameParts = [];
+            if (districtName) locNameParts.push(districtName);
+            if (stateName) locNameParts.push(stateName);
+            if (addr.country) locNameParts.push(addr.country);
+            else locNameParts.push("India");
+            setLocationName(locNameParts.join(", "));
+
             localStorage.setItem(LOCATION_CACHE_KEY, JSON.stringify({ 
-              data: { latitude: lat, longitude: lon, region: stateName, city: districtName }, 
+              data: { latitude: lat, longitude: lon, region: stateName, city: districtName, country: addr.country }, 
               createdAt: Date.now() 
             }));
             localStorage.removeItem(LOCATION_FAILURE_KEY);
@@ -331,7 +348,7 @@ export const AccessibilityProvider = ({ children }) => {
             backdropFilter: "blur(30px)",
             WebkitBackdropFilter: "blur(30px)",
             borderRadius: 'var(--radius-md)',
-            transition: 'all 0.2s ease-in-out',
+            transition: 'all var(--transition-base)',
             "& .MuiOutlinedInput-notchedOutline": { 
               borderColor: "rgba(203, 213, 225, 0.8)", 
               borderWidth: "1.5px" 
@@ -341,7 +358,7 @@ export const AccessibilityProvider = ({ children }) => {
             },
             '&.Mui-focused': {
               backgroundColor: 'rgba(255, 255, 255, 0.4)',
-              outline: 'none !important'
+              outline: 'none'
             },
             '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
               borderColor: 'var(--color-primary)',
@@ -352,7 +369,7 @@ export const AccessibilityProvider = ({ children }) => {
             }
           },
           input: {
-            padding: "12px 14px !important",
+            padding: "12px 14px",
             fontSize: 'var(--font-base)'
           }
         }
@@ -413,16 +430,16 @@ export const AccessibilityProvider = ({ children }) => {
         styleOverrides: {
           root: {
             '&.Mui-focusVisible, &:focus': {
-              outline: 'none !important',
+              outline: 'none',
             }
           }
         }
       },
       MuiCheckbox: {
         defaultProps: {
-          icon: <span style={{ width: 22, height: 22, border: '1.5px solid rgba(203, 213, 225, 0.8)', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255, 255, 255, 0.3)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', boxSizing: 'border-box', transition: 'all 0.2s ease-in-out' }} />,
-          checkedIcon: <span style={{ width: 22, height: 22, backgroundColor: 'var(--color-primary)', border: '1.5px solid #0056b3', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box', transition: 'all 0.2s ease-in-out' }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>,
-          indeterminateIcon: <span style={{ width: 22, height: 22, backgroundColor: 'var(--color-primary)', border: '1.5px solid #0056b3', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box', transition: 'all 0.2s ease-in-out' }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>,
+          icon: <span style={{ width: 22, height: 22, border: '1.5px solid rgba(203, 213, 225, 0.8)', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255, 255, 255, 0.3)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', boxSizing: 'border-box', transition: 'all var(--transition-base)' }} />,
+          checkedIcon: <span style={{ width: 22, height: 22, backgroundColor: 'var(--color-primary)', border: '1.5px solid var(--color-primary)', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box', transition: 'all var(--transition-base)' }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>,
+          indeterminateIcon: <span style={{ width: 22, height: 22, backgroundColor: 'var(--color-primary)', border: '1.5px solid var(--color-primary)', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box', transition: 'all var(--transition-base)' }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>,
         },
         styleOverrides: {
           root: {
@@ -431,7 +448,7 @@ export const AccessibilityProvider = ({ children }) => {
             },
             '&.Mui-focusVisible span, &:focus-within span': {
               borderColor: 'var(--color-primary)',
-              boxShadow: '0 0 0 3px rgba(0, 86, 179, 0.12)',
+              
             }
           }
         }
@@ -466,18 +483,19 @@ export const AccessibilityProvider = ({ children }) => {
       setLanguage,
       autoDetectLanguage,
       isDetecting,
-      userLocation
+      userLocation,
+      locationName
     }}>
       <ThemeProvider theme={theme}>
         <GlobalStyles styles={{
           '*, html, body, button, input, select, textarea, .MuiTypography-root, .MuiButtonBase-root, ::placeholder, input::placeholder, textarea::placeholder': {
-            fontFamily: `${fontFamily} !important`,
+            fontFamily: `${fontFamily}`,
           },
           '.MuiOutlinedInput-notchedOutline legend': {
-            width: 'auto !important',
-            float: 'none !important',
-            padding: '0 !important',
-            margin: '0 !important',
+            width: 'auto',
+            float: 'none',
+            padding: '0',
+            margin: '0',
           }
         }} />
         {children}

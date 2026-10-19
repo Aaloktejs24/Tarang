@@ -14,7 +14,7 @@ export default function ContactPage() {
   const { t } = useTranslation();
   useBgPreloader('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2000');
   return (
-    <Box sx={{ bgcolor: "var(--color-white)", minHeight: "var(--size-screen-h)", display: "flex", flexDirection: "column" }}>
+    <Box sx={{ bgcolor: "transparent", minHeight: "var(--size-screen-h)", display: "flex", flexDirection: "column" }}>
       <Navbar variant="landing" />
 
       {/* ─── HEADER BANNER ────────────────────────────────────────────────── */}
@@ -133,7 +133,7 @@ export default function ContactPage() {
             <Grid size={{ xs: 12, md: 5 }}>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 3, pt: { xs: 0, md: 8 } }}>
                 
-                <Paper elevation={0} sx={{ p: 4, borderRadius: 'var(--radius-lg)', border: "var(--border-thin) solid #e2e8f0", display: "flex", alignItems: "flex-start", gap: 3, transition: "var(--transition-slow)", "&:hover": { borderColor: "var(--color-primary)" } }}>
+                <Paper elevation={0} sx={{ p: 4, borderRadius: 'var(--radius-lg)', border: "var(--border-thin) solid var(--color-slate-200)", display: "flex", alignItems: "flex-start", gap: 3, transition: "var(--transition-slow)", "&:hover": { borderColor: "var(--color-primary)" } }}>
                   <Box sx={{ width: 56, height: 56, borderRadius: 'var(--radius-full)', bgcolor: "rgba(0, 86, 179, 0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <DirectionsIcon sx={{ color: "var(--color-primary)", fontSize: "1.8rem" }} />
                   </Box>
@@ -144,7 +144,7 @@ export default function ContactPage() {
                   </Box>
                 </Paper>
 
-                <Paper elevation={0} sx={{ p: 4, borderRadius: 'var(--radius-lg)', border: "var(--border-thin) solid #e2e8f0", display: "flex", alignItems: "flex-start", gap: 3, transition: "var(--transition-slow)", "&:hover": { borderColor: "var(--color-success)" } }}>
+                <Paper elevation={0} sx={{ p: 4, borderRadius: 'var(--radius-lg)', border: "var(--border-thin) solid var(--color-slate-200)", display: "flex", alignItems: "flex-start", gap: 3, transition: "var(--transition-slow)", "&:hover": { borderColor: "var(--color-success)" } }}>
                   <Box sx={{ width: 56, height: 56, borderRadius: 'var(--radius-full)', bgcolor: "rgba(40, 167, 69, 0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <MailOutlineIcon sx={{ color: "var(--color-success)", fontSize: "1.8rem" }} />
                   </Box>
@@ -155,7 +155,7 @@ export default function ContactPage() {
                   </Box>
                 </Paper>
 
-                <Paper elevation={0} sx={{ p: 4, borderRadius: 'var(--radius-lg)', border: "var(--border-thin) solid #e2e8f0", display: "flex", alignItems: "flex-start", gap: 3, transition: "var(--transition-slow)", "&:hover": { borderColor: "var(--color-primary)" } }}>
+                <Paper elevation={0} sx={{ p: 4, borderRadius: 'var(--radius-lg)', border: "var(--border-thin) solid var(--color-slate-200)", display: "flex", alignItems: "flex-start", gap: 3, transition: "var(--transition-slow)", "&:hover": { borderColor: "var(--color-primary)" } }}>
                   <Box sx={{ width: 56, height: 56, borderRadius: 'var(--radius-full)', bgcolor: "rgba(0, 86, 179, 0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <HeadsetMicIcon sx={{ color: "var(--color-primary)", fontSize: "1.8rem" }} />
                   </Box>

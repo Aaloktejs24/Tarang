@@ -82,7 +82,7 @@ export const LoadingProvider = ({ children }) => {
     <LoadingContext.Provider value={{ isLoading, startLoading, stopLoading, resetLoading }}>
       {children}
       <BackdropBlur open={isLoading} zIndex={99998}>
-        <CircularProgress sx={{ color: 'var(--color-primary)' }} />
+        <CircularProgress key={isLoading ? 'spinning' : 'idle'} sx={{ color: 'var(--color-primary)' }} />
       </BackdropBlur>
     </LoadingContext.Provider>
   );

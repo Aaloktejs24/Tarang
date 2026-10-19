@@ -17,20 +17,20 @@ export default function InstituteSkeleton() {
               sx={{ display: "flex", alignItems: "center", p: 2, gap: 2 }}
             >
               {/* Icon — 48×48 rounded box */}
-              <Box className="MuiSkeleton-root" sx={{ width: 48, height: 48, borderRadius: 'var(--radius-lg)', flexShrink: 0 }} />
+              <Skeleton variant="rectangular" sx={{ width: 48, height: 48, borderRadius: 'var(--radius-lg)', flexShrink: 0 }} />
 
               {/* Title + Subtitle with gap */}
               <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                <Typography variant="subtitle1" noWrap sx={{ lineHeight: 1.5, mb: 0.5, fontSize: 'var(--font-base)', py: 0.5, display: 'flex', alignItems: 'center' }}>
-                  <Box className="MuiSkeleton-root" sx={{ width: "70%", height: 18, borderRadius: 'var(--radius-sm)' }} />
+                <Typography variant="subtitle1" noWrap sx={{ lineHeight: 1.5, mb: 0.5, fontSize: 'var(--font-base)', py: 0.5 }}>
+                  <Skeleton variant="text" width="70%" />
                 </Typography>
-                <Typography variant="caption" noWrap sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Box className="MuiSkeleton-root" sx={{ width: "55%", height: 14, borderRadius: 'var(--radius-sm)' }} />
+                <Typography variant="caption" noWrap>
+                  <Skeleton variant="text" width="55%" />
                 </Typography>
               </Box>
 
               {/* Arrow */}
-              <Box className="MuiSkeleton-root" sx={{ width: 14, height: 14, borderRadius: '50%', flexShrink: 0 }} />
+              <Skeleton variant="circular" width={14} height={14} sx={{ flexShrink: 0 }} />
             </PremiumCard>
           ))}
         </Box>

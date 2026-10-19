@@ -150,7 +150,7 @@ export default function InstituteDetails() {
                       <Box className="MuiSkeleton-root" sx={{ width: "50%", height: 14, borderRadius: 'var(--radius-sm)' }} />
                     </Typography>
                   </Box>
-                  <Box className="MuiSkeleton-root" sx={{ width: 14, height: 14, borderRadius: '50%', flexShrink: 0 }} />
+                  <Box className="MuiSkeleton-root" sx={{ width: 14, height: 14, borderRadius: 'var(--radius-full)', flexShrink: 0 }} />
                 </Card>
               ))}
             </>
@@ -249,16 +249,16 @@ export default function InstituteDetails() {
           disableRipple
           onClick={() => router.push(`/dashboard/explore/${username}/admission`)}
           sx={{
-            bgcolor: '#0056b3 !important',
-            color: '#ffffff !important',
+            bgcolor: 'var(--color-primary)',
+            color: 'var(--color-white)',
             px: { xs: 3, md: 4 },
             py: { xs: 1.2, md: 1.5 },
-            borderRadius: '50px',
-            border: '1.5px solid #f59e0b',
+            borderRadius: 'var(--radius-full)',
+            border: '1.5px solid var(--color-warning)',
             textTransform: 'none',
             transition: 'var(--transition-slow)',
             '&:hover, &:focus, &:active': {
-              bgcolor: '#004494 !important',
+              bgcolor: '#004494',
             }
           }}
         >

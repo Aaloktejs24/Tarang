@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"backend/services/auth/internal/auth"
+	"backend/shared/errors"
 
 	"github.com/alexedwards/argon2id"
 	"github.com/go-chi/chi/v5"
@@ -60,13 +61,13 @@ func (h *AuthHandler) RegisterRoutes(r chi.Router) {
 	r.Post("/settings/mfa", h.settingsMFA)
 	r.Post("/register/resend", h.resendOTP)
 	r.Post("/logout", h.logout)
+	r.Get("/me", h.me)
 
 	// Admin Token & Super Admin Routes
 	r.Post("/admin-token/validate", h.validateAdminToken)
 
 	r.Get("/super-admin/token", h.getSuperAdminToken)
 	r.Post("/super-admin/send-email", h.sendSuperAdminEmail)
-
 
 	h.registerAdminWebAuthnRoutes(r)
 
@@ -84,12 +85,12 @@ func (h *AuthHandler) registerStart(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		respondError(w, http.StatusBadRequest, "invalid payload")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
 
 	if in.Email == "" {
-		respondError(w, http.StatusBadRequest, "email required")
+		respondError(w, http.StatusBadRequest, errors.ErrEmailRequired)
 		return
 	}
 
@@ -110,7 +111,7 @@ func (h *AuthHandler) sendRegistrationEmailOtp(w http.ResponseWriter, r *http.Re
 	idStr := chi.URLParam(r, "id")
 	sessionID, err := uuid.Parse(idStr)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "invalid session id")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidSessionID)
 		return
 	}
 
@@ -127,7 +128,7 @@ func (h *AuthHandler) verifyRegistrationEmailOtp(w http.ResponseWriter, r *http.
 	idStr := chi.URLParam(r, "id")
 	sessionID, err := uuid.Parse(idStr)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "invalid session id")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidSessionID)
 		return
 	}
 
@@ -135,7 +136,7 @@ func (h *AuthHandler) verifyRegistrationEmailOtp(w http.ResponseWriter, r *http.
 		OTP string `json:"otp"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		respondError(w, http.StatusBadRequest, "invalid payload")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
 
@@ -150,7 +151,7 @@ func (h *AuthHandler) registrationTotpSetup(w http.ResponseWriter, r *http.Reque
 	idStr := chi.URLParam(r, "id")
 	sessionID, err := uuid.Parse(idStr)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "invalid session id")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidSessionID)
 		return
 	}
 
@@ -170,7 +171,7 @@ func (h *AuthHandler) completeRegistrationSession(w http.ResponseWriter, r *http
 	idStr := chi.URLParam(r, "id")
 	sessionID, err := uuid.Parse(idStr)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "invalid session id")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidSessionID)
 		return
 	}
 
@@ -185,22 +186,22 @@ func (h *AuthHandler) completeRegistrationSession(w http.ResponseWriter, r *http
 		TotpCode string `json:"totp_code"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		respondError(w, http.StatusBadRequest, "invalid payload")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
 
 	if in.FullName == "" {
-		respondError(w, http.StatusBadRequest, "full name required")
+		respondError(w, http.StatusBadRequest, errors.ErrFullNameRequired)
 		return
 	}
 
 	if in.Role == "" {
-		respondError(w, http.StatusBadRequest, "role required")
+		respondError(w, http.StatusBadRequest, errors.ErrRoleRequired)
 		return
 	}
 
 	if len(in.Password) < 8 {
-		respondError(w, http.StatusBadRequest, "password must be at least 8 characters")
+		respondError(w, http.StatusBadRequest, errors.ErrPasswordTooShort)
 		return
 	}
 
@@ -216,14 +217,14 @@ func (h *AuthHandler) completeRegistrationSession(w http.ResponseWriter, r *http
 	// Generate tokens
 	access, err := h.svc.CreateAccessJWT(acc.ID)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "registration succeeded but token generation failed")
+		respondError(w, http.StatusInternalServerError, errors.ErrRegSucceededTokenFailed)
 		return
 	}
 
 	ttl := getRefreshTTLByRole(in.Role)
 	refreshRaw, _, err := h.svc.GenerateRefreshToken(ctx, acc.ID, ttl)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "registration succeeded but token generation failed")
+		respondError(w, http.StatusInternalServerError, errors.ErrRegSucceededTokenFailed)
 		return
 	}
 
@@ -259,7 +260,7 @@ func (h *AuthHandler) checkUsername(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if username == "" {
-		respondError(w, http.StatusBadRequest, "username required")
+		respondError(w, http.StatusBadRequest, errors.ErrUsernameRequired)
 		return
 	}
 
@@ -282,7 +283,7 @@ func (h *AuthHandler) checkEmail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if email == "" {
-		respondError(w, http.StatusBadRequest, "email required")
+		respondError(w, http.StatusBadRequest, errors.ErrEmailRequired)
 		return
 	}
 
@@ -310,12 +311,12 @@ func (h *AuthHandler) resendOTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		respondError(w, http.StatusBadRequest, "invalid payload")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
 
 	if in.Target == "" {
-		respondError(w, http.StatusBadRequest, "target required")
+		respondError(w, http.StatusBadRequest, errors.ErrTargetRequired)
 		return
 	}
 
@@ -328,7 +329,7 @@ func (h *AuthHandler) resendOTP(w http.ResponseWriter, r *http.Request) {
 
 	target, err := h.svc.ResendOTP(r.Context(), purpose, in.Target)
 	if err != nil {
-		if err.Error() == "user not found" {
+		if err.Error() == errors.ErrUserNotFound {
 			// Generic message to avoid enumeration
 			respondJSON(w, http.StatusOK, map[string]string{
 				"message": "OTP sent",
@@ -362,20 +363,20 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		respondError(w, http.StatusBadRequest, "invalid payload")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
 
 	identifier := strings.TrimSpace(in.Identifier)
 	if identifier == "" {
-		respondError(w, http.StatusBadRequest, "email or username required")
+		respondError(w, http.StatusBadRequest, errors.ErrEmailOrUsernameRequired)
 		return
 	}
 
 	// Restriction: Phone number cannot be used for login
 	// Basic regex for digits-only or + starting string
 	if isPhone(identifier) {
-		respondError(w, http.StatusUnauthorized, "invalid email/username or password")
+		respondError(w, http.StatusUnauthorized, errors.ErrInvalidCredentials)
 		return
 	}
 
@@ -399,14 +400,14 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil || acc == nil {
 		h.svc.RecordLoginFailure(ctx, identifier)
-		respondError(w, http.StatusUnauthorized, "invalid email/username or password")
+		respondError(w, http.StatusUnauthorized, errors.ErrInvalidCredentials)
 		return
 	}
 
 	ok, err := argon2id.ComparePasswordAndHash(in.Password, acc.PasswordHash)
 	if err != nil || !ok {
 		h.svc.RecordLoginFailure(ctx, identifier)
-		respondError(w, http.StatusUnauthorized, "invalid password")
+		respondError(w, http.StatusUnauthorized, errors.ErrInvalidCredentials)
 		return
 	}
 
@@ -431,11 +432,11 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 		// For admins and super_admins, we mandate Biometric + OTP/TOTP setup during login
 		if role == "admin" || role == "super_admin" {
 			hasMFA := requiresTotp || requiresOtp
-			
+
 			// Check if they have a biometric credential registered
 			creds, err := h.svc.GetAdminWebAuthnCredentials(ctx, role, identifier)
 			hasBiometric := err == nil && len(creds) > 0
-			
+
 			if !hasMFA || !hasBiometric {
 				requiresSetup = true
 			}
@@ -455,14 +456,14 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err := h.svc.CreateLoginSession(ctx, session); err != nil {
-			respondError(w, http.StatusInternalServerError, "session generation failed")
+			respondError(w, http.StatusInternalServerError, errors.ErrSessionGenerationFailed)
 			return
 		}
 
 		if requiresOtp {
 			_, err := h.svc.StartLoginOTP(ctx, acc.Email)
 			if err != nil {
-				respondError(w, http.StatusInternalServerError, "failed to send otp")
+				respondError(w, http.StatusInternalServerError, errors.ErrFailedToSendOTP)
 				return
 			}
 		}
@@ -480,14 +481,14 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 	// Normal Login without TOTP
 	access, err := h.svc.CreateAccessJWT(acc.ID)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "token generation failed")
+		respondError(w, http.StatusInternalServerError, errors.ErrTokenGenerationFailed)
 		return
 	}
 
 	ttl := getRefreshTTLByRole(role)
 	refreshRaw, _, err := h.svc.GenerateRefreshToken(ctx, acc.ID, ttl)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "token generation failed")
+		respondError(w, http.StatusInternalServerError, errors.ErrTokenGenerationFailed)
 		return
 	}
 
@@ -520,13 +521,13 @@ func (h *AuthHandler) extractUserID(r *http.Request) (uuid.UUID, bool, error) {
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
 		fmt.Printf("TOKEN_DEBUG: [EMPTY] No Authorization header found\n")
-		return uuid.Nil, false, fmt.Errorf("missing authorization header")
+		return uuid.Nil, false, fmt.Errorf(errors.ErrMissingAuthHeader)
 	}
 
 	parts := strings.Split(authHeader, " ")
 	if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
 		fmt.Printf("TOKEN_DEBUG: [MALFORMED] Header: %s\n", authHeader)
-		return uuid.Nil, false, fmt.Errorf("invalid authorization header format")
+		return uuid.Nil, false, fmt.Errorf(errors.ErrInvalidAuthHeader)
 	}
 
 	token := parts[1]
@@ -567,12 +568,12 @@ func (h *AuthHandler) forgotPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		respondError(w, http.StatusBadRequest, "invalid payload")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
 
 	if in.Target == "" {
-		respondError(w, http.StatusBadRequest, "email or phone required")
+		respondError(w, http.StatusBadRequest, errors.ErrEmailOrPhoneRequired)
 		return
 	}
 
@@ -599,17 +600,17 @@ func (h *AuthHandler) resetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		respondError(w, http.StatusBadRequest, "invalid payload")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
 
 	if in.Target == "" || in.Code == "" || in.Password == "" {
-		respondError(w, http.StatusBadRequest, "missing fields")
+		respondError(w, http.StatusBadRequest, errors.ErrMissingFields)
 		return
 	}
 
 	if len(in.Password) < 8 {
-		respondError(w, http.StatusBadRequest, "password too short")
+		respondError(w, http.StatusBadRequest, errors.ErrPasswordTooShort)
 		return
 	}
 
@@ -635,30 +636,30 @@ func (h *AuthHandler) verifyPhoneStart(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		respondError(w, http.StatusBadRequest, "invalid payload")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
 
 	uid, err := uuid.Parse(in.UserID)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "invalid user id")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidUserIdentifier)
 		return
 	}
 
 	// Security Patch: Prevent verifying unlinked phone numbers
 	user, err := h.svc.GetUserByID(r.Context(), uid)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "user not found")
+		respondError(w, http.StatusBadRequest, errors.ErrUserNotFound)
 		return
 	}
 
 	if user.Phone == "" {
-		respondError(w, http.StatusBadRequest, "no phone number linked to this account")
+		respondError(w, http.StatusBadRequest, errors.ErrNoPhoneLinked)
 		return
 	}
 
 	if user.Phone != in.Phone {
-		respondError(w, http.StatusBadRequest, "phone number does not match linked account")
+		respondError(w, http.StatusBadRequest, errors.ErrPhoneMismatch)
 		return
 	}
 
@@ -681,13 +682,13 @@ func (h *AuthHandler) verifyPhoneConfirm(w http.ResponseWriter, r *http.Request)
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		respondError(w, http.StatusBadRequest, "invalid payload")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
 
 	uid, err := uuid.Parse(in.UserID)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "invalid user id")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidUserIdentifier)
 		return
 	}
 
@@ -724,7 +725,7 @@ func (h *AuthHandler) refresh(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if in.RefreshToken == "" {
-		respondError(w, http.StatusUnauthorized, "refresh token required")
+		respondError(w, http.StatusUnauthorized, errors.ErrRefreshTokenRequired)
 		return
 	}
 
@@ -732,19 +733,19 @@ func (h *AuthHandler) refresh(w http.ResponseWriter, r *http.Request) {
 
 	token, err := h.svc.VerifyRefreshToken(ctx, in.RefreshToken)
 	if err != nil {
-		respondError(w, http.StatusUnauthorized, "invalid or expired token")
+		respondError(w, http.StatusUnauthorized, errors.ErrInvalidOrExpiredToken)
 		return
 	}
 
 	newRaw, _, ttl, err := h.svc.RotateRefreshToken(ctx, token)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "could not rotate token")
+		respondError(w, http.StatusInternalServerError, errors.ErrCouldNotRotateToken)
 		return
 	}
 
 	access, err := h.svc.CreateAccessJWT(token.UserID)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "failed to create access token")
+		respondError(w, http.StatusInternalServerError, errors.ErrFailedToCreateAccessToken)
 		return
 	}
 
@@ -777,7 +778,7 @@ func (h *AuthHandler) totpSetup(w http.ResponseWriter, r *http.Request) {
 	// TOTP setup typically happens AFTER login when requires_setup is true
 	// We'll use session_id for setup as well if temp tokens are gone.
 	// Wait, totpSetup was previously using extractUserID which reads the Bearer token (temp_token or access_token).
-	// Let's modify totpSetup to check for session_id in body if it's during setup flow, 
+	// Let's modify totpSetup to check for session_id in body if it's during setup flow,
 	// or fallback to extractUserID for authenticated users setting it up from settings.
 	// Actually, settingsMFA and login flows are distinct. Let's adapt it to check session_id in payload for setup.
 
@@ -790,12 +791,12 @@ func (h *AuthHandler) totpSetup(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&in); err == nil && in.SessionID != "" {
 		sessionUUID, err := uuid.Parse(in.SessionID)
 		if err != nil {
-			respondError(w, http.StatusBadRequest, "invalid session id")
+			respondError(w, http.StatusBadRequest, errors.ErrInvalidSessionID)
 			return
 		}
 		session, err := h.svc.GetLoginSessionByID(r.Context(), sessionUUID)
 		if err != nil || session.ExpiresAt.Before(time.Now()) {
-			respondError(w, http.StatusUnauthorized, "invalid or expired session")
+			respondError(w, http.StatusUnauthorized, errors.ErrInvalidOrExpiredSession)
 			return
 		}
 		uid = session.UserID
@@ -804,7 +805,7 @@ func (h *AuthHandler) totpSetup(w http.ResponseWriter, r *http.Request) {
 		var err error
 		uid, _, err = h.extractUserID(r)
 		if err != nil {
-			respondError(w, http.StatusUnauthorized, "unauthorized")
+			respondError(w, http.StatusUnauthorized, errors.ErrUnauthorized)
 			return
 		}
 	}
@@ -814,20 +815,20 @@ func (h *AuthHandler) totpSetup(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.svc.GetUserByID(ctx, uid)
 	if err != nil {
-		respondError(w, http.StatusNotFound, "user not found")
+		respondError(w, http.StatusNotFound, errors.ErrUserNotFound)
 		return
 	}
 
 	secret, url, err := h.svc.GenerateTOTPSecret(user.Email)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "server error")
+		respondError(w, http.StatusInternalServerError, errors.ErrInternalServer)
 		return
 	}
 
 	// Store the secret but don't enable yet
 	err = h.svc.SetUserTOTPSecret(ctx, uid, secret)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "could not setup TOTP")
+		respondError(w, http.StatusInternalServerError, errors.ErrCouldNotSetupTOTP)
 		return
 	}
 
@@ -849,7 +850,7 @@ func (h *AuthHandler) totpVerify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		respondError(w, http.StatusBadRequest, "invalid payload")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
 
@@ -857,12 +858,12 @@ func (h *AuthHandler) totpVerify(w http.ResponseWriter, r *http.Request) {
 	if in.SessionID != "" {
 		sessionUUID, err := uuid.Parse(in.SessionID)
 		if err != nil {
-			respondError(w, http.StatusBadRequest, "invalid session id")
+			respondError(w, http.StatusBadRequest, errors.ErrInvalidSessionID)
 			return
 		}
 		session, err := h.svc.GetLoginSessionByID(r.Context(), sessionUUID)
 		if err != nil || session.ExpiresAt.Before(time.Now()) {
-			respondError(w, http.StatusUnauthorized, "invalid or expired session")
+			respondError(w, http.StatusUnauthorized, errors.ErrInvalidOrExpiredSession)
 			return
 		}
 		uid = session.UserID
@@ -872,7 +873,7 @@ func (h *AuthHandler) totpVerify(w http.ResponseWriter, r *http.Request) {
 		var err error
 		uid, _, err = h.extractUserID(r)
 		if err != nil {
-			respondError(w, http.StatusUnauthorized, "unauthorized")
+			respondError(w, http.StatusUnauthorized, errors.ErrUnauthorized)
 			return
 		}
 	}
@@ -882,31 +883,31 @@ func (h *AuthHandler) totpVerify(w http.ResponseWriter, r *http.Request) {
 
 	acc, err := h.svc.GetAccountByID(ctx, uid)
 	if err != nil {
-		respondError(w, http.StatusNotFound, "account not found")
+		respondError(w, http.StatusNotFound, errors.ErrAccountNotFound)
 		return
 	}
 
 	if acc.TOTPSecret == nil || *acc.TOTPSecret == "" {
-		respondError(w, http.StatusUnauthorized, "TOTP not setup")
+		respondError(w, http.StatusUnauthorized, errors.ErrTOTPNotSetup)
 		return
 	}
 
 	if !h.svc.ValidateTOTP(*acc.TOTPSecret, in.Code) {
-		respondError(w, http.StatusUnauthorized, "invalid code")
+		respondError(w, http.StatusUnauthorized, errors.ErrInvalidCode)
 		return
 	}
 
 	// Verify and Enable
 	err = h.svc.UpdateUserMFAPreference(ctx, uid, "totp")
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "could not enable TOTP")
+		respondError(w, http.StatusInternalServerError, errors.ErrCouldNotEnableTOTP)
 		return
 	}
 
 	// Issue full tokens now that TOTP is verified
 	access, err := h.svc.CreateAccessJWT(acc.ID)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "token generation failed")
+		respondError(w, http.StatusInternalServerError, errors.ErrTokenGenerationFailed)
 		return
 	}
 
@@ -919,7 +920,7 @@ func (h *AuthHandler) totpVerify(w http.ResponseWriter, r *http.Request) {
 	ttl := getRefreshTTLByRole(user.Role)
 	refreshRaw, _, err := h.svc.GenerateRefreshToken(ctx, user.ID, ttl)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "token generation failed")
+		respondError(w, http.StatusInternalServerError, errors.ErrTokenGenerationFailed)
 		return
 	}
 
@@ -952,29 +953,29 @@ func (h *AuthHandler) loginTOTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		respondError(w, http.StatusBadRequest, "invalid payload")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
 
 	if in.SessionID == "" {
-		respondError(w, http.StatusUnauthorized, "session_id required")
+		respondError(w, http.StatusUnauthorized, errors.ErrSessionIDRequired)
 		return
 	}
 
 	sessionUUID, err := uuid.Parse(in.SessionID)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "invalid session id")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidSessionID)
 		return
 	}
 
 	session, err := h.svc.GetLoginSessionByID(r.Context(), sessionUUID)
 	if err != nil || session.ExpiresAt.Before(time.Now()) {
-		respondError(w, http.StatusUnauthorized, "invalid or expired session")
+		respondError(w, http.StatusUnauthorized, errors.ErrInvalidOrExpiredSession)
 		return
 	}
 
 	if !session.RequiresTOTP {
-		respondError(w, http.StatusBadRequest, "totp verification not required")
+		respondError(w, http.StatusBadRequest, errors.ErrTOTPVerificationNotReq)
 		return
 	}
 
@@ -987,37 +988,37 @@ func (h *AuthHandler) loginTOTP(w http.ResponseWriter, r *http.Request) {
 
 	acc, err := h.svc.GetAccountByID(ctx, uid)
 	if err != nil {
-		respondError(w, http.StatusNotFound, "account not found")
+		respondError(w, http.StatusNotFound, errors.ErrAccountNotFound)
 		return
 	}
 
 	if acc.MFAPreference != "totp" {
-		respondError(w, http.StatusBadRequest, "totp not enabled for user")
+		respondError(w, http.StatusBadRequest, errors.ErrTOTPNotEnabledForUser)
 		return
 	}
 
 	if acc.TOTPSecret == nil || !h.svc.ValidateTOTP(*acc.TOTPSecret, in.Code) {
-		respondError(w, http.StatusUnauthorized, "invalid code")
+		respondError(w, http.StatusUnauthorized, errors.ErrInvalidCode)
 		return
 	}
 
 	user, err := h.svc.GetUserByID(ctx, uid)
 	if err != nil {
-		respondError(w, http.StatusNotFound, "user not found")
+		respondError(w, http.StatusNotFound, errors.ErrUserNotFound)
 		return
 	}
 
 	// Success, issue full tokens
 	access, err := h.svc.CreateAccessJWT(acc.ID)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "token generation failed")
+		respondError(w, http.StatusInternalServerError, errors.ErrTokenGenerationFailed)
 		return
 	}
 
 	ttl := getRefreshTTLByRole(user.Role)
 	refreshRaw, _, err := h.svc.GenerateRefreshToken(ctx, user.ID, ttl)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "token generation failed")
+		respondError(w, http.StatusInternalServerError, errors.ErrTokenGenerationFailed)
 		return
 	}
 
@@ -1049,29 +1050,29 @@ func (h *AuthHandler) loginOTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		respondError(w, http.StatusBadRequest, "invalid payload")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
 
 	if in.SessionID == "" {
-		respondError(w, http.StatusUnauthorized, "session_id required")
+		respondError(w, http.StatusUnauthorized, errors.ErrSessionIDRequired)
 		return
 	}
 
 	sessionUUID, err := uuid.Parse(in.SessionID)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "invalid session id")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidSessionID)
 		return
 	}
 
 	session, err := h.svc.GetLoginSessionByID(r.Context(), sessionUUID)
 	if err != nil || session.ExpiresAt.Before(time.Now()) {
-		respondError(w, http.StatusUnauthorized, "invalid or expired session")
+		respondError(w, http.StatusUnauthorized, errors.ErrInvalidOrExpiredSession)
 		return
 	}
 
 	if !session.RequiresOTP {
-		respondError(w, http.StatusBadRequest, "otp verification not required")
+		respondError(w, http.StatusBadRequest, errors.ErrOTPVerificationNotReq)
 		return
 	}
 
@@ -1084,38 +1085,38 @@ func (h *AuthHandler) loginOTP(w http.ResponseWriter, r *http.Request) {
 
 	acc, err := h.svc.GetAccountByID(ctx, uid)
 	if err != nil {
-		respondError(w, http.StatusNotFound, "account not found")
+		respondError(w, http.StatusNotFound, errors.ErrAccountNotFound)
 		return
 	}
 
 	if acc.MFAPreference != "email" {
-		respondError(w, http.StatusBadRequest, "email otp not enabled for user")
+		respondError(w, http.StatusBadRequest, errors.ErrEmailOTPNotEnabled)
 		return
 	}
 
 	ok, err := h.svc.VerifyOTP(ctx, "login", acc.Email, in.Code)
 	if err != nil || !ok {
-		respondError(w, http.StatusUnauthorized, "invalid or expired otp")
+		respondError(w, http.StatusUnauthorized, errors.ErrInvalidOrExpiredOTP)
 		return
 	}
 
 	user, err := h.svc.GetUserByID(ctx, uid)
 	if err != nil {
-		respondError(w, http.StatusNotFound, "user not found")
+		respondError(w, http.StatusNotFound, errors.ErrUserNotFound)
 		return
 	}
 
 	// Success, issue full tokens
 	access, err := h.svc.CreateAccessJWT(acc.ID)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "token generation failed")
+		respondError(w, http.StatusInternalServerError, errors.ErrTokenGenerationFailed)
 		return
 	}
 
 	ttl := getRefreshTTLByRole(user.Role)
 	refreshRaw, _, err := h.svc.GenerateRefreshToken(ctx, user.ID, ttl)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "token generation failed")
+		respondError(w, http.StatusInternalServerError, errors.ErrTokenGenerationFailed)
 		return
 	}
 
@@ -1146,7 +1147,7 @@ func (h *AuthHandler) settingsMFA(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		respondError(w, http.StatusBadRequest, "invalid payload")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
 
@@ -1158,7 +1159,7 @@ func (h *AuthHandler) settingsMFA(w http.ResponseWriter, r *http.Request) {
 
 	uid, _, err := h.extractUserID(r)
 	if err != nil {
-		respondError(w, http.StatusUnauthorized, "unauthorized")
+		respondError(w, http.StatusUnauthorized, errors.ErrUnauthorized)
 		return
 	}
 
@@ -1167,23 +1168,23 @@ func (h *AuthHandler) settingsMFA(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.svc.GetUserByID(ctx, uid)
 	if err != nil {
-		respondError(w, http.StatusNotFound, "user not found")
+		respondError(w, http.StatusNotFound, errors.ErrUserNotFound)
 		return
 	}
 
 	if user.Role == "admin" && pref == "none" {
-		respondError(w, http.StatusForbidden, "admins must have mfa enabled")
+		respondError(w, http.StatusForbidden, errors.ErrAdminsMustHaveMFA)
 		return
 	}
 
 	if pref == "totp" && user.TOTPSecret == "" {
-		respondError(w, http.StatusBadRequest, "totp not setup. please complete setup first")
+		respondError(w, http.StatusBadRequest, errors.ErrTOTPNotSetup)
 		return
 	}
 
 	err = h.svc.UpdateUserMFAPreference(ctx, user.ID, pref)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "failed to update preference")
+		respondError(w, http.StatusInternalServerError, errors.ErrFailedToUpdatePreference)
 		return
 	}
 
@@ -1195,13 +1196,13 @@ func (h *AuthHandler) settingsMFA(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
-		respondError(w, http.StatusBadRequest, "missing authorization header")
+		respondError(w, http.StatusBadRequest, errors.ErrMissingAuthHeader)
 		return
 	}
 
 	parts := strings.Split(authHeader, " ")
 	if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
-		respondError(w, http.StatusBadRequest, "invalid authorization header format")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidAuthHeader)
 		return
 	}
 
@@ -1260,7 +1261,7 @@ func (h *AuthHandler) validateAdminToken(w http.ResponseWriter, r *http.Request)
 		Role  string `json:"role"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		respondError(w, http.StatusBadRequest, "invalid payload")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
 
@@ -1278,22 +1279,20 @@ func (h *AuthHandler) validateAdminToken(w http.ResponseWriter, r *http.Request)
 	respondJSON(w, http.StatusOK, map[string]bool{"valid": true})
 }
 
-
-
 func (h *AuthHandler) getSuperAdminToken(w http.ResponseWriter, r *http.Request) {
 	// In production this should require auth middleware; left open for now.
 	adminToken, err := h.svc.GetActiveAdminToken(r.Context(), "admin")
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "no active admin token found")
+		respondError(w, http.StatusInternalServerError, errors.ErrNoActiveAdminToken)
 		return
 	}
 	superAdminToken, err := h.svc.GetActiveAdminToken(r.Context(), "super_admin")
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "no active super admin token found")
+		respondError(w, http.StatusInternalServerError, errors.ErrNoActiveSuperAdminToken)
 		return
 	}
 	respondJSON(w, http.StatusOK, map[string]string{
-		"token": adminToken,
+		"token":             adminToken,
 		"super_admin_token": superAdminToken,
 	})
 }
@@ -1303,15 +1302,36 @@ func (h *AuthHandler) sendSuperAdminEmail(w http.ResponseWriter, r *http.Request
 		Email string `json:"email"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		respondError(w, http.StatusBadRequest, "invalid payload")
+		respondError(w, http.StatusBadRequest, errors.ErrInvalidPayload)
 		return
 	}
 
 	err := h.svc.SendAdminTokenEmail(r.Context(), in.Email)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "failed to send email")
+		respondError(w, http.StatusInternalServerError, errors.ErrFailedToSendEmail)
 		return
 	}
 
 	respondJSON(w, http.StatusOK, map[string]string{"message": "email sent successfully"})
+}
+
+func (h *AuthHandler) me(w http.ResponseWriter, r *http.Request) {
+	uid, _, err := h.extractUserID(r)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, errors.ErrUnauthorized)
+		return
+	}
+
+	acc, err := h.svc.GetAccountByID(r.Context(), uid)
+	if err != nil {
+		respondError(w, http.StatusNotFound, errors.ErrAccountNotFound)
+		return
+	}
+
+	respondJSON(w, http.StatusOK, map[string]any{
+		"id":       acc.ID,
+		"email":    acc.Email,
+		"username": acc.Username,
+		"phone":    acc.Phone,
+	})
 }

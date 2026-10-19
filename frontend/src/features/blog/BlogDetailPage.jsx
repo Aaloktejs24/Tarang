@@ -55,7 +55,7 @@ export default function BlogDetailPage() {
   };
 
   return (
-    <Box sx={{ minHeight: "var(--size-screen-h)", display: "flex", flexDirection: "column", bgcolor: "var(--color-white)" }}>
+    <Box sx={{ minHeight: "var(--size-screen-h)", display: "flex", flexDirection: "column", bgcolor: "transparent" }}>
       <Navbar variant="landing" />
 
       {/* ─── HERO SECTION ───────────────────────────────────────────────────── */}
@@ -115,7 +115,7 @@ export default function BlogDetailPage() {
                   ].map((cat, i) => (
                     <ListItem key={i} disablePadding sx={{ mb: 2 }}>
                       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "var(--size-full)", cursor: "pointer", "&:hover": { color: "var(--color-success)" } }}>
-                        <Typography sx={{ color: "var(--color-slate-500)", fontWeight: 'var(--font-medium)', fontSize: 'var(--font-base)', transition: "color 0.2s" }}>
+                        <Typography sx={{ color: "var(--color-slate-500)", fontWeight: 'var(--font-medium)', fontSize: 'var(--font-base)', transition: "color var(--transition-base)" }}>
                           {cat}
                         </Typography>
                         <ChevronRightIcon sx={{ color: "var(--color-slate-900)", fontSize: 20 }} />
@@ -136,7 +136,7 @@ export default function BlogDetailPage() {
                   />
                   <Box>
                     <Typography sx={{ color: "var(--color-slate-500)", fontSize: 'var(--font-xs)', fontWeight: 'var(--font-semibold)', mb: 0.5 }}>{t("landing.blogPage.recentPost.date")}</Typography>
-                    <Typography className="post-title" sx={{ color: "var(--color-slate-900)", fontWeight: 'var(--font-bold)', fontSize: 'var(--font-base)', lineHeight: 1.4, transition: "color 0.2s" }}>{t("landing.blogPage.recentPost.postTitle")}</Typography>
+                    <Typography className="post-title" sx={{ color: "var(--color-slate-900)", fontWeight: 'var(--font-bold)', fontSize: 'var(--font-base)', lineHeight: 1.4, transition: "color var(--transition-base)" }}>{t("landing.blogPage.recentPost.postTitle")}</Typography>
                   </Box>
                 </Box>
               </Paper>
@@ -215,7 +215,7 @@ export default function BlogDetailPage() {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Typography sx={{ color: "var(--color-slate-900)", fontWeight: 'var(--font-bold)', fontSize: 'var(--font-base)', mr: 1 }}>{t("landing.blogPage.share.title")}</Typography>
                   {[<FacebookIcon key="fb"/>, <TwitterIcon key="tw"/>, <InstagramIcon key="ig"/>, <LinkedInIcon key="li"/>].map((icon, i) => (
-                    <Box key={i} sx={{ color: "var(--color-primary)", cursor: "pointer", "&:hover": { color: "var(--color-success)" }, transition: "color 0.2s" }}>
+                    <Box key={i} sx={{ color: "var(--color-primary)", cursor: "pointer", "&:hover": { color: "var(--color-success)" }, transition: "color var(--transition-base)" }}>
                       {React.cloneElement(icon, { sx: { fontSize: 20 } })}
                     </Box>
                   ))}
@@ -224,11 +224,11 @@ export default function BlogDetailPage() {
 
               {/* Pagination Block */}
               <Box sx={{ display: "flex", border: "var(--border-thin) solid rgba(0,0,0,0.06)", borderRadius: 'var(--radius-md)', overflow: "hidden", mb: 8 }}>
-                <Box sx={{ flex: 1, display: "flex", p: 3, cursor: "pointer", "&:hover": { bgcolor: "var(--color-slate-50)" }, borderRight: "var(--border-thin) solid rgba(0,0,0,0.06)", transition: "background 0.2s" }}>
+                <Box sx={{ flex: 1, display: "flex", p: 3, cursor: "pointer", "&:hover": { bgcolor: "var(--color-slate-50)" }, borderRight: "var(--border-thin) solid rgba(0,0,0,0.06)", transition: "background var(--transition-base)" }}>
                   <Typography sx={{ fontWeight: 'var(--font-bold)', color: "var(--color-slate-500)", fontSize: 'var(--font-sm)', mr: 2, minWidth: "40px" }}>{t("landing.blogPage.pagination.prev")}</Typography>
                   <Typography sx={{ fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-base)' }}>{t("landing.blogPage.pagination.titleStr")}</Typography>
                 </Box>
-                <Box sx={{ flex: 1, display: "flex", justifyContent: "flex-end", p: 3, cursor: "pointer", "&:hover": { bgcolor: "var(--color-slate-50)" }, transition: "background 0.2s" }}>
+                <Box sx={{ flex: 1, display: "flex", justifyContent: "flex-end", p: 3, cursor: "pointer", "&:hover": { bgcolor: "var(--color-slate-50)" }, transition: "background var(--transition-base)" }}>
                   <Typography sx={{ fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-base)', mr: 2 }}>{t("landing.blogPage.pagination.titleStr")}</Typography>
                   <Typography sx={{ fontWeight: 'var(--font-bold)', color: "var(--color-slate-500)", fontSize: 'var(--font-sm)', minWidth: "40px", textAlign: "right" }}>{t("landing.blogPage.pagination.next")}</Typography>
                 </Box>

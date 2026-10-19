@@ -26,7 +26,7 @@
 
 /* When image is selected */
 .ProseMirror img.ProseMirror-selectednode {
-  outline: var(--border-thick) solid #1a73e8;
+  outline: var(--border-thick) solid var(--color-primary);
   outline-offset: -2px;
 }
 
@@ -41,7 +41,7 @@
 }
 
 .ProseMirror .image-resizer.is-selected img {
-  border-color: #1a73e8;
+  border-color: var(--color-primary);
 }
 
 /* Handles styling for tiptap-extension-resize-image */
@@ -49,9 +49,9 @@
   position: absolute;
   width: 10px;
   height: 10px;
-  background-color: #1a73e8;
-  border: var(--border-thin) solid white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  background-color: var(--color-primary);
+  border: var(--border-thin) solid var(--color-white);
+  
   border-radius: 1px; /* Square nodes like Google Docs */
   z-index: 10;
 }
@@ -65,7 +65,7 @@
   transform: translateX(-50%);
   width: 1px;
   height: 24px;
-  background-color: #1a73e8;
+  background-color: var(--color-primary);
   z-index: 9;
 }
 
@@ -77,9 +77,9 @@
   transform: translateX(-50%);
   width: 9px;
   height: 9px;
-  background-color: #1a73e8;
+  background-color: var(--color-primary);
   border-radius: var(--radius-full);
-  border: var(--border-thin) solid white;
+  border: var(--border-thin) solid var(--color-white);
   z-index: 10;
   cursor: grab;
 }
@@ -96,6 +96,6 @@
 }
 
 .ProseMirror .math-node.ProseMirror-selectednode {
-  border-color: #0056b3;
+  border-color: var(--color-primary);
   background-color: #eff6ff;
 }

@@ -1,15 +1,17 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import CodeViewerComponent from "./CodeViewerComponent";
-import PdfViewerComponent from "./PdfViewerComponent";
+const PdfViewerComponent = dynamic(() => import("./PdfViewerComponent"), { ssr: false });
 import ShakaPlayerComponent from "./ShakaPlayerComponent";
 import MarkdownViewerComponent from "./MarkdownViewerComponent";
 import LatexViewerComponent from "./LatexViewerComponent";
 import NotebookViewerComponent from "./NotebookViewerComponent";
 import ImageViewerComponent from "./ImageViewerComponent";
 import ArchiveViewerComponent from "./ArchiveViewerComponent";
-import { DownloadIcon, FileWarningIcon, Loader2 } from "lucide-react"; // Assuming lucide-react is installed
+import { DownloadIcon, FileWarningIcon, Loader2 } from "lucide-react";
+import { Box, Typography, Button } from "@mui/material";
 
 export default function UniversalViewer({ jobId, isVideo = false }) {
   const [metadata, setMetadata] = useState(null);
@@ -25,10 +27,10 @@ export default function UniversalViewer({ jobId, isVideo = false }) {
         const port = isVideo ? "8083" : "8084"; // Stream/Viewer ports
         const service = isVideo ? "streaming" : "viewer";
         
-        // In a real app, this would go through KrakenD on port 8080.
-        // For local dev, we hit the microservices directly or through an API route.
-        // We'll assume the API route maps correctly.
-        const res = await fetch(`http://localhost:${port}/api/v1/${service}/${jobId}${isVideo ? '' : '/metadata'}`);
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+        
+        // Use KrakenD API gateway for all requests
+        const res = await fetch(`${baseUrl}/${service}/${jobId}${isVideo ? '' : '/metadata'}`);
         
         if (!res.ok) {
           throw new Error("Failed to fetch file metadata");
@@ -58,11 +60,30 @@ export default function UniversalViewer({ jobId, isVideo = false }) {
 
   if (loading) {
     return (
-      <div className="w-full h-[400px] flex flex-col items-center justify-center bg-gray-900 rounded-lg text-gray-300">
-        <Loader2 className="h-10 w-10 animate-spin mb-4 text-blue-500" />
-        <p className="text-lg font-medium">Processing your file...</p>
-        <p className="text-sm text-gray-500 mt-2">This might take a few seconds.</p>
-      </div>
+      <Box sx={{ 
+        width: '100%', 
+        height: '100%', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        bgcolor: '#F3F4F6', // Standard viewer background
+        color: '#374151'
+      }}>
+        <Loader2 className="h-10 w-10 animate-spin mb-4" style={{ color: '#3B82F6', animation: 'spin 1s linear infinite' }} />
+        <Typography variant="h6" sx={{ fontWeight: 500, fontFamily: 'Inter, sans-serif' }}>
+          Processing your file...
+        </Typography>
+        <Typography variant="body2" sx={{ color: '#6B7280', mt: 1, fontFamily: 'Inter, sans-serif' }}>
+          This might take a few seconds.
+        </Typography>
+        <style>{`
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
+      </Box>
     );
   }
 
@@ -115,83 +136,132 @@ export default function UniversalViewer({ jobId, isVideo = false }) {
     const getPdfUrl = () => pdf_download_url ? `${baseUrl}${pdf_download_url}` : getOriginalUrl();
 
     return (
-      <div className="flex flex-col space-y-4 w-full">
-        {/* Viewer Header */}
-        <div className="flex justify-between items-center bg-gray-800 p-4 rounded-t-lg">
-          <div>
-            <h3 className="text-white font-medium">{filename}</h3>
-            <p className="text-xs text-gray-400 mt-1">Rendered via {renderer}</p>
-          </div>
-          <div className="flex space-x-3">
-            <a 
-              href={getOriginalUrl()} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center text-sm bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded transition"
-            >
-              <DownloadIcon className="h-4 w-4 mr-2" />
-              Download Original
-            </a>
-            {pdf_download_url && (
-              <a 
-                href={getPdfUrl()} 
+      <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%' }}>
+        {/* Viewer Header - Hide for PDF.js to use the native injected toolbar */}
+        {renderer !== "PDF.js" && (
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            backgroundColor: '#FFFFFF',
+            borderBottom: '1px solid #E5E7EB',
+            p: '16px 24px', 
+            height: '72px',
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+            zIndex: 10,
+            position: 'relative'
+          }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              <Typography sx={{ 
+                color: '#111827', 
+                fontWeight: 600, 
+                fontSize: '1.125rem', 
+                fontFamily: 'Inter, sans-serif',
+                letterSpacing: '-0.01em'
+              }}>
+                {filename}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#10B981' }} />
+                <Typography sx={{ 
+                  color: '#6B7280', 
+                  fontSize: '0.8125rem', 
+                  fontFamily: 'Inter, sans-serif', 
+                  fontWeight: 500 
+                }}>
+                  Rendered via {renderer}
+                </Typography>
+              </Box>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button 
+                variant="outlined" 
+                href={getOriginalUrl()} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center text-sm bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded transition"
+                sx={{ 
+                  color: '#374151', 
+                  borderColor: '#D1D5DB',
+                  textTransform: 'none',
+                  fontFamily: 'Inter, sans-serif',
+                  fontWeight: 500,
+                  px: 2,
+                  borderRadius: '8px',
+                  transition: 'all 0.2s ease',
+                  '&:hover': { 
+                    backgroundColor: '#F3F4F6', 
+                    borderColor: '#9CA3AF' 
+                  }
+                }}
+                startIcon={<DownloadIcon size={16} />}
               >
-                <DownloadIcon className="h-4 w-4 mr-2" />
-                Download PDF
-              </a>
+                Original File
+              </Button>
+            </Box>
+          </Box>
+        )}
+
+        {/* The Actual Viewer Container */}
+        <Box sx={{ 
+          position: 'relative',
+          overflow: 'hidden',
+          width: '100%', 
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          backgroundColor: '#F3F4F6'
+        }}>
+          <Box sx={{ position: 'relative', zIndex: 2, width: '100%', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+            {renderer === "PDF.js" && (
+              <PdfViewerComponent 
+                downloadUrl={getPdfUrl()} 
+                filename={filename}
+                originalDownloadUrl={getOriginalUrl()}
+              />
             )}
-          </div>
-        </div>
 
-        {/* The Actual Viewer */}
-        <div className="w-full bg-gray-900 rounded-b-lg shadow-inner">
-          {renderer === "PDF.js" && (
-            <PdfViewerComponent downloadUrl={getPdfUrl()} />
-          )}
+            {renderer === "Monaco" && (
+              <CodeViewerComponent downloadUrl={getOriginalUrl()} filename={filename} />
+            )}
+            
+            {renderer === "Markdown" && (
+              <MarkdownViewerComponent downloadUrl={getOriginalUrl()} />
+            )}
 
-          {renderer === "Monaco" && (
-            <CodeViewerComponent downloadUrl={getOriginalUrl()} filename={filename} />
-          )}
-          
-          {renderer === "Markdown" && (
-            <MarkdownViewerComponent downloadUrl={getOriginalUrl()} />
-          )}
+            {renderer === "LaTeX" && (
+              <LatexViewerComponent downloadUrl={getOriginalUrl()} />
+            )}
 
-          {renderer === "LaTeX" && (
-            <LatexViewerComponent downloadUrl={getOriginalUrl()} />
-          )}
+            {renderer === "Jupyter" && (
+              <NotebookViewerComponent downloadUrl={getOriginalUrl()} />
+            )}
 
-          {renderer === "Jupyter" && (
-            <NotebookViewerComponent downloadUrl={getOriginalUrl()} />
-          )}
+            {renderer === "Image" && (
+              <ImageViewerComponent downloadUrl={getOriginalUrl()} filename={filename} />
+            )}
 
-          {renderer === "Image" && (
-            <ImageViewerComponent downloadUrl={getOriginalUrl()} filename={filename} />
-          )}
+            {renderer === "Archive" && (
+              <ArchiveViewerComponent downloadUrl={getOriginalUrl()} />
+            )}
 
-          {renderer === "Archive" && (
-            <ArchiveViewerComponent downloadUrl={getOriginalUrl()} />
-          )}
-
-          {renderer === "Unknown" && (
-            <div className="p-12 text-center">
-              <FileWarningIcon className="mx-auto h-16 w-16 text-gray-500 mb-4" />
-              <h3 className="text-xl text-white font-medium mb-2">Preview Not Available</h3>
-              <p className="text-gray-400 mb-6">We don't support previewing this file type yet.</p>
-              <a 
-                href={getOriginalUrl()}
-                className="inline-flex items-center bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-medium transition"
-              >
-                <DownloadIcon className="h-5 w-5 mr-2" />
-                Download File
-              </a>
-            </div>
-          )}
-        </div>
-      </div>
+            {renderer === "Unknown" && (
+              <Box sx={{ p: 6, textAlign: 'center' }}>
+                <FileWarningIcon className="mx-auto h-16 w-16 text-gray-500 mb-4" />
+                <Typography variant="h6" sx={{ color: 'var(--color-slate-900)', fontWeight: 500, mb: 1 }}>Preview Not Available</Typography>
+                <Typography sx={{ color: 'var(--color-slate-500)', mb: 3 }}>We don't support previewing this file type yet.</Typography>
+                <Button 
+                  variant="contained"
+                  href={getOriginalUrl()}
+                  startIcon={<DownloadIcon size={20} />}
+                  sx={{ bgcolor: 'var(--color-primary)', textTransform: 'none', fontWeight: 500 }}
+                >
+                  Download File
+                </Button>
+              </Box>
+            )}
+          </Box>
+        </Box>
+      </Box>
     );
   }
 

@@ -1,4 +1,5 @@
 import { Box, Typography } from "@mui/material";
+import { useFormLoading } from "../../contexts/FormLoadingContext";
 
 /**
  * CustomCheckbox - A fully custom checkbox component that replaces MUI Checkbox.
@@ -22,15 +23,18 @@ export default function CustomCheckbox({
   label,
   error = false,
   disabled = false,
-  size = 16,
+  size = 18,
   sx = {},
 }) {
+  const isFormLoading = useFormLoading();
+  const finalDisabled = disabled || isFormLoading;
+
   const isFilled = checked || indeterminate;
   const borderColor = error
     ? "#ef4444"
     : isFilled
       ? "var(--color-primary)"
-      : "#c9d3dc";
+      : "rgba(30, 79, 163, 0.3)";
 
   const bgColor = isFilled ? "var(--color-primary)" : "transparent";
 
@@ -39,11 +43,11 @@ export default function CustomCheckbox({
       component="label"
       sx={{
         display: "flex",
-        alignItems: "flex-start",
+        alignItems: "center",
         gap: 1,
-        cursor: disabled ? "not-allowed" : "pointer",
+        cursor: finalDisabled ? "not-allowed" : "pointer",
         userSelect: "none",
-        opacity: disabled ? 0.5 : 1,
+        opacity: finalDisabled ? 0.5 : 1,
         ...sx,
       }}
     >
@@ -53,15 +57,14 @@ export default function CustomCheckbox({
         sx={{
           width: size,
           height: size,
-          mt: "2px", // Slight margin to align with first line of text
           flexShrink: 0,
-          border: `2px solid ${borderColor}`,
-          borderRadius: "3px",
+          border: `1.5px solid ${borderColor}`,
+          borderRadius: "var(--radius-sm)",
           backgroundColor: bgColor,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          transition: "all 0.15s ease",
+          transition: "all var(--transition-fast)",
         }}
       >
         {indeterminate ? (
@@ -98,8 +101,8 @@ export default function CustomCheckbox({
         ref={(el) => {
           if (el) el.indeterminate = indeterminate;
         }}
-        onChange={disabled ? undefined : onChange}
-        disabled={disabled}
+        onChange={finalDisabled ? undefined : onChange}
+        disabled={finalDisabled}
         readOnly={!onChange}
         style={{ position: "absolute", opacity: 0, width: 0, height: 0, margin: 0 }}
       />

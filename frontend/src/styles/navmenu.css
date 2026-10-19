@@ -5,11 +5,11 @@
 }
 
 .navmenu {
-  background-color: #28a745;
+  background-color: var(--color-success);
   height: 30px;
   display: flex;
   align-items: center;
-  color: white;
+  color: var(--color-white);
   position: fixed;
   width: var(--size-full);
   top: 64px;
@@ -36,7 +36,7 @@
   justify-content: center;
   padding: 0px 15px;
   font-size: 16px;
-  color: white;
+  color: var(--color-white);
   border-radius: var(--radius-sm);
   text-decoration: none;
   overflow: hidden;
@@ -45,7 +45,7 @@
 }
 
 .ripple-nav.active-link {
-  background-color: #ffffff52;
+  background-color: var(--color-white)fff52;
 }
 
 .navmenu_filters {

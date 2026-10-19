@@ -94,7 +94,7 @@ const timelineCalendarPaperSx = {
   `,
   backdropFilter: 'blur(24px)',
   WebkitBackdropFilter: 'blur(24px)',
-  border: 'var(--border-thin) solid #E2E8F0',
+  border: 'var(--border-thin) solid var(--color-slate-200)',
   overflow: 'hidden'
 };
 
@@ -105,7 +105,7 @@ const timelineCalendarSx = {
   color: 'var(--color-slate-900)',
   fontFamily: calendarFont,
   '& *': {
-    fontFamily: `${calendarFont} !important`
+    fontFamily: `${calendarFont}`
   },
   '& .MuiPickersCalendarHeader-root': {
     minHeight: 42,
@@ -137,7 +137,7 @@ const timelineCalendarSx = {
     p: 0.35,
     borderRadius: 'var(--radius-md)',
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    border: 'var(--border-thin) solid #E2E8F0'
+    border: 'var(--border-thin) solid var(--color-slate-200)'
   },
   '& .MuiPickersCalendarHeader-switchViewButton, & .MuiPickersArrowSwitcher-button': {
     width: 36,
@@ -201,7 +201,7 @@ const timelineCalendarSx = {
   '& .MuiPickersDay-root.Mui-selected': {
     color: 'var(--color-white)',
     borderColor: 'transparent',
-    background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%) !important', border: 'var(--border-thin) solid #E2E8F0'
+    background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)', border: 'var(--border-thin) solid var(--color-slate-200)'
   },
   '& .MuiPickersDay-root.Mui-disabled': {
     color: 'var(--color-slate-200)'
@@ -223,7 +223,7 @@ const timelineCalendarSx = {
   },
   '& .MuiPickersYear-yearButton.Mui-selected, & .MuiPickersMonth-monthButton.Mui-selected': {
     color: 'var(--color-white)',
-    background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%) !important'
+    background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)'
   }
 };
 
@@ -500,7 +500,7 @@ export default function CourseDashboard() {
               subtitle={t('courseDashboard.emptyStateSubtitle')}
               actionLabel={t('courseDashboard.createCourseBtn')}
               actionIcon={
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" style={{ width: 20, height: 20, transition: 'transform 0.2s' }}>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" style={{ width: 20, height: 20, transition: 'transform var(--transition-base)' }}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
                 </svg>
               }
@@ -574,7 +574,7 @@ export default function CourseDashboard() {
                     <circle cx="116" cy="83" r="4.5" fill="var(--color-slate-200)" />
 
                     {/* Stick */}
-                    <line x1="116" y1="83" x2="166" y2="60" stroke="var(--color-slate-700)" strokeWidth="3" strokeLinecap="round" />
+                    <line x1="116" y1="83" x2="166" y2="60" stroke="var(--color-slate-900)" strokeWidth="3" strokeLinecap="round" />
 
                     {/* Pants & Legs */}
                     {/* Left Leg */}
@@ -648,7 +648,7 @@ export default function CourseDashboard() {
                           top: 12,
                           left: 12,
                           bgcolor: course.status === 'Active' ? 'var(--color-success)' : 'var(--color-warning)',
-                          color: 'white',
+                          color: 'var(--color-white)',
                           fontWeight: 800,
                           fontSize: 'var(--font-xs)',
                           px: 1,
@@ -659,8 +659,8 @@ export default function CourseDashboard() {
                         bgcolor: 'rgba(255,255,255,0.85)',
                         backdropFilter: 'blur(10px)',
                         p: 0.5,
-                        '&:hover': { bgcolor: 'white', transform: 'scale(1.05)' },
-                        transition: 'all 0.2s'
+                        '&:hover': { bgcolor: 'var(--color-white)', transform: 'scale(1.05)' },
+                        transition: 'all var(--transition-base)'
                       }}>
                         <MoreVertIcon fontSize="small" sx={{ color: 'var(--color-slate-900)' }} />
                       </IconButton>
@@ -768,8 +768,8 @@ export default function CourseDashboard() {
             width: { xs: 56, md: 64 },
             height: { xs: 56, md: 64 },
             bgcolor: 'var(--color-primary)',
-            color: 'white',
-            border: "1.5px solid #f59e0b",
+            color: 'var(--color-white)',
+            border: "1.5px solid var(--color-warning)",
             '&:hover, &:focus, &:active': { bgcolor: 'var(--color-primary-hover)', }
           }}
         >
@@ -850,13 +850,13 @@ export default function CourseDashboard() {
               {/* Step Indicator Progress Bar */}
               <Box sx={{ display: 'flex', gap: 2, mb: 4, mt: 1 }}>
                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
-                  <Box sx={{ height: 4, borderRadius: 'var(--radius-md)', bgcolor: activeStep >= 0 ? 'var(--color-primary)' : 'var(--color-slate-200)', transition: 'all 0.3s' }} />
+                  <Box sx={{ height: 4, borderRadius: 'var(--radius-md)', bgcolor: activeStep >= 0 ? 'var(--color-primary)' : 'var(--color-slate-200)', transition: 'all var(--transition-slow)' }} />
                   <Typography variant="caption" sx={{ fontWeight: 800, color: activeStep === 0 ? 'var(--color-primary)' : 'var(--color-slate-500)', fontSize: '11.5px' }}>
                     {t('courseDashboard.modal.stepDetails')}
                   </Typography>
                 </Box>
                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
-                  <Box sx={{ height: 4, borderRadius: 'var(--radius-md)', bgcolor: activeStep >= 1 ? 'var(--color-primary)' : 'var(--color-slate-200)', transition: 'all 0.3s' }} />
+                  <Box sx={{ height: 4, borderRadius: 'var(--radius-md)', bgcolor: activeStep >= 1 ? 'var(--color-primary)' : 'var(--color-slate-200)', transition: 'all var(--transition-slow)' }} />
                   <Typography variant="caption" sx={{ fontWeight: 800, color: activeStep === 1 ? 'var(--color-primary)' : 'var(--color-slate-500)', fontSize: '11.5px' }}>
                     {t('courseDashboard.modal.stepCurriculum')}
                   </Typography>
@@ -917,7 +917,7 @@ export default function CourseDashboard() {
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0, gridColumn: '1', gridRow: '1' }}>
                         {/* Course Title */}
                         <Box>
-                          <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
+                          <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
                             {t('courseDashboard.modal.courseTitle')}
                           </Typography>
                           <TextField
@@ -936,7 +936,7 @@ export default function CourseDashboard() {
 
                         {/* Target Audience / Educational Level */}
                         <Box>
-                          <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
+                          <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
                             {t('courseDashboard.modal.targetAudience')}
                           </Typography>
                           <Autocomplete
@@ -972,7 +972,7 @@ export default function CourseDashboard() {
 
                       {/* Course Category */}
                       <Box sx={{ gridColumn: '1', gridRow: '2', minWidth: 0 }}>
-                        <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
+                        <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
                           {t('courseDashboard.modal.courseCategory')}
                         </Typography>
                         <Autocomplete
@@ -1002,7 +1002,7 @@ export default function CourseDashboard() {
                       {/* Right Column: 16:9 Aspect-Ratio Course Thumbnail */}
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: 'var(--size-full)', minWidth: 0, gridColumn: '2', gridRow: '1' }}>
                         <Box>
-                          <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
+                          <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
                             {t('courseDashboard.modal.courseThumbnail')}
                           </Typography>
 
@@ -1044,10 +1044,10 @@ export default function CourseDashboard() {
                                   justifyContent: 'center',
                                   alignItems: 'center',
                                   opacity: 0,
-                                  transition: 'opacity 0.2s',
+                                  transition: 'opacity var(--transition-base)',
                                   '&:hover': { opacity: 1 }
                                 }}>
-                                  <Typography sx={{ color: 'white', fontWeight: 'var(--font-bold)', fontSize: 'var(--font-sm)', bgcolor: 'rgba(0,0,0,0.6)', px: 2, py: 1, borderRadius: 'var(--radius-md)' }}>
+                                  <Typography sx={{ color: 'var(--color-white)', fontWeight: 'var(--font-bold)', fontSize: 'var(--font-sm)', bgcolor: 'rgba(0,0,0,0.6)', px: 2, py: 1, borderRadius: 'var(--radius-md)' }}>
                                     {t('courseDashboard.modal.changeImage')}
                                   </Typography>
                                 </Box>
@@ -1166,7 +1166,7 @@ export default function CourseDashboard() {
 
                       {/* Course Tags */}
                       <Box ref={tagsContainerRef} sx={{ position: "relative", gridColumn: '2', gridRow: '2', minWidth: 0 }}>
-                        <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
+                        <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
                           {t('courseDashboard.modal.courseTags')}
                         </Typography>
 
@@ -1185,7 +1185,7 @@ export default function CourseDashboard() {
                             backdropFilter: "blur(4px)",
                             border: "1.5px solid rgba(203, 213, 225, 0.8)",
                             "&:hover": {
-                              border: "1.5px solid #94a3b8",
+                              border: "1.5px solid var(--color-slate-500)",
                               backgroundColor: "rgba(255, 255, 255, 0.8)" },
                             display: "flex",
                             justifyContent: "flex-start",
@@ -1247,7 +1247,7 @@ export default function CourseDashboard() {
                               backgroundColor: "rgba(255, 255, 255, 0.96)",
                               backdropFilter: "blur(30px)",
                               WebkitBackdropFilter: "blur(30px)",
-                              boxShadow: "0 20px 50px -15px rgba(0, 86, 179, 0.18)",
+                              
                               background: `
                                   radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.08) 0, transparent 55%), 
                                   radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.06) 0, transparent 55%), 
@@ -1312,7 +1312,7 @@ export default function CourseDashboard() {
                                                 p: 0.5,
                                                 borderRadius: 'var(--radius-md)',
                                                 cursor: "pointer",
-                                                transition: "all 0.1s ease",
+                                                transition: "all var(--transition-fast)",
                                                 backgroundColor: isChecked ? "rgba(0, 86, 179, 0.04)" : "transparent",
                                                 border: "var(--border-thin) solid",
                                                 borderColor: isChecked ? "rgba(0, 86, 179, 0.2)" : "transparent",
@@ -1332,7 +1332,7 @@ export default function CourseDashboard() {
                                                   accentColor: "var(--color-primary)"
                                                 }}
                                               />
-                                              <Typography sx={{ fontSize: "11.5px", fontWeight: isChecked ? 700 : 500, color: isChecked ? "var(--color-primary)" : "var(--color-slate-700)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                              <Typography sx={{ fontSize: "11.5px", fontWeight: isChecked ? 700 : 500, color: isChecked ? "var(--color-primary)" : "var(--color-slate-900)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                                                 {tag.split(' / ')[1]}
                                               </Typography>
                                             </Box>
@@ -1352,7 +1352,7 @@ export default function CourseDashboard() {
 
                     {/* Full Width Row: Course Description */}
                     <Box sx={{ width: 'var(--size-full)' }}>
-                      <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
+                      <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
                         {t('courseDashboard.modal.courseDescription')}
                       </Typography>
                       <TextField
@@ -1384,7 +1384,7 @@ export default function CourseDashboard() {
                           fontSize: 'var(--font-base)',
                           fontWeight: 'var(--font-semibold)',
                           borderColor: "var(--color-slate-200)",
-                          color: "var(--color-slate-700)",
+                          color: "var(--color-slate-900)",
                           "&:hover": {
                             borderColor: "var(--color-slate-500)",
                             backgroundColor: "var(--color-slate-50)"
@@ -1409,16 +1409,16 @@ export default function CourseDashboard() {
                           textTransform: "none",
                           fontSize: 'var(--font-base)',
                           fontWeight: 'var(--font-bold)',
-                          background: (courseTitle.trim() && audienceLevel && courseCategory && courseDesc.trim() && courseThumbnail) ? 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)' : 'var(--color-slate-200)',
+                          background: (courseTitle.trim() && audienceLevel && courseCategory && courseDesc.trim() && courseThumbnail) ? 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)' : 'var(--color-slate-200)',
                           color: 'var(--color-white)',
-                          transition: 'all 0.2s',
+                          transition: 'all var(--transition-base)',
                           '&.Mui-disabled': {
                             color: 'var(--color-slate-500)',
                             background: 'var(--color-slate-200)',
                             WebkitTextFillColor: 'var(--color-slate-500)'
                           },
                           '&:hover': {
-                            background: 'linear-gradient(135deg, #004494 0%, #28A745 100%)' }
+                            background: 'linear-gradient(135deg, #004494 0%, var(--color-success) 100%)' }
                         }}
                       >
                         {t('courseDashboard.modal.proceed')}
@@ -1460,7 +1460,7 @@ export default function CourseDashboard() {
                         <Accordion
                           key={module.id}
                           sx={{
-                            margin: '0 0 16px 0 !important',
+                            margin: '0 0 16px 0',
                             '&:before': { display: 'none' }
                           }}
                         >
@@ -1468,8 +1468,8 @@ export default function CourseDashboard() {
                             expandIcon={<ExpandMoreIcon sx={{ color: 'var(--color-primary)' }} />}
                             disableRipple
                             sx={{
-                              borderTopLeftRadius: '12px',
-                              borderTopRightRadius: '12px',
+                              borderTopLeftRadius: 'var(--radius-lg)',
+                              borderTopRightRadius: 'var(--radius-lg)',
                               borderBottomLeftRadius: 0,
                               borderBottomRightRadius: 0,
                               px: { xs: 1.5, sm: 2.25 },
@@ -1622,7 +1622,7 @@ export default function CourseDashboard() {
                                     justifyContent: 'center',
                                     px: 1.35,
                                     py: 0.55,
-                                    borderRadius: '999px',
+                                    borderRadius: 'var(--radius-full)',
                                     border: 'var(--border-thin) solid rgba(203, 213, 225, 0.75)',
                                     color: module.startDate || module.endDate ? 'var(--color-primary)' : 'var(--color-slate-500)',
                                     backgroundColor: 'rgba(255, 255, 255, 0.72)',
@@ -1682,7 +1682,7 @@ export default function CourseDashboard() {
                                             minWidth: 'auto',
                                             px: 0.75,
                                             py: 0.3,
-                                            borderRadius: '999px',
+                                            borderRadius: 'var(--radius-full)',
                                             textTransform: 'none',
                                             fontSize: '0.72rem',
                                             fontWeight: 'var(--font-bold)',
@@ -1823,7 +1823,7 @@ export default function CourseDashboard() {
                                   justifyContent: 'space-between',
                                   p: 1.25,
                                   mb: 1,
-                                  transition: 'all 0.2s' }}
+                                  transition: 'all var(--transition-base)' }}
                               >
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexGrow: 1 }}>
                                   {lesson.type === 'video' ? <OndemandVideoIcon sx={{ color: 'var(--color-primary)', fontSize: 'var(--font-lg)' }} /> : <PictureAsPdfIcon sx={{ color: 'var(--color-success)', fontSize: 'var(--font-lg)' }} />}
@@ -1879,8 +1879,8 @@ export default function CourseDashboard() {
                                       backgroundColor: "transparent"
                                     },
                                     "& textarea": {
-                                      overflowY: "auto !important",
-                                      padding: "0 !important"
+                                      overflowY: "auto",
+                                      padding: "0"
                                     }
                                   }}
                                 />
@@ -1964,7 +1964,7 @@ export default function CourseDashboard() {
                           fontSize: 'var(--font-base)',
                           fontWeight: 'var(--font-semibold)',
                           borderColor: "var(--color-slate-200)",
-                          color: "var(--color-slate-700)",
+                          color: "var(--color-slate-900)",
                           "&:hover": {
                             borderColor: "var(--color-slate-500)",
                             backgroundColor: "var(--color-slate-50)"
@@ -1985,16 +1985,16 @@ export default function CourseDashboard() {
                           textTransform: "none",
                           fontSize: 'var(--font-base)',
                           fontWeight: 'var(--font-bold)',
-                          background: (modules.length > 0 && modules.every(m => m.title.trim() && m.description?.trim())) ? 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)' : 'var(--color-slate-200)',
+                          background: (modules.length > 0 && modules.every(m => m.title.trim() && m.description?.trim())) ? 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)' : 'var(--color-slate-200)',
                           color: 'var(--color-white)',
-                          transition: 'all 0.2s',
+                          transition: 'all var(--transition-base)',
                           '&.Mui-disabled': {
                             color: 'var(--color-slate-500)',
                             background: 'var(--color-slate-200)',
                             WebkitTextFillColor: 'var(--color-slate-500)'
                           },
                           '&:hover': {
-                            background: 'linear-gradient(135deg, #004494 0%, #28A745 100%)' }
+                            background: 'linear-gradient(135deg, #004494 0%, var(--color-success) 100%)' }
                         }}
                       >
                         {t('courseDashboard.modal.publishCourse')}

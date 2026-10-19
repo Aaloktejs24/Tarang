@@ -15,7 +15,7 @@ const checkboxStyles = {
   "& + .MuiFormControlLabel-label": {
     fontSize: 'var(--font-sm)',
     fontWeight: 'var(--font-semibold)',
-    color: "var(--color-slate-700)",
+    color: "var(--color-slate-900)",
   },
 };
 

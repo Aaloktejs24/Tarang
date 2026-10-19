@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"backend/shared/crypto"
+	"backend/shared/queue"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -18,13 +19,15 @@ type Repository struct {
 	db            *pgxpool.Pool
 	rds           *redis.Client
 	encryptionKey []byte
+	pub           *queue.Publisher
 }
 
-func NewRepository(db *pgxpool.Pool, rds *redis.Client, encryptionKey string) *Repository {
+func NewRepository(db *pgxpool.Pool, rds *redis.Client, encryptionKey string, pub *queue.Publisher) *Repository {
 	return &Repository{
 		db:            db,
 		rds:           rds,
 		encryptionKey: []byte(encryptionKey),
+		pub:           pub,
 	}
 }
 
@@ -66,7 +69,7 @@ func (r *Repository) UpdateKYC(ctx context.Context, u *User) error {
 		    gender=$5, 
 		    updated_at=NOW()
 		WHERE id=$6
-	`, u.KycReferenceID, u.AadhaarHash, r.encrypt(u.FullName), u.DOB, r.encrypt(u.Gender), u.ID)
+	`, u.KycReferenceID, u.AadhaarHash, r.encrypt(u.FullName), u.DOB, u.Gender, u.ID)
 	if err == nil {
 		r.invalidateCache(ctx, u.ID)
 	}
@@ -91,10 +94,10 @@ func (r *Repository) invalidateCache(ctx context.Context, userID uuid.UUID) {
 func (r *Repository) Create(ctx context.Context, u *User) error {
 	log.Printf("[Repository] Creating User Profile - ID: %s, Username: %s, Role: %s", u.ID, u.Username, u.Role)
 	row := r.db.QueryRow(ctx, `
-		INSERT INTO users (id, username, full_name, role)
-		VALUES ($1, $2, $3, $4)
+		INSERT INTO users (id, username, email, full_name, role, phone, dob, gender)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING created_at, updated_at
-	`, u.ID, u.Username, r.encrypt(u.FullName), u.Role)
+	`, u.ID, u.Username, u.Email, r.encrypt(u.FullName), u.Role, r.encrypt(u.Phone), u.DOB, u.Gender)
 
 	err := row.Scan(&u.CreatedAt, &u.UpdatedAt)
 	return err
@@ -135,20 +138,96 @@ func (r *Repository) SetBio(ctx context.Context, userID uuid.UUID, bio string) e
 }
 
 func (r *Repository) UpdateProfile(ctx context.Context, u *User) error {
-	_, err := r.db.Exec(ctx, `
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	_, err = tx.Exec(ctx, `
 		UPDATE users 
 		SET full_name=$1, dob=$2, gender=$3, bio=$4, 
 		    social_links=$5, skills=$6, recognitions=$7, 
 		    institution_name=$8, location=$9, languages=$10, demographic=$11,
+			religion=$12, caste=$13, subcaste=$14, nationality=$15,
 		    updated_at=NOW()
-		WHERE id=$12
-	`, r.encrypt(u.FullName), u.DOB, r.encrypt(u.Gender), u.Bio,
+		WHERE id=$16
+	`, r.encrypt(u.FullName), u.DOB, u.Gender, u.Bio,
 		u.SocialLinks, u.Skills, u.Recognitions, u.InstitutionName,
-		u.Location, u.Languages, u.Demographic, u.ID)
-	if err == nil {
-		r.invalidateCache(ctx, u.ID)
+		u.Location, u.Languages, u.Demographic,
+		r.encrypt(u.Religion), r.encrypt(u.Caste), r.encrypt(u.Subcaste), u.Nationality,
+		u.ID)
+	if err != nil {
+		return err
 	}
-	return err
+
+	_, err = tx.Exec(ctx, `DELETE FROM user_addresses WHERE user_id=$1`, u.ID)
+	if err != nil { return err }
+	for _, addr := range u.Addresses {
+		_, err = tx.Exec(ctx, `
+			INSERT INTO user_addresses (user_id, type, address_line, state, district, pincode, is_same_as_permanent)
+			VALUES ($1, $2, $3, $4, $5, $6, $7)
+		`, u.ID, addr.Type, r.encrypt(addr.AddressLine), addr.State, addr.District, addr.Pincode, addr.IsSameAsPermanent)
+		if err != nil { return err }
+	}
+
+	_, err = tx.Exec(ctx, `DELETE FROM user_academic_records WHERE user_id=$1`, u.ID)
+	if err != nil { return err }
+	for _, rec := range u.AcademicRecords {
+		var newID uuid.UUID
+		var achievementsJSON interface{}
+		if len(rec.Achievements) > 0 {
+			achievementsJSON = string(rec.Achievements)
+		}
+
+		err = tx.QueryRow(ctx, `
+			INSERT INTO user_academic_records (user_id, qualification, board_university, passing_year, percentage_cgpa, document_url, achievements)
+			VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id
+		`, u.ID, rec.Qualification, rec.BoardUniversity, rec.PassingYear, rec.PercentageCgpa, rec.DocumentURL, achievementsJSON).Scan(&newID)
+		if err != nil { return err }
+		rec.ID = newID
+	}
+
+	_, err = tx.Exec(ctx, `DELETE FROM user_work_experiences WHERE user_id=$1`, u.ID)
+	if err != nil { return err }
+	for _, we := range u.WorkExperiences {
+		_, err = tx.Exec(ctx, `
+			INSERT INTO user_work_experiences (user_id, company_name, designation, start_date, end_date)
+			VALUES ($1, $2, $3, $4, $5)
+		`, u.ID, we.CompanyName, we.Designation, we.StartDate, we.EndDate)
+		if err != nil { return err }
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return err
+	}
+
+	// Async Mongo Publish
+	if r.pub != nil {
+		for _, rec := range u.AcademicRecords {
+			if len(rec.Achievements) > 0 && string(rec.Achievements) != "null" && string(rec.Achievements) != "[]" {
+				var achievements interface{}
+				if err := json.Unmarshal(rec.Achievements, &achievements); err == nil {
+					mongoJob := queue.MongoSyncJob{
+						Collection: "academic_achievements",
+						DocumentID: rec.ID.String(),
+						Payload: MongoAcademicAchievements{
+							AcademicRecordID: rec.ID.String(),
+							UserID:           u.ID.String(),
+							Achievements:     achievements,
+							UpdatedAt:        time.Now(),
+						},
+					}
+					if err := r.pub.PublishMongoSync(mongoJob); err != nil {
+						log.Printf("failed to publish mongo sync job for record %s: %v", rec.ID, err)
+					}
+				}
+			}
+		}
+	}
+
+	r.invalidateCache(ctx, u.ID)
+	return nil
 }
 
 
@@ -158,6 +237,61 @@ func (r *Repository) ExistsByEmail(ctx context.Context, email string) (bool, err
 	var exists bool
 	err := r.db.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM users WHERE email=$1)`, email).Scan(&exists)
 	return exists, err
+}
+
+func (r *Repository) loadExtendedProfile(ctx context.Context, u *User) {
+	u.Addresses = make([]*UserAddress, 0)
+	u.AcademicRecords = make([]*UserAcademicRecord, 0)
+	u.WorkExperiences = make([]*UserWorkExperience, 0)
+	
+	rows, err := r.db.Query(ctx, `SELECT id, user_id, type, address_line, state, district, pincode, is_same_as_permanent, created_at, updated_at FROM user_addresses WHERE user_id=$1`, u.ID)
+	if err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			var a UserAddress
+			if err := rows.Scan(&a.ID, &a.UserID, &a.Type, &a.AddressLine, &a.State, &a.District, &a.Pincode, &a.IsSameAsPermanent, &a.CreatedAt, &a.UpdatedAt); err == nil {
+				a.AddressLine = r.decrypt(a.AddressLine)
+				u.Addresses = append(u.Addresses, &a)
+			}
+		}
+	}
+
+	rows2, err := r.db.Query(ctx, `SELECT id, user_id, qualification, board_university, passing_year, percentage_cgpa, document_url, achievements, created_at, updated_at FROM user_academic_records WHERE user_id=$1`, u.ID)
+	if err == nil {
+		defer rows2.Close()
+		for rows2.Next() {
+			var a UserAcademicRecord
+			if err := rows2.Scan(&a.ID, &a.UserID, &a.Qualification, &a.BoardUniversity, &a.PassingYear, &a.PercentageCgpa, &a.DocumentURL, &a.Achievements, &a.CreatedAt, &a.UpdatedAt); err == nil {
+				
+				// Fetch Achievements from Mongo
+				/*
+				if database.MongoDatabase != nil {
+					var mRecord MongoAcademicAchievements
+					collection := database.MongoDatabase.Collection("academic_achievements")
+					err := collection.FindOne(ctx, bson.M{"academic_record_id": a.ID.String()}).Decode(&mRecord)
+					if err == nil && mRecord.Achievements != nil {
+						if achBytes, err := json.Marshal(mRecord.Achievements); err == nil {
+							a.Achievements = achBytes
+						}
+					}
+				}
+				*/
+
+				u.AcademicRecords = append(u.AcademicRecords, &a)
+			}
+		}
+	}
+
+	rows3, err := r.db.Query(ctx, `SELECT id, user_id, company_name, designation, start_date, end_date, created_at, updated_at FROM user_work_experiences WHERE user_id=$1`, u.ID)
+	if err == nil {
+		defer rows3.Close()
+		for rows3.Next() {
+			var w UserWorkExperience
+			if err := rows3.Scan(&w.ID, &w.UserID, &w.CompanyName, &w.Designation, &w.StartDate, &w.EndDate, &w.CreatedAt, &w.UpdatedAt); err == nil {
+				u.WorkExperiences = append(u.WorkExperiences, &w)
+			}
+		}
+	}
 }
 
 func (r *Repository) GetByID(ctx context.Context, id uuid.UUID) (*User, error) {
@@ -172,24 +306,29 @@ func (r *Repository) GetByID(ctx context.Context, id uuid.UUID) (*User, error) {
 
 	var u User
 	err := r.db.QueryRow(ctx, `
-		SELECT id, username, role,
+		SELECT id, username, email, role,
 		       kyc_verified_at, kyc_reference_id, aadhaar_hash, full_name, dob, gender,
 		       profile_pic_url, banner_url, bio, institution_name, social_links, skills, recognitions,
 		       created_at, updated_at,
-		       location, languages, demographic
+		       location, languages, demographic,
+			   religion, caste, subcaste, nationality, phone
 		FROM users WHERE id=$1
-	`, id).Scan(&u.ID, &u.Username, &u.Role,
+	`, id).Scan(&u.ID, &u.Username, &u.Email, &u.Role,
 		&u.KycVerifiedAt, &u.KycReferenceID, &u.AadhaarHash, &u.FullName, &u.DOB, &u.Gender,
 		&u.ProfilePicURL, &u.BannerURL, &u.Bio, &u.InstitutionName, &u.SocialLinks, &u.Skills, &u.Recognitions,
 		&u.CreatedAt, &u.UpdatedAt,
-		&u.Location, &u.Languages, &u.Demographic)
+		&u.Location, &u.Languages, &u.Demographic,
+		&u.Religion, &u.Caste, &u.Subcaste, &u.Nationality, &u.Phone)
 	if err != nil {
 		return nil, err
 	}
 	u.FullName = r.decrypt(u.FullName)
+	u.Religion = r.decrypt(u.Religion)
+	u.Caste = r.decrypt(u.Caste)
+	u.Subcaste = r.decrypt(u.Subcaste)
+	u.Phone = r.decrypt(u.Phone)
+	r.loadExtendedProfile(ctx, &u)
 	
-	u.Gender = r.decrypt(u.Gender)
-
 	if u.Role == "institute" || u.Role == "organisation" {
 		inst := &InstituteProfileInput{}
 		var coursesBytes, eduBytes, accDocsBytes []byte
@@ -245,24 +384,29 @@ func (r *Repository) GetByUsername(ctx context.Context, username string) (*User,
 
 	var u User
 	err := r.db.QueryRow(ctx, `
-		SELECT id, username, role,
+		SELECT id, username, email, role,
 		       kyc_verified_at, kyc_reference_id, aadhaar_hash, full_name, dob, gender,
 		       profile_pic_url, banner_url, bio, institution_name, social_links, skills, recognitions,
 		       created_at, updated_at,
-		       location, languages, demographic
+		       location, languages, demographic,
+			   religion, caste, subcaste, nationality, phone
 		FROM users WHERE username=$1
-	`, username).Scan(&u.ID, &u.Username, &u.Role,
+	`, username).Scan(&u.ID, &u.Username, &u.Email, &u.Role,
 		&u.KycVerifiedAt, &u.KycReferenceID, &u.AadhaarHash, &u.FullName, &u.DOB, &u.Gender,
 		&u.ProfilePicURL, &u.BannerURL, &u.Bio, &u.InstitutionName, &u.SocialLinks, &u.Skills, &u.Recognitions,
 		&u.CreatedAt, &u.UpdatedAt,
-		&u.Location, &u.Languages, &u.Demographic)
+		&u.Location, &u.Languages, &u.Demographic,
+		&u.Religion, &u.Caste, &u.Subcaste, &u.Nationality, &u.Phone)
 	if err != nil {
 		return nil, err
 	}
 	u.FullName = r.decrypt(u.FullName)
+	u.Religion = r.decrypt(u.Religion)
+	u.Caste = r.decrypt(u.Caste)
+	u.Subcaste = r.decrypt(u.Subcaste)
+	u.Phone = r.decrypt(u.Phone)
+	r.loadExtendedProfile(ctx, &u)
 	
-	u.Gender = r.decrypt(u.Gender)
-
 	if u.Role == "institute" || u.Role == "organisation" {
 		inst := &InstituteProfileInput{}
 		var coursesBytes, eduBytes, accDocsBytes []byte
@@ -338,7 +482,6 @@ func (r *Repository) GetInstitutes(ctx context.Context, limit, offset int) ([]*U
 		}
 		u.FullName = r.decrypt(u.FullName)
 		
-		u.Gender = r.decrypt(u.Gender)
 		users = append(users, &u)
 	}
 	if err := rows.Err(); err != nil {

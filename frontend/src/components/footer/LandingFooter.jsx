@@ -21,7 +21,7 @@ export default function LandingFooter() {
           <Paper
             elevation={0}
             sx={{
-              background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)",
+              background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)",
               borderRadius: 'var(--radius-lg)',
               p: { xs: 4, md: 5 },
               display: "flex",
@@ -59,7 +59,7 @@ export default function LandingFooter() {
                   backdropFilter: "blur(4px)",
                   transition: "var(--transition-slow)",
                   "&:focus": {
-                    borderColor: "var(--color-white)",
+                    borderColor: "var(--color-var(--color-white))",
                     bgcolor: "rgba(255,255,255,0.25)"
                   }
                 }}
@@ -93,7 +93,7 @@ export default function LandingFooter() {
           backgroundSize: "cover",
           backgroundAttachment: "fixed",
           backgroundPosition: "center",
-          color: "white", 
+          color: "var(--color-white)", 
           pt: { xs: 12, md: 14 }, 
           pb: 6 
         }}>
@@ -115,7 +115,7 @@ export default function LandingFooter() {
                 </Typography>
                 <Box sx={{ display: "flex", gap: 1 }}>
                   {[<FacebookIcon key="fb"/>, <TwitterIcon key="tw"/>, <LinkedInIcon key="li"/>, <InstagramIcon key="ig"/>].map((icon, i) => (
-                    <Box key={i} sx={{ width: 32, height: 32, bgcolor: "var(--color-white)", color: "var(--color-primary)", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 'var(--radius-lg)', cursor: "pointer", "&:hover": { bgcolor: "var(--color-success)", color: "var(--color-white)" }, transition: "all 0.2s" }}>
+                    <Box key={i} sx={{ width: 32, height: 32, bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)", color: "var(--color-primary)", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 'var(--radius-lg)', cursor: "pointer", "&:hover": { bgcolor: "var(--color-success)", color: "var(--color-white)" }, transition: "all var(--transition-base)" }}>
                       {React.cloneElement(icon, { sx: { fontSize: 18 } })}
                     </Box>
                   ))}
@@ -135,7 +135,7 @@ export default function LandingFooter() {
                   t("landing.footer.categories.biological"),
                   t("landing.footer.categories.psychology")
                 ].map((l) => (
-                  <Typography key={l} sx={{ color: "rgba(255,255,255,0.8)", mb: 2, fontSize: 'var(--font-base)', cursor: "pointer", "&:hover": { color: "var(--color-success)" }, transition: "color 0.2s" }}>
+                  <Typography key={l} sx={{ color: "rgba(255,255,255,0.8)", mb: 2, fontSize: 'var(--font-base)', cursor: "pointer", "&:hover": { color: "var(--color-success)" }, transition: "color var(--transition-base)" }}>
                     {l}
                   </Typography>
                 ))}
@@ -154,7 +154,7 @@ export default function LandingFooter() {
                   t("landing.footer.links.pricing"),
                   t("landing.footer.links.faq")
                 ].map((l) => (
-                  <Typography key={l} sx={{ color: "rgba(255,255,255,0.8)", mb: 2, fontSize: 'var(--font-base)', cursor: "pointer", "&:hover": { color: "var(--color-success)" }, transition: "color 0.2s" }}>
+                  <Typography key={l} sx={{ color: "rgba(255,255,255,0.8)", mb: 2, fontSize: 'var(--font-base)', cursor: "pointer", "&:hover": { color: "var(--color-success)" }, transition: "color var(--transition-base)" }}>
                     {l}
                   </Typography>
                 ))}

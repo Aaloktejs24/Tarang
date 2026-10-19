@@ -553,43 +553,43 @@ NOTE: This file contains all scripts for the actual Template.
 
       <style jsx global>{`
         /* Landing Page Specific Overrides */
-        .form-control, .card, .events.bg-white, .team, .team-info, .course-item, .blog-post, .rounded, .border-radius { border-radius: 8px !important; }
-        .card, .course-item, .blog-post { overflow: hidden !important; }
-        .events.bg-white { border-radius: 4px !important; }
-        .card, .events.bg-white, .course-item, .blog-post, .team-info, .course-form { box-shadow: none !important; border: var(--border-thin) solid #e2e8f0 !important; transition: var(--transition-slow) !important; }
-        .btn { border-radius: 8px !important; padding: 12px 28px !important; font-size: 0.95rem !important; font-weight: var(--font-bold) !important; }
-        .events-img img, .team-img img, .blog-image img { border-radius: 8px !important; }
-        .events-img { height: 100% !important; }
-        .events-img img { height: 100% !important; min-height: 120px !important; object-fit: cover !important; }
-        .coures-img img { border-radius: 8px 8px 0 0 !important; }
-        .subscribe-form .form-control { border-radius: 8px !important; }
+        .form-control, .card, .events.bg-white, .team, .team-info, .course-item, .blog-post, .rounded, .border-radius { border-radius: 8px; }
+        .card, .course-item, .blog-post { overflow: hidden; }
+        .events.bg-white { border-radius: 4px; }
+        .card, .events.bg-white, .course-item, .blog-post, .team-info, .course-form { box-shadow: none; border: var(--border-thin) solid var(--color-slate-200); transition: var(--transition-slow); }
+        .btn { border-radius: 8px; padding: 12px 28px; font-size: 0.95rem; font-weight: var(--font-bold); }
+        .events-img img, .team-img img, .blog-image img { border-radius: 8px; }
+        .events-img { height: 100%; }
+        .events-img img { height: 100%; min-height: 120px; object-fit: cover; }
+        .coures-img img { border-radius: 8px 8px 0 0; }
+        .subscribe-form .form-control { border-radius: 8px; }
         
-        .bg-primary { background-color: #0056b3 !important; }
-        .bg-primary-gradient { background: linear-gradient(135deg, #0056b3 0%, #28a745 100%) !important; }
-        .text-primary { color: #0056b3 !important; }
-        .badge-primary { background-color: #0056b3 !important; color: #ffffff !important; }
+        .bg-primary { background-color: var(--color-primary); }
+        .bg-primary-gradient { background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%); }
+        .text-primary { color: var(--color-primary); }
+        .badge-primary { background-color: var(--color-primary); color: #ffffff; }
         
         /* Force Swiper Pagination Dots to be Visible */
-        .swiper-pagination { position: absolute !important; bottom: 80px !important; left: 0 !important; width: 100% !important; text-align: center !important; z-index: 9999 !important; }
-        .swiper-pagination-bullet { width: 10px !important; height: 10px !important; background-color: #ffffff !important; opacity: 0.5 !important; display: inline-block !important; border-radius: 10px !important; margin: 0 6px !important; transition: var(--transition-slow) !important; }
-        .swiper-pagination-bullet-active { width: 28px !important; background-color: #10b981 !important; opacity: 1 !important; }
+        .swiper-pagination { position: absolute; bottom: 80px; left: 0; width: 100%; text-align: center; z-index: 9999; }
+        .swiper-pagination-bullet { width: 10px; height: 10px; background-color: #ffffff; opacity: 0.5; display: inline-block; border-radius: 10px; margin: 0 6px; transition: var(--transition-slow); }
+        .swiper-pagination-bullet-active { width: 28px; background-color: #10b981; opacity: 1; }
         
         /* Force all slider headings to be perfectly centered */
         .swipeinner .row.text-center h1,
-        .swipeinner .row.justify-content-center h1 { text-align: center !important; width: 100% !important; }
+        .swipeinner .row.justify-content-center h1 { text-align: center; width: 100%; }
         
         /* Remove translate on hover and add border highlight globally */
-        .card:hover, .course-item:hover, .blog-post:hover, .team-info:hover, .team:hover .team-info { transform: none !important; border: var(--border-thin) solid #0056b3 !important; border-radius: 8px !important; }
+        .card:hover, .course-item:hover, .blog-post:hover, .team-info:hover, .team:hover .team-info { transform: none; border: var(--border-thin) solid var(--color-primary); border-radius: 8px; }
         
         /* Block team card built-in hover animation */
-        .team:hover .team-info { margin-top: -30px !important; background-color: #ffffff !important; }
-        .team:hover .team-info .team-name, .team:hover .team-info p { color: inherit !important; }
+        .team:hover .team-info { margin-top: -30px; background-color: #ffffff; }
+        .team:hover .team-info .team-name, .team:hover .team-info p { color: inherit; }
         
         /* Keep social icons green on hover */
-        .team .team-info ul li a:hover { background-color: #28a745 !important; color: #ffffff !important; }
+        .team .team-info ul li a:hover { background-color: var(--color-success); color: #ffffff; }
         
         /* Remove hover effect entirely for Counseling Form and Events */
-        .course-form:hover, .events.bg-white:hover { transform: none !important; border: var(--border-thin) solid #e2e8f0 !important; }
+        .course-form:hover, .events.bg-white:hover { transform: none; border: var(--border-thin) solid var(--color-slate-200); }
       `}</style>
 
       <div className="main-wrapper" style={{ backgroundColor: 'var(--color-white)', position: 'relative', zIndex: 0 }}>
@@ -612,7 +612,7 @@ NOTE: This file contains all scripts for the actual Template.
                             <p className="d-none d-sm-block lead" style={{ opacity: 0.95, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>The first thing to remember about success is that it is a process nothing more, nothing less. There is really no magic to it and it’s not reserved only for a select few people.</p>
                           </div>
                           <Link href="#" className="animated4 btn mt-4 mr-1 mr-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: 'var(--color-white)', color: 'var(--color-primary)', border: 'none', fontWeight: 'var(--font-bold)', height: 'var(--box-height)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Discover More<span></span></Link>
-                          <Link href="#" className="animated4 btn mt-4 ml-1 ml-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', color: 'var(--color-white)', border: 'none', fontWeight: 'var(--font-bold)', height: 'var(--box-height)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Join Tarang<span></span></Link>
+                          <Link href="#" className="animated4 btn mt-4 ml-1 ml-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)', color: 'var(--color-white)', border: 'none', fontWeight: 'var(--font-bold)', height: 'var(--box-height)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Join Tarang<span></span></Link>
                         </div>
                       </div>
                     </div>
@@ -631,7 +631,7 @@ NOTE: This file contains all scripts for the actual Template.
                             <p className="text-white d-none d-sm-block lead" style={{ opacity: 0.95, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>There are basically six key areas to higher achievement. Some people will tell you there are four while others may tell you there are eight.</p>
                           </div>
                           <Link href="#" className="animated4 btn mt-4 mr-1 mr-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: 'var(--color-white)', color: 'var(--color-primary)', border: 'none', fontWeight: 'var(--font-bold)', height: 'var(--box-height)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Discover More<span></span></Link>
-                          <Link href="#" className="animated4 btn mt-4 ml-1 ml-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', color: 'var(--color-white)', border: 'none', fontWeight: 'var(--font-bold)', height: 'var(--box-height)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Join Tarang<span></span></Link>
+                          <Link href="#" className="animated4 btn mt-4 ml-1 ml-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)', color: 'var(--color-white)', border: 'none', fontWeight: 'var(--font-bold)', height: 'var(--box-height)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Join Tarang<span></span></Link>
                         </div>
                       </div>
                     </div>
@@ -650,7 +650,7 @@ NOTE: This file contains all scripts for the actual Template.
                             <p className="d-none d-sm-block lead" style={{ opacity: 0.95, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>Join our platform to experience modern education.</p>
                           </div>
                           <Link href="#" className="animated4 btn mt-4 mr-1 mr-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: 'var(--color-white)', color: 'var(--color-primary)', border: 'none', fontWeight: 'var(--font-bold)', height: 'var(--box-height)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Discover More<span></span></Link>
-                          <Link href="#" className="animated4 btn mt-4 ml-1 ml-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', color: 'var(--color-white)', border: 'none', fontWeight: 'var(--font-bold)', height: 'var(--box-height)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Join Tarang<span></span></Link>
+                          <Link href="#" className="animated4 btn mt-4 ml-1 ml-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)', color: 'var(--color-white)', border: 'none', fontWeight: 'var(--font-bold)', height: 'var(--box-height)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Join Tarang<span></span></Link>
                         </div>
                       </div>
                     </div>
@@ -669,7 +669,7 @@ NOTE: This file contains all scripts for the actual Template.
                             <p className="d-none d-sm-block lead" style={{ opacity: 0.95, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>Join our platform to experience modern education.</p>
                           </div>
                           <Link href="#" className="animated4 btn mt-4 mr-1 mr-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: 'var(--color-white)', color: 'var(--color-primary)', border: 'none', fontWeight: 'var(--font-bold)', height: 'var(--box-height)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Discover More<span></span></Link>
-                          <Link href="#" className="animated4 btn mt-4 ml-1 ml-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', color: 'var(--color-white)', border: 'none', fontWeight: 'var(--font-bold)', height: 'var(--box-height)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Join Tarang<span></span></Link>
+                          <Link href="#" className="animated4 btn mt-4 ml-1 ml-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)', color: 'var(--color-white)', border: 'none', fontWeight: 'var(--font-bold)', height: 'var(--box-height)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Join Tarang<span></span></Link>
                         </div>
                       </div>
                     </div>
@@ -694,7 +694,7 @@ NOTE: This file contains all scripts for the actual Template.
               <div className="row" style={{ alignItems: 'flex-end' }}>
                 <div className="col-md-4 mb-4 mb-md-0">
                   <div className="form-group mb-0">
-                    <label style={{ marginBottom: "8px", fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)', display: "block" }}>Full Name</label>
+                    <label style={{ marginBottom: "8px", fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)', display: "block" }}>Full Name</label>
                     <TextField
                       fullWidth
                       id="name"
@@ -708,7 +708,7 @@ NOTE: This file contains all scripts for the actual Template.
                 </div>
                 <div className="col-md-4 mb-4 mb-md-0">
                   <div className="form-group mb-0">
-                    <label style={{ marginBottom: "8px", fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)', display: "block" }}>Email Address</label>
+                    <label style={{ marginBottom: "8px", fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)', display: "block" }}>Email Address</label>
                     <TextField
                       fullWidth
                       id="email"
@@ -722,7 +722,7 @@ NOTE: This file contains all scripts for the actual Template.
                 </div>
                 <div className="col-md-4">
                   <div className="course-serach">
-                    <Link className="btn btn-block" style={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', border: 'none', color: 'var(--color-white)', fontWeight: 'var(--font-semibold)', borderRadius: 'var(--radius-md)', height: 'var(--box-height)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} href="#">Book Counseling</Link>
+                    <Link className="btn btn-block" style={{ background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)', border: 'none', color: 'var(--color-white)', fontWeight: 'var(--font-semibold)', borderRadius: 'var(--radius-md)', height: 'var(--box-height)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} href="#">Book Counseling</Link>
                   </div>
                 </div>
               </div>
@@ -827,7 +827,7 @@ NOTE: This file contains all scripts for the actual Template.
                 </div>
               </div>
               <div className="col-sm-4 text-md-right mb-4 mb-sm-0">
-                <Link className="btn" href="#" style={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', color: 'var(--color-white)', border: 'none', fontWeight: 'var(--font-bold)' }}>All Courses</Link>
+                <Link className="btn" href="#" style={{ background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)', color: 'var(--color-white)', border: 'none', fontWeight: 'var(--font-bold)' }}>All Courses</Link>
               </div>
             </div>
             <div className="row">
@@ -1411,7 +1411,7 @@ NOTE: This file contains all scripts for the actual Template.
                 <div className="col-lg-10 text-center">
                   <span className="text-white d-block mb-4 h6 font-weight-normal">Are you ready to start your journey with us?</span>
                   <h2 className="text-white mb-4 display-7">Education for Individual and Social Responsibility</h2>
-                  <Link className="btn mr-sm-3 mt-3" href="#" style={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', color: 'var(--color-white)', border: 'none', fontWeight: 'var(--font-bold)', height: 'var(--box-height)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Become A Student</Link>
+                  <Link className="btn mr-sm-3 mt-3" href="#" style={{ background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)', color: 'var(--color-white)', border: 'none', fontWeight: 'var(--font-bold)', height: 'var(--box-height)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Become A Student</Link>
                   <Link className="btn mt-3" href="#" style={{ background: 'var(--color-white)', color: 'var(--color-primary)', border: 'none', fontWeight: 'var(--font-bold)', height: 'var(--box-height)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Discover More</Link>
                 </div>
               </div>

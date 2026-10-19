@@ -60,6 +60,13 @@ func NewMinioClient(ctx context.Context) (*MinioClient, error) {
 	}, nil
 }
 
+func (m *MinioClient) GetObject(ctx context.Context, bucketName, objectKey string) (*s3.GetObjectOutput, error) {
+	return m.S3Client.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(objectKey),
+	})
+}
+
 func (m *MinioClient) GeneratePresignedUploadURL(ctx context.Context, bucketName, objectKey string, lifetime time.Duration) (string, error) {
 	req, err := m.PresignClient.PresignPutObject(ctx, &s3.PutObjectInput{
 		Bucket: aws.String(bucketName),

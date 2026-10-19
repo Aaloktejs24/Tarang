@@ -1,68 +1,50 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLoading } from '../contexts/LoadingContext';
 
-/**
- * Preloads a background image and drives the global loading spinner.
- *
- * Handles edge-cases:
- *  - Cached images that fire onload synchronously (race-condition guard via flag).
- *  - Component unmount before load completes (stopLoading only called once).
- *  - Null/undefined imageUrl (treated as already loaded).
- *
- * @param {string|null} imageUrl — URL of the background image to preload.
- * @returns {boolean} bgLoaded  — true once the image is available.
- */
-export function useBgPreloader(imageUrl, loading = false) {
-  const [bgLoaded, setBgLoaded] = useState(false);
+export function useBgPreloader(url, loading = false) {
+  const [isLoaded, setIsLoaded] = useState(false);
   const { startLoading, stopLoading } = useLoading();
 
   useEffect(() => {
-    let isLoaderActive = false;
-
-    const safeStartLoading = () => {
-      if (!isLoaderActive) {
-        startLoading();
-        isLoaderActive = true;
-      }
-    };
-
-    const safeStopLoading = () => {
-      if (isLoaderActive) {
-        stopLoading();
-        isLoaderActive = false;
-      }
-    };
-
-    if (loading) {
-      safeStartLoading();
-      return safeStopLoading;
-    }
-
-    if (!imageUrl) {
-      setBgLoaded(true);
+    if (!url || loading) {
+      setTimeout(() => setIsLoaded(false), 0);
       return;
     }
 
-    setBgLoaded(false);
-    safeStartLoading();
+    // Check if we are running in the browser
+    if (typeof window === 'undefined') {
+      return;
+    }
 
-    const img = new window.Image();
+    const img = new Image();
+    img.src = url;
 
-    img.onload = () => {
-      setBgLoaded(true);
-      safeStopLoading();
+    const handleLoad = () => setIsLoaded(true);
+
+    if (img.complete) {
+      setIsLoaded(true);
+    } else {
+      setIsLoaded(false);
+      img.onload = handleLoad;
+      img.onerror = handleLoad; // Consider it loaded even on error so it doesn't block UI forever
+    }
+
+    return () => {
+      img.onload = null;
+      img.onerror = null;
     };
+  }, [url, loading]);
 
-    img.onerror = () => {
-      setBgLoaded(true);
-      safeStopLoading();
-    };
+  const shouldLoad = loading || (url && !isLoaded);
 
-    // assign src AFTER handlers to avoid sync-fire race
-    img.src = imageUrl;
+  useEffect(() => {
+    if (shouldLoad) {
+      startLoading();
+      return () => {
+        stopLoading();
+      };
+    }
+  }, [shouldLoad, startLoading, stopLoading]);
 
-    return safeStopLoading;
-  }, [imageUrl, loading, startLoading, stopLoading]);
-
-  return bgLoaded;
+  return isLoaded;
 }

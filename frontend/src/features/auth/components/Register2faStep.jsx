@@ -10,6 +10,7 @@ import { getTempToken } from "../../../lib/auth";
 import OtpInput from "./OtpInput";
 import { translateAuthError, AUTH_ERRORS } from "../../../constants/errors";
 import TarangButton from "../../../components/common/TarangButton";
+import { FormLoadingProvider } from '../../../contexts/FormLoadingContext';
 
 export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading, isRegistered, setStep, setMode }) {
     const [step2fa, setStep2fa] = useState("choice"); // "choice", "authenticator_setup"
@@ -98,8 +99,9 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
         }
     };
 
-    if (step2fa === "authenticator_setup") {
+    if (step2fa === "authenticator_setup" && totpData) {
         return (
+            <FormLoadingProvider isLoading={isVerifying || isLoading}>
             <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 3, alignItems: "center" }}>
                 <Box sx={{ textAlign: "center" }}>
                     <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)' }}>
@@ -122,9 +124,9 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                     {totpData?.url && (
                         <Box sx={{
                             p: 1.5,
-                            bgcolor: "white",
+                            bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)",
                             borderRadius: 'var(--radius-md)',
-                            border: "var(--border-thin) solid #e2e8f0",
+                            border: "var(--border-thin) solid var(--color-slate-200)",
                             flexShrink: 0,
                             display: "flex",
                             alignItems: "center",
@@ -152,7 +154,7 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                                 px: 1.5,
                                 py: 1.25,
                                 borderRadius: 'var(--radius-md)',
-                                border: "1px dashed #cbd5e1",
+                                border: "1px dashed var(--color-slate-300)",
                                 position: "relative",
                                 pr: 5
                             }}>
@@ -181,7 +183,7 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                                         top: "50%",
                                         
                                         color: copied ? "var(--color-success)" : "var(--color-slate-500)",
-                                        transition: "color 0.2s"
+                                        transition: "color var(--transition-base)"
                                     }}
                                 >
                                     {copied ? <CheckIcon sx={{ fontSize: 20 }} /> : <ContentCopyIcon sx={{ fontSize: 20 }} />}
@@ -195,7 +197,7 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                 </Box>
 
                 <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)', width: "var(--size-full)", textAlign: "left" }}>
+                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)', width: "var(--size-full)", textAlign: "left" }}>
                         6-अंकों का वेरिफिकेशन कोड
                     </Typography>
                     <OtpInput
@@ -231,10 +233,12 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                     विकल्पों पर वापस जाएं
                 </TarangButton>
             </Box>
+            </FormLoadingProvider>
         );
     }
 
     return (
+        <FormLoadingProvider isLoading={isVerifying || isLoading}>
         <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 3 }}>
             <Box>
                 <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)' }}>
@@ -253,10 +257,10 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                         alignItems: "center",
                         p: 1.5,
                         borderRadius: 'var(--radius-md)',
-                        border: "var(--border-thin) solid #e2e8f0",
+                        border: "var(--border-thin) solid var(--color-slate-200)",
                         backgroundColor: "var(--color-slate-50)",
                         cursor: isVerifying ? "default" : "pointer",
-                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                        transition: "all var(--transition-slow)",
                         opacity: isVerifying ? 0.7 : 1,
                         position: "relative",
                         "&:hover": {
@@ -287,10 +291,10 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                         alignItems: "center",
                         p: 1.5,
                         borderRadius: 'var(--radius-md)',
-                        border: "var(--border-thin) solid #e2e8f0",
+                        border: "var(--border-thin) solid var(--color-slate-200)",
                         backgroundColor: "var(--color-slate-50)",
                         cursor: isVerifying ? "default" : "pointer",
-                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                        transition: "all var(--transition-slow)",
                         opacity: isVerifying ? 0.7 : 1,
                         position: "relative",
                         "&:hover": {
@@ -304,7 +308,7 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                         <EmailIcon sx={{ fontSize: 20 }} />
                     </Box>
                     <Box sx={{ flexGrow: 1 }}>
-                        <Typography sx={{ fontWeight: 'var(--font-bold)', color: "var(--color-slate-900)", fontSize: 'var(--font-base)' }}>ईमेल एप्रकू</Typography>
+                        <Typography sx={{ fontWeight: 'var(--font-bold)', color: "var(--color-slate-900)", fontSize: 'var(--font-base)' }}>ईमेल OTP</Typography>
                         <Typography sx={{ color: "var(--color-slate-500)", fontSize: 'var(--font-xs)' }}>ईमेल के माध्यम से कोड प्राप्त करें</Typography>
                     </Box>
                     {isVerifying && (
@@ -344,5 +348,6 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                 </TarangButton>
             )}
         </Box>
+        </FormLoadingProvider>
     );
 }

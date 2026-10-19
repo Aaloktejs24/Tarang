@@ -1,0 +1,78 @@
+package errors
+
+// Common error messages
+const (
+	// Authentication
+	ErrInvalidCredentials = "Incorrect credentials"
+	ErrAccountLocked      = "Account is temporarily locked"
+	ErrUnauthorized       = "Please sign in"
+	ErrTokenExpired       = "Session expired"
+	ErrInvalidToken       = "Invalid session"
+
+	// Validation
+	ErrInvalidPayload          = "Invalid request"
+	ErrEmailOrUsernameRequired = "Email or username is required"
+	ErrMissingFields           = "Please fill all required fields"
+	ErrInvalidSessionID        = "Invalid session"
+	ErrUserNotFound            = "User not found"
+	ErrAccountNotFound         = "Account not found"
+	ErrInvalidUserIdentifier   = "Invalid user"
+	ErrInvalidOrExpiredSession = "Session expired"
+	ErrInvalidOrExpiredToken   = "Please sign in again"
+	ErrInvalidOrExpiredOTP     = "Invalid or expired OTP"
+	ErrInvalidCode             = "Invalid code"
+	ErrEmailRequired           = "Email is required"
+	ErrUsernameRequired        = "Username is required"
+	ErrPhoneRequired           = "Phone number is required"
+	ErrEmailOrPhoneRequired    = "Email or phone number is required"
+	ErrTargetRequired          = "Target is required"
+	ErrRoleRequired            = "Role is required"
+	ErrFullNameRequired        = "Full name is required"
+	ErrPasswordTooShort        = "Password must be at least 8 characters"
+	ErrInvalidPassword         = "Incorrect password"
+	ErrSessionIDRequired       = "Session ID is required"
+	ErrRefreshTokenRequired    = "Refresh token is required"
+
+	// Authentication & MFA
+	ErrMissingAuthHeader       = "Please sign in"
+	ErrInvalidAuthHeader       = "Invalid authorization"
+	ErrNoActiveAdminToken      = "Admin session not found"
+	ErrNoActiveSuperAdminToken = "Super admin session not found"
+	ErrAdminsMustHaveMFA       = "MFA is required"
+	ErrTOTPNotSetup            = "TOTP is not set up"
+	ErrTOTPNotEnabledForUser   = "TOTP is not enabled"
+	ErrEmailOTPNotEnabled      = "Email OTP is not enabled"
+	ErrTOTPVerificationNotReq  = "TOTP verification is not required"
+	ErrOTPVerificationNotReq   = "OTP verification is not required"
+	ErrNoPhoneLinked           = "No phone number linked"
+	ErrPhoneMismatch           = "Phone number doesn't match"
+	ErrCouldNotSetupTOTP       = "Couldn't set up TOTP"
+	ErrCouldNotEnableTOTP      = "Couldn't enable TOTP"
+	ErrCouldNotRotateToken     = "Couldn't refresh session"
+
+	// Server
+	ErrInternalServer           = "Something went wrong"
+	ErrTokenGenerationFailed    = "Couldn't create token"
+	ErrSessionGenerationFailed  = "Couldn't create session"
+	ErrRegSucceededTokenFailed  = "Account created, but sign-in failed"
+	ErrFailedToSendOTP          = "Couldn't send OTP"
+	ErrFailedToSendEmail        = "Couldn't send email"
+	ErrFailedToCreateAccessToken = "Couldn't create access token"
+	ErrFailedToUpdatePreference = "Couldn't update preferences"
+
+	// User & Profile
+	ErrUnsupportedFileType        = "Unsupported file type"
+	ErrFailedToGenerateUploadURL  = "Couldn't upload file"
+	ErrFailedToUpdateProfilePic   = "Couldn't update profile picture"
+	ErrFailedToUpdateBanner       = "Couldn't update banner"
+	ErrFailedToUpdateBio          = "Couldn't update bio"
+	ErrFailedToUpdateProfile      = "Couldn't update profile"
+	ErrFailedToFetchInstitutes    = "Couldn't load institutes"
+	ErrUsernameIsRequired         = "Username is required"
+	ErrInstituteTypeRequired      = "Institute type is required"
+	ErrEstablishedYearInvalid     = "Invalid establishment year"
+	ErrRegistrationNumberRequired = "Registration number is required"
+	ErrCoursesOfferedRequired     = "Courses offered are required"
+	ErrCountsCannotBeNegative     = "Values cannot be negative"
+	ErrFileMetadataRequired       = "Required file details are missing"
+)

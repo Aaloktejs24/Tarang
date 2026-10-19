@@ -38,10 +38,16 @@ import GitHubIcon from "@mui/icons-material/GitHub";
 import CloseIcon from "@mui/icons-material/Close";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import LibraryBooksOutlinedIcon from "@mui/icons-material/LibraryBooksOutlined";
+import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
+import Loader from "../../components/common/Loader";
 import StarOutlineOutlinedIcon from "@mui/icons-material/StarOutlineOutlined";
 import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutlineOutlined";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import TwitterIcon from "@mui/icons-material/Twitter";
+import { useParams } from 'next/navigation';
+import { useAppRouter as useRouter } from '../../hooks/useAppRouter';
+import { useAccessibility } from '../../contexts/AccessibilityContext';
+import Navbar from '../../components/navbar/Navbar';
 import KycVerificationModal from "./components/KycVerificationModal";
 import InstituteSetupModal from "../auth/components/InstituteSetupModal";
 import InstituteProfileSkeleton from "./InstituteProfileSkeleton";
@@ -99,7 +105,7 @@ const getRoleConfig = (role) => {
     ],
     sidebarPrimary: "Expert in:",
     sidebarSecondary: "Recognitions:",
-    statsHeading: "सीखने के आँकड़े",
+    statsHeading: "आँकड़े",
     metrics: [
       { icon: LibraryBooksOutlinedIcon, title: "12 नामांकित कोर्स", subtitle: "सक्रिय पाठ्यक्रम" },
       { icon: CheckCircleOutlineOutlinedIcon, title: "8 पूर्ण कोर्स", subtitle: "100% सफलता दर" },
@@ -112,6 +118,7 @@ const getRoleConfig = (role) => {
 };
 
 export default function InstituteProfile() {
+  const { locationName } = useAccessibility();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isKycModalOpen, setKycModalOpen] = useState(false);
@@ -204,6 +211,11 @@ export default function InstituteProfile() {
   const handleUpload = async (file, type) => {
     if (!file) return;
 
+    // Optimistic UI Update for instant feedback
+    const objectUrl = URL.createObjectURL(file);
+    const urlField = type === "profile" ? "profile_pic_url" : "banner_url";
+    setProfile(prev => ({ ...prev, [urlField]: objectUrl }));
+
     setUploading(prev => ({ ...prev, [type]: true }));
 
     try {
@@ -243,7 +255,7 @@ export default function InstituteProfile() {
       px: 0.5,
       py: 2.5,
       height: "var(--size-full)",
-      bgcolor: "white",
+      bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)",
       borderRadius: { xs: "12px", sm: "16px", md: "20px" },
       border: "var(--border-thin) solid rgba(30, 79, 163, 0.15)",
       display: "flex",
@@ -288,104 +300,104 @@ export default function InstituteProfile() {
       }}>
         <Box ref={sidebarRef} sx={{ width: "var(--size-full)" }}>
 
-              {/* Profile Card */}
-              <PremiumCard variant="profile" sx={{ pt: 0, pb: 4, px: 4, textAlign: "left", overflow: "hidden" }}>
+          {/* Profile Card */}
+          <PremiumCard variant="profile" sx={{ pt: 0, pb: 4, px: 4, textAlign: "left", overflow: "hidden" }}>
 
-                {/* Banner Area */}
-                <Box sx={{
-                  height: 120,
-                  mx: -4,
-                  mb: 0,
-                  backgroundImage: profile.banner_url ? `url(${profile.banner_url})` : "linear-gradient(135deg, #0056b3 0%, #0056b3 100%)",
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  position: "relative"
-                }}>
-                  <Box onClick={() => bannerInputRef.current?.click()} sx={{ position: "absolute", top: 12, right: 12, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255, 255, 255, 0.3)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "var(--border-thin) solid rgba(255, 255, 255, 0.6)", borderRadius: 'var(--radius-full)', cursor: "pointer", zIndex: 3, "&:hover": { background: "rgba(255, 255, 255, 0.5)", transform: "scale(1.05)" }, transition: "all 0.2s" }}>
-                    {uploading.banner ? null : <EditOutlinedIcon sx={{ fontSize: 16, color: "var(--color-slate-900)" }} />}
-                  </Box>
-                  <input type="file" ref={bannerInputRef} style={{ display: "none" }} accept="image/*" onChange={(e) => handleUpload(e.target.files[0], "banner")} />
+            {/* Banner Area */}
+            <Box sx={{
+              height: 120,
+              mx: -4,
+              mb: 0,
+              backgroundImage: profile.banner_url ? `url(${profile.banner_url})` : "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary) 100%)",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              position: "relative"
+            }}>
+              <Box onClick={() => bannerInputRef.current?.click()} sx={{ position: "absolute", top: 12, right: 12, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--color-white)", color: "var(--color-primary)", border: "1px solid var(--color-slate-200)", borderRadius: 'var(--radius-full)', cursor: "pointer", zIndex: 3, "&:hover": { background: "var(--color-slate-50)", transform: "scale(1.05)" }, transition: "all var(--transition-base)" }}>
+                {uploading.banner ? <Loader mini /> : <EditOutlinedIcon sx={{ fontSize: 16, color: "var(--color-primary)" }} />}
+              </Box>
+              <input type="file" ref={bannerInputRef} style={{ display: "none" }} accept="image/*" onChange={(e) => handleUpload(e.target.files[0], "banner")} />
+            </Box>
+
+            {/* Avatar and Action Button Row */}
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", mt: -5, mb: 3 }}>
+
+              {/* Avatar */}
+              <Box sx={{ position: "relative", display: "inline-block", p: 0.5, bgcolor: "var(--card-bg)", borderRadius: 'var(--radius-full)', zIndex: 2 }}>
+                <Avatar
+                  sx={{
+                    width: 100, height: 100, position: "relative", zIndex: 2,
+                    background: "var(--theme-green)", color: "var(--color-white)",
+                    fontSize: 36, fontWeight: 900,
+                    border: "none",
+                    "& img": { objectFit: "cover" }
+                  }}
+                  src={profile.profile_pic_url}
+                >
+                  {!profile.profile_pic_url && (profile.full_name?.charAt(0).toUpperCase() || profile.username?.charAt(0).toUpperCase() || "यू")}
+                </Avatar>
+                <Box onClick={() => profileInputRef.current?.click()} sx={{ position: "absolute", bottom: 0, right: 0, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--color-white)", color: "var(--color-primary)", border: "1px solid var(--color-slate-200)", borderRadius: 'var(--radius-full)', cursor: "pointer", zIndex: 3, "&:hover": { background: "var(--color-slate-50)", transform: "scale(1.05)" }, transition: "all var(--transition-base)" }}>
+                  {uploading.profile ? <Loader mini /> : <EditOutlinedIcon sx={{ fontSize: 14, color: "var(--color-primary)" }} />}
                 </Box>
+                <input type="file" ref={profileInputRef} style={{ display: "none" }} accept="image/*" onChange={(e) => handleUpload(e.target.files[0], "profile")} />
+              </Box>
 
-                {/* Avatar and Action Button Row */}
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", mt: -5, mb: 3 }}>
+              {/* Verify Button */}
+              <Box sx={{ pb: 1, zIndex: 2 }}>
+                {profile.kyc_status === "verified" ? (
+                  <Button variant="contained" size="small" disabled sx={{ borderRadius: 'var(--radius-lg)', px: 1.5, py: 0.5, textTransform: 'none', fontWeight: 'var(--font-medium)', fontSize: 'var(--font-sm)', background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)", color: "var(--color-white)", whiteSpace: 'nowrap', minWidth: 0 }}>
+                    सत्यापित
+                  </Button>
+                ) : (
+                  <Button variant="contained" size="small" startIcon={<VerifiedUserOutlinedIcon sx={{ fontSize: 16 }} />} onClick={() => setKycModalOpen(true)} sx={{ background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)', color: 'var(--color-white)', borderRadius: 'var(--radius-lg)', px: 1.5, py: 0.5, textTransform: 'none', fontWeight: 'var(--font-semibold)', fontSize: 'var(--font-sm)', whiteSpace: 'nowrap', minWidth: 0 }}>
+                    सत्यापित करें
+                  </Button>
+                )}
+              </Box>
+            </Box>
 
-                  {/* Avatar */}
-                  <Box sx={{ position: "relative", display: "inline-block", p: 0.5, bgcolor: "rgba(255, 255, 255, 0.6)", backdropFilter: "blur(10px)", borderRadius: 'var(--radius-full)', zIndex: 2 }}>
-                    <Avatar
-                      sx={{
-                        width: 100, height: 100, position: "relative", zIndex: 2,
-                        background: "linear-gradient(135deg, #0f172a 0%, #334155 100%)", color: "var(--color-white)",
-                        fontSize: 36, fontWeight: 900,
-                        border: "none",
-                        "& img": { objectFit: "cover" }
-                      }}
-                      src={profile.profile_pic_url}
-                    >
-                      {!profile.profile_pic_url && (profile.full_name?.charAt(0).toUpperCase() || profile.username?.charAt(0).toUpperCase() || "यू")}
-                    </Avatar>
-                    <Box onClick={() => profileInputRef.current?.click()} sx={{ position: "absolute", bottom: 0, right: 0, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255, 255, 255, 0.3)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "var(--border-thin) solid rgba(255, 255, 255, 0.6)", borderRadius: 'var(--radius-full)', cursor: "pointer", zIndex: 3, "&:hover": { background: "rgba(255, 255, 255, 0.5)", transform: "scale(1.05)" }, transition: "all 0.2s" }}>
-                      {uploading.profile ? null : <EditOutlinedIcon sx={{ fontSize: 14, color: "var(--color-slate-900)" }} />}
-                    </Box>
-                    <input type="file" ref={profileInputRef} style={{ display: "none" }} accept="image/*" onChange={(e) => handleUpload(e.target.files[0], "profile")} />
-                  </Box>
+            <Typography variant="h5" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)', mb: 0.5, fontSize: '1.4rem', textTransform: 'capitalize' }}>
+              {profile.institution_name || profile.full_name || profile.username}
+            </Typography>
+            <Typography variant="body1" sx={{ color: 'var(--color-slate-900)', fontWeight: 'var(--font-medium)', mb: 0.5, fontSize: 'var(--font-base)', textTransform: 'capitalize' }}>
+              {profile.role === 'institute' || profile.role === 'organisation' ? 'Organisation' : profile.role}
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'var(--color-slate-500)', mb: 2, fontSize: 'var(--font-sm)', textTransform: 'capitalize' }}>
+              {profile.location || locationName || "No location provided"}
+            </Typography>
+          </PremiumCard>
 
-                  {/* Verify Button */}
-                  <Box sx={{ pb: 1, zIndex: 2 }}>
-                    {profile.kyc_status === "verified" ? (
-                      <Button variant="contained" size="small" disabled sx={{ borderRadius: 'var(--radius-lg)', px: 1.5, py: 0.5, textTransform: 'none', fontWeight: 'var(--font-medium)', fontSize: 'var(--font-sm)', background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%) !important", color: "white !important", whiteSpace: 'nowrap', minWidth: 0 }}>
-                        सत्यापित
-                      </Button>
-                    ) : (
-                      <Button variant="contained" size="small" startIcon={<VerifiedUserOutlinedIcon sx={{ fontSize: 16 }} />} onClick={() => setKycModalOpen(true)} sx={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', color: 'var(--color-white)', borderRadius: 'var(--radius-lg)', px: 1.5, py: 0.5, textTransform: 'none', fontWeight: 'var(--font-semibold)', fontSize: 'var(--font-sm)', whiteSpace: 'nowrap', minWidth: 0 }}>
-                        सत्यापित करें
-                      </Button>
-                    )}
+          {/* Skills/Expertise Card */}
+          {((profile.skills && profile.skills.length > 0) || (profile.recognitions && profile.recognitions.length > 0) || true) && (
+            <PremiumCard variant="profile" sx={{ p: { xs: 2.5, sm: 4 }, mt: 3 }}>
+              <Box sx={{ mb: profile.recognitions && profile.recognitions.length > 0 ? 4 : 0 }}>
+                <Typography variant="subtitle1" fontWeight={500} color="var(--color-slate-900)" sx={{ mb: 2.5 }}>
+                  {config.sidebarPrimary}
+                </Typography>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
+                  {(profile.skills && profile.skills.length > 0 ? profile.skills : (
+                    (profile.role === 'institute' || profile.role === 'organisation')
+                      ? ["Administration", "Leadership", "Management", "Operations", "Strategy"]
+                      : ["Capital Raising", "Marketing & Sales", "Consulting", "Asset Management", "Business Development"]
+                  )).map((skill, i) => (
+                    <Chip key={i} label={skill} sx={{ borderRadius: 'var(--radius-lg)', fontWeight: 'var(--font-regular)', bgcolor: "var(--card-inner-bg)", color: "var(--color-slate-900)", border: "var(--border-thin) solid var(--card-inner-border)", px: 1, fontSize: 'var(--font-sm)', backdropFilter: "var(--card-blur)", transition: "var(--transition-slow)", '&:hover': { transform: 'translateY(-2px)' } }} />
+                  ))}
+                </Box>
+              </Box>
+              {profile.recognitions && profile.recognitions.length > 0 && (
+                <Box>
+                  <Typography variant="subtitle1" fontWeight={500} color="var(--color-slate-900)" sx={{ mb: 2.5 }}>
+                    {config.sidebarSecondary}
+                  </Typography>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
+                    {profile.recognitions.map((rec, i) => (
+                      <Chip key={i} label={rec} icon={<EmojiEventsOutlinedIcon sx={{ color: 'var(--color-slate-500)' }} />} sx={{ borderRadius: 'var(--radius-lg)', fontWeight: 'var(--font-regular)', bgcolor: "var(--card-inner-bg)", color: "var(--color-slate-900)", border: "var(--border-thin) solid var(--card-inner-border)", px: 1, py: 2.5, fontSize: 'var(--font-sm)', backdropFilter: "var(--card-blur)", transition: "var(--transition-slow)", '&:hover': { transform: 'translateY(-2px)' } }} />
+                    ))}
                   </Box>
                 </Box>
-
-                <Typography variant="h5" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)', mb: 0.5, fontSize: '1.4rem', textTransform: 'capitalize' }}>
-                  {profile.institution_name || profile.full_name || profile.username}
-                </Typography>
-                <Typography variant="body1" sx={{ color: 'var(--color-slate-700)', fontWeight: 'var(--font-medium)', mb: 0.5, fontSize: 'var(--font-base)', textTransform: 'capitalize' }}>
-                  {profile.role === 'institute' || profile.role === 'organisation' ? 'Organisation' : profile.role}
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'var(--color-slate-500)', mb: 2, fontSize: 'var(--font-sm)', textTransform: 'capitalize' }}>
-                  {profile.location || "Toronto, Ontario, Canada"}
-                </Typography>
-              </PremiumCard>
-
-              {/* Skills/Expertise Card */}
-              {((profile.skills && profile.skills.length > 0) || (profile.recognitions && profile.recognitions.length > 0) || true) && (
-                <PremiumCard variant="profile" sx={{ p: { xs: 2.5, sm: 4 }, mt: 3 }}>
-                  <Box sx={{ mb: profile.recognitions && profile.recognitions.length > 0 ? 4 : 0 }}>
-                    <Typography variant="subtitle1" fontWeight={500} color="var(--color-slate-900)" sx={{ mb: 2.5 }}>
-                      {config.sidebarPrimary}
-                    </Typography>
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
-                      {(profile.skills && profile.skills.length > 0 ? profile.skills : (
-                        (profile.role === 'institute' || profile.role === 'organisation')
-                          ? ["Administration", "Leadership", "Management", "Operations", "Strategy"]
-                          : ["Capital Raising", "Marketing & Sales", "Consulting", "Asset Management", "Business Development"]
-                      )).map((skill, i) => (
-                      <Chip key={i} label={skill} sx={{ borderRadius: 'var(--radius-lg)', fontWeight: 'var(--font-regular)', bgcolor: "var(--card-inner-bg)", color: "var(--color-slate-900)", border: "var(--border-thin) solid var(--card-inner-border)", px: 1, fontSize: 'var(--font-sm)', backdropFilter: "var(--card-blur)", transition: "var(--transition-slow)", '&:hover': { transform: 'translateY(-2px)' } }} />
-                      ))}
-                    </Box>
-                  </Box>
-                  {profile.recognitions && profile.recognitions.length > 0 && (
-                    <Box>
-                      <Typography variant="subtitle1" fontWeight={500} color="var(--color-slate-900)" sx={{ mb: 2.5 }}>
-                        {config.sidebarSecondary}
-                      </Typography>
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
-                        {profile.recognitions.map((rec, i) => (
-                          <Chip key={i} label={rec} icon={<EmojiEventsOutlinedIcon sx={{ color: 'var(--color-slate-500)' }} />} sx={{ borderRadius: 'var(--radius-lg)', fontWeight: 'var(--font-regular)', bgcolor: "var(--card-inner-bg)", color: "var(--color-slate-900)", border: "var(--border-thin) solid var(--card-inner-border)", px: 1, py: 2.5, fontSize: 'var(--font-sm)', backdropFilter: "var(--card-blur)", transition: "var(--transition-slow)", '&:hover': { transform: 'translateY(-2px)' } }} />
-                        ))}
-                      </Box>
-                    </Box>
-                  )}
-                </PremiumCard>
               )}
+            </PremiumCard>
+          )}
 
         </Box>
       </Box>
@@ -415,13 +427,13 @@ export default function InstituteProfile() {
               height: 120,
               mx: -4,
               mb: 0,
-              backgroundImage: profile.banner_url ? `url(${profile.banner_url})` : "linear-gradient(135deg, #0056b3 0%, #0056b3 100%)",
+              backgroundImage: profile.banner_url ? `url(${profile.banner_url})` : "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary) 100%)",
               backgroundSize: "cover",
               backgroundPosition: "center",
               position: "relative"
             }}>
-              <Box onClick={() => bannerInputRef.current?.click()} sx={{ position: "absolute", top: 12, right: 12, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255, 255, 255, 0.3)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "var(--border-thin) solid rgba(255, 255, 255, 0.6)", borderRadius: 'var(--radius-full)', cursor: "pointer", zIndex: 3, "&:hover": { background: "rgba(255, 255, 255, 0.5)", transform: "scale(1.05)" }, transition: "all 0.2s" }}>
-                {uploading.banner ? null : <EditOutlinedIcon sx={{ fontSize: 16, color: "var(--color-slate-900)" }} />}
+              <Box onClick={() => bannerInputRef.current?.click()} sx={{ position: "absolute", top: 12, right: 12, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--color-white)", color: "var(--color-primary)", border: "1px solid var(--color-slate-200)", borderRadius: 'var(--radius-full)', cursor: "pointer", zIndex: 3, "&:hover": { background: "var(--color-slate-50)", transform: "scale(1.05)" }, transition: "all var(--transition-base)" }}>
+                {uploading.banner ? <Loader mini /> : <EditOutlinedIcon sx={{ fontSize: 16, color: "var(--color-primary)" }} />}
               </Box>
               <input type="file" ref={bannerInputRef} style={{ display: "none" }} accept="image/*" onChange={(e) => handleUpload(e.target.files[0], "banner")} />
             </Box>
@@ -430,12 +442,12 @@ export default function InstituteProfile() {
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", mt: -5, mb: 3 }}>
 
               {/* Avatar */}
-              <Box sx={{ position: "relative", display: "inline-block", p: 0.5, bgcolor: "rgba(255, 255, 255, 0.6)", backdropFilter: "blur(10px)", borderRadius: 'var(--radius-full)', zIndex: 2 }}>
+              <Box sx={{ position: "relative", display: "inline-block", p: 0.5, bgcolor: "var(--card-bg)", borderRadius: 'var(--radius-full)', zIndex: 2 }}>
                 <Avatar
                   sx={{
-                    width: 100, height: 100, position: "relative", zIndex: 2,
-                    background: "linear-gradient(135deg, #0f172a 0%, #334155 100%)", color: "var(--color-white)",
-                    fontSize: 36, fontWeight: 900,
+                    width: 80, height: 80, position: "relative", zIndex: 2,
+                    background: "var(--theme-green)", color: "var(--color-white)",
+                    fontSize: 28, fontWeight: 900,
                     border: "none",
                     "& img": { objectFit: "cover" }
                   }}
@@ -443,8 +455,8 @@ export default function InstituteProfile() {
                 >
                   {!profile.profile_pic_url && (profile.full_name?.charAt(0).toUpperCase() || profile.username?.charAt(0).toUpperCase() || "यू")}
                 </Avatar>
-                <Box onClick={() => profileInputRef.current?.click()} sx={{ position: "absolute", bottom: 0, right: 0, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255, 255, 255, 0.3)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "var(--border-thin) solid rgba(255, 255, 255, 0.6)", borderRadius: 'var(--radius-full)', cursor: "pointer", zIndex: 3, "&:hover": { background: "rgba(255, 255, 255, 0.5)", transform: "scale(1.05)" }, transition: "all 0.2s" }}>
-                  {uploading.profile ? null : <EditOutlinedIcon sx={{ fontSize: 14, color: "var(--color-slate-900)" }} />}
+                <Box onClick={() => profileInputRef.current?.click()} sx={{ position: "absolute", bottom: 0, right: 0, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--color-white)", color: "var(--color-primary)", border: "1px solid var(--color-slate-200)", borderRadius: 'var(--radius-full)', cursor: "pointer", zIndex: 3, "&:hover": { background: "var(--color-slate-50)", transform: "scale(1.05)" }, transition: "all var(--transition-base)" }}>
+                  {uploading.profile ? <Loader mini /> : <EditOutlinedIcon sx={{ fontSize: 14, color: "var(--color-primary)" }} />}
                 </Box>
                 <input type="file" ref={profileInputRef} style={{ display: "none" }} accept="image/*" onChange={(e) => handleUpload(e.target.files[0], "profile")} />
               </Box>
@@ -452,11 +464,11 @@ export default function InstituteProfile() {
               {/* Verify Button */}
               <Box sx={{ pb: 1, zIndex: 2, alignSelf: 'flex-end', display: 'flex', alignItems: 'flex-end' }}>
                 {profile.kyc_status === "verified" ? (
-                  <Button variant="contained" size="small" disabled sx={{ borderRadius: 'var(--radius-lg)', px: 1.5, py: 0.5, textTransform: 'none', fontWeight: 'var(--font-medium)', fontSize: 'var(--font-sm)', background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%) !important", color: "white !important", whiteSpace: 'nowrap', minWidth: 0 }}>
+                  <Button variant="contained" size="small" disabled sx={{ borderRadius: 'var(--radius-lg)', px: 1.5, py: 0.5, textTransform: 'none', fontWeight: 'var(--font-medium)', fontSize: 'var(--font-sm)', background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)", color: "var(--color-white)", whiteSpace: 'nowrap', minWidth: 0 }}>
                     सत्यापित
                   </Button>
                 ) : (
-                  <Button variant="contained" size="small" startIcon={<VerifiedUserOutlinedIcon sx={{ fontSize: 16 }} />} onClick={() => setKycModalOpen(true)} sx={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', color: 'var(--color-white)', borderRadius: 'var(--radius-lg)', px: 1.5, py: 0.5, textTransform: 'none', fontWeight: 'var(--font-semibold)', fontSize: 'var(--font-sm)', whiteSpace: 'nowrap', minWidth: 0 }}>
+                  <Button variant="contained" size="small" startIcon={<VerifiedUserOutlinedIcon sx={{ fontSize: 16 }} />} onClick={() => setKycModalOpen(true)} sx={{ background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)', color: 'var(--color-white)', borderRadius: 'var(--radius-lg)', px: 1.5, py: 0.5, textTransform: 'none', fontWeight: 'var(--font-semibold)', fontSize: 'var(--font-sm)', whiteSpace: 'nowrap', minWidth: 0 }}>
                     सत्यापित करें
                   </Button>
                 )}
@@ -466,11 +478,11 @@ export default function InstituteProfile() {
             <Typography variant="h5" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)', mb: 0.5, fontSize: '1.4rem', textTransform: 'capitalize' }}>
               {profile.institution_name || profile.full_name || profile.username}
             </Typography>
-            <Typography variant="body1" sx={{ color: 'var(--color-slate-700)', fontWeight: 'var(--font-medium)', mb: 0.5, fontSize: 'var(--font-base)', textTransform: 'capitalize' }}>
+            <Typography variant="body1" sx={{ color: 'var(--color-slate-900)', fontWeight: 'var(--font-medium)', mb: 0.5, fontSize: 'var(--font-base)', textTransform: 'capitalize' }}>
               {profile.role === 'institute' || profile.role === 'organisation' ? 'Organisation' : profile.role}
             </Typography>
             <Typography variant="body2" sx={{ color: 'var(--color-slate-500)', mb: 2, fontSize: 'var(--font-sm)', textTransform: 'capitalize' }}>
-              {profile.location || "Toronto, Ontario, Canada"}
+              {profile.location || locationName || "No location provided"}
             </Typography>
           </PremiumCard>
 
@@ -507,132 +519,134 @@ export default function InstituteProfile() {
           )}
         </Box>
 
-            {/* Navigation Tabs */}
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "var(--border-thin) solid rgba(0, 86, 179, 0.15)", pt: 0, pb: 1.5, mb: 2 }}>
-              <Box sx={{ display: "flex", gap: 4, overflowX: "auto" }}>
-                {config.tabs.map(tab => (
-                  <Typography
-                    component="div"
-                    key={tab.id}
-                    sx={{
-                      fontWeight: 'var(--font-bold)',
-                      color: activeTab === tab.id ? "var(--color-primary)" : "var(--color-slate-500)",
-                      position: "relative",
-                      cursor: "pointer",
-                      whiteSpace: "nowrap",
-                      transition: "color 0.2s",
-                      '&:hover': { color: "var(--color-primary)" }
-                    }}
-                    onClick={() => setActiveTab(tab.id)}
-                  >
-                    {tab.label}
-                    {activeTab === tab.id && (
-                      <Box sx={{ position: "absolute", bottom: -13, left: 0, right: 0, height: 3, bgcolor: "var(--color-primary)", borderRadius: "3px 3px 0 0" }} />
-                    )}
-                  </Typography>
-                ))}
-              </Box>
-
-              <Button
-                variant="outlined"
-                startIcon={<EditOutlinedIcon />}
-                onClick={() => setUpdateModalOpen(true)}
+        {/* Navigation Tabs */}
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "var(--border-thin) solid rgba(0, 86, 179, 0.15)", pt: 0, pb: 1.5, mb: 2 }}>
+          <Box sx={{ display: "flex", gap: 4, overflowX: "auto" }}>
+            {config.tabs.map(tab => (
+              <Typography
+                component="div"
+                key={tab.id}
                 sx={{
-                  borderRadius: 'var(--radius-lg)',
-                  textTransform: "none",
-                  fontWeight: 'var(--font-semibold)',
-                  borderColor: "rgba(0, 86, 179, 0.3)",
-                  color: "var(--color-primary)",
-                  display: { xs: 'none', sm: 'flex' },
-                  '&:hover': {
-                    borderColor: "var(--color-primary)",
-                    backgroundColor: "rgba(0, 86, 179, 0.05)"
-                  }
+                  fontWeight: 'var(--font-bold)',
+                  color: activeTab === tab.id ? "var(--color-primary)" : "var(--color-slate-500)",
+                  position: "relative",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  transition: "color var(--transition-base)",
+                  '&:hover': { color: "var(--color-primary)" }
                 }}
+                onClick={() => setActiveTab(tab.id)}
               >
-                Edit Profile
-              </Button>
-            </Box>
+                {tab.label}
+                {activeTab === tab.id && (
+                  <Box sx={{ position: "absolute", bottom: -13, left: 0, right: 0, height: 3, bgcolor: "var(--color-primary)", borderRadius: "3px 3px 0 0" }} />
+                )}
+              </Typography>
+            ))}
+          </Box>
 
-            {/* Tab Content — scrollable on desktop only, flows naturally on mobile */}
-            <Box sx={{
-              flex: { xs: 'none', sm: 1 },
-              overflowY: { xs: 'visible', sm: 'auto' },
-              "&::-webkit-scrollbar": { display: "none" },
-              scrollbarWidth: "none",
-              pt: 3,
-              pb: 4,
-            }}>
-            <Grid container spacing={4}>
-              {/* Main Content Area */}
-              <Grid size={{ xs: 12 }}>
+          <Button
+            variant="outlined"
+            startIcon={<EditOutlinedIcon />}
+            onClick={() => setUpdateModalOpen(true)}
+            sx={{
+              borderRadius: 'var(--radius-lg)',
+              textTransform: "none",
+              fontWeight: 'var(--font-semibold)',
+              borderColor: "rgba(0, 86, 179, 0.3)",
+              color: "var(--color-primary)",
+              display: { xs: 'none', sm: 'flex' },
+              '&:hover': {
+                borderColor: "var(--color-primary)",
+                backgroundColor: "rgba(0, 86, 179, 0.05)"
+              }
+            }}
+          >
+            Edit Profile
+          </Button>
+        </Box>
 
-                {activeTab === "overview" && (
-                  <Box>
-                    <Box sx={{ mb: 4 }}>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', mb: 2 }}>
-                        मेरे बारे में
-                      </Typography>
+        {/* Tab Content — scrollable on desktop only, flows naturally on mobile */}
+        <Box sx={{
+          flex: { xs: 'none', sm: 1 },
+          overflowY: { xs: 'visible', sm: 'auto' },
+          "&::-webkit-scrollbar": { display: "none" },
+          scrollbarWidth: "none",
+          pt: 3,
+          pb: 4,
+        }}>
+          <Grid container spacing={4}>
+            {/* Main Content Area */}
+            <Grid size={{ xs: 12 }}>
+
+              {activeTab === "overview" && (
+                <Box>
+                  <Box sx={{ mb: 4 }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', mb: 2 }}>
+                      मेरे बारे में
+                    </Typography>
+                    <Box sx={{ p: { xs: 2.5, sm: 4 }, bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)", borderRadius: "var(--radius-lg)", border: "var(--border-thin) solid var(--card-border)" }}>
                       <Typography sx={{ color: 'var(--color-slate-500)', fontSize: 'var(--font-base)', lineHeight: 1.8 }}>
                         {profile.bio || "कोई विवरण उपलब्ध नहीं है।"}
                       </Typography>
                     </Box>
+                  </Box>
 
-                    {/* Metrics Styled as Separate Boards */}
-                    <Box sx={{ mb: 4 }}>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', mb: 2 }}>
-                        {config.statsHeading}
-                      </Typography>
-                      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 2 }}>
-                        {config.metrics.map((metric, idx) => {
-                          const IconComp = metric.icon;
-                          return (
-                            <PremiumCard variant="stat" key={idx} sx={{ width: "var(--size-full)", height: "var(--size-full)", display: "flex", flexDirection: "row", alignItems: "center", gap: 2 }}>
-                              <Box sx={{ color: "var(--color-primary)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                <IconComp sx={{ fontSize: 26 }} />
-                              </Box>
-                              <Box>
-                                <Typography sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)', fontSize: 'var(--font-base)' }}>{metric.title}</Typography>
-                                <Typography sx={{ fontSize: 'var(--font-xs)', color: 'var(--color-slate-500)' }}>{metric.subtitle}</Typography>
-                              </Box>
-                            </PremiumCard>
-                          );
-                        })}
-                      </Box>
+                  {/* Metrics Styled as Separate Boards */}
+                  <Box sx={{ mb: 4 }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', mb: 2 }}>
+                      {config.statsHeading}
+                    </Typography>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 2 }}>
+                      {config.metrics.map((metric, idx) => {
+                        const IconComp = metric.icon;
+                        return (
+                          <PremiumCard variant="stat" key={idx} sx={{ width: "var(--size-full)", height: "var(--size-full)", display: "flex", flexDirection: "row", alignItems: "center", gap: 2 }}>
+                            <Box sx={{ color: "var(--color-primary)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                              <IconComp sx={{ fontSize: 26 }} />
+                            </Box>
+                            <Box>
+                              <Typography sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)', fontSize: 'var(--font-base)' }}>{metric.title}</Typography>
+                              <Typography sx={{ fontSize: 'var(--font-xs)', color: 'var(--color-slate-500)' }}>{metric.subtitle}</Typography>
+                            </Box>
+                          </PremiumCard>
+                        );
+                      })}
                     </Box>
                   </Box>
-                )}
+                </Box>
+              )}
 
-                {activeTab === "courses" && (
-                  <Box sx={{ textAlign: "center", py: 10 }}>
-                    <LibraryBooksOutlinedIcon sx={{ fontSize: 48, color: "var(--color-slate-500)", mb: 2 }} />
-                    <Typography variant="h6" sx={{ color: "var(--color-slate-500)", fontWeight: 'var(--font-semibold)' }}>कोई कोर्स नहीं</Typography>
-                    <Typography variant="body2" sx={{ color: "var(--color-slate-500)" }}>अभी तक किसी कोर्स में नामांकन नहीं किया है।</Typography>
-                  </Box>
-                )}
+              {activeTab === "courses" && (
+                <Box sx={{ textAlign: "center", py: 10 }}>
+                  <LibraryBooksOutlinedIcon sx={{ fontSize: 48, color: "var(--color-slate-500)", mb: 2 }} />
+                  <Typography variant="h6" sx={{ color: "var(--color-slate-500)", fontWeight: 'var(--font-semibold)' }}>कोई कोर्स नहीं</Typography>
+                  <Typography variant="body2" sx={{ color: "var(--color-slate-500)" }}>अभी तक किसी कोर्स में नामांकन नहीं किया है।</Typography>
+                </Box>
+              )}
 
-                {activeTab === "achievements" && (
-                  <Box sx={{ textAlign: "center", py: 10 }}>
-                    <EmojiEventsOutlinedIcon sx={{ fontSize: 48, color: "var(--color-slate-500)", mb: 2 }} />
-                    <Typography variant="h6" sx={{ color: "var(--color-slate-500)", fontWeight: 'var(--font-semibold)' }}>उपलब्धियां</Typography>
-                    <Typography variant="body2" sx={{ color: "var(--color-slate-500)" }}>अभी तक कोई उपलब्धि नहीं।</Typography>
-                  </Box>
-                )}
+              {activeTab === "achievements" && (
+                <Box sx={{ textAlign: "center", py: 10 }}>
+                  <EmojiEventsOutlinedIcon sx={{ fontSize: 48, color: "var(--color-slate-500)", mb: 2 }} />
+                  <Typography variant="h6" sx={{ color: "var(--color-slate-500)", fontWeight: 'var(--font-semibold)' }}>उपलब्धियां</Typography>
+                  <Typography variant="body2" sx={{ color: "var(--color-slate-500)" }}>अभी तक कोई उपलब्धि नहीं।</Typography>
+                </Box>
+              )}
 
-                {activeTab === "activity" && (
-                  <Box sx={{ textAlign: "center", py: 10 }}>
-                    <TrendingUpOutlinedIcon sx={{ fontSize: 48, color: "var(--color-slate-500)", mb: 2 }} />
-                    <Typography variant="h6" sx={{ color: "var(--color-slate-500)", fontWeight: 'var(--font-semibold)' }}>कोई गतिविधि नहीं</Typography>
-                    <Typography variant="body2" sx={{ color: "var(--color-slate-500)" }}>हाल में कोई गतिविधि नहीं हुई है।</Typography>
-                  </Box>
-                )}
-              </Grid>
+              {activeTab === "activity" && (
+                <Box sx={{ textAlign: "center", py: 10 }}>
+                  <TrendingUpOutlinedIcon sx={{ fontSize: 48, color: "var(--color-slate-500)", mb: 2 }} />
+                  <Typography variant="h6" sx={{ color: "var(--color-slate-500)", fontWeight: 'var(--font-semibold)' }}>कोई गतिविधि नहीं</Typography>
+                  <Typography variant="body2" sx={{ color: "var(--color-slate-500)" }}>हाल में कोई गतिविधि नहीं हुई है।</Typography>
+                </Box>
+              )}
             </Grid>
-            </Box>{/* end tab content scroll box */}
+          </Grid>
+        </Box>{/* end tab content scroll box */}
 
-          {/* Modals */}
-          {profile && <KycVerificationModal open={isKycModalOpen} onClose={() => setKycModalOpen(false)} userId={profile.id} onSuccess={() => setProfile(prev => ({ ...prev, kyc_status: "verified" }))} />}
-          {isUpdateModalOpen && profile && <InstituteSetupModal profile={profile} onClose={() => setUpdateModalOpen(false)} />}
+        {/* Modals */}
+        {profile && <KycVerificationModal open={isKycModalOpen} onClose={() => setKycModalOpen(false)} userId={profile.id} onSuccess={() => setProfile(prev => ({ ...prev, kyc_status: "verified" }))} />}
+        {isUpdateModalOpen && profile && <InstituteSetupModal profile={profile} onClose={() => setUpdateModalOpen(false)} />}
       </Box>
     </Box>
   );

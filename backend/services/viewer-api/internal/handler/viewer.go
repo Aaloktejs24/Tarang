@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -254,11 +255,24 @@ func (h *ViewerHandler) HandleDownload(w http.ResponseWriter, r *http.Request) {
 		objectKey = job.RawMinioKey
 	}
 
-	url, err := h.minio.GeneratePresignedDownloadURL(r.Context(), bucket, objectKey, 15*time.Minute)
+	obj, err := h.minio.GetObject(r.Context(), bucket, objectKey)
 	if err != nil {
-		http.Error(w, "Failed to generate download URL", http.StatusInternalServerError)
+		http.Error(w, "Failed to fetch object", http.StatusInternalServerError)
 		return
 	}
+	defer obj.Body.Close()
 
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+	if obj.ContentType != nil {
+		w.Header().Set("Content-Type", *obj.ContentType)
+	} else {
+		w.Header().Set("Content-Type", "application/pdf")
+	}
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	
+	_, err = io.Copy(w, obj.Body)
+	if err != nil {
+		// Can't write header here as we might have already started
+		return
+	}
 }

@@ -8,14 +8,14 @@ import CheckIcon from '@mui/icons-material/Check';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { IconButton } from "@mui/material";
 import { QRCodeSVG } from "qrcode.react";
-import { setupRegistrationTotp } from "../authService";
 import { validateOtp } from "../../../utils/validationUtils";
 import TarangButton from "../../../components/common/TarangButton";
 import AuthMessage from "./AuthMessage";
 import { getMaskedEmail } from "../../../utils/maskUtils";
+import { FormLoadingProvider } from '../../../contexts/FormLoadingContext';
 
 export default function RegisterOtpStep({ setStep, formData, updateFormData, error, setError, isLoading, onResendOtp, onVerifyOtp, resendTimer, success, setSuccess, maskedEmail }) {
-  const [totpData, setTotpData] = useState(null);
+  const totpData = formData?.totpData;
   const [totpError, setTotpError] = useState("");
   const [copied, setCopied] = useState(false);
 
@@ -27,19 +27,6 @@ export default function RegisterOtpStep({ setStep, formData, updateFormData, err
     if (!formData?.email) setStep(1);
   }, [formData, setStep]);
 
-  useEffect(() => {
-    if (formData?.twoFactorEnabled && formData?.sessionId && !totpData) {
-      const fetchTotp = async () => {
-        try {
-          const data = await setupRegistrationTotp(formData.sessionId);
-          setTotpData(data);
-        } catch (err) {
-          setTotpError("Failed to fetch 2FA details. Please try again.");
-        }
-      };
-      fetchTotp();
-    }
-  }, [formData?.twoFactorEnabled, formData?.sessionId, totpData]);
 
   const handleResend = async () => {
     if (onResendOtp) {
@@ -48,7 +35,8 @@ export default function RegisterOtpStep({ setStep, formData, updateFormData, err
   };
 
   return (
-    <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 3 }}>
+    <FormLoadingProvider isLoading={isLoading}>
+    <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 2 }}>
 
       <Box>
         <Typography variant="h5" sx={{ mb: 1, fontWeight: 'var(--font-extrabold)', color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)' }}>
@@ -60,29 +48,59 @@ export default function RegisterOtpStep({ setStep, formData, updateFormData, err
         </Typography>
       </Box>
 
-
-
-
-
-      <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
+      <AnimatePresence mode="wait">
+        {(error || success) && (
+          <motion.div
+            key={error ? "error" : "success"}
+            initial={{ opacity: 0, height: 0, marginTop: 0 }}
+            animate={{ opacity: 1, height: "auto", marginTop: 8 }}
+            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+            style={{ overflow: "hidden", textAlign: "center", width: "100%" }}
+          >
+            {error ? (
+              <AuthMessage type="error" message={error} />
+            ) : (
+              <AuthMessage type="success" message={success} />
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>      <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 1.5 }}>
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
+          <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
             ईमेल वेरिफिकेशन कोड
           </Typography>
-          <OtpInput
-            value={formData.otp}
-            onChange={(val) => {
-              updateFormData({ otp: val });
-              if (error) setError("");
-            }}
-            isLoading={isLoading}
-            error={isOtpError}
-          />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <OtpInput
+              value={formData.otp}
+              onChange={(val) => {
+                updateFormData({ otp: val });
+                if (error) setError("");
+              }}
+              isLoading={isLoading}
+              error={isOtpError}
+            />
+            <TarangButton
+              variant="text"
+              size="sm"
+              disabled={isLoading || resendTimer > 0}
+              onClick={handleResend}
+              sx={{ color: resendTimer > 0 ? '#64748b' : 'var(--color-primary)', p: 0, minWidth: 'auto', minHeight: 'auto', '&:hover': { background: 'transparent', textDecoration: 'underline' }, whiteSpace: 'nowrap' }}
+            >
+              {resendTimer > 0 ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <AccessTimeIcon sx={{ fontSize: 'var(--font-sm)' }} />
+                  <Box component="div" sx={{ fontSize: '13px', fontWeight: 'var(--font-semibold)' }}>
+                    {resendTimer.toString().padStart(2, '0')}s फिर से भेजें
+                  </Box>
+                </Box>
+              ) : "फिर से भेजें"}
+            </TarangButton>
+          </Box>
         </Box>
 
         {formData.verifyPhone && formData.phone && (
           <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
+            <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
               फ़ोन वेरिफिकेशन कोड
             </Typography>
             <OtpInput
@@ -100,7 +118,7 @@ export default function RegisterOtpStep({ setStep, formData, updateFormData, err
 
       {formData.twoFactorEnabled && (
         <Box>
-          <Typography variant="body2" sx={{ mb: 1.5, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
+          <Typography variant="body2" sx={{ mb: 1.5, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
             ऑथेंटिकेटर ऐप सेटअप करें
           </Typography>
 
@@ -111,19 +129,18 @@ export default function RegisterOtpStep({ setStep, formData, updateFormData, err
               display: "flex",
               flexDirection: { xs: "column", sm: "row" },
               alignItems: "center",
-              gap: 2.5,
+              gap: 1.5,
               width: "var(--size-full)",
               bgcolor: "rgba(255, 255, 255, 0.3)",
               p: 2,
               borderRadius: 'var(--radius-md)',
-              border: "1px solid rgba(255, 255, 255, 0.5)",
-              boxShadow: "0 4px 15px rgba(0, 0, 0, 0.02)"
-            }}>
+              border: "1px solid rgba(30, 79, 163, 0.2)",
+              }}>
               <Box sx={{
                 p: 1.5,
-                bgcolor: "white",
+                bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)",
                 borderRadius: 'var(--radius-md)',
-                border: "var(--border-thin) solid #e2e8f0",
+                border: "var(--border-thin) solid rgba(30, 79, 163, 0.2)",
                 flexShrink: 0,
                 display: "flex",
                 alignItems: "center",
@@ -131,7 +148,7 @@ export default function RegisterOtpStep({ setStep, formData, updateFormData, err
               }}>
                 <QRCodeSVG value={totpData.url} size={130} />
               </Box>
-              <Box sx={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", minWidth: 0, gap: 2.5 }}>
+              <Box sx={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", minWidth: 0, gap: 1.5 }}>
                 <Box>
                   <div style={{ color: "var(--color-slate-500)", marginBottom: "6px", fontWeight: "var(--font-medium)", fontSize: "var(--font-xs)" }}>
                     कुंजी
@@ -145,12 +162,11 @@ export default function RegisterOtpStep({ setStep, formData, updateFormData, err
                     pr: 1,
                     py: 0.75,
                     borderRadius: 'var(--radius-md)',
-                    border: "1px solid rgba(255, 255, 255, 0.8)",
-                    boxShadow: "inset 0 2px 4px rgba(0,0,0,0.02)"
-                  }}>
+                    border: "1px solid rgba(30, 79, 163, 0.2)",
+                    }}>
                     <div style={{
                       fontWeight: 'var(--font-semibold)',
-                      color: "var(--color-slate-700)",
+                      color: "var(--color-slate-900)",
                       fontSize: 'var(--font-xs)',
                       wordBreak: "break-all",
                       marginRight: "8px"
@@ -198,7 +214,7 @@ export default function RegisterOtpStep({ setStep, formData, updateFormData, err
         </Box>
       )}
 
-      <Box sx={{ display: "flex", gap: 1.5, mt: 1 }}>
+      <Box sx={{ display: "flex", gap: 1.5 }}>
         <TarangButton
           variant="outlined"
           disabled={isLoading}
@@ -218,39 +234,9 @@ export default function RegisterOtpStep({ setStep, formData, updateFormData, err
         </TarangButton>
       </Box>
 
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 1, minHeight: "32px" }}>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <AnimatePresence mode="wait">
-            {(error || success) && (
-              <motion.div key="message" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ textAlign: "center" }}>
-                {error ? (
-                  <AuthMessage type="error" message={error} />
-                ) : (
-                  <AuthMessage type="success" message={success} />
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </Box>
 
-        <TarangButton
-          variant="text"
-          size="sm"
-          disabled={isLoading || resendTimer > 0}
-          onClick={handleResend}
-          sx={{ color: resendTimer > 0 ? '#64748b !important' : '#0056b3 !important' }}
-        >
-          {resendTimer > 0 ? (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <AccessTimeIcon sx={{ fontSize: 'var(--font-lg)', position: 'relative', top: '-1px' }} />
-              <Box component="div" sx={{ fontSize: '14.5px', fontWeight: 'var(--font-semibold)' }}>
-                {resendTimer.toString().padStart(2, '0')}s में एप्रकू फिर से भेजें
-              </Box>
-            </Box>
-          ) : "कोड फिर से भेजें"}
-        </TarangButton>
-      </Box>
 
     </Box>
+    </FormLoadingProvider>
   );
 }

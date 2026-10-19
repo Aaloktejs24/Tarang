@@ -226,7 +226,7 @@ export default function CreateAdmissionProgram() {
                           <CustomCheckbox
                             checked={true}
                             sx={{ pointerEvents: 'none', mb: 0.5 }}
-                            label={<Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)' }}>ACADEMIC RECORD</Typography>}
+                            label={<Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-900)' }}>ACADEMIC RECORD</Typography>}
                           />
                           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 1, sm: 4 }, pl: { xs: 1, sm: 4 } }}>
                             <CustomCheckbox
@@ -262,7 +262,7 @@ export default function CreateAdmissionProgram() {
           Add Another Stage
         </Button>
 
-        <Box sx={{ mt: 4, pt: 3, borderTop: 'var(--border-thin) solid #e2e8f0', display: 'flex', justifyContent: 'flex-end' }}>
+        <Box sx={{ mt: 4, pt: 3, borderTop: 'var(--border-thin) solid var(--color-slate-200)', display: 'flex', justifyContent: 'flex-end' }}>
           <Button type="submit" variant="contained" disabled={loading} sx={{ px: 6, py: 1.5, bgcolor: 'var(--color-primary)', '&:hover': { bgcolor: 'var(--color-primary-hover)' } }}>
             {loading ? <CircularProgress size={24} color="inherit" /> : 'Publish Admission Program'}
           </Button>

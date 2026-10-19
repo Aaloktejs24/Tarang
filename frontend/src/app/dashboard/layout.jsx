@@ -13,16 +13,17 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import FilterListIcon from '@mui/icons-material/FilterList';
 import SetupModal from "../../features/auth/components/SetupModal";
 import InstituteSetupModal from "../../features/auth/components/InstituteSetupModal";
-import DashboardLayoutSkeleton from "./DashboardLayoutSkeleton";
 import InstituteSkeleton from "../../features/institute/InstituteSkeleton";
 import ExploreLoading from "./explore/loading";
 import FeedSkeleton from "../../features/feed/FeedSkeleton";
+import ProfileSkeleton from "../../features/profile/ProfileSkeleton";
 
 import { usePathname } from "next/navigation";
 import { useAppRouter } from "../../hooks/useAppRouter";;
 import Link from "next/link";
 import { BreadcrumbProvider, useBreadcrumbs } from "../../contexts/BreadcrumbContext";
 import ProjectBreadcrumbs from "../../components/ui/ProjectBreadcrumbs";
+import Loader from "../../components/common/Loader";
 
 const GlobalBreadcrumbs = () => {
   const { breadcrumbs } = useBreadcrumbs();
@@ -42,11 +43,14 @@ export default function DashboardLayout({ children }) {
   const hideLayoutExtras = isSetupPage && profile && !profile.is_profile_completed;
 
   if (isLoading) {
-    let SkeletonComponent = DashboardLayoutSkeleton;
-    const isProfilePage = pathname?.includes("/institute") || (pathname?.includes("/explore/") && pathname !== "/dashboard/explore/");
+    let SkeletonComponent = null;
+    const isInstitutePage = pathname?.includes("/institute") || (pathname?.includes("/explore/") && pathname !== "/dashboard/explore/");
+    const isProfilePage = pathname?.includes("/profile");
     
-    if (isProfilePage) {
+    if (isInstitutePage) {
       SkeletonComponent = InstituteSkeleton;
+    } else if (isProfilePage) {
+      SkeletonComponent = ProfileSkeleton;
     } else if (pathname === "/dashboard/explore") {
       SkeletonComponent = ExploreLoading;
     } else if (pathname?.includes("/feed")) {
@@ -57,13 +61,19 @@ export default function DashboardLayout({ children }) {
       <>
         {!hideLayoutExtras && <Navbar />}
         <Box className={!hideLayoutExtras ? "user-content margin-top-72" : ""}>
-          <SkeletonComponent hideLayoutExtras={hideLayoutExtras} />
+          {SkeletonComponent ? <SkeletonComponent hideLayoutExtras={hideLayoutExtras} /> : <Box sx={{ minHeight: 'calc(100vh - 72px)' }} />}
         </Box>
       </>
     );
   }
 
-  if (!isAuthenticated) return null; // Component won't render while router redirects to /
+  if (!isAuthenticated) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100vw', bgcolor: 'var(--color-slate-50)' }}>
+        <Loader />
+      </Box>
+    );
+  }
 
   const isManagement = profile?.role === 'institute' || profile?.role === 'organisation';
   const showViewTabs = !isManagement && (pathname?.includes("/institute") || pathname?.includes("/feed"));
@@ -123,7 +133,7 @@ export default function DashboardLayout({ children }) {
                 display: { xs: "flex", md: "none" },
                 bgcolor: 'var(--color-white)',
                 color: 'var(--color-primary)',
-                border: '1.5px solid #e2e8f0',
+                border: '1.5px solid var(--color-slate-200)',
                 width: { xs: 56, md: 64 },
                 height: { xs: 56, md: 64 },
                 '&:hover, &:focus, &:active': { bgcolor: 'var(--color-slate-50)', }
@@ -144,7 +154,7 @@ export default function DashboardLayout({ children }) {
             FabProps={{
               sx: {
                 bgcolor: 'var(--color-primary)',
-                border: "1.5px solid #f59e0b",
+                border: "1.5px solid var(--color-warning)",
                 '&:hover, &:focus, &:active': { bgcolor: 'var(--color-primary-hover)', }
               }
             }}
@@ -159,7 +169,7 @@ export default function DashboardLayout({ children }) {
               FabProps={{
                 sx: {
                   bgcolor: pathname.includes("/feed") ? 'var(--color-success)' : 'var(--color-white)',
-                  border: pathname.includes("/feed") ? 'none' : '1.5px solid #e2e8f0',
+                  border: pathname.includes("/feed") ? 'none' : '1.5px solid var(--color-slate-200)',
                   '&:hover, &:focus, &:active': {
                     bgcolor: pathname.includes("/feed") ? 'var(--color-success)' : 'var(--color-slate-50)',
                   }
@@ -176,7 +186,7 @@ export default function DashboardLayout({ children }) {
               FabProps={{
                 sx: {
                   bgcolor: pathname.includes("/institute") ? 'var(--color-success)' : 'var(--color-white)',
-                  border: pathname.includes("/institute") ? 'none' : '1.5px solid #e2e8f0',
+                  border: pathname.includes("/institute") ? 'none' : '1.5px solid var(--color-slate-200)',
                   '&:hover, &:focus, &:active': {
                     bgcolor: pathname.includes("/institute") ? 'var(--color-success)' : 'var(--color-slate-50)',
                   }

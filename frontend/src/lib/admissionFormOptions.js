@@ -74,3 +74,6 @@ export const SIBLING_RELATION_OPTIONS = formData.siblingRelations.map(v => ({ va
 
 // ── Yes / No ──────────────────────────────────────────────────────────────────
 export const YES_NO_OPTIONS = formData.yesNo.map(v => ({ value: v, label: v }));
+
+// ── Languages ─────────────────────────────────────────────────────────────────
+// Note: Use buildSortedLanguages(userLocation) from src/lib/languages.js instead.

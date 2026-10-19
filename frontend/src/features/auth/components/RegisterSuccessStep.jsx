@@ -37,7 +37,7 @@ export default function RegisterSuccessStep({ onProceedTo2fa, onSkipToLogin }) {
         </Typography>
       </Box>
 
-      <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 1.5, mt: 3 }}>
+      <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 1.5 }}>
         <TarangButton
           fullWidth
           onClick={onSkipToLogin}

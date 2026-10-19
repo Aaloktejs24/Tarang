@@ -50,19 +50,14 @@ export function useAutoSave({ appId, activeStep, basicDetails, uploadedDocs, pro
       // Maintain the current status so we don't accidentally advance the application
       const currentStatus = currentData.applicationStatus || 'pending';
 
-      // Ensure the 'saving' indicator is visible for at least 600ms for better UX
-      await Promise.all([
-        updateApplicationProgress(
-          appId, 
-          'AUTO_SAVE', 
-          payloadMetadata, 
-          currentData.profile.id, 
-          currentData.activeStep, 
-          currentStatus
-        ),
-        new Promise(resolve => setTimeout(resolve, 600))
-      ]);
-      
+      await updateApplicationProgress(
+        appId, 
+        'AUTO_SAVE', 
+        payloadMetadata, 
+        currentData.profile.id, 
+        currentData.activeStep, 
+        currentStatus
+      );
       setAutoSaveStatus('saved');
     } catch (err) {
       console.error('Auto-save failed:', err);

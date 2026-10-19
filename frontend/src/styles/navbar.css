@@ -12,14 +12,14 @@ nav.nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #ffffff;
+  background-color: var(--color-white)fff;
   height: 72px;
-  color: #0056b3;
-  padding: 0px 1.9vw !important;
+  color: var(--color-primary);
+  padding: 0px 1.9vw;
   position: fixed;
   top: 0;
   left: 0;
-  margin: 0 !important;
+  margin: 0;
   z-index: 1000;
   width: var(--size-full);
   
@@ -28,11 +28,11 @@ nav.nav {
   background-color: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  color: #0056b3;
+  color: var(--color-primary);
   
-  border-bottom: var(--border-thin) solid #E2E8F0;
+  border-bottom: var(--border-thin) solid var(--color-slate-200);
   border-bottom: var(--border-thick) solid transparent;
-  border-image: linear-gradient(90deg, #0056b3 0%, #28a745 50%, #ffc107 100%) 1;
+  border-image: linear-gradient(90deg, var(--color-primary) 0%, var(--color-success) 50%, #ffc107 100%) 1;
 }
 
 .search_bar {
@@ -48,7 +48,7 @@ nav.nav {
 }
 
 .search_bar:focus-within {
-  border: var(--border-thin) solid #0056b3;
+  border: var(--border-thin) solid var(--color-primary);
   background-color: transparent;
 }
 
@@ -66,7 +66,7 @@ nav.nav {
   outline: none;
 }
 .search_input::placeholder {
-  color: #94a3b8;
+  color: var(--color-slate-400);
   font-weight: var(--font-medium);
 }
 
@@ -135,7 +135,7 @@ nav.nav {
 
 .country_icon img {
   height: 20px;
-  border: #28a745 var(--border-thick) solid;
+  border: var(--color-success) var(--border-thick) solid;
   padding: 1px;
   background-color: #f9f9f9;
 }
@@ -160,7 +160,7 @@ nav.nav {
 .country_name {
   font-size: 12px;
   font-weight: var(--font-medium);
-  color: #28a745;
+  color: var(--color-success);
 }
 
 .notification_icon img,

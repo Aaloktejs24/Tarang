@@ -15,7 +15,7 @@ export const apiClient = axios.create({
 
 // Request interceptor to attach JWT token
 apiClient.interceptors.request.use(
-  (config) => {
+  async (config) => {
     config.metadata = { startTime: new Date() };
 
     // Persistent token for logged in users
@@ -54,13 +54,15 @@ apiClient.interceptors.response.use(
     // 1. If we get a 401 and haven't tried refreshing yet
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
 
-      // If we're already on the landing page, don't try to refresh, just clear and stay there
-      if (typeof window !== "undefined" && window.location.pathname === "/") {
-        removeToken();
+
+      // If we are currently logging in or registering, a 401 means invalid credentials/OTP, not an expired token.
+      const isAuthFlow = typeof window !== "undefined" && sessionStorage.getItem("auth_flow_in_progress") === "true";
+      
+      if (isAuthFlow) {
         return Promise.reject(error);
       }
 
-      // If this IS the refresh request failing, don't loop
+      // If this IS the refresh request failing, don't loop/refresh
       if (originalRequest.url.includes("/auth/refresh")) {
         isRefreshing = false;
         handleLogout();

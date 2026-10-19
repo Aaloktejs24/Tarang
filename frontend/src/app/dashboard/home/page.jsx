@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useAppRouter as useRouter } from '../../../hooks/useAppRouter';
 import { useProfile } from "../../../hooks/useProfile";
-import { Box, CircularProgress } from "@mui/material";
+import Loader from "../../../components/common/Loader";
 
 export default function HomePage() {
   const router = useRouter();
@@ -19,9 +19,5 @@ export default function HomePage() {
     }
   }, [profile, loading, router]);
 
-  return (
-    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-      <CircularProgress />
-    </Box>
-  );
+  return <Loader />;
 }

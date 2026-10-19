@@ -396,7 +396,7 @@ export default function InstitutePage() {
                                 fontWeight: 'var(--font-bold)',
                                 textTransform: 'capitalize',
                                 bgcolor: app.status === 'approved' ? 'var(--color-slate-200)' : app.status === 'rejected' ? 'var(--color-slate-200)' : 'var(--color-slate-200)',
-                                color: app.status === 'approved' ? 'var(--color-slate-700)' : app.status === 'rejected' ? 'var(--color-error)' : 'var(--color-error)',
+                                color: app.status === 'approved' ? 'var(--color-slate-900)' : app.status === 'rejected' ? 'var(--color-error)' : 'var(--color-error)',
                                 px: 1,
                                 height: 26
                               }}
@@ -449,7 +449,7 @@ export default function InstitutePage() {
                           <Box className="MuiSkeleton-root" sx={{ width: "55%", height: 14, borderRadius: 'var(--radius-sm)' }} />
                         </Typography>
                       </Box>
-                      <Box className="MuiSkeleton-root" sx={{ width: 14, height: 14, borderRadius: '50%', flexShrink: 0 }} />
+                      <Box className="MuiSkeleton-root" sx={{ width: 14, height: 14, borderRadius: 'var(--radius-full)', flexShrink: 0 }} />
                     </PremiumCard>
                   </motion.div>
                 ))

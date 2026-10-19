@@ -936,7 +936,7 @@ export default function AdmissionProgramPage() {
 
     return (
       <Box sx={{ mb: 4, opacity: disabled ? 0.6 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
-        <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)', mb: 2 }}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-900)', mb: 2 }}>
           {title}
         </Typography>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3 }}>
@@ -1055,7 +1055,7 @@ export default function AdmissionProgramPage() {
                 <Box sx={{
                   position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 'var(--z-sticky)',
                   p: 2.5, bgcolor: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)',
-                  border: 'var(--border-thin) solid #cbd5e1', borderRadius: 'var(--radius-lg)',
+                  border: 'var(--border-thin) solid var(--color-slate-300)', borderRadius: 'var(--radius-lg)',
                   display: 'flex', gap: 2, alignItems: 'flex-start', flexDirection: 'column'
                 }}>
                   <Typography sx={{ fontSize: 'var(--font-xs)', color: 'var(--color-slate-500)', fontWeight: 'var(--font-medium)' }}>
@@ -1074,7 +1074,7 @@ export default function AdmissionProgramPage() {
                         <Button
                           size="small"
                           onClick={handleResendOtp}
-                          sx={{ px: 2, py: 0.5, borderRadius: 'var(--radius-md)', color: 'var(--color-primary)', border: 'var(--border-thin) solid #0056b3', textTransform: 'none', fontWeight: 'var(--font-semibold)', fontSize: 'var(--font-xs)', bgcolor: 'transparent', '&:hover': { bgcolor: 'rgba(0,86,179,0.07)' } }}
+                          sx={{ px: 2, py: 0.5, borderRadius: 'var(--radius-md)', color: 'var(--color-primary)', border: 'var(--border-thin) solid var(--color-primary)', textTransform: 'none', fontWeight: 'var(--font-semibold)', fontSize: 'var(--font-xs)', bgcolor: 'transparent', '&:hover': { bgcolor: 'rgba(0,86,179,0.07)' } }}
                         >
                           Resend
                         </Button>
@@ -1083,7 +1083,7 @@ export default function AdmissionProgramPage() {
                     <Box sx={{ display: 'flex', gap: 1.5 }}>
                       <Button
                         onClick={() => { setOtpTarget(null); setOtp(''); }}
-                        sx={{ height: '38px', px: 2.5, color: 'var(--color-slate-500)', border: 'var(--border-thin) solid #cbd5e1', textTransform: 'none', fontWeight: 'var(--font-medium)', fontSize: 'var(--font-sm)', bgcolor: 'transparent', '&:hover': { bgcolor: 'var(--color-slate-50)', borderColor: 'var(--color-slate-500)' } }}
+                        sx={{ height: '38px', px: 2.5, color: 'var(--color-slate-500)', border: 'var(--border-thin) solid var(--color-slate-300)', textTransform: 'none', fontWeight: 'var(--font-medium)', fontSize: 'var(--font-sm)', bgcolor: 'transparent', '&:hover': { bgcolor: 'var(--color-slate-50)', borderColor: 'var(--color-slate-500)' } }}
                       >
                         Cancel
                       </Button>
@@ -1124,7 +1124,7 @@ export default function AdmissionProgramPage() {
                 <Box sx={{
                   position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 'var(--z-sticky)',
                   p: 2.5, bgcolor: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)',
-                  border: 'var(--border-thin) solid #cbd5e1', borderRadius: 'var(--radius-lg)',
+                  border: 'var(--border-thin) solid var(--color-slate-300)', borderRadius: 'var(--radius-lg)',
                   display: 'flex', gap: 2, alignItems: 'flex-start', flexDirection: 'column'
                 }}>
                   <Typography sx={{ fontSize: 'var(--font-xs)', color: 'var(--color-slate-500)', fontWeight: 'var(--font-medium)' }}>
@@ -1143,7 +1143,7 @@ export default function AdmissionProgramPage() {
                         <Button
                           size="small"
                           onClick={handleResendOtp}
-                          sx={{ px: 2, py: 0.5, borderRadius: 'var(--radius-md)', color: 'var(--color-primary)', border: 'var(--border-thin) solid #0056b3', textTransform: 'none', fontWeight: 'var(--font-semibold)', fontSize: 'var(--font-xs)', bgcolor: 'transparent', '&:hover': { bgcolor: 'rgba(0,86,179,0.07)' } }}
+                          sx={{ px: 2, py: 0.5, borderRadius: 'var(--radius-md)', color: 'var(--color-primary)', border: 'var(--border-thin) solid var(--color-primary)', textTransform: 'none', fontWeight: 'var(--font-semibold)', fontSize: 'var(--font-xs)', bgcolor: 'transparent', '&:hover': { bgcolor: 'rgba(0,86,179,0.07)' } }}
                         >
                           Resend
                         </Button>
@@ -1152,7 +1152,7 @@ export default function AdmissionProgramPage() {
                     <Box sx={{ display: 'flex', gap: 1.5 }}>
                       <Button
                         onClick={() => { setOtpTarget(null); setOtp(''); }}
-                        sx={{ height: '38px', px: 2.5, color: 'var(--color-slate-500)', border: 'var(--border-thin) solid #cbd5e1', textTransform: 'none', fontWeight: 'var(--font-medium)', fontSize: 'var(--font-sm)', bgcolor: 'transparent', '&:hover': { bgcolor: 'var(--color-slate-50)', borderColor: 'var(--color-slate-500)' } }}
+                        sx={{ height: '38px', px: 2.5, color: 'var(--color-slate-500)', border: 'var(--border-thin) solid var(--color-slate-300)', textTransform: 'none', fontWeight: 'var(--font-medium)', fontSize: 'var(--font-sm)', bgcolor: 'transparent', '&:hover': { bgcolor: 'var(--color-slate-50)', borderColor: 'var(--color-slate-500)' } }}
                       >
                         Cancel
                       </Button>
@@ -1183,6 +1183,7 @@ export default function AdmissionProgramPage() {
                 value={basicDetails.nationality}
                 onChange={handleBasicDetailsChange('nationality')}
                 error={!!basicDetailsErrors.nationality}
+                returnNationality={true}
               />
             </Box>}
             {sf('gender') && <Box sx={{ gridColumn: { md: 'span 4' } }}>
@@ -1321,7 +1322,7 @@ export default function AdmissionProgramPage() {
         {basicDetails.academicRecords.map((rec, index) => (
           <Box key={index} sx={{
             display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
-            gap: 3, p: 3, border: 'var(--border-thin) solid #cbd5e1', borderRadius: 'var(--radius-lg)', position: 'relative',
+            gap: 3, p: 3, border: 'var(--border-thin) solid var(--color-slate-300)', borderRadius: 'var(--radius-lg)', position: 'relative',
             bgcolor: 'var(--color-slate-50)'
           }}>
             {/* Only show delete button for user-added (non-config) records */}
@@ -1334,7 +1335,7 @@ export default function AdmissionProgramPage() {
                 <DeleteOutlineIcon fontSize="small" />
               </IconButton>
             )}
-            <Typography variant="subtitle2" sx={{ gridColumn: { sm: 'span 2' }, fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)' }}>
+            <Typography variant="subtitle2" sx={{ gridColumn: { sm: 'span 2' }, fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-900)' }}>
               Qualification {index + 1}
             </Typography>
 
@@ -1373,7 +1374,7 @@ export default function AdmissionProgramPage() {
             {rec.achievements && rec.achievements.length > 0 && (
               <Box sx={{ gridColumn: { xs: '1fr', sm: 'span 2' }, display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {rec.achievements.map((ach, achIndex) => (
-                  <Box key={achIndex} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 2, p: 2, border: '1px dashed #cbd5e1', position: 'relative', bgcolor: 'var(--color-white)' }}>
+                  <Box key={achIndex} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 2, p: 2, border: '1px dashed var(--color-slate-300)', position: 'relative', bgcolor: 'var(--color-white)' }}>
                     <IconButton
                       onClick={() => removeAchievement(index, achIndex)}
                       sx={{ position: 'absolute', top: 4, right: 4, color: 'var(--color-error)' }}
@@ -1562,7 +1563,7 @@ export default function AdmissionProgramPage() {
                 {basicDetails.siblings.map((sib, index) => (
                   <Box key={index} sx={{
                     display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' },
-                    gap: 3, p: 3, border: 'var(--border-thin) solid #cbd5e1', borderRadius: 'var(--radius-lg)', position: 'relative',
+                    gap: 3, p: 3, border: 'var(--border-thin) solid var(--color-slate-300)', borderRadius: 'var(--radius-lg)', position: 'relative',
                     bgcolor: 'var(--color-slate-50)'
                   }}>
                     {basicDetails.siblings.length > 1 && (
@@ -1574,7 +1575,7 @@ export default function AdmissionProgramPage() {
                         <DeleteOutlineIcon fontSize="small" />
                       </IconButton>
                     )}
-                    <Typography variant="subtitle2" sx={{ gridColumn: { sm: 'span 3' }, fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)' }}>
+                    <Typography variant="subtitle2" sx={{ gridColumn: { sm: 'span 3' }, fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-900)' }}>
                       Sibling {index + 1}
                     </Typography>
 
@@ -1631,7 +1632,7 @@ export default function AdmissionProgramPage() {
           {/* Individual Member Incomes */}
           {basicDetails.fatherName && (
             <Box sx={{ mb: 3 }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)', mb: 2 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-900)', mb: 2 }}>
                 Father&apos;s Details ({basicDetails.fatherName})
               </Typography>
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3 }}>
@@ -1668,7 +1669,7 @@ export default function AdmissionProgramPage() {
 
           {basicDetails.motherName && (
             <Box sx={{ mb: 3 }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)', mb: 2 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-900)', mb: 2 }}>
                 Mother&apos;s Details ({basicDetails.motherName})
               </Typography>
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3 }}>
@@ -1705,7 +1706,7 @@ export default function AdmissionProgramPage() {
 
           {basicDetails.guardianName && (
             <Box sx={{ mb: 3 }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)', mb: 2 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-900)', mb: 2 }}>
                 Guardian&apos;s Details ({basicDetails.guardianName})
               </Typography>
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3 }}>
@@ -1743,7 +1744,7 @@ export default function AdmissionProgramPage() {
           {basicDetails.hasSibling === 'Yes' && basicDetails.siblings.map((sib, index) => (
             sib.name && (
               <Box key={index} sx={{ mb: 3 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)', mb: 2 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-900)', mb: 2 }}>
                   Sibling {index + 1}&apos;s Details ({sib.name})
                 </Typography>
                 <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3 }}>
@@ -1779,7 +1780,7 @@ export default function AdmissionProgramPage() {
             )
           ))}
 
-          <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)', mb: 2, mt: 4 }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-900)', mb: 2, mt: 4 }}>
             Overall Family Income
           </Typography>
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 3, mb: 4, width: 'var(--size-full)' }}>
@@ -1880,6 +1881,7 @@ export default function AdmissionProgramPage() {
                         value={record.date}
                         onChange={(e) => handleCriminalRecordDateChange(index, e.target.value)}
                         error={!!basicDetailsErrors[`criminalRecord_${index}_date`]}
+                        disableFuture={true}
                       />
                     </Box>
                     <IconButton onClick={() => removeCriminalRecord(index)} color="error" size="small" sx={{ p: 1 }}>
@@ -1913,7 +1915,13 @@ export default function AdmissionProgramPage() {
             p: 1,
             maxWidth: 400,
             width: '90%',
-            background: 'rgba(255, 255, 255, 0.98)',
+            background: `
+            radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.45) 0, transparent 50%), 
+            radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.3) 0, transparent 50%), 
+            radial-gradient(at 80% 90%, rgba(40, 167, 69, 0.2) 0, transparent 50%),
+            radial-gradient(at 20% 80%, rgba(0, 86, 179, 0.15) 0, transparent 50%),
+            #eef2f6
+          `,
             backdropFilter: 'blur(20px)',
           }
         }}
@@ -1949,7 +1957,7 @@ export default function AdmissionProgramPage() {
             disableElevation
             sx={{
               fontWeight: 'var(--font-bold)', textTransform: 'none',
-              bgcolor: 'var(--color-error)', color: 'white', px: 2.5,
+              bgcolor: 'var(--color-error)', color: 'var(--color-white)', px: 2.5,
               '&:hover': { bgcolor: 'var(--color-error)' }
             }}
           >
@@ -1960,7 +1968,7 @@ export default function AdmissionProgramPage() {
     </Box>
   );
 
-  const uploadFileToS3 = async (file, fieldName) => {
+  const uploadFileToStorage = async (file, fieldName) => {
     if (!file || !profile?.id) return null;
     let mimeType = file.type;
     if (!mimeType) {
@@ -1990,7 +1998,7 @@ export default function AdmissionProgramPage() {
 
   const handleBasicDetailsFile = (field) => async (e) => {
     const file = e.target.files[0];
-    const url = await uploadFileToS3(file, field);
+    const url = await uploadFileToStorage(file, field);
     if (url) {
       setBasicDetails(prev => ({ ...prev, [field]: url }));
       setBasicDetailsErrors(prev => ({ ...prev, [field]: '' }));
@@ -2044,7 +2052,7 @@ export default function AdmissionProgramPage() {
   };
 
   const handleSiblingFile = async (index, file, field = 'relationDoc') => {
-    const url = await uploadFileToS3(file, `sibling_${index}_${field}`);
+    const url = await uploadFileToStorage(file, `sibling_${index}_${field}`);
     if (url) {
       setBasicDetails(prev => {
         const newSiblings = [...prev.siblings];
@@ -2080,7 +2088,7 @@ export default function AdmissionProgramPage() {
   };
 
   const handleAcademicFile = async (index, field, file) => {
-    const url = await uploadFileToS3(file, `academic_${index}_${field}`);
+    const url = await uploadFileToStorage(file, `academic_${index}_${field}`);
     if (url) {
       setBasicDetails(prev => {
         const newRecords = [...prev.academicRecords];
@@ -2138,7 +2146,7 @@ export default function AdmissionProgramPage() {
   };
 
   const handleAchievementFile = async (academicIndex, achIndex, file) => {
-    const url = await uploadFileToS3(file, `academic_${academicIndex}_achievement_${achIndex}_doc`);
+    const url = await uploadFileToStorage(file, `academic_${academicIndex}_achievement_${achIndex}_doc`);
     if (url) {
       setBasicDetails(prev => {
         const newRecords = [...prev.academicRecords];
@@ -2226,7 +2234,7 @@ export default function AdmissionProgramPage() {
                       <Box sx={{
                         position: 'relative',
                         width: 'var(--size-full)',
-                        '& .comment-icon': { opacity: 0, transition: 'opacity 0.2s', pointerEvents: 'none' },
+                        '& .comment-icon': { opacity: 0, transition: 'opacity var(--transition-base)', pointerEvents: 'none' },
                         '&:hover .comment-icon': { opacity: 1, pointerEvents: 'auto' }
                       }}>
                         <FieldCommentTooltip comment={comment} />
@@ -2237,7 +2245,7 @@ export default function AdmissionProgramPage() {
                             p: 2,
                             textAlign: 'center',
                             borderRadius: 'var(--radius-lg)',
-                            border: isUploaded ? 'var(--border-thick) solid #10b981' : comment ? '2px dashed #f59e0b' : '2px dashed #cbd5e1',
+                            border: isUploaded ? 'var(--border-thick) solid #10b981' : comment ? '2px dashed var(--color-warning)' : '2px dashed var(--color-slate-300)',
                             bgcolor: isUploaded ? 'var(--color-slate-50)' : 'var(--color-slate-50)',
                             cursor: 'pointer',
                             transition: 'var(--transition-base)',
@@ -2300,7 +2308,7 @@ export default function AdmissionProgramPage() {
                 <Grid key={idx} size={{ xs: 12, sm: 6 }}>
                   <Card sx={{
                     borderRadius: 'var(--radius-lg)',
-                    border: 'var(--border-thin) solid #cbd5e1',
+                    border: 'var(--border-thin) solid var(--color-slate-300)',
                     display: 'flex',
                     flexDirection: 'column',
                     height: 'var(--size-full)',
@@ -2326,8 +2334,8 @@ export default function AdmissionProgramPage() {
                         disableRipple
                         disableElevation
                         sx={{
-                          background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%) !important',
-                          color: '#ffffff !important',
+                          background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)',
+                          color: 'var(--color-white)',
                           border: 'none',
                           py: 1.2,
                           textTransform: 'none',
@@ -2486,7 +2494,7 @@ export default function AdmissionProgramPage() {
                           onClick={handleBack}
                           sx={{
                             borderColor: 'rgba(30, 41, 59, 0.2)',
-                            color: 'var(--color-slate-700)',
+                            color: 'var(--color-slate-900)',
                             py: 1.2,
                             textTransform: 'none',
                             fontWeight: 'var(--font-semibold)',
@@ -2509,8 +2517,8 @@ export default function AdmissionProgramPage() {
                             disableRipple
                             disableElevation
                             sx={{
-                              background: 'linear-gradient(135deg, #0056b3 0%, #004494 100%) !important',
-                              color: '#ffffff !important',
+                              background: 'linear-gradient(135deg, var(--color-primary) 0%, #004494 100%)',
+                              color: 'var(--color-white)',
                               border: 'none',
                               py: 1.2,
                               textTransform: 'none',
@@ -2603,12 +2611,12 @@ export default function AdmissionProgramPage() {
                           onClick={() => router.push(`/dashboard/explore/${username}`)}
                           disableRipple
                           sx={{
-                            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important',
-                            color: '#ffffff !important',
+                            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                            color: 'var(--color-white)',
                             px: 4, py: 1.5,
                             textTransform: 'none',
                             fontWeight: 'var(--font-semibold)',
-                            transition: 'all 0.2s'
+                            transition: 'all var(--transition-base)'
                           }}
                         >
                           Return to Institute

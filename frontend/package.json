@@ -30,6 +30,7 @@
     "@tiptap/starter-kit": "^3.25.0",
     "aos": "^2.3.4",
     "axios": "^1.13.6",
+    "bootstrap": "^4.5.2",
     "country-to-currency": "^3.0.1",
     "dayjs": "^1.11.21",
     "framer-motion": "^12.38.0",

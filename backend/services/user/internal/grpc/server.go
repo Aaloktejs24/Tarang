@@ -72,11 +72,17 @@ func mapToResponse(u *user.User) *userpb.UserResponse {
 		demographic = *u.Demographic
 	}
 
+	email := ""
+	if u.Email != nil {
+		email = *u.Email
+	}
+
 	isCompleted := fullName != "" && bio != "" && location != "" && len(u.Languages) > 0 && demographic != ""
 
 	return &userpb.UserResponse{
 		Id:            u.ID.String(),
 		Username:      u.Username,
+		Email:         email,
 		KycVerified:   u.KycVerifiedAt != nil,
 		Role:          u.Role,
 		FullName:      fullName,
@@ -103,7 +109,7 @@ func mapToResponse(u *user.User) *userpb.UserResponse {
 /////////////////////////////////////////////////////
 
 func (s *Server) CreateUser(ctx context.Context, req *userpb.CreateUserRequest) (*userpb.UserResponse, error) {
-	u, err := s.service.Create(ctx, req.Id, req.Username, req.FullName, req.Role, req.Phone, req.Dob, req.Gender)
+	u, err := s.service.Create(ctx, req.Id, req.Username, req.Email, req.FullName, req.Role, req.Phone, req.Dob, req.Gender)
 	if err != nil {
 		return nil, err
 	}
@@ -200,7 +206,7 @@ func (s *Server) UpdateProfile(ctx context.Context, req *userpb.UpdateProfileReq
 		return nil, err
 	}
 
-	if err := s.service.UpdateProfile(ctx, uid, req.FullName, "", "", req.Bio, req.SocialLinks, req.Skills, req.Recognitions, req.Location, req.Languages, req.Demographic, req.InstitutionName, nil); err != nil {
+	if err := s.service.UpdateProfile(ctx, uid, req.FullName, "", "", req.Bio, req.SocialLinks, req.Skills, req.Recognitions, req.Location, req.Languages, req.Demographic, req.InstitutionName, nil, "", "", "", "", nil, nil, nil); err != nil {
 		return nil, err
 	}
 

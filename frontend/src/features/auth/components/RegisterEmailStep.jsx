@@ -10,6 +10,8 @@ import AuthMessage from "./AuthMessage";
 import gazeteer from '../../../data/formated/gazeteer.json';
 const COUNTRY_CODES = gazeteer.Countries.map(c => ({ ...c, code: c.phoneCode, enName: c.name, label: c.phoneCode }));
 import TarangButton from "../../../components/common/TarangButton";
+import { FormLoadingProvider } from '../../../contexts/FormLoadingContext';
+
 export default function RegisterEmailStep({ setStep, setMode, formData, updateFormData, setError, error, isLoading, onRegisterStart, success, setSuccess }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -39,7 +41,8 @@ export default function RegisterEmailStep({ setStep, setMode, formData, updateFo
   };
 
   return (
-    <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 3 }}>
+    <FormLoadingProvider isLoading={isLoading}>
+    <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 2 }}>
       <Box>
         <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)' }}>
           नया अकाउंट बनाएँ
@@ -61,7 +64,7 @@ export default function RegisterEmailStep({ setStep, setMode, formData, updateFo
       </Box>
 
       <Box>
-        <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
+        <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
           ईमेल पता
         </Typography>
         <TextField
@@ -106,7 +109,7 @@ export default function RegisterEmailStep({ setStep, setMode, formData, updateFo
           onClick={handleSendOtp}
           sx={{ height: 'var(--box-height)' }}
         >
-          {"एप्रकू भेजें"}
+          {"OTP भेजें"}
         </TarangButton>
 
         <Typography variant="body2" sx={{ textAlign: "center", color: "var(--color-slate-500)", mt: 2.5 }}>
@@ -121,5 +124,6 @@ export default function RegisterEmailStep({ setStep, setMode, formData, updateFo
         </Typography>
       </Box>
     </Box>
+    </FormLoadingProvider>
   );
 }

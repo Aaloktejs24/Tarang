@@ -50,13 +50,13 @@ export default function CustomDialog({
           maxWidth: maxWidth,
           borderRadius: { xs: 0, sm: "28px" },
           background: `
-            radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.25) 0, transparent 50%), 
-            radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.2) 0, transparent 50%), 
-            radial-gradient(at 80% 100%, rgba(40, 167, 69, 0.15) 0, transparent 50%),
-            radial-gradient(at 20% 100%, rgba(0, 86, 179, 0.1) 0, transparent 50%),
-            #ffffff
+            radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.45) 0, transparent 50%), 
+            radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.3) 0, transparent 50%), 
+            radial-gradient(at 80% 90%, rgba(40, 167, 69, 0.2) 0, transparent 50%),
+            radial-gradient(at 20% 80%, rgba(0, 86, 179, 0.15) 0, transparent 50%),
+            #eef2f6
           `,
-          border: "var(--border-thin) solid #E2E8F0",
+          border: "var(--border-thin) solid var(--color-slate-200)",
           overflowY: "auto",
           maxHeight: "92vh",
         }}

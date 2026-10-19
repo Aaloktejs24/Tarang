@@ -18,7 +18,6 @@ const theme = createTheme({
   typography: {
     } });
 
-import AdminLoading from './loading';
 
 export default function AdminLanding() {
   const params = useParams();
@@ -205,7 +204,7 @@ export default function AdminLanding() {
           {flowState === 'login' && (
             <form onSubmit={handleLogin}>
               <Box sx={{ mb: 3 }}>
-                <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
+                <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
                   Email or Username
                 </Typography>
                 <TextField
@@ -229,7 +228,7 @@ export default function AdminLanding() {
               </Box>
 
               <Box sx={{ mb: 4 }}>
-                <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
+                <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
                   Password
                 </Typography>
                 <TextField
@@ -257,7 +256,7 @@ export default function AdminLanding() {
                 {/* Message Area with Fixed Height */}
                 {error && (
                     <Box sx={{ height: "24px", display: "flex", alignItems: "center", justifyContent: "center", mb: 1 }}>
-                        <Typography variant="body2" sx={{ color: "#ef4444 !important", fontSize: 'var(--font-sm)', fontWeight: 'var(--font-semibold)' }}>
+                        <Typography variant="body2" sx={{ color: "#ef4444", fontSize: 'var(--font-sm)', fontWeight: 'var(--font-semibold)' }}>
                             {error}
                         </Typography>
                     </Box>
@@ -276,8 +275,8 @@ export default function AdminLanding() {
                   textTransform: "none",
                   fontSize: 'var(--font-base)',
                   fontWeight: 'var(--font-bold)',
-                  background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)",
-                  transition: "all 0.2s ease-in-out",
+                  background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)",
+                  transition: "all var(--transition-base)",
                   "&:hover": {
                     background: "linear-gradient(135deg, #004494 0%, #218838 100%)" },
                   "&.Mui-disabled": { background: "var(--color-slate-200)", color: "var(--color-slate-500)" }
@@ -309,9 +308,9 @@ export default function AdminLanding() {
                   {totpUrl ? (
                       <Box sx={{
                           p: 1.5,
-                          bgcolor: "white",
+                          bgcolor: "var(--card-bg)", backdropFilter: "var(--card-blur)",
                           borderRadius: 'var(--radius-md)',
-                          border: "var(--border-thin) solid #e2e8f0",
+                          border: "var(--border-thin) solid var(--color-slate-200)",
                           flexShrink: 0,
                           display: "flex",
                           alignItems: "center",
@@ -338,7 +337,7 @@ export default function AdminLanding() {
                               px: 1.5,
                               py: 1.5,
                               borderRadius: 'var(--radius-md)',
-                              border: "1px dashed #cbd5e1",
+                              border: "1px dashed var(--color-slate-300)",
                               position: "relative",
                               pr: 5,
                               my: 0.5,
@@ -371,7 +370,7 @@ export default function AdminLanding() {
                                       top: "50%",
                                       transform: "translateY(-50%)",
                                       color: copied ? "var(--color-success)" : "var(--color-slate-500)",
-                                      transition: "color 0.2s"
+                                      transition: "color var(--transition-base)"
                                   }}
                               >
                                   {copied ? <CheckIcon sx={{ fontSize: 20 }} /> : <ContentCopyIcon sx={{ fontSize: 20 }} />}
@@ -385,7 +384,7 @@ export default function AdminLanding() {
               </Box>
 
               <Box sx={{ mb: 4 }}>
-                <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
+                <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
                   Enter the 6-digit code to confirm
                 </Typography>
                 <OtpInput
@@ -405,11 +404,11 @@ export default function AdminLanding() {
                   height: 'var(--box-height)',
                   borderRadius: 'var(--radius-md)',
                   fontWeight: 'var(--font-bold)',
-                  background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)",
+                  background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)",
                   color: "var(--color-white)",
                   textTransform: "none",
                   fontSize: 'var(--font-base)',
-                  transition: "all 0.2s ease-in-out",
+                  transition: "all var(--transition-base)",
                   "&:hover": {
                     background: "linear-gradient(135deg, #004494 0%, #218838 100%)" },
                   "&.Mui-disabled": { background: "var(--color-slate-200)", color: "var(--color-slate-500)", WebkitTextFillColor: "var(--color-slate-500)" }
@@ -461,11 +460,11 @@ export default function AdminLanding() {
                   height: 'var(--box-height)',
                   borderRadius: 'var(--radius-md)',
                   fontWeight: 'var(--font-bold)',
-                  background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)",
+                  background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)",
                   color: "var(--color-white)",
                   textTransform: "none",
                   fontSize: 'var(--font-base)',
-                  transition: "all 0.2s ease-in-out",
+                  transition: "all var(--transition-base)",
                   "&:hover": {
                     background: "linear-gradient(135deg, #004494 0%, #218838 100%)" },
                   "&.Mui-disabled": { background: "var(--color-slate-200)", color: "var(--color-slate-500)", WebkitTextFillColor: "var(--color-slate-500)" }

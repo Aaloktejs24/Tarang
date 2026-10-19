@@ -10,7 +10,7 @@
 }
 
 .ProseMirror p.is-editor-empty:first-of-type::before {
-  color: #94a3b8;
+  color: var(--color-slate-400);
   content: attr(data-placeholder);
   float: left;
   height: 0;
@@ -24,7 +24,7 @@
 }
 
 .ProseMirror img.ProseMirror-selectednode {
-  outline: 3px solid #0056b3;
+  outline: 3px solid var(--color-primary);
 }
 
 /* Math nodes */
@@ -33,9 +33,9 @@
   border-radius: var(--radius-sm);
   padding: 0.1em 0.3em;
   font-family: monospace;
-  color: #0056b3;
+  color: var(--color-primary);
 }
 
 .ProseMirror .math-node.ProseMirror-selectednode {
-  outline: var(--border-thick) solid #0056b3;
+  outline: var(--border-thick) solid var(--color-primary);
 }

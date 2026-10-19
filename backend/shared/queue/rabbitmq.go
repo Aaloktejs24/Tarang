@@ -57,6 +57,19 @@ func ConnectRabbitMQ(url string) (*amqp.Connection, *amqp.Channel, error) {
 		false,
 		nil,
 	)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// MONGO SYNC QUEUE
+	_, err = ch.QueueDeclare(
+		"mongo_sync_queue",
+		true,
+		false,
+		false,
+		false,
+		nil,
+	)
 
 	return conn, ch, err
 }

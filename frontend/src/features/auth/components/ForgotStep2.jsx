@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
 import TarangButton from "../../../components/common/TarangButton";
 import AuthMessage from "./AuthMessage";
+import { FormLoadingProvider } from '../../../contexts/FormLoadingContext';
 
 export default function ForgotStep2({ setStep, formData, updateFormData, isLoading, error, setError, onResendOtp, resendTimer, resetOtp, success, setSuccess, maskedEmail }) {
     useEffect(() => {
@@ -20,31 +21,70 @@ export default function ForgotStep2({ setStep, formData, updateFormData, isLoadi
     };
 
     return (
+        <FormLoadingProvider isLoading={isLoading}>
         <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 3 }}>
             <Box>
                 <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)' }}>
-                    एप्रकू वेरीफाई करें
+                    OTP वेरीफाई करें
                 </Typography>
                 <Typography variant="body2" sx={{ color: "var(--color-slate-500)", fontSize: 'var(--font-base)', lineHeight: 1.5 }}>
                     हमने <span style={{ color: "var(--color-slate-900)", fontWeight: 'var(--font-bold)' }}>{getMaskedEmail(maskedEmail || formData.email)}</span> पर एक वेरिफिकेशन कोड भेजा है
                 </Typography>
             </Box>
 
-
+            <AnimatePresence mode="wait">
+                {(error || success) && (
+                    <motion.div
+                        key={error ? "error" : "success"}
+                        initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                        animate={{ opacity: 1, height: "auto", marginTop: 8 }}
+                        exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                        style={{ overflow: "hidden", textAlign: "center", width: "100%" }}
+                    >
+                        {error ? (
+                            <AuthMessage type="error" message={error} />
+                        ) : (
+                            <AuthMessage type="success" message={success} />
+                        )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             <Box>
-                <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
+                <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
                     वेरिफिकेशन कोड
                 </Typography>
-                <OtpInput
-                    value={formData.otp}
-                    onChange={(val) => {
-                        updateFormData({ otp: val });
-                        if (error) setError("");
-                    }}
-                    isLoading={isLoading}
-                    error={!!error}
-                />
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <OtpInput
+                        value={formData.otp}
+                        onChange={(val) => {
+                            updateFormData({ otp: val });
+                            if (error) setError("");
+                        }}
+                        isLoading={isLoading}
+                        error={!!error}
+                    />
+                    <TarangButton
+                        variant="text"
+                        size="sm"
+                        disabled={isLoading || resendTimer > 0}
+                        onClick={() => {
+                            if (resendTimer === 0 && !isLoading) {
+                                handleResendClick();
+                            }
+                        }}
+                        sx={{ color: resendTimer > 0 ? '#64748b' : 'var(--color-primary)', p: 0, minWidth: 'auto', minHeight: 'auto', '&:hover': { background: 'transparent', textDecoration: 'underline' }, whiteSpace: 'nowrap' }}
+                    >
+                        {resendTimer > 0 ? (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                <AccessTimeIcon sx={{ fontSize: 'var(--font-sm)' }} />
+                                <Box component="div" sx={{ fontSize: '13px', fontWeight: 'var(--font-semibold)' }}>
+                                    {resendTimer.toString().padStart(2, '0')}s फिर से भेजें
+                                </Box>
+                            </Box>
+                        ) : "फिर से भेजें"}
+                    </TarangButton>
+                </Box>
             </Box>
 
 
@@ -69,42 +109,8 @@ export default function ForgotStep2({ setStep, formData, updateFormData, isLoadi
                 </TarangButton>
             </Box>
 
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 1, minHeight: "32px" }}>
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <AnimatePresence mode="wait">
-                        {(error || success) && (
-                            <motion.div key={error ? "error" : "success"} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ textAlign: "center" }}>
-                                {error ? (
-                                    <AuthMessage type="error" message={error} />
-                                ) : (
-                                    <AuthMessage type="success" message={success} />
-                                )}
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </Box>
-                <TarangButton
-                    variant="text"
-                    size="sm"
-                    disabled={isLoading || resendTimer > 0}
-                    onClick={() => {
-                        if (resendTimer === 0 && !isLoading) {
-                            handleResendClick();
-                        }
-                    }}
-                    sx={{ color: resendTimer > 0 ? '#64748b !important' : '#0056b3 !important' }}
-                >
-                    {resendTimer > 0 ? (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <AccessTimeIcon sx={{ fontSize: 'var(--font-lg)', position: 'relative', top: '-1px' }} />
-                            <Box component="div" sx={{ fontSize: '14.5px', fontWeight: 'var(--font-semibold)' }}>
-                                {resendTimer.toString().padStart(2, '0')}s में एप्रकू फिर से भेजें
-                            </Box>
-                        </Box>
-                    ) : "एप्रकू फिर से भेजें"}
-                </TarangButton>
-            </Box>
 
         </Box>
+        </FormLoadingProvider>
     );
 }

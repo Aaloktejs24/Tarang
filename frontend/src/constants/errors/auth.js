@@ -14,6 +14,8 @@ export const AUTH_ERRORS = {
     "invalid email otp": "ईमेल वेरिफिकेशन कोड गलत है।",
     "invalid phone otp": "फ़ोन वेरिफिकेशन कोड गलत है।",
     "invalid password": "ईमेल/यूज़रनेम या पासवर्ड गलत है। कृपया फिर से प्रयास करें।",
+    "incorrect password": "ईमेल/यूज़रनेम या पासवर्ड गलत है। कृपया फिर से प्रयास करें।",
+    "incorrect credentials": "ईमेल/यूज़रनेम या पासवर्ड गलत है। कृपया फिर से प्रयास करें।",
     "password must be at least 8 characters": "पासवर्ड कम से कम 8 अक्षरों का होना चाहिए।",
     "phone number does not match linked account": "यह फ़ोन नंबर आपके खाते से मेल नहीं खाता।",
     "no phone number linked to this account": "इस खाते से कोई फ़ोन नंबर लिंक नहीं है।",

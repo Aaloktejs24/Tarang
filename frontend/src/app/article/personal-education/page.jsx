@@ -15,7 +15,7 @@ export default function ArticlePage() {
   useBgPreloader('https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=2000');
 
   return (
-    <Box sx={{ bgcolor: "var(--color-white)", minHeight: "var(--size-screen-h)", display: "flex", flexDirection: "column" }}>
+    <Box sx={{ bgcolor: "transparent", minHeight: "var(--size-screen-h)", display: "flex", flexDirection: "column" }}>
       <Navbar variant="landing" onLoginClick={() => setIsLoginOpen(true)} />
 
       {/* ─── HEADER BANNER ────────────────────────────────────────────────── */}

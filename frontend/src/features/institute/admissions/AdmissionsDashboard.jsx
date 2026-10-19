@@ -272,11 +272,11 @@ export default function AdmissionsDashboard() {
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }} title="Applicants">
                                   <PeopleOutlinedIcon sx={{ color: 'var(--color-primary)' }} />
-                                  <Typography sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-700)', fontSize: 'var(--font-lg)' }}>{admission.applicants}</Typography>
+                                  <Typography sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)', fontSize: 'var(--font-lg)' }}>{admission.applicants}</Typography>
                                 </Box>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }} title="Total Seats">
                                   <EventSeatOutlinedIcon sx={{ color: 'var(--color-primary)' }} />
-                                  <Typography sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-700)', fontSize: 'var(--font-lg)' }}>{admission.seats}</Typography>
+                                  <Typography sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)', fontSize: 'var(--font-lg)' }}>{admission.seats}</Typography>
                                 </Box>
                               </Box>
                             ) : (
@@ -315,7 +315,7 @@ export default function AdmissionsDashboard() {
                                     e.stopPropagation();
                                     router.push(`/dashboard/home/institute/admissions/${admission.id}/applications`);
                                   }}
-                                  sx={{ borderRadius: 'var(--radius-md)', textTransform: 'none', fontWeight: 'var(--font-bold)', height: 32, fontSize: 'var(--font-xs)', bgcolor: 'var(--color-primary)', color: 'white', '&:hover': { bgcolor: 'var(--color-primary-hover)' } }}
+                                  sx={{ borderRadius: 'var(--radius-md)', textTransform: 'none', fontWeight: 'var(--font-bold)', height: 32, fontSize: 'var(--font-xs)', bgcolor: 'var(--color-primary)', color: 'var(--color-white)', '&:hover': { bgcolor: 'var(--color-primary-hover)' } }}
                                 >
                                   Manage
                                 </Button>
@@ -335,7 +335,7 @@ export default function AdmissionsDashboard() {
               subtitle={t('admissionsDashboard.emptyStateSubtitle')}
               actionLabel={t('admissionsDashboard.startBuildingBtn')}
               actionIcon={
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" style={{ width: 20, height: 20, transition: 'transform 0.2s' }}>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" style={{ width: 20, height: 20, transition: 'transform var(--transition-base)' }}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
                 </svg>
               }
@@ -356,13 +356,13 @@ export default function AdmissionsDashboard() {
             bottom: { xs: 24, md: 40 },
             right: { xs: 24, md: 40 },
             zIndex: 'var(--z-dropdown)',
-            bgcolor: 'var(--color-primary)', color: 'white',
+            bgcolor: 'var(--color-primary)', color: 'var(--color-white)',
             borderRadius: 'var(--radius-full)',
             width: { xs: 56, md: 64 },
             height: { xs: 56, md: 64 },
             minWidth: 0,
             p: 0,
-            border: '1.5px solid #f59e0b',
+            border: '1.5px solid var(--color-warning)',
             '&:hover': { bgcolor: 'var(--color-primary-hover)', },
             transition: 'var(--transition-slow)'
           }}
@@ -394,8 +394,15 @@ export default function AdmissionsDashboard() {
             p: 1,
             maxWidth: 400,
             width: '90%',
-            background: 'rgba(255, 255, 255, 0.98)',
-            backdropFilter: 'blur(20px)', }
+            background: `
+            radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.45) 0, transparent 50%), 
+            radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.3) 0, transparent 50%), 
+            radial-gradient(at 80% 90%, rgba(40, 167, 69, 0.2) 0, transparent 50%),
+            radial-gradient(at 20% 80%, rgba(0, 86, 179, 0.15) 0, transparent 50%),
+            #eef2f6
+          `,
+            backdropFilter: 'blur(20px)',
+          }
         }}
         BackdropProps={{
           sx: { backdropFilter: 'blur(6px)', backgroundColor: 'rgba(15,23,42,0.4)' }
@@ -432,7 +439,7 @@ export default function AdmissionsDashboard() {
             disableElevation
             sx={{
               borderRadius: 'var(--radius-md)', fontWeight: 'var(--font-bold)', textTransform: 'none',
-              bgcolor: 'var(--color-error)', color: 'white', px: 2.5,
+              bgcolor: 'var(--color-error)', color: 'var(--color-white)', px: 2.5,
               '&:hover': { bgcolor: 'var(--color-error)' },
             }}
           >

@@ -192,7 +192,7 @@ export default function AdminRegister() {
                     Welcome! Enter your email to begin setting up your Admin account.
                   </Typography>
                   <Box sx={{ mb: 4 }}>
-                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
+                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
                       Email Address
                     </Typography>
                     <TextField
@@ -222,7 +222,7 @@ export default function AdminRegister() {
                       height: 'var(--box-height)',
                       borderRadius: 'var(--radius-md)',
                       fontWeight: 'var(--font-bold)',
-                      background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)" }}
+                      background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)" }}
                   >
                     {loading ? <CircularProgress size={24} color="inherit" /> : 'Continue'}
                   </Button>
@@ -256,7 +256,7 @@ export default function AdminRegister() {
                       height: 'var(--box-height)',
                       borderRadius: 'var(--radius-md)',
                       fontWeight: 'var(--font-bold)',
-                      background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)" }}
+                      background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)" }}
                   >
                     {loading ? <CircularProgress size={24} color="inherit" /> : 'Verify Email'}
                   </Button>
@@ -266,7 +266,7 @@ export default function AdminRegister() {
               {flowState === 'details' && !success && (
                 <form onSubmit={handleCompleteRegistration}>
                   <Box sx={{ mb: 3 }}>
-                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
+                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
                       Full Name
                     </Typography>
                     <TextField
@@ -283,7 +283,7 @@ export default function AdminRegister() {
                   </Box>
 
                   <Box sx={{ mb: 3 }}>
-                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
+                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
                       Username
                     </Typography>
                     <TextField
@@ -300,7 +300,7 @@ export default function AdminRegister() {
                   </Box>
 
                   <Box sx={{ mb: 4 }}>
-                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
+                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
                       Password
                     </Typography>
                     <TextField
@@ -327,7 +327,7 @@ export default function AdminRegister() {
                       height: 'var(--box-height)',
                       borderRadius: 'var(--radius-md)',
                       fontWeight: 'var(--font-bold)',
-                      background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)" }}
+                      background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)" }}
                   >
                     {loading ? <CircularProgress size={24} color="inherit" /> : 'Complete Registration'}
                   </Button>

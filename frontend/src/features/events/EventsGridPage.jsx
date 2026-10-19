@@ -165,7 +165,7 @@ export default function EventsGridPage() {
                   elevation={0}
                   sx={{
                     overflow: "hidden",
-                    transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                    transition: "transform var(--transition-slow), box-shadow var(--transition-slow)",
                     "&:hover": {
                        
                     },
@@ -235,13 +235,13 @@ export default function EventsGridPage() {
               variant="contained"
               disableElevation
               sx={{
-                background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)",
+                background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%)",
                 color: "var(--color-white)",
                 fontWeight: 'var(--font-bold)',
                 borderRadius: 'var(--radius-md)',
                 px: 5,
                 py: 1.5,
-                "&:hover": { background: "linear-gradient(135deg, #004494 0%, #28A745 100%)" },
+                "&:hover": { background: "linear-gradient(135deg, #004494 0%, var(--color-success) 100%)" },
                 textTransform: "none",
                 fontSize: 'var(--font-base)'
               }}

@@ -1,7 +1,8 @@
 package user
 
 import (
-		"time"
+	"encoding/json"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -9,6 +10,7 @@ import (
 type User struct {
 	ID              uuid.UUID  `db:"id" json:"id"`
 	Username        string     `db:"username" json:"username"`
+	Email           *string    `db:"email" json:"email,omitempty"`
 	Role            string     `db:"role" json:"role"`
 	KycVerifiedAt   *time.Time `db:"kyc_verified_at" json:"kyc_verified_at,omitempty"`
 	KycReferenceID  *string    `db:"kyc_reference_id" json:"kyc_reference_id,omitempty"`
@@ -28,12 +30,65 @@ type User struct {
 	Languages      []string          `db:"languages" json:"languages,omitempty"`
 	Demographic    *string           `db:"demographic" json:"demographic,omitempty"`
 
+	Religion       *string `db:"religion" json:"religion,omitempty"`
+	Caste          *string `db:"caste" json:"caste,omitempty"`
+	Subcaste       *string `db:"subcaste" json:"subcaste,omitempty"`
+	Nationality    *string `db:"nationality" json:"nationality,omitempty"`
+
 	CreatedAt       time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt       time.Time `db:"updated_at" json:"updated_at"`
 
 	InstituteProfile *InstituteProfileInput `json:"institute_profile,omitempty"`
 	
+	Addresses         []*UserAddress         `json:"addresses,omitempty"`
+	AcademicRecords   []*UserAcademicRecord  `json:"academic_records,omitempty"`
+	WorkExperiences   []*UserWorkExperience  `json:"work_experiences,omitempty"`
 	}
+
+type UserAddress struct {
+	ID                 uuid.UUID `db:"id" json:"id"`
+	UserID             uuid.UUID `db:"user_id" json:"user_id"`
+	Type               string    `db:"type" json:"type"`
+	AddressLine        *string   `db:"address_line" json:"address_line,omitempty"`
+	State              *string   `db:"state" json:"state,omitempty"`
+	District           *string   `db:"district" json:"district,omitempty"`
+	Pincode            *string   `db:"pincode" json:"pincode,omitempty"`
+	IsSameAsPermanent  bool      `db:"is_same_as_permanent" json:"is_same_as_permanent"`
+	CreatedAt          time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt          time.Time `db:"updated_at" json:"updated_at"`
+}
+
+type UserAcademicRecord struct {
+	ID              uuid.UUID `db:"id" json:"id"`
+	UserID          uuid.UUID `db:"user_id" json:"user_id"`
+	Qualification   *string   `db:"qualification" json:"qualification,omitempty"`
+	BoardUniversity *string   `db:"board_university" json:"board_university,omitempty"`
+	PassingYear     *int      `db:"passing_year" json:"passing_year,omitempty"`
+	PercentageCgpa  *string   `db:"percentage_cgpa" json:"percentage_cgpa,omitempty"`
+	DocumentURL     *string          `db:"document_url" json:"document_url,omitempty"`
+	Achievements    json.RawMessage  `db:"achievements" json:"achievements,omitempty"`
+	CreatedAt       time.Time        `db:"created_at" json:"created_at"`
+	UpdatedAt       time.Time        `db:"updated_at" json:"updated_at"`
+}
+
+type MongoAcademicAchievements struct {
+	AcademicRecordID string      `bson:"academic_record_id" json:"academic_record_id"`
+	UserID           string      `bson:"user_id" json:"user_id"`
+	Achievements     interface{} `bson:"achievements" json:"achievements"`
+	UpdatedAt        time.Time   `bson:"updated_at" json:"updated_at"`
+}
+
+type UserWorkExperience struct {
+	ID          uuid.UUID  `db:"id" json:"id"`
+	UserID      uuid.UUID  `db:"user_id" json:"user_id"`
+	CompanyName *string    `db:"company_name" json:"company_name,omitempty"`
+	Designation *string    `db:"designation" json:"designation,omitempty"`
+	StartDate   *time.Time `db:"start_date" json:"start_date,omitempty"`
+	EndDate     *time.Time `db:"end_date" json:"end_date,omitempty"`
+	CreatedAt   time.Time  `db:"created_at" json:"created_at"`
+	UpdatedAt   time.Time  `db:"updated_at" json:"updated_at"`
+}
+
 
 type InstituteProfileInput struct {
 	InstituteType         string   `json:"institute_type" validate:"required"`
