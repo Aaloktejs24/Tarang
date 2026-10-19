@@ -175,7 +175,14 @@ let refreshPromise = null;
 export const refreshAuthToken = async () => {
   if (refreshPromise) return refreshPromise;
   refreshPromise = fetch("/api/auth/refresh", { method: "POST" })
-    .then(res => res.json())
+    .then(async (res) => {
+      try {
+        const text = await res.text();
+        return text ? JSON.parse(text) : { authenticated: false };
+      } catch (e) {
+        return { authenticated: false };
+      }
+    })
     .then(data => {
       if (data.authenticated === false) {
         throw new Error("Refresh failed");

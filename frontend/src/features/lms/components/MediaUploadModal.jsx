@@ -89,7 +89,7 @@ export default function MediaUploadModal({ open, onClose, lesson, onUploadComple
         {status === 'PROCESSING' && (
           <Box sx={{ width: '100%', mt: 2, textAlign: 'center' }}>
             <Typography variant="body2" sx={{ mb: 1, fontWeight: 'bold', color: 'var(--color-primary)' }}>
-              Processing file in background... (This may take a few minutes)
+              Processing...
             </Typography>
             <LinearProgress variant="indeterminate" sx={{ height: 8, borderRadius: 4 }} />
           </Box>

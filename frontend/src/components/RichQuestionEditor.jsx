@@ -189,10 +189,9 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
             opacity: 0,
             ml: 2,
             transition: 'opacity var(--transition-base), transform var(--transition-base)',
-            bgcolor: 'var(--card-bg)', color: 'var(--color-primary)',
+            bgcolor: 'var(--color-white)', color: 'var(--color-primary)',
             boxShadow: 'var(--shadow-sm)',
-            backdropFilter: 'var(--card-blur)',
-            '&:hover': { bgcolor: 'var(--color-slate-50)', transform: 'scale(1.05)' }
+            '&:hover': { bgcolor: 'var(--color-white)', transform: 'scale(1.05)' }
           }}
         >
           <EditOutlinedIcon fontSize="small" />
@@ -276,11 +275,10 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
               sx: {
                 width: { xs: 56, md: 64 }, 
                 height: { xs: 56, md: 64 },
-                bgcolor: 'var(--card-bg)', 
-                color: 'var(--color-primary)',
-                boxShadow: 'var(--shadow-sm)',
-                backdropFilter: 'var(--card-blur)',
-                '&:hover, &:focus, &:active': { bgcolor: 'var(--color-slate-50)', transform: 'scale(1.05)' }
+                backgroundColor: 'var(--color-primary)',
+                color: 'var(--color-white)',
+                border: '1.5px solid var(--color-warning)',
+                '&:hover, &:focus, &:active': { backgroundColor: 'var(--color-primary)' }
               }
             }}
             icon={<EditOutlinedIcon />}

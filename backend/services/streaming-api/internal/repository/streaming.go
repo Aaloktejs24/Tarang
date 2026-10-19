@@ -29,7 +29,9 @@ func NewStreamingRepository(db *pgxpool.Pool) *StreamingRepository {
 }
 
 func (r *StreamingRepository) CreateJob(ctx context.Context, job *StreamingJob) error {
-	job.ID = uuid.New()
+	if job.ID == uuid.Nil {
+		job.ID = uuid.New()
+	}
 	job.Status = "PENDING"
 	job.CreatedAt = time.Now()
 	job.UpdatedAt = time.Now()

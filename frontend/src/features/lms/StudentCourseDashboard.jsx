@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import { Box, Typography, Container, Grid, CardContent, Chip, CircularProgress, Button, TextField, InputAdornment, Avatar, Card } from '@mui/material';
+import { Box, Typography, Container, Grid, CardContent, Chip, CircularProgress, Button, TextField, InputAdornment, Avatar, Card, Skeleton } from '@mui/material';
 import { useAppRouter as useRouter } from '../../hooks/useAppRouter';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useAccessibility } from '../../contexts/AccessibilityContext';
@@ -76,7 +76,7 @@ export default function StudentCourseDashboard() {
     e.stopPropagation();
     try {
       setEnrollLoading(prev => ({ ...prev, [courseId]: true }));
-      await lmsService.enrollCourse(courseId, profile?.id, profile?.full_name || profile?.username, profile?.email);
+      await lmsService.enrollCourse(courseId, profile?.id, profile?.full_name || profile?.username, profile?.email, profile?.profile_pic_url);
       
       const newEnrolledData = await lmsService.getEnrolledCourses(profile.id);
       if (newEnrolledData) {
@@ -428,9 +428,32 @@ export default function StudentCourseDashboard() {
 
         <Box sx={{ minHeight: '400px' }}>
           {isLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', minHeight: 300 }}>
-              <CircularProgress sx={{ color: 'var(--color-primary)' }} />
-            </Box>
+            <Grid container spacing={3}>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                <Grid size={{ xs: 12, sm: 6, lg: 4, xl: 3 }} key={i}>
+                  <PremiumCard sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                    <Skeleton variant="rectangular" sx={{ width: '100%', aspectRatio: '16/9' }} />
+                    <CardContent sx={{ flexGrow: 1, p: 3, display: 'flex', flexDirection: 'column' }}>
+                      <Box sx={{ mb: 2 }}>
+                        <Skeleton variant="text" height={28} width="80%" sx={{ mb: 1.5 }} />
+                        <Skeleton variant="text" height={20} width="100%" />
+                        <Skeleton variant="text" height={20} width="90%" />
+                      </Box>
+                      <Box sx={{ mt: 'auto', pt: 1 }}>
+                        <Box sx={{ display: 'flex', gap: 2, mb: 2.5 }}>
+                          <Skeleton variant="text" height={20} width={80} />
+                          <Skeleton variant="text" height={20} width={80} />
+                        </Box>
+                        <Box sx={{ display: 'flex', gap: 1.5 }}>
+                          <Skeleton variant="rounded" height={40} sx={{ flex: 1, borderRadius: 'var(--radius-md)' }} />
+                          <Skeleton variant="rounded" height={40} sx={{ flex: 1, borderRadius: 'var(--radius-md)' }} />
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </PremiumCard>
+                </Grid>
+              ))}
+            </Grid>
           ) : (
             <AnimatePresence mode="wait">
               <motion.div

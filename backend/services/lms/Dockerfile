@@ -1,4 +1,4 @@
-FROM golang:1.25-alpine3.23 AS builder
+FROM golang:1.26-alpine AS builder
 
 WORKDIR /app
 
@@ -9,7 +9,7 @@ COPY shared/ shared/
 COPY proto/ proto/
 COPY services/lms/ services/lms/
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o lms-service services/lms/cmd/server/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o lms-service ./services/lms/cmd/server/main.go
 
 FROM alpine:latest
 

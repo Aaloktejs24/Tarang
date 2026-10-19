@@ -9,7 +9,9 @@ import {
   Button
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { CustomFloatingInput, CustomFloatingMinIOUpload } from '../../../components/common/CustomFloatingFields';
+import { CustomStreamingUpload } from '../../../components/common/CustomStreamingUpload';
 import TarangButton from '../../../components/common/TarangButton';
 import { useProfile } from '../../../hooks/useProfile';
 import { useAccessibility } from '../../../contexts/AccessibilityContext';
@@ -40,13 +42,15 @@ export default function InlineContentBuilder({ onSave, onCancel, initialData }) 
   const { profile } = useProfile();
   const { language } = useAccessibility();
 
-  const [title, setTitle] = useState(initialData?.title || '');
-  const [description, setDescription] = useState(initialData?.description || '');
+  const [titles, setTitles] = useState({ [initialData?.type || 'video']: initialData?.title || '' });
+  const [descriptions, setDescriptions] = useState({ [initialData?.type || 'video']: initialData?.description || '' });
   const [type, setType] = useState(initialData?.type || 'video');
-  const [url, setUrl] = useState(initialData?.url || '');
-  const [thumbnail, setThumbnail] = useState(initialData?.thumbnail || '');
+  const [urls, setUrls] = useState({ [initialData?.type || 'video']: initialData?.url || '' });
+  const [thumbnails, setThumbnails] = useState({ [initialData?.type || 'video']: initialData?.thumbnail || '' });
   const [isUploading, setIsUploading] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [mediaModalOpen, setMediaModalOpen] = useState(false);
+  const uniqueId = React.useId();
 
   const leftColumnRef = useRef(null);
   const [leftColumnHeight, setLeftColumnHeight] = useState(0);
@@ -60,11 +64,11 @@ export default function InlineContentBuilder({ onSave, onCancel, initialData }) 
   useEffect(() => {
     // Update state if initialData changes
     if (initialData) {
-      setTitle(initialData.title || '');
-      setDescription(initialData.description || '');
+      setTitles({ [initialData.type || 'video']: initialData.title || '' });
+      setDescriptions({ [initialData.type || 'video']: initialData.description || '' });
       setType(initialData.type || 'video');
-      setUrl(initialData.url || '');
-      setThumbnail(initialData.thumbnail || '');
+      setUrls({ [initialData.type || 'video']: initialData.url || '' });
+      setThumbnails({ [initialData.type || 'video']: initialData.thumbnail || '' });
     }
   }, [initialData]);
 
@@ -79,38 +83,38 @@ export default function InlineContentBuilder({ onSave, onCancel, initialData }) 
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [type, title, description, language]);
+  }, [type, titles[type], descriptions[type], language]);
 
   const handleSave = () => {
-    if (!title) return;
+    if (!titles[type]) return;
 
     const newItem = {
       id: initialData?.id || `item-${Date.now()}`,
-      title,
-      description,
+      title: titles[type] || '',
+      description: descriptions[type] || '',
       type,
-      url,
-      thumbnail: type === 'video' ? thumbnail : undefined,
+      url: urls[type] || '',
+      thumbnail: ['video', 'audio'].includes(type) ? thumbnails[type] : undefined,
       createdAt: initialData?.createdAt || new Date().toISOString()
     };
     onSave(newItem);
 
     if (!initialData) {
       // Clear the form only if creating a new item
-      setTitle('');
-      setDescription('');
-      setUrl('');
-      setThumbnail('');
+      setTitles(prev => ({ ...prev, [type]: '' }));
+      setDescriptions(prev => ({ ...prev, [type]: '' }));
+      setUrls({});
+      setThumbnails({});
     }
     setExpanded(false);
   };
 
   const handleCancelClick = () => {
     if (onCancel) onCancel();
-    setTitle('');
-    setDescription('');
-    setUrl('');
-    setThumbnail('');
+    setTitles(prev => ({ ...prev, [type]: '' }));
+    setDescriptions(prev => ({ ...prev, [type]: '' }));
+    setUrls(prev => ({ ...prev, [type]: '' }));
+    setThumbnails(prev => ({ ...prev, [type]: '' }));
     setExpanded(false);
   };
 
@@ -138,7 +142,7 @@ export default function InlineContentBuilder({ onSave, onCancel, initialData }) 
         }}
       >
         <Typography sx={{ fontWeight: 600, color: 'var(--color-slate-600)', fontSize: '14px' }}>
-          {initialData ? (title || (language === 'en' ? 'Edit Content' : 'सामग्री संपादित करें')) : (language === 'en' ? 'Add Content' : 'सामग्री जोड़ें')}
+          {initialData ? (titles[type] || (language === 'en' ? 'Edit Content' : 'सामग्री संपादित करें')) : (language === 'en' ? 'Add Content' : 'सामग्री जोड़ें')}
         </Typography>
       </CustomAccordionSummary>
       <CustomAccordionDetails>
@@ -168,7 +172,6 @@ export default function InlineContentBuilder({ onSave, onCancel, initialData }) 
                     onClick={() => {
                       if (!isUploading) {
                         setType(c.value);
-                        setUrl('');
                       }
                     }}
                     sx={{
@@ -202,7 +205,8 @@ export default function InlineContentBuilder({ onSave, onCancel, initialData }) 
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, flexShrink: 0 }}>
               <Button
                 size="small"
-                sx={{ color: 'var(--color-slate-500)', fontWeight: 600 }}
+                variant="outlined"
+                sx={{ borderRadius: 'var(--radius-full)', color: 'var(--color-primary)', borderColor: 'var(--color-primary)', fontWeight: 600 }}
                 onClick={handleCancelClick}
               >
                 {language === 'en' ? 'Cancel' : 'रद्द करें'}
@@ -212,7 +216,7 @@ export default function InlineContentBuilder({ onSave, onCancel, initialData }) 
                 variant="contained"
                 sx={{ borderRadius: 'var(--radius-full)', px: 3, bgcolor: 'var(--color-primary)', boxShadow: 'none', fontWeight: 700 }}
                 onClick={handleSave}
-                disabled={!title || !description || (!url && type !== 'assignment') || (type === 'video' && !thumbnail) || isUploading}
+                disabled={!titles[type] || !descriptions[type] || (!urls[type] && type !== 'assignment') || (type === 'video' && !thumbnails[type]) || isUploading}
               >
                 {isUploading ? <CircularProgress size={16} color="inherit" /> : (language === 'en' ? 'Save' : 'सहेजें')}
               </Button>
@@ -220,19 +224,24 @@ export default function InlineContentBuilder({ onSave, onCancel, initialData }) 
           </Box>
 
           {/* Inputs Grid */}
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: ['video', 'audio', 'document'].includes(type) ? '1fr auto' : '1fr' }, gap: 1.5 }}>
+          <Box sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              md: type === 'document' ? '1fr 1fr' : (['video', 'audio'].includes(type) ? 'minmax(250px, 1.8fr) 1fr' : '1fr')
+            },
+            gap: 1.5
+          }}>
 
             {/* Left: All Text Inputs */}
             <Box ref={leftColumnRef} sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
               <CustomFloatingInput
                 label={language === 'en' ? 'Title' : 'शीर्षक'}
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                value={titles[type] || ''}
+                onChange={(e) => setTitles(prev => ({ ...prev, [type]: e.target.value }))}
                 disabled={isUploading}
                 required
               />
-
-
 
               {['link', 'assignment', 'lab', 'quiz', 'article'].includes(type) && (
                 <CustomFloatingInput
@@ -242,22 +251,48 @@ export default function InlineContentBuilder({ onSave, onCancel, initialData }) 
                         type === 'article' ? (language === 'en' ? 'Article URL' : 'लेख यूआरएल') :
                           (language === 'en' ? 'URL Link' : 'यूआरएल लिंक')
                   }
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
+                  value={urls[type] || ''}
+                  onChange={(e) => setUrls(prev => ({ ...prev, [type]: e.target.value }))}
                   disabled={isUploading}
                   required
                 />
               )}
 
-              <CustomFloatingInput
-                label={language === 'en' ? 'Description' : 'विवरण'}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                disabled={isUploading}
-                multiline
-                required
-                rows={2}
-              />
+              {type === 'document' && (
+                <CustomFloatingMinIOUpload
+                  label={language === 'en' ? 'Upload Document' : 'दस्तावेज़ अपलोड करें'}
+                  accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  savedValue={urls['document'] || ''}
+                  profile={profile}
+                  type="document"
+                  fieldName={`content-doc-${uniqueId.replace(/:/g, '')}`}
+                  onUploadStart={() => setIsUploading(true)}
+                  onUploadComplete={(uploadedUrl) => {
+                    setUrls(prev => ({ ...prev, 'document': uploadedUrl }));
+                    setIsUploading(false);
+                  }}
+                  onUploadError={() => setIsUploading(false)}
+                />
+              )}
+
+              {type !== 'document' && (
+                <CustomFloatingInput
+                  label={language === 'en' ? 'Description' : 'विवरण'}
+                  value={descriptions[type] || ''}
+                  onChange={(e) => setDescriptions(prev => ({ ...prev, [type]: e.target.value }))}
+                  disabled={isUploading}
+                  multiline
+                  required
+                  rows={3}
+                  sx={['video', 'audio'].includes(type) ? {
+                    flexGrow: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    '& > div': { flexGrow: 1, display: 'flex', flexDirection: 'column', height: '100%', alignItems: 'stretch !important' },
+                    '& textarea': { flexGrow: 1, height: '100% !important', minHeight: '100px' }
+                  } : {}}
+                />
+              )}
             </Box>
 
             {/* Right: Upload Box (Only if applicable) */}
@@ -266,64 +301,70 @@ export default function InlineContentBuilder({ onSave, onCancel, initialData }) 
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 1.5,
-                width: {
-                  xs: 'var(--size-full)',
-                  md: leftColumnHeight > 0
-                    ? (type === 'video' ? `${(leftColumnHeight * (16 / 9) * 2) + 12}px` : `${leftColumnHeight * (16 / 9)}px`)
-                    : 'auto'
-                },
-                minWidth: 0
+                width: '100%',
+                minWidth: 0,
+                height: '100%'
               }}>
                 {type === 'document' && (
-                  <CustomFloatingMinIOUpload
-                    variant="box"
-                    label={language === 'en' ? 'Upload Document' : 'दस्तावेज़ अपलोड करें'}
-                    accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    savedValue={url}
-                    profile={profile}
-                    type="document"
-                    fieldName={`content-doc-${Date.now()}`}
-                    onUploadStart={() => setIsUploading(true)}
-                    onUploadComplete={(uploadedUrl) => {
-                      setUrl(uploadedUrl);
-                      setIsUploading(false);
+                  <CustomFloatingInput
+                    label={language === 'en' ? 'Description' : 'विवरण'}
+                    value={descriptions[type] || ''}
+                    onChange={(e) => setDescriptions(prev => ({ ...prev, [type]: e.target.value }))}
+                    disabled={isUploading}
+                    multiline
+                    required
+                    rows={3}
+                    sx={{
+                      flexGrow: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      '& > div': { flexGrow: 1, display: 'flex', flexDirection: 'column', height: '100%', alignItems: 'stretch !important' },
+                      '& textarea': { flexGrow: 1, height: '100% !important', minHeight: '100px' }
                     }}
-                    onUploadError={() => setIsUploading(false)}
                   />
                 )}
 
-                {type === 'video' && (
-                  <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 1.5, width: '100%' }}>
-                    <Box sx={{ flex: 1 }}>
-                      <CustomFloatingMinIOUpload
-                        variant="box"
-                        label={language === 'en' ? 'Upload Video File' : 'वीडियो फ़ाइल अपलोड करें'}
-                        accept="video/mp4,video/webm,video/ogg"
-                        savedValue={url}
-                        profile={profile}
-                        type="video"
-                        fieldName={`content-video-${Date.now()}`}
+                {['video', 'audio'].includes(type) && (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, width: '100%' }}>
+                    <Box sx={{ width: '100%' }}>
+                      <CustomStreamingUpload
+                        label={
+                          type === 'video'
+                            ? (language === 'en' ? 'Upload Video File' : 'वीडियो फ़ाइल अपलोड करें')
+                            : (language === 'en' ? 'Upload Audio File' : 'ऑडियो फ़ाइल अपलोड करें')
+                        }
+                        savedValue={urls[type] || ''}
+                        poster={thumbnails[type] || ''}
+                        type={type === 'video' ? "video" : "document"}
                         onUploadStart={() => setIsUploading(true)}
+                        onThumbnailGenerated={(thumbUrl) => {
+                          setThumbnails(prev => {
+                            if (!prev[type]) {
+                              return { ...prev, [type]: thumbUrl };
+                            }
+                            return prev;
+                          });
+                        }}
                         onUploadComplete={(uploadedUrl) => {
-                          setUrl(uploadedUrl);
+                          setUrls(prev => ({ ...prev, [type]: uploadedUrl }));
                           setIsUploading(false);
                         }}
                         onUploadError={() => setIsUploading(false)}
                       />
                     </Box>
-                    <Box sx={{ flex: 1 }}>
+                    <Box sx={{ width: '100%' }}>
                       <CustomFloatingMinIOUpload
                         variant="box"
                         label={language === 'en' ? 'Upload Thumbnail' : 'थंबनेल अपलोड करें'}
                         accept="image/*"
-                        savedValue={thumbnail}
+                        savedValue={thumbnails[type] || ''}
                         profile={profile}
                         type="image"
                         required
-                        fieldName={`content-thumbnail-${Date.now()}`}
+                        fieldName={`content-thumbnail-${uniqueId.replace(/:/g, '')}`}
                         onUploadStart={() => setIsUploading(true)}
                         onUploadComplete={(uploadedUrl) => {
-                          setThumbnail(uploadedUrl);
+                          setThumbnails(prev => ({ ...prev, [type]: uploadedUrl }));
                           setIsUploading(false);
                         }}
                         onUploadError={() => setIsUploading(false)}
@@ -331,28 +372,11 @@ export default function InlineContentBuilder({ onSave, onCancel, initialData }) 
                     </Box>
                   </Box>
                 )}
-
-                {type === 'audio' && (
-                  <CustomFloatingMinIOUpload
-                    variant="box"
-                    label={language === 'en' ? 'Upload Audio File' : 'ऑडियो फ़ाइल अपलोड करें'}
-                    accept="audio/*"
-                    savedValue={url}
-                    profile={profile}
-                    type="document"
-                    fieldName={`content-audio-${Date.now()}`}
-                    onUploadStart={() => setIsUploading(true)}
-                    onUploadComplete={(uploadedUrl) => {
-                      setUrl(uploadedUrl);
-                      setIsUploading(false);
-                    }}
-                    onUploadError={() => setIsUploading(false)}
-                  />
-                )}
               </Box>
             )}
           </Box>
         </Box>
       </CustomAccordionDetails>
-    </CustomAccordion>);
+    </CustomAccordion>
+  );
 }

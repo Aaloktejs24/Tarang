@@ -354,8 +354,10 @@ func (h *UserHandler) getDownloadUrl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bucket := "tarang-user-service"
-	key := h.getStorageKeyFromURL(fileURL)
+	key, bucket := h.getStorageKeyAndBucketFromURL(fileURL)
+	if bucket == "" {
+		bucket = "tarang-user-service"
+	}
 	if key == "" {
 		// URL is not a MinIO URL we recognise – return it as-is so the proxy can try directly
 		respondJSON(w, http.StatusOK, map[string]string{"signed_url": fileURL})
@@ -562,12 +564,12 @@ func (h *UserHandler) updateProfile(w http.ResponseWriter, r *http.Request) {
 
 	respondJSON(w, http.StatusOK, map[string]string{"message": "profile updated"})
 }
-func (h *UserHandler) getStorageKeyFromURL(fileURL string) string {
+func (h *UserHandler) getStorageKeyAndBucketFromURL(fileURL string) (string, string) {
 	// Handle old AWS URLs
 	if strings.Contains(fileURL, ".amazonaws.com/") {
 		parts := strings.Split(fileURL, ".amazonaws.com/")
 		if len(parts) >= 2 {
-			return parts[1]
+			return parts[1], "tarang-user-service"
 		}
 	}
 
@@ -575,15 +577,20 @@ func (h *UserHandler) getStorageKeyFromURL(fileURL string) string {
 	if h.cfg.MinioPublicURL != "" && strings.Contains(fileURL, h.cfg.MinioPublicURL) {
 		parts := strings.Split(fileURL, h.cfg.MinioPublicURL+"/")
 		if len(parts) >= 2 {
-			// Parts[1] is bucket/key. We just want the key.
+			// Parts[1] is bucket/key.
 			keyParts := strings.SplitN(parts[1], "/", 2)
 			if len(keyParts) == 2 {
-				return keyParts[1]
+				return keyParts[1], keyParts[0]
 			}
 		}
 	}
 
-	return ""
+	return "", ""
+}
+
+func (h *UserHandler) getStorageKeyFromURL(fileURL string) string {
+	key, _ := h.getStorageKeyAndBucketFromURL(fileURL)
+	return key
 }
 
 func (h *UserHandler) getKycStatus(u *user.User) string {

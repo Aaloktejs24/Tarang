@@ -1,4 +1,4 @@
-FROM golang:1.25-alpine3.23 AS builder
+FROM golang:1.26-alpine AS builder
 
 WORKDIR /app
 
@@ -7,7 +7,7 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOMAXPROCS=1 go build -p 1 -o /admission-service services/admission/cmd/server/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o /admission-service ./services/admission/cmd/server/main.go
 
 FROM alpine:latest
 WORKDIR /

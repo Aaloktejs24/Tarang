@@ -31,10 +31,12 @@ const getEnrolledCourses = async (studentId) => {
 };
 
 const enrollCourse = async (courseId, studentId, studentName, studentEmail, profilePic) => {
+  const cleanProfilePic = profilePic ? profilePic.split('?')[0] : '';
   const response = await apiClient.post(`/lms/courses/${courseId}/enroll`, {
     student_id: studentId,
     student_name: studentName,
-    student_email: studentEmail
+    student_email: studentEmail,
+    profile_pic: cleanProfilePic
   });
   return response.data;
 };

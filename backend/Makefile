@@ -10,6 +10,14 @@ AUTH_DB = $(subst @postgres:,@localhost:,$(AUTH_DATABASE_URL))
 USER_PATH = ./services/user/migrations
 AUTH_PATH = ./services/auth/migrations
 
+# --- Service Management Commands ---
+
+start:
+	@./scripts/start_backend.sh
+
+clean-data:
+	@./scripts/clear_data.sh
+
 # --- Migration Commands ---
 
 # 1. Sabhi databases ko migrate up karne ke liye (With extensions)

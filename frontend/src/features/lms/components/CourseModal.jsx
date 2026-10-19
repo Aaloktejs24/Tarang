@@ -1189,10 +1189,11 @@ export default function CourseModal({ open, onClose, onSuccess, initialData, onD
                             width: 'var(--size-full)',
                             aspectRatio: '16/9',
                             borderRadius: 'var(--radius-lg)',
-                            backgroundColor: courseThumbnail ? 'transparent' : 'var(--glass-bg)',
+                            backgroundColor: courseThumbnail ? '#000' : 'var(--glass-bg)',
                             backdropFilter: courseThumbnail ? 'none' : 'blur(30px)',
                             backgroundImage: courseThumbnail ? `url(${courseThumbnail})` : 'none',
-                            backgroundSize: 'cover',
+                            backgroundSize: 'contain',
+                            backgroundRepeat: 'no-repeat',
                             backgroundPosition: 'center',
                             display: 'flex',
                             flexDirection: 'column',
@@ -1202,7 +1203,7 @@ export default function CourseModal({ open, onClose, onSuccess, initialData, onD
                             cursor: courseThumbnail ? 'default' : 'pointer',
                             overflow: 'hidden',
                             position: 'relative',
-                            transition: 'var(--transition-base)',
+                            transition: courseThumbnail ? 'none' : 'border-color 0.2s, background-color 0.2s',
                           }}
                           onClick={() => {
                             if (!courseThumbnail) {
@@ -1219,11 +1220,12 @@ export default function CourseModal({ open, onClose, onSuccess, initialData, onD
                               }}
                               sx={{
                                 position: "absolute", top: 12, right: 12,
-                                bgcolor: "var(--card-bg)", color: "var(--color-primary)",
+                                bgcolor: "var(--glass-bg)", color: "var(--color-primary)",
                                 boxShadow: "var(--shadow-sm)",
-                                backdropFilter: "var(--card-blur)",
+                                backdropFilter: "blur(8px)",
+                                WebkitBackdropFilter: "blur(8px)",
                                 zIndex: 3,
-                                "&:hover": { bgcolor: "var(--color-slate-50)", transform: "scale(1.05)" }
+                                "&:hover": { bgcolor: "var(--glass-bg)", transform: "scale(1.05)" }
                               }}>
                               <EditOutlinedIcon fontSize="small" />
                             </IconButton>

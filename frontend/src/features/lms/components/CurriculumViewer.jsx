@@ -13,6 +13,7 @@ import ScienceOutlinedIcon from '@mui/icons-material/ScienceOutlined';
 import QuizOutlinedIcon from '@mui/icons-material/QuizOutlined';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import InlineContentBuilder from './InlineContentBuilder';
+import ContentModal from './ContentModal';
 import { useAccessibility } from '../../../contexts/AccessibilityContext';
 import { CustomAccordion, CustomAccordionSummary, CustomAccordionDetails } from '../../../components/common/CustomAccordion';
 import EmptyState from '../../../components/ui/EmptyState';
@@ -37,6 +38,8 @@ export default function CurriculumViewer({ modules, isManagement, onAddContent }
   const [expandedNodes, setExpandedNodes] = useState(
     modules && modules.length > 0 ? { [modules[0].id]: true } : {}
   );
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const toggleNode = (nodeId) => {
     setExpandedNodes(prev => ({ ...prev, [nodeId]: !prev[nodeId] }));
@@ -55,20 +58,27 @@ export default function CurriculumViewer({ modules, isManagement, onAddContent }
     return (
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 2 }}>
         {items.map((item, idx) => (
-          <Box key={idx} sx={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            px: { xs: 1.5, sm: 2.25 },
-            height: '64px',
-            borderRadius: 'var(--radius-lg)',
-            border: 'var(--border-thin) solid var(--card-border)',
-            bgcolor: 'var(--card-bg)',
-            backdropFilter: 'var(--card-blur)',
-            transition: 'transform 0.2s ease-in-out',
-            cursor: 'pointer',
-            '&:hover': { 
-              transform: 'translateY(-2px)'
-            }
-          }}>
+          <Box 
+            key={idx} 
+            onClick={() => {
+              setSelectedItem(item);
+              setIsModalOpen(true);
+            }}
+            sx={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              px: { xs: 1.5, sm: 2.25 },
+              height: '64px',
+              borderRadius: 'var(--radius-lg)',
+              border: 'var(--border-thin) solid var(--card-border)',
+              bgcolor: 'var(--card-bg)',
+              backdropFilter: 'var(--card-blur)',
+              transition: 'transform 0.2s ease-in-out',
+              cursor: 'pointer',
+              '&:hover': { 
+                transform: 'translateY(-2px)'
+              }
+            }}
+          >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <Box sx={{
                 width: 36, height: 36, borderRadius: '50%', display: 'flex',
@@ -99,12 +109,24 @@ export default function CurriculumViewer({ modules, isManagement, onAddContent }
   const renderNode = (node, depth = 0) => {
     const isExpanded = !!expandedNodes[node.id];
     const isModuleLevel = depth === 0;
+    
+    const hasItems = node.items && node.items.length > 0;
+    const hasChildren = node.children && node.children.length > 0;
+    // For viewers, if a node has content and no children, make it directly playable instead of expandable
+    const isDirectlyPlayable = !isManagement && hasItems && !hasChildren;
 
     return (
       <Box key={node.id} sx={{ position: 'relative', mb: depth === 0 ? 1.5 : 0 }}>
         <CustomAccordion
-          expanded={isExpanded}
-          onChange={() => toggleNode(node.id)}
+          expanded={isDirectlyPlayable ? false : isExpanded}
+          onChange={() => {
+            if (isDirectlyPlayable) {
+              setSelectedItem(node.items[0]);
+              setIsModalOpen(true);
+            } else {
+              toggleNode(node.id);
+            }
+          }}
           sx={{
             margin: '0 !important',
             '&.Mui-expanded': { margin: '0 !important' },
@@ -112,7 +134,7 @@ export default function CurriculumViewer({ modules, isManagement, onAddContent }
           }}
         >
           <CustomAccordionSummary
-            expandIcon={<ExpandMoreIcon sx={{ color: 'var(--color-primary)' }} />}
+            expandIcon={isDirectlyPlayable ? getItemIcon(node.items[0].type) : <ExpandMoreIcon sx={{ color: 'var(--color-primary)' }} />}
             disableRipple
             sx={{
               px: { xs: 1.5, sm: 2.25 },
@@ -207,6 +229,15 @@ export default function CurriculumViewer({ modules, isManagement, onAddContent }
   return (
     <Box>
       {modules.map(module => renderNode(module, 0))}
+      <ContentModal 
+        open={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedItem(null);
+        }}
+        item={selectedItem}
+        language={language}
+      />
     </Box>
   );
 }

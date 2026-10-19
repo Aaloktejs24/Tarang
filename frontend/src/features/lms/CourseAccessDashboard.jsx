@@ -1,8 +1,10 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Container, CircularProgress, IconButton, Paper, Divider, Chip } from '@mui/material';
+import { Box, Typography, Container, CircularProgress, IconButton, Paper, Divider, Chip, Skeleton } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import TarangVideoPlayer from '../../components/viewer/TarangVideoPlayer';
 import { CustomAccordion, CustomAccordionSummary, CustomAccordionDetails } from '../../components/common/CustomAccordion';
+import EmptyMediaState from '../../components/common/EmptyMediaState';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import AudioFileOutlinedIcon from '@mui/icons-material/AudioFileOutlined';
@@ -22,7 +24,9 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { lmsService } from './lmsService';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useAppRouter as useRouter } from '../../hooks/useAppRouter';
+import { apiClient } from '../../lib/apiClient';
 import PremiumCard from '../../components/ui/PremiumCard';
+import TarangButton from '../../components/common/TarangButton';
 import { useBreadcrumbs } from '../../contexts/BreadcrumbContext';
 import Loader from '../../components/common/Loader';
 import ShakaPlayerComponent from '../../components/viewer/ShakaPlayerComponent';
@@ -47,6 +51,7 @@ export default function CourseAccessDashboard({ courseId }) {
   const [loading, setLoading] = useState(true);
   const [course, setCourse] = useState(null);
   const [activeTopic, setActiveTopic] = useState(null);
+  const [signedUrl, setSignedUrl] = useState('');
   const [expandedNodes, setExpandedNodes] = useState({});
 
   const toggleNode = (nodeId) => {
@@ -59,31 +64,193 @@ export default function CourseAccessDashboard({ courseId }) {
   ]);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchCourse = async () => {
       try {
         const data = await lmsService.getCourse(courseId);
+
+        // Asynchronously hydrate and filter the tree
+        const hydrateTree = async (nodes) => {
+          if (!nodes) return [];
+          const hydrated = [];
+
+          for (const node of nodes) {
+            let items = node.items || [];
+
+            // Legacy conversion
+            if (items.length === 0 && (node.video_url || node.document_url)) {
+              let parsedMeta = null;
+              if (node.video_url && node.video_url.startsWith("JSON:")) {
+                try { parsedMeta = JSON.parse(node.video_url.slice(5)); } catch (e) { }
+              }
+              items = [{
+                id: `${node.id}_media`,
+                title: parsedMeta?.title || node.title,
+                description: parsedMeta?.description || node.description,
+                type: parsedMeta?.type || (node.video_url ? 'video' : 'document'),
+                url: parsedMeta?.url || node.video_url || node.document_url,
+                thumbnail: parsedMeta?.thumbnail
+              }];
+            }
+
+            const validItems = items;
+            let validChildren = [];
+            if (node.children && node.children.length > 0) {
+              validChildren = await hydrateTree(node.children);
+            }
+
+            hydrated.push({
+              ...node,
+              items: validItems,
+              children: validChildren
+            });
+          }
+          return hydrated;
+        };
+
+        if (data?.modules) {
+          data.modules = await hydrateTree(data.modules);
+        }
+
+        if (!isMounted) return;
         setCourse(data);
 
-        // Initialize with course overview state and all modules collapsed
+        // Auto-select previously active topic from URL query params
         if (data?.modules?.length > 0) {
-          setActiveTopic(null);
-          setExpandedNodes({});
+          const urlParams = new URLSearchParams(window.location.search);
+          const savedTopicId = urlParams.get('topic');
+
+          let foundTopic = null;
+          let expandedState = {};
+
+          const findTopic = (nodes, parentIds = []) => {
+            for (const node of nodes) {
+              const currentPath = [...parentIds, node.id];
+              if (node.items) {
+                const item = node.items.find(i => i.id === savedTopicId);
+                if (item) {
+                  foundTopic = item;
+                  currentPath.forEach(id => { expandedState[id] = true; });
+                  return true;
+                }
+              }
+              if (node.children && findTopic(node.children, currentPath)) return true;
+            }
+            return false;
+          };
+
+          if (savedTopicId) {
+            findTopic(data.modules);
+          }
+
+          setActiveTopic(foundTopic);
+          setExpandedNodes(expandedState);
         }
       } catch (error) {
         console.error('Failed to fetch course details:', error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
     if (courseId) fetchCourse();
+    return () => { isMounted = false; };
   }, [courseId]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchSignedUrl = async () => {
+      if (!activeTopic) {
+        setSignedUrl('');
+        return;
+      }
+
+      let rawUrl = '';
+      const isVid = activeTopic.type === 'video' || (!activeTopic.type && activeTopic.video_url);
+      const isDoc = activeTopic.type === 'document' || (!activeTopic.type && activeTopic.document_url);
+
+      if (isVid && activeTopic.video_url) rawUrl = activeTopic.video_url;
+      else if (isDoc && activeTopic.document_url) rawUrl = activeTopic.document_url;
+      else rawUrl = activeTopic.url || activeTopic.video_url || activeTopic.document_url;
+      if (!rawUrl) {
+        setSignedUrl('');
+        return;
+      }
+
+      // Processed media (HLS/DASH streams, processed docs) are in public buckets and should not be signed
+      const isPublicStream = rawUrl.includes('tarang-media-processed') ||
+        rawUrl.includes('tarang-docs-processed') ||
+        rawUrl.includes('.mpd') ||
+        rawUrl.includes('.m3u8');
+
+      if (['link', 'article'].includes(activeTopic.type) || !rawUrl.includes('tarang-') || isPublicStream) {
+        setSignedUrl(rawUrl);
+        return;
+      }
+
+      try {
+        const baseUrl = rawUrl.split('?')[0];
+        const response = await apiClient.get('/s3/get', { params: { url: baseUrl } });
+        if (isMounted && response.data?.signed_url) {
+          setSignedUrl(response.data.signed_url);
+        } else {
+          if (isMounted) setSignedUrl(rawUrl);
+        }
+      } catch (err) {
+        console.error("Error signing URL:", err);
+        if (isMounted) setSignedUrl(rawUrl);
+      }
+    };
+    fetchSignedUrl();
+    return () => { isMounted = false; };
+  }, [activeTopic]);
 
   const handleTopicClick = (topic) => {
     setActiveTopic(topic);
+    if (topic && topic.id) {
+      router.replace(window.location.pathname + `?topic=${topic.id}`, { scroll: false });
+    }
   };
 
   if (loading) {
-    return <Loader />;
+    return (
+      <Box sx={{ minHeight: "calc(100vh - 64px)", pt: { xs: 3, md: 3 }, pb: 6, position: "relative", zIndex: 1 }}>
+        <Container maxWidth={false} sx={{ px: { xs: 2, sm: 4, md: 6, lg: 8, xl: 10 } }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'stretch', gap: 2, height: { xs: 'auto', md: 'calc(100vh - 120px)' }, minHeight: 600 }}>
+
+            {/* Left Sidebar Skeleton */}
+            <PremiumCard sx={{ width: { xs: '100%', md: 320, lg: 360 }, height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0, p: 0 }}>
+              <Box sx={{ p: 2.5, borderBottom: 'var(--border-thin) solid var(--card-border)' }}>
+                <Skeleton variant="text" width="80%" height={32} />
+              </Box>
+              <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <Skeleton key={i} variant="rectangular" width="100%" height={64} sx={{ borderRadius: 'var(--radius-md)' }} />
+                ))}
+              </Box>
+            </PremiumCard>
+
+            {/* Right Content Area Skeleton */}
+            <PremiumCard sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', p: 0, height: '100%', minHeight: 0 }}>
+              {/* Video Player Skeleton (Black Box with White Spinner) */}
+              <Box sx={{ width: '100%', aspectRatio: '16/9', bgcolor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CircularProgress sx={{ color: '#ffffff' }} size={48} thickness={4} />
+              </Box>
+
+              {/* Title & Description Skeleton */}
+              <Box sx={{ p: { xs: 2.5, md: 3 } }}>
+                <Skeleton variant="text" width="50%" height={48} sx={{ mb: 1, borderRadius: 2 }} />
+                <Box sx={{ mt: 2 }}>
+                  <Skeleton variant="text" width="90%" height={20} />
+                  <Skeleton variant="text" width="85%" height={20} />
+                  <Skeleton variant="text" width="60%" height={20} />
+                </Box>
+              </Box>
+            </PremiumCard>
+
+          </Box>
+        </Container>
+      </Box>
+    );
   }
 
   if (!course) {
@@ -97,68 +264,31 @@ export default function CourseAccessDashboard({ courseId }) {
   }
 
   const renderItems = (items) => {
-    if (!items || items.length === 0) return null;
-    return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 2 }}>
-        {items.map((item, idx) => {
-          const isActive = activeTopic?.id === item.id;
-          return (
-            <Box key={idx}
-              onClick={() => handleTopicClick(item)}
-              sx={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                px: { xs: 1.5, sm: 2.25 },
-                height: '64px',
-                borderRadius: 'var(--radius-lg)',
-                border: 'var(--border-thin) solid',
-                borderColor: isActive ? 'var(--color-primary)' : 'var(--card-border)',
-                bgcolor: 'var(--card-bg)',
-                backdropFilter: 'var(--card-blur)',
-                transition: 'transform 0.2s ease-in-out', 
-                cursor: 'pointer',
-                '&:hover': { transform: 'translateY(-2px)' }
-              }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <Box sx={{
-                  width: 36, height: 36, borderRadius: '50%', display: 'flex',
-                  alignItems: 'center', justifyContent: 'center'
-                }}>
-                  {getItemIcon(item.type)}
-                </Box>
-                <Box>
-                  <Typography sx={{ fontWeight: 600, fontSize: '14px', color: isActive ? 'var(--color-primary)' : 'var(--color-slate-900)' }}>
-                    {item.title}
-                  </Typography>
-                  {item.duration && (
-                    <Typography sx={{ fontSize: '12px', color: 'var(--color-slate-500)' }}>
-                      {item.duration}
-                    </Typography>
-                  )}
-                </Box>
-              </Box>
-            </Box>
-          );
-        })}
-      </Box>
-    );
+    // Legacy: no longer used since items are rendered directly as nodes
+    return null;
   };
 
   const renderNode = (node, depth = 0) => {
     const isExpanded = !!expandedNodes[node.id];
+    const hasItems = node.items && node.items.length > 0;
+    const hasChildren = node.children && node.children.length > 0;
 
-    // A node has content to expand if it has items or sub-children
-    const hasContent = (node.items && node.items.length > 0) || (node.children && node.children.length > 0);
-    // Check if node is clickable as a topic itself (legacy structure)
-    const isLegacyLeaf = !node.children?.length && !node.items?.length && (node.video_url || node.document_url);
+    const hasContentToExpand = hasChildren; // We only expand to show children now
+    const isLegacyLeaf = !hasChildren && !hasItems && (node.video_url || node.document_url);
+
+    // Determine if this node is currently active in the viewer
+    let isActive = false;
+    if (activeTopic) {
+      if (hasItems && activeTopic.id === node.items[0].id) isActive = true;
+      else if (activeTopic.id === node.id) isActive = true;
+    }
 
     return (
       <Box key={node.id} sx={{ position: 'relative', mb: depth === 0 ? 1.5 : 0 }}>
         <CustomAccordion
-          expanded={isExpanded && hasContent}
+          expanded={isExpanded && hasContentToExpand}
           onChange={() => {
-            if (hasContent) {
-              toggleNode(node.id);
-            }
+            // Do nothing natively, handled via IconButton
           }}
           sx={{
             margin: '0 !important',
@@ -168,11 +298,9 @@ export default function CourseAccessDashboard({ courseId }) {
         >
           <CustomAccordionSummary
             onClick={() => {
-              if (isLegacyLeaf) {
-                handleTopicClick(node);
-              }
+              if (hasItems) handleTopicClick(node.items[0]);
+              else handleTopicClick(node); // If no items, show overview
             }}
-            expandIcon={hasContent ? <ExpandMoreIcon sx={{ color: 'var(--color-primary)' }} /> : null}
             disableRipple
             sx={{
               px: { xs: 1.5, sm: 2.25 },
@@ -190,33 +318,55 @@ export default function CourseAccessDashboard({ courseId }) {
               }
             }}
           >
-            <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', alignItems: 'flex-start', gap: 0.5 }}>
-              <Box sx={{ width: '100%' }}>
-                <Typography sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)', fontSize: depth === 0 ? 'var(--font-base)' : 'var(--font-sm)', lineHeight: 1.3 }}>
-                  {node.title || (depth === 0 ? 'Untitled Module' : 'Untitled Topic')}
-                </Typography>
+            <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, alignItems: 'flex-start', gap: 0.5 }}>
+                <Box sx={{ width: '100%' }}>
+                  <Typography sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)', fontSize: depth === 0 ? 'var(--font-base)' : 'var(--font-sm)', lineHeight: 1.3 }}>
+                    {hasItems ? (node.items[0].title || node.title) : (node.title || (depth === 0 ? 'Untitled Module' : 'Untitled Topic'))}
+                  </Typography>
+                </Box>
               </Box>
+
+              {hasContentToExpand && (
+                <Box
+                  component="span"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevents the AccordionSummary onClick from triggering
+                    toggleNode(node.id);
+                  }}
+                  sx={{
+                    p: 0.5,
+                    ml: 1,
+                    color: 'var(--color-primary)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '50%',
+                    cursor: 'pointer',
+                    '&:hover': { bgcolor: 'rgba(0, 86, 179, 0.08)' }
+                  }}
+                >
+                  <ExpandMoreIcon sx={{ transform: isExpanded && hasContentToExpand ? 'rotate(180deg)' : 'rotate(0deg)', transition: '0.2s' }} />
+                </Box>
+              )}
             </Box>
           </CustomAccordionSummary>
 
-          <CustomAccordionDetails
-            sx={{
-              pt: 1, pb: 1,
-              pl: { xs: 1.5, sm: 2 },
-              pr: { xs: 1.5, sm: 2 },
-              display: 'flex', flexDirection: 'column', gap: 1,
-              backgroundColor: 'transparent',
-              borderBottomLeftRadius: 'var(--radius-lg)',
-              borderBottomRightRadius: 'var(--radius-lg)'
-            }}
-          >
-            {renderItems(node.items)}
-            {node.children && node.children.length > 0 && (
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                {node.children.map(child => renderNode(child, depth + 1))}
-              </Box>
-            )}
-          </CustomAccordionDetails>
+          {hasContentToExpand && (
+            <CustomAccordionDetails
+              sx={{
+                pt: 0, pb: 1,
+                pl: { xs: 1.5, sm: 2 },
+                pr: { xs: 1.5, sm: 2 },
+                display: 'flex', flexDirection: 'column', gap: 1,
+                backgroundColor: 'transparent',
+                borderBottomLeftRadius: 'var(--radius-lg)',
+                borderBottomRightRadius: 'var(--radius-lg)'
+              }}
+            >
+              {node.children.map(child => renderNode(child, depth + 1))}
+            </CustomAccordionDetails>
+          )}
         </CustomAccordion>
       </Box>
     );
@@ -256,7 +406,10 @@ export default function CourseAccessDashboard({ courseId }) {
             p: 0
           }}>
             <Box
-              onClick={() => setActiveTopic(null)}
+              onClick={() => {
+                setActiveTopic(null);
+                router.replace(window.location.pathname, { scroll: false });
+              }}
               sx={{
                 p: 2.5,
                 bgcolor: !activeTopic ? 'rgba(0, 86, 179, 0.08)' : 'rgba(0, 86, 179, 0.04)',
@@ -280,28 +433,59 @@ export default function CourseAccessDashboard({ courseId }) {
           <PremiumCard sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', p: 0, height: '100%', minHeight: 0 }}>
             {activeTopic ? (
               <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ p: 3, bgcolor: 'rgba(0, 86, 179, 0.04)', borderBottom: 'var(--border-thin) solid var(--card-border)', flexShrink: 0 }}>
-                  <Typography variant="h5" sx={{ fontWeight: 800, color: 'var(--color-slate-900)' }}>
-                    {activeTopic.title}
-                  </Typography>
-                </Box>
+
 
                 <Box sx={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
                   {(() => {
                     const type = activeTopic.type;
-                    const url = activeTopic.url || activeTopic.video_url || activeTopic.document_url;
+                    const url = signedUrl;
 
-                    const isVideo = type === 'video' || (!type && activeTopic.video_url);
-                    const isDocument = type === 'document' || (!type && activeTopic.document_url);
                     const isAudio = type === 'audio';
+                    const hasMedia = activeTopic.url || activeTopic.video_url || activeTopic.document_url;
+
+                    const isImage = type === 'image' || (hasMedia && url && (url.toLowerCase().includes('.png') || url.toLowerCase().includes('.jpg') || url.toLowerCase().includes('.jpeg') || url.toLowerCase().includes('.gif') || url.toLowerCase().includes('.webp')));
+                    const isVideo = (type === 'video' || (!type && activeTopic.video_url)) && !isImage;
+                    const isDocument = (type === 'document' || (!type && activeTopic.document_url)) && !isImage;
                     const isLinkBased = ['link', 'article', 'quiz', 'lab', 'assignment'].includes(type);
+
+                    if (hasMedia && !url) {
+                      return (
+                        <Box sx={{ width: '100%', aspectRatio: '16/9', bgcolor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <CircularProgress sx={{ color: '#ffffff' }} size={48} thickness={4} />
+                        </Box>
+                      );
+                    }
+
+                    if (isImage && url) {
+                      return (
+                        <Box sx={{ width: '100%', height: '70vh', bgcolor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <img
+                            src={url}
+                            alt={activeTopic.title}
+                            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                          />
+                        </Box>
+                      );
+                    }
 
                     if (isVideo && url) {
                       return (
-                        <Box sx={{ width: '100%', aspectRatio: '16/9', bgcolor: '#000', flexShrink: 0 }}>
-                          <ShakaPlayerComponent 
-                            manifestUrl={url} 
-                            jobId={activeTopic.video_job_id} 
+                        <Box sx={{
+                          width: '100%',
+                          aspectRatio: '16/9',
+                          position: 'relative',
+                          borderRadius: 0,
+                          overflow: 'hidden',
+                          flexShrink: 0
+                        }}>
+                          <TarangVideoPlayer
+                            url={url}
+                            jobId={
+                              activeTopic.video_job_id ||
+                              activeTopic.url?.match(/tarang-media-processed\/([^/]+)\//)?.[1] ||
+                              (activeTopic.url?.includes('/streaming/') ? activeTopic.url.split('/streaming/')[1]?.split('/')[0] : '')
+                            }
+                            poster={activeTopic.thumbnail}
                           />
                         </Box>
                       );
@@ -348,21 +532,21 @@ export default function CourseAccessDashboard({ courseId }) {
                     }
 
                     return (
-                      <Box sx={{ p: 6, textAlign: 'center', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Typography variant="h6" sx={{ color: 'var(--color-slate-500)' }}>
-                          {language === 'en' ? 'No media content uploaded for this topic.' : 'इस विषय के लिए कोई मीडिया सामग्री अपलोड नहीं की गई है।'}
-                        </Typography>
-                      </Box>
+                      <EmptyMediaState
+                        message={language === 'en' ? 'No content uploaded for this topic.' : 'इस विषय के लिए कोई सामग्री अपलोड नहीं की गई है।'}
+                        maxWidth={540}
+                      />
                     );
                   })()}
 
-                  {activeTopic.description && (
-                    <Box sx={{ p: 4, borderTop: 'var(--border-thin) solid var(--card-border)', flexShrink: 0 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: 'var(--color-slate-800)', mb: 1 }}>
-                        {language === 'en' ? 'Description' : 'विवरण'}
+                  {(activeTopic.url || activeTopic.video_url || activeTopic.document_url) && (
+                    <Box sx={{ p: { xs: 2.5, md: 3 }, flexShrink: 0 }}>
+                      <Typography variant="h5" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', mb: 1, fontSize: { xs: '20px', md: '24px' } }}>
+                        {activeTopic.title}
                       </Typography>
-                      <Typography variant="body2" sx={{ color: 'var(--color-slate-600)', whiteSpace: 'pre-wrap' }}>
-                        {activeTopic.description}
+
+                      <Typography sx={{ color: 'var(--color-slate-700)', fontSize: '14.5px', whiteSpace: 'pre-wrap', lineHeight: 1.6, mt: 1 }}>
+                        {activeTopic.description || (language === 'en' ? 'No description available.' : 'कोई विवरण उपलब्ध नहीं है।')}
                       </Typography>
                     </Box>
                   )}

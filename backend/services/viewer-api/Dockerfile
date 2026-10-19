@@ -1,11 +1,11 @@
-FROM golang:1.25-alpine3.23 AS builder
+FROM golang:1.26-alpine AS builder
 
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN go build -o viewer-api ./services/viewer-api/cmd/server
+RUN CGO_ENABLED=0 GOOS=linux go build -o viewer-api ./services/viewer-api/cmd/server
 
 FROM alpine:latest
 WORKDIR /root/

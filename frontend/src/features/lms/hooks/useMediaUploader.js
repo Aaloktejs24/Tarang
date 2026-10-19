@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { lmsService } from '../lmsService';
 import axios from 'axios';
 
@@ -10,37 +10,69 @@ export function useMediaUploader() {
   const [resultData, setResultData] = useState(null);
 
   const pollIntervalRef = useRef(null);
+  const isPollingRef = useRef(false);
+
+  useEffect(() => {
+    return () => {
+      isPollingRef.current = false;
+      if (pollIntervalRef.current) {
+        clearTimeout(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+    };
+  }, []);
 
   const startPolling = (pollingJobId, type) => {
+    if (pollIntervalRef.current) {
+      clearTimeout(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+
     setStatus('PROCESSING');
-    pollIntervalRef.current = setInterval(async () => {
+    isPollingRef.current = true;
+
+    const poll = async () => {
+      if (!isPollingRef.current) return;
       try {
         const jobData = await lmsService.pollJobStatus(pollingJobId, type);
         if (jobData.status === 'COMPLETED') {
-          clearInterval(pollIntervalRef.current);
+          isPollingRef.current = false;
           setStatus('COMPLETED');
           
-          // For video, it returns dash_manifest_url. For documents, maybe viewer_url.
-          // Let's attach the entire job record to the result.
           setResultData({
             jobId: jobData.id,
             manifestUrl: jobData.dash_manifest_url,
             viewerUrl: jobData.viewer_url || jobData.url,
             status: 'COMPLETED'
           });
+          return;
         } else if (jobData.status === 'FAILED') {
-          clearInterval(pollIntervalRef.current);
+          isPollingRef.current = false;
           setStatus('ERROR');
           setError(jobData.error_message || 'Backend processing failed.');
+          return;
         }
       } catch (err) {
         console.error("Polling error:", err);
       }
-    }, 3000);
+      
+      // Schedule next poll only after the current one completes
+      if (isPollingRef.current) {
+        pollIntervalRef.current = setTimeout(poll, 3000);
+      }
+    };
+
+    pollIntervalRef.current = setTimeout(poll, 3000);
   };
 
   const uploadFile = async (file, type) => {
     try {
+      isPollingRef.current = false;
+      if (pollIntervalRef.current) {
+        clearTimeout(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+
       setStatus('REQUESTING_INTENT');
       setProgress(0);
       setError(null);
@@ -113,8 +145,10 @@ export function useMediaUploader() {
     setError(null);
     setJobId(null);
     setResultData(null);
+    isPollingRef.current = false;
     if (pollIntervalRef.current) {
-      clearInterval(pollIntervalRef.current);
+      clearTimeout(pollIntervalRef.current);
+      pollIntervalRef.current = null;
     }
   };
 

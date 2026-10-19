@@ -53,10 +53,9 @@ func (h *StreamingHandler) HandleUploadIntent(w http.ResponseWriter, r *http.Req
 	jobID := uuid.New()
 	minioKey := fmt.Sprintf("%s/%s", jobID.String(), req.OriginalFilename)
 
-	// Create Multipart Upload
 	uploadID, err := h.minio.CreateMultipartUpload(r.Context(), "tarang-media-raw", minioKey)
 	if err != nil {
-		http.Error(w, "Failed to create multipart upload", http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Failed to create multipart upload: %v", err), http.StatusInternalServerError)
 		return
 	}
 
@@ -83,7 +82,7 @@ func (h *StreamingHandler) HandleUploadIntent(w http.ResponseWriter, r *http.Req
 	}
 
 	if err := h.repo.CreateJob(r.Context(), job); err != nil {
-		http.Error(w, "Failed to create job in database", http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Failed to create job in database: %v", err), http.StatusInternalServerError)
 		return
 	}
 
@@ -210,6 +209,7 @@ func (h *StreamingHandler) HandleUploadComplete(w http.ResponseWriter, r *http.R
 	// Trigger RabbitMQ processing
 	payload := map[string]interface{}{
 		"job_id": jobID,
+		"raw_minio_key": job.RawMinioKey,
 	}
 	body, _ := json.Marshal(payload)
 
@@ -223,7 +223,7 @@ func (h *StreamingHandler) HandleUploadComplete(w http.ResponseWriter, r *http.R
 
 	err = ch.PublishWithContext(r.Context(),
 		"",               // exchange
-		"transcode_jobs", // routing key
+		"video.transcode.queue", // routing key matches worker
 		false,            // mandatory
 		false,            // immediate
 		amqp.Publishing{

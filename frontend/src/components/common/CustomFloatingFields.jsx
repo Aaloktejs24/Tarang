@@ -993,17 +993,21 @@ export const CustomFloatingMinIOUpload = React.forwardRef(({ onUploadStart, onUp
         position: 'relative',
         width: '100%',
         aspectRatio: '16/9',
-        border: `2px dashed ${props.error ? 'var(--color-error)' : 'rgba(30, 79, 163, 0.3)'}`,
+        border: props.error ? '2px solid var(--color-error)' : (savedValue ? 'none' : '2px dashed rgba(30, 79, 163, 0.3)'),
         borderRadius: 'var(--radius-lg)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        bgcolor: props.savedValue ? 'transparent' : 'var(--glass-bg)',
-        backdropFilter: props.savedValue ? 'none' : 'blur(30px)',
+        bgcolor: savedValue ? 'transparent' : 'var(--glass-bg)',
+        backdropFilter: savedValue ? 'none' : 'blur(30px)',
         cursor: (props.disabled || uploading) ? 'default' : 'pointer',
         overflow: 'hidden',
-        transition: 'var(--transition-base)',
+        transition: savedValue ? 'none' : 'border-color 0.2s, background-color 0.2s',
+        '&:hover': {
+          borderColor: (!props.disabled && !uploading && !savedValue) ? 'var(--color-primary)' : undefined,
+          bgcolor: (!props.disabled && !uploading && !savedValue) ? 'rgba(30, 79, 163, 0.02)' : undefined,
+        }
       }}
         onClick={() => {
           if (!props.disabled && !uploading && ref?.current) {
@@ -1020,11 +1024,11 @@ export const CustomFloatingMinIOUpload = React.forwardRef(({ onUploadStart, onUp
         ) : savedValue ? (
           <>
             {type === 'video' ? (
-              <Box 
+              <Box
                 component="video"
-                src={savedValue} 
-                controls 
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                src={savedValue}
+                controls
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                 onClick={(e) => e.stopPropagation()}
                 sx={{
                   '&::-webkit-media-controls-enclosure': {
@@ -1047,7 +1051,7 @@ export const CustomFloatingMinIOUpload = React.forwardRef(({ onUploadStart, onUp
               <Box
                 component="img"
                 src={savedValue}
-                sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                sx={{ width: '100%', height: '100%', objectFit: 'contain' }}
               />
             ) : (
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -1057,7 +1061,7 @@ export const CustomFloatingMinIOUpload = React.forwardRef(({ onUploadStart, onUp
                 </Typography>
               </Box>
             )}
-            
+
             <IconButton
               size="small"
               onClick={(e) => {
@@ -1069,11 +1073,12 @@ export const CustomFloatingMinIOUpload = React.forwardRef(({ onUploadStart, onUp
                 }
               }}
               sx={{
-                position: 'absolute', top: 8, right: 8,
-                bgcolor: 'var(--card-bg)', color: 'var(--color-primary)',
+                position: 'absolute', top: 8, right: 8, zIndex: 45,
+                bgcolor: 'var(--glass-bg)', color: 'var(--color-primary)',
                 boxShadow: 'var(--shadow-sm)',
-                backdropFilter: 'var(--card-blur)',
-                '&:hover': { bgcolor: 'var(--color-slate-50)', transform: 'scale(1.05)' }
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                '&:hover': { bgcolor: 'var(--glass-bg)', transform: 'scale(1.05)' }
               }}
             >
               <EditOutlinedIcon fontSize="small" />
