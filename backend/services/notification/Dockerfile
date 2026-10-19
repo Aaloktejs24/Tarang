@@ -10,7 +10,7 @@ RUN go mod download
 COPY . .
 
 # Build the worker
-RUN go build -o notification-worker ./services/notification/cmd/worker/main.go
+RUN go build -p 1 -o notification-worker ./services/notification/cmd/worker/main.go
 
 # Final stage
 FROM alpine:latest

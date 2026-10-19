@@ -1,20 +1,28 @@
+let _accessToken = null;
+let _tempToken = null;
+
 export const getToken = () => {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem("token");
-  }
-  return null;
+  return _accessToken;
 };
 
 export const setToken = (token) => {
-  if (typeof window !== "undefined") {
-    localStorage.setItem("token", token);
-  }
+  _accessToken = token;
 };
 
 export const removeToken = () => {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem("token");
-  }
+  _accessToken = null;
+};
+
+export const getTempToken = () => {
+  return _tempToken;
+};
+
+export const setTempToken = (token) => {
+  _tempToken = token;
+};
+
+export const removeTempToken = () => {
+  _tempToken = null;
 };
 
 export const getAuthFlowInProgress = () => {

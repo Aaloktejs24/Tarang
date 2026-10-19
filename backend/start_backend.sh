@@ -4,7 +4,8 @@
 set -e
 
 echo "🚀 Starting Backend Services with Docker..."
-/usr/local/bin/docker-compose build --no-cache
+/usr/local/bin/docker-compose down --remove-orphans
+/usr/local/bin/docker-compose build
 /usr/local/bin/docker-compose up -d --force-recreate
 
 echo "⏳ Waiting for Postgres to be ready..."

@@ -1,7 +1,7 @@
 /* eslint-disable */
 "use client";
 import React from "react";
-import { Box, Typography, Grid, Card, CardContent, Avatar, Button, Container, alpha, Breadcrumbs, Link } from "@mui/material";
+import { Box, Typography, Grid, Card, CardContent, Avatar, Button, Container, alpha, Breadcrumbs, Link, Skeleton, CircularProgress } from "@mui/material";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import CampaignOutlinedIcon from "@mui/icons-material/CampaignOutlined";
 import LocalLibraryOutlinedIcon from "@mui/icons-material/LocalLibraryOutlined";
@@ -10,6 +10,10 @@ import RestaurantOutlinedIcon from "@mui/icons-material/RestaurantOutlined";
 import WorkOutlineOutlinedIcon from "@mui/icons-material/WorkOutlineOutlined";
 import ContactSupportOutlinedIcon from "@mui/icons-material/ContactSupportOutlined";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import ExploreIcon from '@mui/icons-material/Explore';
+import EmptyState from '../../components/ui/EmptyState';
 import HubIcon from '@mui/icons-material/Hub';
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
 import PaymentOutlinedIcon from '@mui/icons-material/PaymentOutlined';
@@ -26,19 +30,10 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useProfile } from "../../hooks/useProfile";
 import { useAccessibility } from "../../contexts/AccessibilityContext";
 import { useTranslation } from "../../hooks/useTranslation";
-
-const TEXTS = {
-  iitKanpur: "IIT Kanpur",
-  iitKanpurHindi: "भारतीय प्रौद्योगिकी संस्थान कानपुर",
-  iitKanpurEnglishFull: "Indian Institute of Technology Kanpur",
-  welcomeEnglish: "Empowering students with seamless access to campus resources, administration, and support services.",
-  enterPortal: "Enter Portal",
-  portalName: "Tarang Integrated Portal",
-  portalDesc: "सभी शैक्षणिक संसाधन अब एक डिजिटल हब में।",
-  resources: "RESOURCES",
-  students: "STUDENTS",
-  support: "SUPPORT"
-};
+import UniversalHero from '../../components/hero/UniversalHero';
+import { capitalizeFirstLetter, getAcronym, formatBreadcrumbName } from "../../utils/stringUtils";
+import { getHeroPropsFromProfile } from '../../utils/heroUtils';
+import { useBreadcrumbs } from "../../contexts/BreadcrumbContext";
 
 const instituteModules = [
   {
@@ -135,18 +130,17 @@ const managementSubModules = {
 };
 
 export default function InstitutePage() {
-  const { profile } = useProfile();
+  const { profile, loading: profileLoading } = useProfile();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const { language } = useAccessibility();
   const { t } = useTranslation();
-  
+
   const categoryQuery = searchParams.get('category');
-  
-  const [textOpacity, setTextOpacity] = React.useState(1);
+
   const [activeCategoryState, setActiveCategoryState] = React.useState(categoryQuery || null);
-  const textRef = React.useRef(null);
+  const [navigatingTo, setNavigatingTo] = React.useState(null);
   const cardsRef = React.useRef(null);
 
   React.useEffect(() => {
@@ -167,12 +161,20 @@ export default function InstitutePage() {
   };
 
   const isManagement = profile?.role === 'institute' || profile?.role === 'organisation';
-  const modulesToShow = isManagement 
-    ? (activeCategory ? managementSubModules[activeCategory] : managementModules) 
+  const hasJoinedInstitute = !!profile?.institution_name;
+  const showEmptyState = !profileLoading && !isManagement && !hasJoinedInstitute;
+
+  const modulesToShow = isManagement
+    ? (activeCategory ? managementSubModules[activeCategory] : managementModules)
     : instituteModules;
-  
-  const displayTitle = profile?.institution_name || profile?.full_name || profile?.username || TEXTS.iitKanpur;
-  const displaySubtitle = TEXTS.iitKanpurHindi;
+
+  const displayTitle = showEmptyState
+    ? (profile?.full_name || profile?.username || "Student Portal")
+    : (profile?.full_name || profile?.institution_name || profile?.username || "Institute");
+
+  const displaySubtitle = showEmptyState
+    ? (language === 'en' ? "Welcome to Tarang Portal" : "तरंग पोर्टल में आपका स्वागत है")
+    : "";
 
   const getTranslatedText = (text) => {
     if (!text) return "";
@@ -181,274 +183,212 @@ export default function InstitutePage() {
     return parts[0].trim();
   };
 
-  React.useEffect(() => {
-    let rafId;
-    const trackPosition = () => {
-      if (textRef.current && cardsRef.current) {
-        const textRect = textRef.current.getBoundingClientRect();
-        const cardsRect = cardsRef.current.getBoundingClientRect();
-        
-        // Calculate the physical gap between the bottom of the text and the top of the cards
-        const gap = cardsRect.top - textRect.bottom;
-        
-        // We want it to start fading when the gap is around 60px, 
-        // and be completely invisible (opacity 0) when gap is 0 or less (touching).
-        // If gap is >= 60, opacity is 1. If gap <= 0, opacity is 0.
-        const opacity = Math.max(0, Math.min(1, gap / 60));
-        
-        setTextOpacity(opacity);
+  const rawInstituteName = profile?.full_name || profile?.institution_name || profile?.username || "Institute";
+  const breadcrumbInstituteName = formatBreadcrumbName(rawInstituteName);
+  const baseBreadcrumbs = [
+    { 
+      labelEn: 'Home',
+      labelHi: 'गृह',
+      onClick: activeCategory ? () => router.push('/dashboard/home/institute') : undefined 
+    }
+  ];
+
+  const dynamicBreadcrumbs = isManagement && activeCategory ? (() => {
+    const title = managementModules.find(m => m.id === activeCategory)?.title || "";
+    const parts = title.split(/\s*\/\s*/);
+    return [
+      ...baseBreadcrumbs,
+      {
+        labelEn: parts.length > 1 ? parts[1].trim() : title,
+        labelHi: parts[0]?.trim() || title
       }
-      rafId = requestAnimationFrame(trackPosition);
-    };
-    
-    trackPosition();
-    return () => cancelAnimationFrame(rafId);
-  }, []);
+    ];
+  })() : baseBreadcrumbs;
+
+  useBreadcrumbs(dynamicBreadcrumbs);
 
   return (
-    <Box sx={{ position: "relative", minHeight: "100vh", overflow: "hidden", bgcolor: "transparent", mt: "-1px" }}>
-      {/* ─── FIXED BACKGROUND LAYER ─── */}
-      <Box
-        sx={{
-          position: "fixed",
-          top: 0, left: 0, right: 0, bottom: 0,
-          zIndex: -1,
-          background: `
-            radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.55) 0, transparent 50%), 
-            radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.4) 0, transparent 50%), 
-            radial-gradient(at 80% 90%, rgba(40, 167, 69, 0.3) 0, transparent 50%),
-            radial-gradient(at 20% 80%, rgba(0, 86, 179, 0.3) 0, transparent 50%),
-            #eef2f6
-          `
-        }}
-      >
-        <Box sx={{ position: "absolute", width: "50vw", height: "50vw", top: "-10%", left: "-10%", background: "rgba(16, 185, 129, 0.05)", filter: "blur(120px)", borderRadius: "50%", pointerEvents: "none" }} />
-      </Box>
+    <Box sx={{ position: "relative", minHeight: "calc(100vh - 72px)", overflow: "hidden", bgcolor: "transparent", mt: "-1px" }}>
+      {/* HERO SECTION */}
+      <UniversalHero
+        {...getHeroPropsFromProfile(profile, language)}
+        loading={profileLoading}
+        hideAvatar={showEmptyState}
+        hideContent={showEmptyState}
+        fadeAnchorRef={cardsRef}
+        showSpacer={!showEmptyState}
+      />
 
-      {/* ─── ENHANCED HERO SECTION WITH INSTITUTE PHOTO (FULL WIDTH) ─── */}
-      <Box
-        component={motion.div}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.2 }}
-        sx={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 0,
-          width: "100%",
-          height: { xs: "55vh", md: "75vh" },
-          minHeight: "450px",
+      <Container maxWidth="xl" sx={{
+        position: "relative",
+        zIndex: 1,
+        pb: showEmptyState ? 0 : 10,
+        px: { xs: 2, md: 4 },
+        ...(showEmptyState && {
+          height: "calc(100vh - 72px)",
           display: "flex",
-          alignItems: "flex-end",
-          overflow: "hidden"
-        }}
-      >
-        {/* Background Institute Image */}
-        <Box sx={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage: 'url("https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=2500")',
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          transform: "scale(1.05)",
-          transition: "transform 15s ease-out",
-          "&:hover": { transform: "scale(1.1)" },
-          maskImage: "linear-gradient(to bottom, black 0%, black 20%, rgba(0,0,0,0.3) 60%, transparent 90%)",
-          WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 20%, rgba(0,0,0,0.3) 60%, transparent 90%)"
-        }} />
-
-        {/* Subtle Gradient Overlay for Text Readability */}
-        <Box sx={{
-          position: "absolute",
-          inset: 0,
-          background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0) 100%)",
-          maskImage: "linear-gradient(to bottom, black 0%, black 20%, rgba(0,0,0,0.3) 60%, transparent 90%)",
-          WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 20%, rgba(0,0,0,0.3) 60%, transparent 90%)",
-          pointerEvents: "none"
-        }} />
-
-        <Container maxWidth="xl" sx={{ position: "relative", zIndex: 1, pb: { xs: 6, md: 10 }, px: { xs: 3, md: 5 } }}>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            style={{ maxWidth: "1200px", width: "100%" }}
-          >
-            <motion.div ref={textRef} style={{ opacity: textOpacity, position: 'relative' }}>
-              <Typography
-                variant="h1"
-                sx={{
-                  fontFamily: "'Rozha One', serif",
-                  fontSize: { xs: "2rem", md: "4rem" },
-                  mb: 2,
-                  lineHeight: 1.1,
-                  background: "linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.5) 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  textShadow: "0px 10px 40px rgba(255, 255, 255, 0.25)"
-                }}
-              >
-                <span style={{ display: 'block' }}>{displayTitle}</span>
-                <Box component="span" sx={{ display: 'block', marginTop: '8px', whiteSpace: { md: 'nowrap', xs: 'normal' } }}>
-                  {displaySubtitle}
-                </Box>
-              </Typography>
-
-              <Box sx={{ position: 'absolute', top: '100%', left: 0, width: '100%', mt: 0, zIndex: 10, display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography 
-                  onClick={() => router.push('/dashboard/home')}
-                  sx={{ 
-                    color: activeCategory ? '#64748b' : '#0f172a', 
-                    fontWeight: 700, 
-                    fontSize: "1.2rem", 
-                    cursor: 'pointer', 
-                    '&:hover': { color: activeCategory ? '#0056b3' : '#0f172a' } 
-                  }}
-                >
-                  {language === 'en' ? 'Dashboard' : 'डैशबोर्ड'}
-                </Typography>
-                <Typography sx={{ color: '#334155', fontWeight: 900, fontSize: "1.2rem" }}>/</Typography>
-
-                <AnimatePresence>
-                  {isManagement && activeCategory && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                    >
-                      <Typography 
-                        sx={{ color: '#0f172a', fontWeight: 700, fontSize: "1.2rem", cursor: 'pointer' }} 
-                        onClick={() => setActiveCategory(null)}
-                      >
-                        {getTranslatedText(managementModules.find(m => m.id === activeCategory)?.title)}
-                      </Typography>
-                      <Typography sx={{ color: '#334155', fontWeight: 900, fontSize: "1.2rem" }}>/</Typography>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </Box>
-            </motion.div>
-          </motion.div>
-        </Container>
-      </Box>
-
-        <Box sx={{ 
-          width: "100%", 
-          height: { xs: "55vh", md: "75vh" }, 
-          minHeight: "450px",
-          mb: { xs: -8, md: -16 } 
-        }} />   
-
-      <Container maxWidth="xl" sx={{ position: "relative", zIndex: 1, pb: 10, px: { xs: 2, md: 4 } }}>
-        {/* ─── BREADCRUMB MOVED TO FIXED HERO SECTION ─── */}
-
+          alignItems: "center",
+          justifyContent: "center",
+        })
+      }}>
         {/* ─── MODULE GRID ─── */}
-        <Box 
-          ref={cardsRef}
-          sx={{ 
-            display: 'grid', 
-            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }, 
-            gap: 2.5 
-          }}
-        >
-          <AnimatePresence mode="popLayout">
-            {modulesToShow.map((module, index) => (
-              <motion.div
-                key={module.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.05 }}
-                style={{ height: "100%", width: "100%" }}
-              >
+        {showEmptyState ? (
+          <Box ref={cardsRef}>
+            <EmptyState
+              title={language === 'en' ? "No Institute Joined" : "कोई संस्थान नहीं जुड़ा"}
+              subtitle={language === 'en'
+                ? "You haven't joined any institute yet. Connect with your educational institution to access your dashboard, courses, and resources."
+                : "आप अभी तक किसी भी संस्थान से नहीं जुड़े हैं। अपने डैशबोर्ड, पाठ्यक्रम और संसाधनों तक पहुंचने के लिए अपने शैक्षणिक संस्थान से जुड़ें।"}
+              actionLabel={language === 'en' ? "Explore Institutes" : "संस्थान खोजें"}
+              actionIcon={
+                <ExploreIcon sx={{ fontSize: 20 }} />
+              }
+              onAction={() => router.push('/dashboard/explore')}
+            />
+          </Box>
+        ) : (
+          <Box
+            ref={cardsRef}
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' },
+              gap: 2.5
+            }}
+          >
+            <AnimatePresence mode="popLayout">
+              {profileLoading ? (
+                Array.from(new Array(8)).map((_, index) => (
+                  <motion.div
+                    key={`skeleton-${index}`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.05 }}
+                    style={{ height: "100%", width: "100%" }}
+                  >
+                    <Card
+                      sx={{
+                        height: "100%",
+                        width: "100%",
+                        borderRadius: "16px",
+                        background: "rgba(255, 255, 255, 0.3)",
+                        backdropFilter: "blur(30px)",
+                        WebkitBackdropFilter: "blur(30px)",
+                        border: "1px solid rgba(30, 79, 163, 0.2)",
+                        boxShadow: "none",
+                        display: "flex",
+                        alignItems: "center",
+                        p: 2,
+                      }}
+                    >
+                      <Skeleton variant="circular" width={48} height={48} sx={{ mr: 2, flexShrink: 0 }} />
+                      <Box sx={{ width: '100%' }}>
+                        <Skeleton variant="text" width="60%" height={24} sx={{ mb: 0.5 }} />
+                        <Skeleton variant="text" width="80%" height={16} />
+                      </Box>
+                    </Card>
+                  </motion.div>
+                ))
+              ) : (
+                modulesToShow.map((module, index) => (
+                  <motion.div
+                    key={module.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.05 }}
+                    style={{ height: "100%", width: "100%" }}
+                  >
                   <Card
-                  onClick={() => {
-                    if (isManagement && !activeCategory) {
-                      setActiveCategory(module.id);
-                    } else if (isManagement && activeCategory) {
-                      if (module.id === 'curriculum') {
-                        router.push('/dashboard/home/institute/courses');
-                      } else if (module.id === 'admissions') {
-                        router.push('/dashboard/home/institute/admissions');
+                    onClick={() => {
+                      if (isManagement && !activeCategory) {
+                        setActiveCategory(module.id);
+                      } else if (isManagement && activeCategory) {
+                        if (module.id === 'curriculum') {
+                          setNavigatingTo(module.id);
+                          router.push('/dashboard/home/institute/courses');
+                        } else if (module.id === 'admissions') {
+                          setNavigatingTo(module.id);
+                          router.push('/dashboard/home/institute/admissions');
+                        }
                       }
-                    }
-                  }}
-                  sx={{
-                    height: "100%",
-                    width: "100%",
-                    borderRadius: "16px",
-                    background: "rgba(255, 255, 255, 0.3)",
-                    backdropFilter: "blur(30px)",
-                    WebkitBackdropFilter: "blur(30px)",
-                    border: "1px solid rgba(30, 79, 163, 0.2)",
-                    boxShadow: "none",
-                    transition: "all 0.3s ease",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    p: 2,
-                    "&:hover": { border: "1px solid rgba(30, 79, 163, 0.5)",
-                      background: "rgba(255, 255, 255, 0.45)",
-                      "& .module-icon": {
-                        bgcolor: "transparent",
-                        color: module.color,
-                        transform: "scale(1.1)"
-                      },
-                      "& .arrow-icon": {
-                        transform: "translateX(4px)",
-                        color: module.color
-                      }
-                    }
-                  }}
-                >
-                  {/* Icon */}
-                  <Box
-                    className="module-icon"
+                    }}
                     sx={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: "12px",
-                      bgcolor: "transparent",
-                      color: module.color,
+                      height: "100%",
+                      width: "100%",
+                      borderRadius: "16px",
+                      background: "rgba(255, 255, 255, 0.3)",
+                      backdropFilter: "blur(30px)",
+                      WebkitBackdropFilter: "blur(30px)",
+                      border: "1px solid rgba(30, 79, 163, 0.2)",
+                      boxShadow: "none",
+                      transition: "all 0.3s ease",
+                      cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
-                      justifyContent: "center",
-                      transition: "all 0.3s ease",
-                      flexShrink: 0,
-                      mr: 2
+                      p: 2,
+                      "&:hover": {
+                        transform: 'translateY(-4px)',
+                        "& .module-icon": {
+                          bgcolor: "transparent",
+                          color: module.color,
+                          transform: "scale(1.1)"
+                        },
+                        "& .arrow-icon": {
+                          transform: "translateX(4px)",
+                          color: module.color
+                        }
+                      }
                     }}
                   >
-                    {React.cloneElement(module.icon, { sx: { fontSize: 24 } })}
-                  </Box>
+                    {/* Icon */}
+                    <Box
+                      className="module-icon"
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: "12px",
+                        bgcolor: "transparent",
+                        color: module.color,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        transition: "all 0.3s ease",
+                        flexShrink: 0,
+                        mr: 2
+                      }}
+                    >
+                      {React.cloneElement(module.icon, { sx: { fontSize: 24 } })}
+                    </Box>
 
-                  {/* Text */}
-                  <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                    <Typography variant="subtitle1" noWrap sx={{ fontWeight: 800, color: "#0f172a", lineHeight: 1.5, mb: 0.5, fontSize: "0.95rem", py: 0.5 }}>
-                      {getTranslatedText(module.title)}
-                    </Typography>
-                    <Typography variant="caption" noWrap sx={{ color: "#475569", fontWeight: 500, display: "block" }}>
-                      {getTranslatedText(module.subTitle)}
-                    </Typography>
-                  </Box>
+                    {/* Text */}
+                    <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                      <Typography variant="subtitle1" noWrap sx={{ fontWeight: 800, color: "#0f172a", lineHeight: 1.5, mb: 0.5, fontSize: "0.95rem", py: 0.5 }}>
+                        {getTranslatedText(module.title)}
+                      </Typography>
+                      <Typography variant="caption" noWrap sx={{ color: "#475569", fontWeight: 500, display: "block" }}>
+                        {getTranslatedText(module.subTitle)}
+                      </Typography>
+                    </Box>
 
-                  {/* Arrow */}
-                  <ArrowForwardIosIcon 
-                    className="arrow-icon"
-                    sx={{ 
-                      fontSize: 14, 
-                      color: "#cbd5e1", 
-                      transition: "all 0.3s ease",
-                      ml: 1
-                    }} 
-                  />
-                </Card>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </Box>
+                    {/* Arrow or Loader */}
+                    {navigatingTo === module.id ? (
+                      <CircularProgress size={16} sx={{ color: module.color, ml: 1 }} />
+                    ) : (
+                      <ArrowForwardIosIcon
+                        className="arrow-icon"
+                        sx={{
+                          fontSize: 14,
+                          color: "#cbd5e1",
+                          transition: "all 0.3s ease",
+                          ml: 1
+                        }}
+                      />
+                    )}
+                  </Card>
+                </motion.div>
+              )))}
+            </AnimatePresence>
+          </Box>
+        )}
 
 
       </Container>

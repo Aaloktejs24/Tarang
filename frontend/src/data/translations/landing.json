@@ -1,0 +1,1304 @@
+{
+  "navbar": {
+    "home": {
+      "en": "Home",
+      "hi": "गृह",
+      "sa": "गृहम्"
+    },
+    "courses": {
+      "en": "Courses",
+      "hi": "पाठ्यक्रम",
+      "sa": "पाठ्यक्रमाः"
+    },
+    "institutes": {
+      "en": "Institutes",
+      "hi": "संस्थान",
+      "sa": "संस्थानानि"
+    },
+    "events": {
+      "en": "Events",
+      "hi": "कार्यक्रम",
+      "sa": "कार्यक्रमाः"
+    },
+    "contact": {
+      "en": "Contact",
+      "hi": "संपर्क",
+      "sa": "सम्पर्कम्"
+    },
+    "start": {
+      "en": "Get Started",
+      "hi": "आरंभ करें",
+      "sa": "प्रारभ्यताम्"
+    },
+    "blogs": {
+      "en": "Blogs",
+      "hi": "ब्लॉग",
+      "sa": "जालवृत्तान्ताः"
+    }
+  },
+  "hero": {
+    "slide1": {
+      "title": {
+        "en": "India's Premier",
+        "hi": "भारत का प्रमुख",
+        "sa": "भारतस्य प्रधानमन्त्री"
+      },
+      "subtitle": {
+        "en": "Educational Network",
+        "hi": "शैक्षिक नेटवर्क",
+        "sa": "शैक्षिक संजाल"
+      },
+      "desc": {
+        "en": "Tarang — A revolutionary social platform built for learners and educators. Connect, collaborate, and elevate your academic journey.",
+        "hi": "तरंग — शिक्षार्थियों और शिक्षकों के लिए बनाया गया एक क्रांतिकारी सामाजिक मंच। जुड़ें, सहयोग करें और अपनी शैक्षणिक यात्रा को बेहतर बनाएं।",
+        "sa": "तरङ्ग — शिक्षिकाणां शिक्षाविदां च कृते निर्मितं क्रान्तिकारी सामाजिकमञ्चम् । स्वस्य शैक्षणिकयात्रायाः सम्पर्कं कुर्वन्तु, सहकार्यं कुर्वन्तु, उन्नतिं कुर्वन्तु च।"
+      }
+    },
+    "slide2": {
+      "title": {
+        "en": "Exceptional Education",
+        "hi": "उत्कृष्ट शिक्षा",
+        "sa": "अपवादात्मक शिक्षा"
+      },
+      "subtitle": {
+        "en": "Exceptional Value",
+        "hi": "उत्कृष्ट मूल्य",
+        "sa": "अपवादात्मकं मूल्यम्"
+      },
+      "desc": {
+        "en": "The first thing to remember about success is that it is a process. Connect with peers, share resources, and grow together.",
+        "hi": "सफलता के बारे में याद रखने वाली पहली बात यह है कि यह एक प्रक्रिया है। साथियों के साथ जुड़ें, संसाधन साझा करें और एक साथ बढ़ें।",
+        "sa": "सफलतायाः विषये प्रथमं स्मर्तव्यं यत् एषा प्रक्रिया अस्ति। सहपाठिभिः सह सम्पर्कं कुर्वन्तु, संसाधनं साझां कुर्वन्तु, एकत्र वर्धयन्तु च।"
+      }
+    },
+    "slide3": {
+      "title": {
+        "en": "The Education You Want",
+        "hi": "आपकी मनचाही शिक्षा",
+        "sa": "यत् शिक्षा भवन्तः इच्छन्ति"
+      },
+      "subtitle": {
+        "en": "The Attention You Deserve",
+        "hi": "वह ध्यान जिसके आप हकदार हैं",
+        "sa": "यत् ध्यानं भवन्तः अर्हन्ति"
+      },
+      "desc": {
+        "en": "Discover comprehensive learning materials, expert guidance, and a community dedicated to excellence.",
+        "hi": "व्यापक शिक्षण सामग्री, विशेषज्ञ मार्गदर्शन और उत्कृष्टता के लिए समर्पित समुदाय की खोज करें।",
+        "sa": "व्यापकशिक्षणसामग्री, विशेषज्ञमार्गदर्शनं, उत्कृष्टतायै समर्पितं समुदायं च अन्वेषयन्तु।"
+      }
+    }
+  },
+  "features": {
+    "item1": {
+      "title": {
+        "en": "Academic Community",
+        "hi": "शैक्षणिक समुदाय",
+        "sa": "शैक्षणिक समुदाय"
+      },
+      "subtitle": {
+        "en": "Academic Community",
+        "hi": "शैक्षणिक समुदाय",
+        "sa": "शैक्षणिक समुदाय"
+      },
+      "desc": {
+        "en": "10,000+ students and teachers connected on a single platform — to share knowledge and find inspiration.",
+        "hi": "10,000+ छात्र और शिक्षक एक ही मंच पर जुड़े हैं — ज्ञान बांटने के लिए, प्रेरणा पाने के लिए।",
+        "sa": "१०,०००+ छात्राः शिक्षकाः च एकस्मिन् मञ्चे सम्बद्धाः — ज्ञानं साझां कर्तुं प्रेरणाम् अन्वेष्टुं च।"
+      },
+      "badge": {
+        "en": "10K+ Members",
+        "hi": "10K+ सदस्य",
+        "sa": "10K+ सदस्य"
+      }
+    },
+    "item2": {
+      "title": {
+        "en": "Digital Knowledge Hub",
+        "hi": "डिजिटल ज्ञान कोष",
+        "sa": "डिजिटल ज्ञान केन्द्र"
+      },
+      "subtitle": {
+        "en": "Digital Knowledge Hub",
+        "hi": "डिजिटल नॉलेज हब",
+        "sa": "डिजिटल ज्ञान केन्द्र"
+      },
+      "desc": {
+        "en": "A vast collection of articles, videos, notes, and research papers — curated, secure, and accessible anytime.",
+        "hi": "लेख, वीडियो, नोट्स और शोध पत्रों का विशाल संग्रह — क्यूरेटेड और सुरक्षित, कभी भी सुलभ।",
+        "sa": "लेखानाम्, भिडियानां, टिप्पणीनां, शोधपत्राणां च विशालः संग्रहः — क्यूरेट्, सुरक्षितः, कदापि सुलभः च ।"
+      },
+      "badge": {
+        "en": "50K+ Resources",
+        "hi": "50K+ संसाधन",
+        "sa": "50K+ संसाधनम्"
+      }
+    },
+    "item3": {
+      "title": {
+        "en": "Global Recognition",
+        "hi": "वैश्विक पहचान",
+        "sa": "वैश्विक मान्यता"
+      },
+      "subtitle": {
+        "en": "Global Recognition",
+        "hi": "वैश्विक मान्यता",
+        "sa": "वैश्विक मान्यता"
+      },
+      "desc": {
+        "en": "Participate in national and international competitions — showcase your talent to the world.",
+        "hi": "राष्ट्रीय और अंतर्राष्ट्रीय प्रतियोगिताओं में भाग लें — अपनी प्रतिभा को दुनिया के सामने रखें।",
+        "sa": "राष्ट्रीय-अन्तर्राष्ट्रीय-प्रतियोगितासु भागं गृह्णन्तु — स्वप्रतिभां विश्वे प्रदर्शयन्तु |"
+      },
+      "badge": {
+        "en": "500+ Contests",
+        "hi": "500+ प्रतियोगिताएं",
+        "sa": "५००+ प्रतियोगिताएँ"
+      }
+    },
+    "item4": {
+      "title": {
+        "en": "Smart Progress Tracking",
+        "hi": "स्मार्ट प्रगति",
+        "sa": "स्मार्ट प्रगतिनिरीक्षणम्"
+      },
+      "subtitle": {
+        "en": "Smart Progress Tracking",
+        "hi": "स्मार्ट प्रगति ट्रैकिंग",
+        "sa": "स्मार्ट प्रगतिनिरीक्षणम्"
+      },
+      "desc": {
+        "en": "AI-powered rating system, progress reports, and personalized suggestions — learning is now even easier.",
+        "hi": "AI-powered रेटिंग सिस्टम, प्रगति रिपोर्ट और व्यक्तिगत सुझाव — सीखना अब और भी आसान।",
+        "sa": "एआइ-सञ्चालितं रेटिंग्-प्रणाली, प्रगति-रिपोर्ट्, व्यक्तिगत-सुझावः च — अधुना शिक्षणम् अपि सुकरम् अस्ति ।"
+      },
+      "badge": {
+        "en": "AI Powered",
+        "hi": "एआई संचालित",
+        "sa": "ए आई संचालित"
+      }
+    }
+  },
+  "stats": {
+    "item1": {
+      "label": {
+        "en": "Satisfied Students",
+        "hi": "संतुष्ट छात्र",
+        "sa": "सन्तुष्टाः छात्राः"
+      },
+      "sub": {
+        "en": "Active Students",
+        "hi": "सक्रिय छात्र",
+        "sa": "सक्रिय छात्र"
+      }
+    },
+    "item2": {
+      "label": {
+        "en": "Course Completed",
+        "hi": "कोर्स पूरे किए",
+        "sa": "पाठ्यक्रम सम्पन्न"
+      },
+      "sub": {
+        "en": "Course Completed",
+        "hi": "पाठ्यक्रम पूर्ण",
+        "sa": "पाठ्यक्रम सम्पन्न"
+      }
+    },
+    "item3": {
+      "label": {
+        "en": "Expert Advisors",
+        "hi": "विशेषज्ञ सलाहकार",
+        "sa": "विशेषज्ञ सल्लाहकार"
+      },
+      "sub": {
+        "en": "Teachers",
+        "hi": "शिक्षक",
+        "sa": "शिक्षकाः"
+      }
+    },
+    "item4": {
+      "label": {
+        "en": "Award Winning",
+        "hi": "पुरस्कार विजेता",
+        "sa": "पुरस्कार विजेता"
+      },
+      "sub": {
+        "en": "Award Winning",
+        "hi": "पुरस्कार विजेता",
+        "sa": "पुरस्कार विजेता"
+      }
+    }
+  },
+  "testimonials": {
+    "item1": {
+      "name": {
+        "en": "Priya Sharma",
+        "hi": "प्रिया शर्मा",
+        "sa": "प्रिया शर्मा"
+      },
+      "role": {
+        "en": "B.Tech CSE",
+        "hi": "बी.टेक सीएसई",
+        "sa": "बी.टेक सीएसई"
+      },
+      "text": {
+        "en": "Tarang gave a new dimension to my studies. The resources and community here got me AIR 42 in GATE.",
+        "hi": "Tarang ने मेरी पढ़ाई को एक नया आयाम दिया। यहाँ के resources और community ने मुझे GATE में AIR 42 दिलाई।",
+        "sa": "तरङ्गः मम अध्ययनस्य नूतनं आयामं दत्तवान् । अत्रत्याः संसाधनाः समुदायाः च मम कृते GATE इत्यत्र AIR 42 प्राप्तवन्तः।"
+      }
+    },
+    "item2": {
+      "name": {
+        "en": "Rahul Verma",
+        "hi": "राहुल वर्मा",
+        "sa": "राहुल वर्मा"
+      },
+      "role": {
+        "en": "M.Sc Physics, BHU",
+        "hi": "एम.एससी भौतिकी, बी.एच.यू",
+        "sa": "एम.एससी भौतिकी, बी.एच.यू"
+      },
+      "text": {
+        "en": "The study materials and peer discussions on this platform made my research skills excellent.",
+        "hi": "इस platform पर मिले study materials और peer discussions ने मेरी research skills को बेहतरीन बनाया।",
+        "sa": "अस्मिन् मञ्चे अध्ययनसामग्री, सहपाठिनां चर्चा च मम शोधकौशलं उत्तमं कृतवान् ।"
+      }
+    },
+    "item3": {
+      "name": {
+        "en": "Anjali Singh",
+        "hi": "अंजलि सिंह",
+        "sa": "अंजलि सिंह"
+      },
+      "role": {
+        "en": "Class XII, CBSE Topper",
+        "hi": "बारहवीं कक्षा, सीबीएसई टॉपर",
+        "sa": "बारहवीं कक्षा, सीबीएसई टॉपर"
+      },
+      "text": {
+        "en": "Tarang's contribution to my Board exams preparation was unparalleled. Notes, quizzes, and expert guidance — all in one place.",
+        "hi": "Board exams की तैयारी में Tarang का योगदान अतुलनीय रहा। Notes, quizzes, और expert guidance — सब एक जगह।",
+        "sa": "मम बोर्डपरीक्षासज्जतायां तरङ्गस्य योगदानं अप्रतिमम् आसीत्। टिप्पण्यानि, प्रश्नोत्तराणि, विशेषज्ञमार्गदर्शनं च — सर्वं एकस्मिन् स्थाने ।"
+      }
+    }
+  },
+  "sections": {
+    "trustedBy": {
+      "en": "Trusted by over 10,000+ students and educators nationwide",
+      "hi": "देश भर में 10,000+ छात्रों और शिक्षकों द्वारा विश्वसनीय",
+      "sa": "राष्ट्रव्यापिरूपेण 10,000+ तः अधिकैः छात्रैः शिक्षाविदैः च विश्वासः"
+    },
+    "whyTarang": {
+      "en": "Why Tarang?",
+      "hi": "Tarang क्यों?",
+      "sa": "तरङ्गः किमर्थम् ?"
+    },
+    "keyFeatures": {
+      "en": "Key Features that Redefine Learning",
+      "hi": "मुख्य विशेषताएं जो सीखने को फिर से परिभाषित करती हैं",
+      "sa": "मुख्यविशेषताः ये शिक्षणं पुनः परिभाषयन्ति"
+    },
+    "popularCourses": {
+      "en": "Popular Courses",
+      "hi": "लोकप्रिय पाठ्यक्रम",
+      "sa": "लोकप्रिय पाठ्यक्रम"
+    },
+    "exploreCatalog": {
+      "en": "Explore our comprehensive catalog",
+      "hi": "हमारी विस्तृत सूची देखें",
+      "sa": "अस्माकं व्यापकं सूचीपत्रं अन्वेष्टुम्"
+    },
+    "viewAllCourses": {
+      "en": "View All Courses",
+      "hi": "सभी पाठ्यक्रम देखें",
+      "sa": "सर्वाणि पाठ्यक्रमाः पश्यन्तु"
+    },
+    "students": {
+      "en": "Students",
+      "hi": "छात्र",
+      "sa": "छात्राः"
+    },
+    "lessons": {
+      "en": "Lessons",
+      "hi": "पाठ",
+      "sa": "पाठः"
+    },
+    "testimonials": {
+      "en": "Testimonials",
+      "hi": "प्रशंसापत्र",
+      "sa": "प्रशस्तिपत्राणि"
+    },
+    "whatUsersSay": {
+      "en": "What Our Users Say",
+      "hi": "हमारे उपयोगकर्ता क्या कहते हैं",
+      "sa": "अस्माकं उपयोक्तारः किं वदन्ति"
+    },
+    "latestEvents": {
+      "en": "Latest Events",
+      "hi": "नवीनतम कार्यक्रम",
+      "sa": "नवीनतम घटनाएँ"
+    },
+    "upcomingWorkshops": {
+      "en": "Upcoming workshops and competitions",
+      "hi": "आगामी कार्यशालाएं और प्रतियोगिताएं",
+      "sa": "आगामी कार्यशालाः प्रतियोगिताश्च"
+    },
+    "viewAllEvents": {
+      "en": "View All Events",
+      "hi": "सभी कार्यक्रम देखें",
+      "sa": "सर्वाणि घटनानि पश्यन्तु"
+    },
+    "readMore": {
+      "en": "Read More",
+      "hi": "और पढ़ें",
+      "sa": "अधिकं पठन्तु"
+    },
+    "readyToStart": {
+      "en": "Are you ready to start your journey with us?",
+      "hi": "क्या आप हमारे साथ अपनी सीखने की यात्रा शुरू करने के लिए तैयार हैं?",
+      "sa": "किं भवान् अस्माभिः सह स्वयात्राम् आरभ्य कर्तुं सज्जः अस्ति ?"
+    },
+    "joinCommunity": {
+      "en": "Join thousands of students and educators transforming education together.",
+      "hi": "एक साथ शिक्षा को बदलने वाले हजारों छात्रों और शिक्षकों से जुड़ें।",
+      "sa": "शिक्षायाः परिवर्तनं कुर्वन्तः सहस्राणि छात्राः शिक्षाविदः च एकत्र सम्मिलिताः भवन्तु।"
+    },
+    "getStartedNow": {
+      "en": "Get Started Now",
+      "hi": "अभी आरंभ करें",
+      "sa": "अधुना आरभत"
+    },
+    "createInstituteAccount": {
+      "en": "Create Institute Account",
+      "hi": "संस्थान खाता बनाएं",
+      "sa": "संस्थान खाता रचयन्तु"
+    },
+    "contactUs": {
+      "en": "Contact Us",
+      "hi": "संपर्क करें",
+      "sa": "हमसे संपर्क करें"
+    },
+    "joinTarang": {
+      "en": "Join Tarang",
+      "hi": "तरंग से जुड़ें",
+      "sa": "तरङ्ग सह सम्मिलित हो"
+    },
+    "discoverMore": {
+      "en": "Discover More",
+      "hi": "और जानें",
+      "sa": "अधिकं अन्वेष्टुम्"
+    },
+    "fullName": {
+      "en": "Full Name",
+      "hi": "पूरा नाम",
+      "sa": "सम्पूर्ण नाम"
+    },
+    "yourName": {
+      "en": "Your Name",
+      "hi": "अपना नाम दर्ज करें",
+      "sa": "तव नाम"
+    },
+    "yourCourses": {
+      "en": "Your Courses",
+      "hi": "अपना पाठ्यक्रम चुनें",
+      "sa": "भवतः पाठ्यक्रमाः"
+    },
+    "engineering": {
+      "en": "Engineering",
+      "hi": "इंजीनियरिंग",
+      "sa": "अभियांत्रिकी"
+    },
+    "science": {
+      "en": "Science",
+      "hi": "विज्ञान",
+      "sa": "विज्ञानम्‌"
+    },
+    "arts": {
+      "en": "Arts & Humanities",
+      "hi": "कला और मानविकी",
+      "sa": "कला एवं मानविकी"
+    },
+    "searchCourse": {
+      "en": "Search Course",
+      "hi": "पाठ्यक्रम खोजें",
+      "sa": "अन्वेषण पाठ्यक्रम"
+    },
+    "pleaseChoose": {
+      "en": "Please Choose",
+      "hi": "कृपया चुनें",
+      "sa": "कृपया चयनं कुर्वन्तु"
+    },
+    "personalEducationTitle": {
+      "en": "Personal Education,",
+      "hi": "व्यक्तिगत शिक्षा से",
+      "sa": "व्यक्तिगत शिक्षा, ९."
+    },
+    "personalEducationSubtitle": {
+      "en": "Extraordinary Success",
+      "hi": "असाधारण सफलता की ओर ✨",
+      "sa": "असाधारण सफलता"
+    },
+    "commitmentDesc": {
+      "en": "Commitment is something that comes from understanding that everything has its price and then having the willingness to pay that price.",
+      "hi": "समर्पण तब उत्पन्न होता है जब हम यह समझते हैं कि हर चीज़ की एक कीमत होती है और उसे चुकाने की इच्छा रखते हैं।",
+      "sa": "प्रतिबद्धता किमपि यत् सर्वस्य मूल्यं भवति इति अवगत्य ततः तत् मूल्यं दातुं इच्छा भवति ।"
+    },
+    "virtuesDesc": {
+      "en": "The other virtues practice in succession by Franklin were silence, order, resolution, frugality, industry, sincerity, Justice, moderation, cleanliness, tranquility, chastity and humility. For the summary order he followed a little scheme of employing his time each day.",
+      "hi": "फ्रैंकलिन द्वारा क्रमशः अपनाए गए अन्य गुण थे—मौन, अनुशासन, दृढ़ संकल्प, मितव्ययिता, परिश्रम, ईमानदारी, न्याय, संयम, स्वच्छता, शांति, पवित्रता और विनम्रता। अपने जीवन को व्यवस्थित रखने के लिए उन्होंने प्रतिदिन समय के सदुपयोग की एक सरल योजना अपनाई थी।",
+      "sa": "फ्रेंक्लिन् इत्यनेन क्रमेण अभ्यासिताः अन्ये गुणाः मौनम्, क्रमः, संकल्पः, मितव्ययः, उद्योगः, निष्कपटता, न्यायः, संयमः, स्वच्छता, शान्तिः, पतिव्रता, विनयः च आसन् सारांशक्रमाय सः प्रतिदिनं स्वसमयस्य प्रयोगस्य किञ्चित् योजनां अनुसृत्य आसीत् ।"
+    },
+    "successDesc": {
+      "en": "Success isn’t really that difficult. There is a significant portion of the population",
+      "hi": "सफलता वास्तव में उतनी कठिन नहीं है। जनसंख्या का एक बड़ा हिस्सा इसे प्राप्त कर सकता है।",
+      "sa": "सफलता वस्तुतः तावत् कठिना नास्ति । अत्र जनसंख्यायाः महत्त्वपूर्णः भागः अस्ति"
+    },
+    "viewAll": {
+      "en": "View All",
+      "hi": "सभी देखें",
+      "sa": "सर्वाणि पश्यन्तु"
+    },
+    "joinEvent": {
+      "en": "Join Event",
+      "hi": "कार्यक्रम में भाग लें",
+      "sa": "Join Event"
+    },
+    "joinWorkshop": {
+      "en": "Join Event",
+      "hi": "कार्यशाला में भाग लें",
+      "sa": "Join Event"
+    },
+    "educationFor": {
+      "en": "Education for Individual and Social Responsibility",
+      "hi": "व्यक्तित्व निर्माण और सामाजिक उत्तरदायित्व हेतु शिक्षा",
+      "sa": "व्यक्तिगत एवं सामाजिक उत्तरदायित्व हेतु शिक्षा"
+    },
+    "becomeStudent": {
+      "en": "Become A Student",
+      "hi": "विद्यार्थी बनें",
+      "sa": "एकः छात्रः भवतु"
+    },
+    "whyChooseUs": {
+      "en": "Why Choose Us",
+      "hi": "हमें क्यों चुनें",
+      "sa": "अस्मान् किमर्थं चिनोतु"
+    },
+    "successMotivate": {
+      "en": "Let success motivate you. Find a picture of what epitomizes success to you and then pull it out when you are in need of motivation.",
+      "hi": "सफलता को अपनी प्रेरणा बनने दें। उस लक्ष्य की कल्पना करें जो आपके लिए सफलता का प्रतीक है, और जब भी प्रेरणा की आवश्यकता हो, उसे याद करें।",
+      "sa": "सफलता भवन्तं प्रेरयतु। भवतः कृते सफलतायाः प्रतिरूपं किं भवति इति चित्रं अन्विष्य ततः यदा भवतः प्रेरणायाः आवश्यकता भवति तदा तत् बहिः आकर्षयन्तु।"
+    },
+    "newsletterTitle": {
+      "en": "Subscribe to our Newsletter",
+      "hi": "हमारे न्यूज़लेटर की सदस्यता लें",
+      "sa": "अस्माकं समाचारपत्रस्य सदस्यतां गृहाण"
+    },
+    "newsletterDesc": {
+      "en": "Get the latest updates and resources delivered to your inbox.",
+      "hi": "नवीनतम अपडेट और संसाधन सीधे अपने इनबॉक्स में प्राप्त करें।",
+      "sa": "नवीनतमं अद्यतनं संसाधनं च स्वस्य इनबॉक्स मध्ये वितरितं प्राप्नुवन्तु।"
+    },
+    "subscribeBtn": {
+      "en": "Subscribe Now",
+      "hi": "अभी सब्सक्राइब करें",
+      "sa": "अब सब्सक्राइब करें"
+    },
+    "exploreResourcesTitle": {
+      "en": "Explore Free Resources",
+      "hi": "मुफ़्त अध्ययन सामग्री खोजें",
+      "sa": "निःशुल्कसंसाधनानाम् अन्वेषणं कुर्वन्तु"
+    },
+    "exploreResourcesDesc": {
+      "en": "Access thousands of articles, videos, and notes instantly.",
+      "hi": "हजारों लेख, वीडियो और नोट्स तुरंत प्राप्त करें।",
+      "sa": "सहस्राणि लेखाः, भिडियो, टिप्पण्यानि च तत्क्षणमेव प्राप्नुवन्तु।"
+    },
+    "searchTopicPlaceholder": {
+      "en": "Search by subject or topic...",
+      "hi": "विषय या टॉपिक से खोजें...",
+      "sa": "विषयेण वा विषयेण वा अन्वेषणं कुर्वन्तु..."
+    },
+    "searchResourcesBtn": {
+      "en": "Search Resources",
+      "hi": "सामग्री खोजें",
+      "sa": "अन्वेषण संसाधन"
+    },
+    "bookSessionTitle": {
+      "en": "Book a Free Counseling Session",
+      "hi": "निःशुल्क काउंसलिंग सत्र बुक करें",
+      "sa": "निःशुल्कं परामर्शसत्रं बुकं कुर्वन्तु"
+    },
+    "bookSessionDesc": {
+      "en": "Get expert guidance tailored for your educational journey.",
+      "hi": "अपनी शैक्षणिक यात्रा के लिए विशेषज्ञ मार्गदर्शन प्राप्त करें।",
+      "sa": "स्वस्य शैक्षिकयात्रायाः अनुरूपं विशेषज्ञमार्गदर्शनं प्राप्नुवन्तु।"
+    },
+    "bookSessionBtn": {
+      "en": "Book Session",
+      "hi": "सत्र बुक करें",
+      "sa": "पुस्तक सत्र"
+    },
+    "mobileNumber": {
+      "en": "Mobile Number",
+      "hi": "मोबाइल नंबर",
+      "sa": "मोबाईल नम्बर"
+    }
+  },
+  "footer": {
+    "subscribeTitle": {
+      "en": "Subscribe",
+      "hi": "सदस्यता लें",
+      "sa": "सब्सक्राइब करें"
+    },
+    "subscribeDesc": {
+      "en": "Now go push your own limits and succeed!",
+      "hi": "अपनी सीमाओं को चुनौती दें और सफलता की ओर बढ़ें!",
+      "sa": "अधुना गत्वा स्वसीमाः धक्काय सफलाः भवन्तु!"
+    },
+    "emailPlaceholder": {
+      "en": "Enter your email",
+      "hi": "अपना ईमेल दर्ज करें",
+      "sa": "स्वस्य ईमेलं प्रविशतु"
+    },
+    "subscribeBtn": {
+      "en": "Subscribe",
+      "hi": "सब्सक्राइब करें",
+      "sa": "सब्सक्राइब करें"
+    },
+    "aboutDesc": {
+      "en": "The best way is to develop and follow a plan. Start with your goals in mind and then work backward to develop the plan.",
+      "hi": "सबसे अच्छा तरीका है एक योजना बनाना और उसका पालन करना। अपने लक्ष्यों को ध्यान में रखकर शुरुआत करें और उन्हें प्राप्त करने के लिए चरणबद्ध योजना तैयार करें।",
+      "sa": "योजनायाः विकासः अनुसरणं च सर्वोत्तमः उपायः । लक्ष्याणि मनसि कृत्वा आरभ्य ततः योजनायाः विकासाय पश्चात्तापं कुर्वन्तु।"
+    },
+    "followUs": {
+      "en": "Follow Us",
+      "hi": "हमसे जुड़ें",
+      "sa": "अस्मान् अनुसरणं कुर्वन्तु"
+    },
+    "category": {
+      "en": "Category",
+      "hi": "श्रेणियाँ",
+      "sa": "कोटी"
+    },
+    "categories": {
+      "economics": {
+        "en": "Economics",
+        "hi": "अर्थशास्त्र",
+        "sa": "अर्थशास्त्र"
+      },
+      "natural": {
+        "en": "Natural",
+        "hi": "प्राकृतिक विज्ञान",
+        "sa": "प्राकृतिक"
+      },
+      "architecture": {
+        "en": "Architecture",
+        "hi": "वास्तुकला",
+        "sa": "संरचना"
+      },
+      "electrical": {
+        "en": "Electrical",
+        "hi": "विद्युत अभियांत्रिकी",
+        "sa": "विद्युत्"
+      },
+      "biological": {
+        "en": "Biological",
+        "hi": "जैविक विज्ञान",
+        "sa": "जैविक"
+      },
+      "psychology": {
+        "en": "Psychology",
+        "hi": "मनोविज्ञान",
+        "sa": "मनोविज्ञान"
+      }
+    },
+    "usefulLink": {
+      "en": "Useful Link",
+      "hi": "महत्वपूर्ण लिंक",
+      "sa": "उपयोगी लिङ्क"
+    },
+    "links": {
+      "home": {
+        "en": "Home",
+        "hi": "मुखपृष्ठ",
+        "sa": "गृहम्‌"
+      },
+      "about": {
+        "en": "About",
+        "hi": "हमारे बारे में",
+        "sa": "विषये"
+      },
+      "course": {
+        "en": "Course",
+        "hi": "पाठ्यक्रम",
+        "sa": "वर्गः"
+      },
+      "privacy": {
+        "en": "Privacy Policy",
+        "hi": "गोपनीयता नीति",
+        "sa": "गोपनीयता नीति"
+      },
+      "pricing": {
+        "en": "Pricing",
+        "hi": "शुल्क विवरण",
+        "sa": "मूल्यनिर्धारणम्"
+      },
+      "faq": {
+        "en": "Faq",
+        "hi": "सामान्य प्रश्न (FAQ)",
+        "sa": "Faq"
+      }
+    },
+    "contactUs": {
+      "en": "Contact Us",
+      "hi": "संपर्क सूत्र",
+      "sa": "हमसे संपर्क करें"
+    },
+    "contactDesc": {
+      "en": "Helped thousands of clients to find the right property for their needs.",
+      "hi": "हजारों लोगों को उनकी आवश्यकताओं के अनुरूप सही विकल्प चुनने में सहायता प्रदान की है।",
+      "sa": "Helped thousands of clients to find the right property for their needs."
+    },
+    "copyright": {
+      "en": "©Copyright 2026",
+      "hi": "© कॉपीराइट 2026",
+      "sa": "©प्रतिलिपि अधिकार 2026"
+    },
+    "allRights": {
+      "en": "All Rights Reserved",
+      "hi": "सर्वाधिकार सुरक्षित।",
+      "sa": "सर्वाधिकार सुरक्षित"
+    },
+    "enterEmail": {
+      "en": "Enter your email",
+      "hi": "अपना ईमेल दर्ज करें",
+      "sa": "स्वस्य ईमेलं प्रविशतु"
+    }
+  },
+  "events": {
+    "item1": {
+      "tag": {
+        "en": "Art Competition",
+        "hi": "कला प्रतियोगिता",
+        "sa": "कला प्रतियोगिता"
+      },
+      "title": {
+        "en": "Young leaders in tech policy fellowship",
+        "hi": "प्रौद्योगिकी नीति में युवा नेतृत्व फैलोशिप",
+        "sa": "tech policy fellowship इत्यस्मिन् युवानः नेतारः"
+      },
+      "date": {
+        "en": "5 Oct, 2026",
+        "hi": "5 अक्टूबर 2026",
+        "sa": "५ अक्टोबर, २०२६"
+      },
+      "time": {
+        "en": "9:00 AM - 11:00 AM",
+        "hi": "सुबह 9:00 बजे से 11:00 बजे तक",
+        "sa": "प्रातः ९:०० - ११:०० वा"
+      },
+      "desc": {
+        "en": "Franklin's extraordinary success in life and politics can be attributed to his perseverance...",
+        "hi": "फ्रैंकलिन की असाधारण सफलता उनके निरंतर प्रयास, अनुशासन और दृढ़ संकल्प का परिणाम थी।",
+        "sa": "जीवने राजनीतिषु च फ्रेंक्लिन् इत्यस्य असाधारणसफलतायाः कारणं तस्य दृढतायाः कारणं भवितुम् अर्हति..."
+      }
+    },
+    "item2": {
+      "tag": {
+        "en": "Workshop",
+        "hi": "कार्यशाला",
+        "sa": "कार्यशाला"
+      },
+      "title": {
+        "en": "Future of Artificial Intelligence",
+        "hi": "कृत्रिम बुद्धिमत्ता (AI) का भविष्य",
+        "sa": "कृत्रिमबुद्धेः भविष्यम्"
+      },
+      "date": {
+        "en": "12 Nov, 2026",
+        "hi": "12 नवंबर 2026",
+        "sa": "१२ नवम्बर, २०२६"
+      },
+      "time": {
+        "en": "10:00 AM - 2:00 PM",
+        "hi": "सुबह 10:00 बजे से दोपहर 2:00 बजे तक",
+        "sa": "प्रातः १०:०० - अपराह्न २:०० वा"
+      },
+      "desc": {
+        "en": "Join our expert panel as we discuss the profound implications of AI in education...",
+        "hi": "हमारे विशेषज्ञों के साथ जुड़ें और जानें कि कृत्रिम बुद्धिमत्ता शिक्षा के भविष्य को किस प्रकार बदल रही है।",
+        "sa": "अस्माकं विशेषज्ञपरिषदः सम्मिलिताः भवन्तु यतः वयं शिक्षायां एआइ इत्यस्य गहननिमित्तानां विषये चर्चां कुर्मः..."
+      }
+    }
+  },
+  "eventsPage": {
+    "title": {
+      "en": "Events",
+      "hi": "कार्यक्रम",
+      "sa": "घटनाः"
+    },
+    "home": {
+      "en": "Home",
+      "hi": "मुखपृष्ठ",
+      "sa": "गृहम्‌"
+    },
+    "showingResults": {
+      "en": "Showing 1-{{count}} of 11 results",
+      "hi": "11 परिणामों में से 1-{{count}} दिखा रहे हैं",
+      "sa": "11 परिणामेषु 1-{{count}} दर्शयति"
+    },
+    "searchPlaceholder": {
+      "en": "search",
+      "hi": "खोजें",
+      "sa": "अन्वेषण"
+    },
+    "viewMore": {
+      "en": "View More",
+      "hi": "और देखें",
+      "sa": "अधिकं पश्यन्तु"
+    }
+  },
+  "eventCards": {
+    "item1": {
+      "tag": {
+        "en": "Art Competition",
+        "hi": "कला प्रतियोगिता",
+        "sa": "कला प्रतियोगिता"
+      },
+      "title": {
+        "en": "Electrical & Electronic Engineering",
+        "hi": "विद्युत एवं इलेक्ट्रॉनिक इंजीनियरिंग",
+        "sa": "विद्युत एवं इलेक्ट्रॉनिक अभियांत्रिकी"
+      },
+      "date": {
+        "en": "27 Nov, 2026",
+        "hi": "27 नवंबर 2026",
+        "sa": "२७ नवम्बर, २०२६"
+      },
+      "time": {
+        "en": "4:00 PM - 6:00 PM",
+        "hi": "शाम 4:00 बजे - 6:00 बजे",
+        "sa": "सायं ४:०० - ६:०० वा"
+      },
+      "desc": {
+        "en": "The first thing to remember about success is that it is a process - nothing more, nothing less.",
+        "hi": "सफलता के बारे में याद रखने वाली पहली बात यह है कि यह एक प्रक्रिया है - इससे ज्यादा कुछ नहीं, इससे कम भी नहीं।",
+        "sa": "सफलतायाः विषये प्रथमं स्मर्तव्यं यत् एषा प्रक्रिया अस्ति - न किमपि अधिकं, न किमपि न्यूनम्।"
+      }
+    },
+    "item2": {
+      "tag": {
+        "en": "Art Competition",
+        "hi": "कला प्रतियोगिता",
+        "sa": "कला प्रतियोगिता"
+      },
+      "title": {
+        "en": "Geography & Environmental Science",
+        "hi": "भूगोल और पर्यावरण विज्ञान",
+        "sa": "भूगोल एवं पर्यावरण विज्ञान"
+      },
+      "date": {
+        "en": "04 Dec, 2026",
+        "hi": "04 दिसंबर 2026",
+        "sa": "०४ दिसम्बर, २०२६"
+      },
+      "time": {
+        "en": "6:00 PM - 8:00 PM",
+        "hi": "शाम 6:00 बजे - 8:00 बजे",
+        "sa": "सायं ६:०० - ८:०० वा"
+      },
+      "desc": {
+        "en": "It really comes down to understanding the steps in the process and then executing on those steps.",
+        "hi": "यह वास्तव में प्रक्रिया के चरणों को समझने और फिर उन चरणों पर अमल करने से जुड़ा है।",
+        "sa": "तत् वस्तुतः प्रक्रियायां पदानि अवगत्य ततः तेषु सोपानेषु निष्पादनं यावत् अवतरति ।"
+      }
+    },
+    "item3": {
+      "tag": {
+        "en": "Art Competition",
+        "hi": "कला प्रतियोगिता",
+        "sa": "कला प्रतियोगिता"
+      },
+      "title": {
+        "en": "History of Art, Architecture & Design",
+        "hi": "कला, वास्तुकला और डिज़ाइन का इतिहास",
+        "sa": "कला, वास्तुकला एवं डिजाइन का इतिहास"
+      },
+      "date": {
+        "en": "18 Dec, 2026",
+        "hi": "18 दिसंबर 2026",
+        "sa": "१८ दिसम्बर, २०२६"
+      },
+      "time": {
+        "en": "3:00 PM - 5:00 PM",
+        "hi": "दोपहर 3:00 बजे - 5:00 बजे",
+        "sa": "अपराह्णे ३:०० - ५:०० वा"
+      },
+      "desc": {
+        "en": "We all know that nothing moves until someone makes a decision. The first action is always in making the decision.",
+        "hi": "हम सभी जानते हैं कि जब तक कोई निर्णय नहीं लेता तब तक कुछ नहीं बदलता। पहली कार्रवाई हमेशा निर्णय लेना ही होती है।",
+        "sa": "वयं सर्वे जानीमः यत् यावत् कोऽपि निर्णयं न करोति तावत् किमपि न चलति। प्रथमं कर्म सर्वदा निर्णये एव भवति।"
+      }
+    },
+    "item4": {
+      "tag": {
+        "en": "Science Fair",
+        "hi": "विज्ञान मेला",
+        "sa": "विज्ञान मेला"
+      },
+      "title": {
+        "en": "Physics & Astronomy Symposium",
+        "hi": "भौतिकी और खगोल विज्ञान संगोष्ठी",
+        "sa": "भौतिकी एवं खगोल विज्ञान संगोष्ठी"
+      },
+      "date": {
+        "en": "10 Jan, 2027",
+        "hi": "10 जनवरी 2027",
+        "sa": "१० जनवरी, २०२७"
+      },
+      "time": {
+        "en": "10:00 AM - 1:00 PM",
+        "hi": "सुबह 10:00 बजे - दोपहर 1:00 बजे",
+        "sa": "प्रातः १०:०० - अपराह्न १:०० वा"
+      },
+      "desc": {
+        "en": "Join us for an exciting journey through the cosmos. Explore the latest discoveries in astrophysics and quantum mechanics.",
+        "hi": "ब्रह्मांड के माध्यम से एक रोमांचक यात्रा के लिए हमसे जुड़ें। खगोल भौतिकी और क्वांटम यांत्रिकी में नवीनतम खोजों का अन्वेषण करें।",
+        "sa": "ब्रह्माण्डस्य रोमाञ्चकारीयात्रायै अस्माभिः सह सम्मिलिताः भवन्तु। खगोलभौतिकशास्त्रे क्वाण्टम् यान्त्रिकशास्त्रे च नवीनतमानाम् आविष्कारानाम् अन्वेषणं कुर्वन्तु।"
+      }
+    },
+    "item5": {
+      "tag": {
+        "en": "Technology",
+        "hi": "प्रौद्योगिकी",
+        "sa": "तन्त्रज्ञान"
+      },
+      "title": {
+        "en": "AI and Machine Learning Summit",
+        "hi": "AI और मशीन लर्निंग शिखर सम्मेलन",
+        "sa": "एआइ तथा यन्त्रशिक्षणशिखरसम्मेलनम्"
+      },
+      "date": {
+        "en": "22 Feb, 2027",
+        "hi": "22 फरवरी 2027",
+        "sa": "२२ फेब्रुवरी, २०२७"
+      },
+      "time": {
+        "en": "9:00 AM - 5:00 PM",
+        "hi": "सुबह 9:00 बजे - शाम 5:00 बजे",
+        "sa": "प्रातः ९:०० - सायं ५:०० वा"
+      },
+      "desc": {
+        "en": "Discover how AI is transforming industries. Hear from leading experts and participate in hands-on workshops.",
+        "hi": "जानें कि कैसे AI उद्योगों को बदल रहा है। प्रमुख विशेषज्ञों से सुनें और कार्यशालाओं में भाग लें।",
+        "sa": "एआइ उद्योगानां परिवर्तनं कथं करोति इति अन्वेष्टुम्। प्रमुखविशेषज्ञानाम् कृते श्रुत्वा हस्तगतकार्यशालासु भागं गृह्णन्तु।"
+      }
+    },
+    "item6": {
+      "tag": {
+        "en": "Workshop",
+        "hi": "कार्यशाला",
+        "sa": "कार्यशाला"
+      },
+      "title": {
+        "en": "Creative Writing Workshop",
+        "hi": "रचनात्मक लेखन कार्यशाला",
+        "sa": "रचनात्मक लेखन कार्यशाला"
+      },
+      "date": {
+        "en": "05 Mar, 2027",
+        "hi": "05 मार्च 2027",
+        "sa": "०५ मार्च, २०२७"
+      },
+      "time": {
+        "en": "2:00 PM - 4:00 PM",
+        "hi": "दोपहर 2:00 बजे - 4:00 बजे",
+        "sa": "अपराह्ण २:०० - ४:०० वा"
+      },
+      "desc": {
+        "en": "Unleash your inner writer. Learn techniques for storytelling, character development, and world-building.",
+        "hi": "अपने अंदर के लेखक को जगाएं। कहानी कहने, चरित्र विकास और दुनिया बनाने की तकनीक सीखें।",
+        "sa": "स्वस्य अन्तः लेखकं मुक्तं कुरुत। कथाकथनस्य, चरित्रविकासस्य, विश्वनिर्माणस्य च तकनीकाः ज्ञातव्याः।"
+      }
+    }
+  },
+  "courseCards": {
+    "item1": {
+      "tag": {
+        "en": "Business",
+        "hi": "व्यवसाय",
+        "sa": "व्यवसायः"
+      },
+      "title": {
+        "en": "Aeronautical & Manufacturing Engineering",
+        "hi": "वैमानिकी एवं विनिर्माण इंजीनियरिंग",
+        "sa": "वायुयान एवं विनिर्माण अभियांत्रिकी"
+      }
+    },
+    "item2": {
+      "tag": {
+        "en": "Politics",
+        "hi": "राजनीति",
+        "sa": "राजनीति"
+      },
+      "title": {
+        "en": "Business & Management Studies",
+        "hi": "व्यवसाय और प्रबंधन अध्ययन",
+        "sa": "व्यापार एवं प्रबन्धन अध्ययन"
+      }
+    },
+    "item3": {
+      "tag": {
+        "en": "Psychology",
+        "hi": "मनोविज्ञान",
+        "sa": "मनोविज्ञान"
+      },
+      "title": {
+        "en": "History of Art, Architecture & Design",
+        "hi": "कला, वास्तुकला और डिज़ाइन का इतिहास",
+        "sa": "कला, वास्तुकला एवं डिजाइन का इतिहास"
+      }
+    },
+    "item4": {
+      "tag": {
+        "en": "Medicine",
+        "hi": "चिकित्सा",
+        "sa": "चिकित्सा"
+      },
+      "title": {
+        "en": "Communication & Media Studies",
+        "hi": "संचार और मीडिया अध्ययन",
+        "sa": "संचार एवं मीडिया अध्ययन"
+      }
+    },
+    "item5": {
+      "tag": {
+        "en": "Engineering",
+        "hi": "इंजीनियरिंग",
+        "sa": "अभियांत्रिकी"
+      },
+      "title": {
+        "en": "Artificial Intelligence and Machine Learning",
+        "hi": "कृत्रिम बुद्धिमत्ता और मशीन लर्निंग",
+        "sa": "कृत्रिमबुद्धि एवं यन्त्रशिक्षण"
+      }
+    },
+    "item6": {
+      "tag": {
+        "en": "Design",
+        "hi": "डिज़ाइन",
+        "sa": "प्ररचन"
+      },
+      "title": {
+        "en": "UX/UI Design Principles & Practices",
+        "hi": "यूएक्स/यूआई डिज़ाइन सिद्धांत और व्यवहार",
+        "sa": "UX/UI डिजाइन सिद्धान्त एवं अभ्यास"
+      }
+    }
+  },
+  "blogPage": {
+    "title": {
+      "en": "Blog Detail",
+      "hi": "ब्लॉग विवरण",
+      "sa": "ब्लॉग विवरण"
+    },
+    "breadcrumbHome": {
+      "en": "Home",
+      "hi": "होम",
+      "sa": "गृहम्‌"
+    },
+    "categories": {
+      "title": {
+        "en": "Categories",
+        "hi": "श्रेणियां",
+        "sa": "श्रेणियाँ"
+      },
+      "cat1": {
+        "en": "Economics & Finance",
+        "hi": "अर्थशास्त्र और वित्त",
+        "sa": "अर्थशास्त्र एवं वित्त"
+      },
+      "cat2": {
+        "en": "Engineering & Technology",
+        "hi": "इंजीनियरिंग और प्रौद्योगिकी",
+        "sa": "अभियांत्रिकी एवं प्रौद्योगिकी"
+      },
+      "cat3": {
+        "en": "Natural Sciences",
+        "hi": "प्राकृतिक विज्ञान",
+        "sa": "प्राकृतिक विज्ञान"
+      },
+      "cat4": {
+        "en": "Masters in Accounting",
+        "hi": "अकाउंटिंग में मास्टर्स",
+        "sa": "लेखाशास्त्रे स्नातकोत्तरपदवी"
+      },
+      "cat5": {
+        "en": "Electrical Engineering",
+        "hi": "इलेक्ट्रिकल इंजीनियरिंग",
+        "sa": "विद्युत अभियांत्रिकी"
+      }
+    },
+    "recentPost": {
+      "title": {
+        "en": "Recent Post",
+        "hi": "हालिया पोस्ट",
+        "sa": "Recent Post"
+      },
+      "date": {
+        "en": "November 27, 2026",
+        "hi": "27 नवंबर, 2026",
+        "sa": "२०२६ नवम्बर २७ तारिख"
+      },
+      "postTitle": {
+        "en": "We are losing sight of higher education's true purpose",
+        "hi": "हम उच्च शिक्षा के वास्तविक उद्देश्य से भटक रहे हैं",
+        "sa": "उच्चशिक्षायाः यथार्थं उद्देश्यं वयं दृष्टिभ्रंशं कुर्मः"
+      }
+    },
+    "mainPost": {
+      "title": {
+        "en": "The problem with the push for more college degrees",
+        "hi": "अधिक कॉलेज डिग्री की होड़ में समस्या",
+        "sa": "अधिकमहाविद्यालयस्य उपाधिं प्राप्तुं धक्कायाः ​​समस्या"
+      },
+      "date": {
+        "en": "15 Oct, 2020",
+        "hi": "15 अक्टूबर, 2020",
+        "sa": "१५ अक्टोबर, २०२०"
+      },
+      "time": {
+        "en": "8:00 AM - 5:00 PM",
+        "hi": "सुबह 8:00 - शाम 5:00",
+        "sa": "प्रातः ८:०० - सायं ५:०० वा"
+      },
+      "p1": {
+        "en": "The first thing to remember about success is that it is a process – nothing more, nothing less. There is really no magic to it and it's not reserved only for a select few people. As such, success really has nothing to do with luck, coincidence or fate. It really comes down to understanding the steps in the process and then executing on those steps.",
+        "hi": "सफलता के बारे में याद रखने वाली पहली बात यह है कि यह एक प्रक्रिया है - इससे ज्यादा कुछ नहीं, इससे कम कुछ नहीं। इसमें वास्तव में कोई जादू नहीं है और यह केवल कुछ चुनिंदा लोगों के लिए आरक्षित नहीं है। सफलता का वास्तव में भाग्य, संयोग या नियति से कोई लेना-देना नहीं है। यह वास्तव में प्रक्रिया के चरणों को समझने और फिर उन चरणों पर अमल करने पर निर्भर करता है।",
+        "sa": "सफलतायाः विषये प्रथमं स्मर्तव्यं यत् एषा प्रक्रिया अस्ति – न किमपि अधिकं, न किमपि न्यूनम्। तत्र वस्तुतः कोऽपि जादू नास्ति तथा च केवलं चयनितकतिपयानां जनानां कृते आरक्षितः नास्ति। अतः सफलतायाः वस्तुतः भाग्यस्य, संयोगस्य, दैवस्य वा सह किमपि सम्बन्धः नास्ति । तत् वस्तुतः प्रक्रियायां पदानि अवगत्य ततः ते���ु सोपानेषु निष्पादनं यावत् अवतरति ।"
+      },
+      "quote": {
+        "en": "That stream bed was littered with diamonds, and the new owner became fabulously wealthy. No doubt he also lived happily ever after. But doesn't something in that story set strangely with you? What about the guy with the burning desire and the grand vision? He ended up disappointed and broke, dying far from his family and friends. Not a happy ending. Meanwhile, the guy who just wanted to do some farming got all the riches.",
+        "hi": "वह नदी का तल हीरों से भरा था, और नया मालिक बेहद अमीर हो गया। बिना किसी संदेह के वह हमेशा खुशी से रहा। लेकिन क्या उस कहानी में कुछ अजीब नहीं लगता? उस आदमी का क्या जिसके पास तीव्र इच्छा और एक बड़ी दृष्टि थी? वह निराश और कंगाल हो गया, अपने परिवार और दोस्तों से दूर मर गया। यह एक सुखद अंत नहीं है। इस बीच, जो आदमी सिर्फ खेती करना चाहता था उसे सारी दौलत मिल गई।",
+        "sa": "सः धाराशय्या हीरकैः आच्छादितः आसीत्, नूतनः स्वामिः च अद्भुतरूपेण धनिकः अभवत् । सः अपि सुखेन जीवति स्म न संशयः । परन्तु तस्मिन् कथायां किमपि भवतः समीपे विचित्ररूपेण न स्थापितं वा ? किं तप्तकामना भव्यदृष्टियुक्तस्य वयस्कस्य? सः निराशः भग्नः च अभवत्, स्वपरिवारमित्रेभ्यः दूरं मृतः । न सुखान्तः। तावत् यः वयस्कः केवलं किञ्चित् कृषिं कर्तुम् इच्छति स्म सः सर्वाणि धनं प्राप्तवान् ।"
+      },
+      "list1": {
+        "en": "For those of you who are serious about having more.",
+        "hi": "उन लोगों के लिए जो अधिक हासिल करने के लिए गंभीर हैं।",
+        "sa": "ये भवन्तः अधिकं प्राप्तुं गम्भीराः सन्ति तेषां कृते।"
+      },
+      "list2": {
+        "en": "This is the beginning of creating the life that you want to live.",
+        "hi": "यह वह जीवन बनाने की शुरुआत है जिसे आप जीना चाहते हैं।",
+        "sa": "एषः एव जीवनस्य निर्माणस्य आरम्भः यत् भवन्तः जीवितुं इच्छन्ति।"
+      },
+      "list3": {
+        "en": "Know what the future holds for you as a result of the choice you can make today.",
+        "hi": "जानें कि आज आप जो चुनाव कर सकते हैं, उसके परिणामस्वरूप भविष्य आपके लिए क्या लेकर आएगा।",
+        "sa": "अद्य भवन्तः यत् विकल्पं कर्तुं शक्नुवन्ति तस्य परिणामेण भवतः भविष्यं किं भविष्यति इति ज्ञातव्यम्।"
+      },
+      "list4": {
+        "en": "Success is something of which we all want more.",
+        "hi": "सफलता एक ऐसी चीज है जिसकी हम सभी को अधिक चाह होती है।",
+        "sa": "सफलता किञ्चित् यस्य वयं सर्वे अधिकं इच्छामः।"
+      }
+    },
+    "share": {
+      "title": {
+        "en": "Share this post:",
+        "hi": "इस पोस्ट को शेयर करें:",
+        "sa": "एतत् पदं साझां कुर्वन्तु:"
+      }
+    },
+    "pagination": {
+      "prev": {
+        "en": "PREV",
+        "hi": "पिछला",
+        "sa": "PREV"
+      },
+      "next": {
+        "en": "NEXT",
+        "hi": "अगला",
+        "sa": "अग्रिम"
+      },
+      "titleStr": {
+        "en": "Strategies to market ...",
+        "hi": "मार्केटिंग की रणनीतियाँ...",
+        "sa": "विपणनस्य रणनीतयः ..."
+      }
+    },
+    "comments": {
+      "title": {
+        "en": "Comments",
+        "hi": "टिप्पणियाँ",
+        "sa": "टिप्पणियाँ"
+      },
+      "replyBtn": {
+        "en": "Reply",
+        "hi": "जवाब दें",
+        "sa": "उत्तरं"
+      },
+      "c1": {
+        "text": {
+          "en": "This pattern went on for 16 or 17 years, till I shut down my writing and editing business. So it wasn't an occasional fluke.",
+          "hi": "यह सिलसिला 16 या 17 सालों तक चलता रहा, जब तक मैंने अपना लेखन और संपादन का व्यवसाय बंद नहीं कर दिया। तो यह कोई संयोग नहीं था।",
+          "sa": "एतत् प्रतिमानं १६ वा १७ वर्षाणि यावत् अचलत्, यावत् अहं मम लेखनसम्पादनव्यापारं निरुद्धं न कृतवान् । अतः नैमित्तिकः फलः नासीत् ।"
+        }
+      },
+      "c2": {
+        "text": {
+          "en": "I must admit I had a burning determination to stay in Japan, and for the first year or two I never knew if things would work out for me or not. Then, things started shifting my way, and they stayed that way.",
+          "hi": "मुझे यह स्वीकार करना होगा कि मुझमें जापान में रहने का दृढ़ संकल्प था, और पहले एक या दो साल तक मुझे कभी नहीं पता था कि चीजें मेरे लिए काम करेंगी या नहीं। फिर, चीजें मेरे अनुकूल होने लगीं, और वे वैसी ही रहीं।",
+          "sa": "मया स्वीकारणीयं यत् मम जापानदेशे स्थातुं ज्वलन्तः संकल्पः आसीत्, प्रथमवर्षद्वयं वा अहं कदापि न जानामि यत् मम कृते कार्यं भविष्यति वा न वा इति। ततः, मम मार्गे वस्तूनि स्थानान्तरितुं आरब्धानि, ते च तथैव तिष्ठन्ति स्म ।"
+        }
+      },
+      "c3": {
+        "text": {
+          "en": "I don't think the deciding factor was the desire. Lots of people come here to Japan, but never quite find out how to stay.",
+          "hi": "मुझे नहीं लगता कि इच्छा ही निर्णायक कारक थी। बहुत से लोग यहाँ जापान आते हैं, लेकिन कभी यह नहीं जान पाते कि यहाँ कैसे रुका जाए।",
+          "sa": "अहं न मन्ये यत् निर्णायकः कारकः इच्छा एव आसीत्। अत्र जापानदेशं बहु जनाः आगच्छन्ति, परन्तु कथं स्थातव्यम् इति कदापि सम्यक् न ज्ञायते ।"
+        }
+      },
+      "c4": {
+        "text": {
+          "en": "Some people call this a sense of deserving. Others call it a sense of entitlement. No matter what term you use, it's basically the same thing.",
+          "hi": "कुछ लोग इसे योग्य होने का अहसास कहते हैं। दूसरे इसे अधिकार का अहसास कहते हैं। चाहे आप किसी भी शब्द का प्रयोग करें, यह मूल रूप से एक ही बात है।",
+          "sa": "केचन जनाः एतत् योग्यतायाः भावः इति वदन्ति । अन्ये तु अधिकारभावः इति वदन्ति । भवान् किमपि पदं प्रयुङ्क्ते चेदपि मूलतः एकमेव ।"
+        }
+      }
+    },
+    "replyForm": {
+      "title": {
+        "en": "Leave a reply",
+        "hi": "अपनी टिप्पणी दें",
+        "sa": "उत्तरं त्यजतु"
+      },
+      "website": {
+        "en": "Website URL",
+        "hi": "वेबसाइट URL",
+        "sa": "वेबसाइट् URL"
+      },
+      "name": {
+        "en": "Your Name",
+        "hi": "आपका नाम",
+        "sa": "तव नाम"
+      },
+      "email": {
+        "en": "Email Address",
+        "hi": "ईमेल एड्रेस",
+        "sa": "ईमेल पता"
+      },
+      "phone": {
+        "en": "Phone Number",
+        "hi": "फ़ोन नंबर",
+        "sa": "फ़ोन नम्बर"
+      },
+      "message": {
+        "en": "Message",
+        "hi": "संदेश",
+        "sa": "सन्देशः"
+      },
+      "submit": {
+        "en": "Submit Now",
+        "hi": "अभी सबमिट करें",
+        "sa": "अधुना प्रस्तुतं कुर्वन्तु"
+      }
+    }
+  },
+  "contactPage": {
+    "title": {
+      "en": "Contact Us",
+      "hi": "संपर्क करें",
+      "sa": "हमसे संपर्क करें"
+    },
+    "breadcrumbHome": {
+      "en": "Home",
+      "hi": "होम",
+      "sa": "गृहम्‌"
+    },
+    "formTitle": {
+      "en": "Need Assistance? Please Complete The Contact Form",
+      "hi": "सहायता चाहिए? कृपया संपर्क फ़ॉर्म पूरा करें",
+      "sa": "सहायतायाः आवश्यकता अस्ति ? कृपया The Contact Form पूर्ण करें"
+    },
+    "form": {
+      "website": {
+        "en": "Website URL",
+        "hi": "वेबसाइट URL",
+        "sa": "वेबसाइट् URL"
+      },
+      "name": {
+        "en": "Your Name",
+        "hi": "आपका नाम",
+        "sa": "तव नाम"
+      },
+      "email": {
+        "en": "Email Address",
+        "hi": "ईमेल एड्रेस",
+        "sa": "ईमेल पता"
+      },
+      "phone": {
+        "en": "Phone Number",
+        "hi": "फ़ोन नंबर",
+        "sa": "फ़ोन नम्बर"
+      },
+      "message": {
+        "en": "Message",
+        "hi": "संदेश",
+        "sa": "सन्देशः"
+      },
+      "submit": {
+        "en": "Send Message",
+        "hi": "संदेश भेजें",
+        "sa": "सन्देशं प्रेषयतु"
+      }
+    },
+    "info": {
+      "office": {
+        "en": "Office Address",
+        "hi": "कार्यालय का पता",
+        "sa": "कार्यालय पता"
+      },
+      "officeDesc1": {
+        "en": "Sonbhadra, Uttar Pradesh,",
+        "hi": "सोनभद्र, उत्तर प्रदेश,",
+        "sa": "सोनभद्र, उत्तर प्रदेश, 1999।"
+      },
+      "officeDesc2": {
+        "en": "India",
+        "hi": "भारत",
+        "sa": "भारत"
+      },
+      "email": {
+        "en": "Email Address",
+        "hi": "ईमेल एड्रेस",
+        "sa": "ईमेल पता"
+      },
+      "emailDesc1": {
+        "en": "letstalk@academic.com",
+        "hi": "Letstalk@academic.com",
+        "sa": "letstalk@academic.com इत्यत्र"
+      },
+      "emailDesc2": {
+        "en": "Mon-Fri 8:30am-6:30pm",
+        "hi": "सोम-शुक्र सुबह 8:30 - शाम 6:30",
+        "sa": "सोम-शुक्रः प्रातः ८:३०-वादन ६:३०"
+      },
+      "support": {
+        "en": "Online Support",
+        "hi": "ऑनलाइन सहायता",
+        "sa": "ऑनलाइन समर्थन"
+      },
+      "supportDesc1": {
+        "en": "+(704) 279-1249",
+        "hi": "+(704)279-1249",
+        "sa": "+(704) 279-1249"
+      },
+      "supportDesc2": {
+        "en": "24 X 7 online support",
+        "hi": "24 X 7 ऑनलाइन सहायता",
+        "sa": "२४ X ७ ऑनलाइन समर्थनम्"
+      }
+    }
+  }
+}

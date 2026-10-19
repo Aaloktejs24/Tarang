@@ -5,7 +5,8 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CheckIcon from "@mui/icons-material/Check";
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { setupTotp, verifyTotp, updateMfaPreference } from "../authService";
+import { updateMfaPreference, setupTotp, verifyTotp } from "../authService";
+import { getTempToken } from "../../../lib/auth";
 import OtpInput from "./OtpInput";
 import { translateError } from "../utils/authErrors";
 import Loader from "../../../components/common/Loader";
@@ -28,7 +29,7 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                 await handleFinalSubmit({ mfa_preference: "totp", shouldStayInFlow: true });
             }
             // Setup TOTP (works whether user was just registered or already was)
-            const tempToken = localStorage.getItem("temp_token");
+            const tempToken = getTempToken();
             const data = await setupTotp(tempToken);
             setTotpData(data);
             setStep2fa("authenticator_setup");
@@ -51,7 +52,7 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
             } else {
                 // First time — register with email MFA
                 await handleFinalSubmit({ mfa_preference: "email", shouldStayInFlow: true });
-                const tempToken = localStorage.getItem("temp_token");
+                const tempToken = getTempToken();
                 await updateMfaPreference("email", tempToken);
                 onFinish();
             }
@@ -66,7 +67,7 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
         setIsVerifying(true);
         setError("");
         try {
-            const tempToken = localStorage.getItem("temp_token");
+            const tempToken = getTempToken();
             await verifyTotp(verificationCode, tempToken);
             onFinish();
         } catch (err) {
@@ -80,7 +81,7 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
         setIsVerifying(true);
         setError("");
         try {
-            const tempToken = localStorage.getItem("temp_token");
+            const tempToken = getTempToken();
             if (isRegistered) {
                 // Already registered — just update preference
                 await updateMfaPreference("none", tempToken);
@@ -101,10 +102,10 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
         return (
             <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 2, alignItems: "center" }}>
                 <Box sx={{ textAlign: "center", mb: 0.5 }}>
-                    <Typography variant="h5" sx={{ fontWeight: 800, color: "#0f172a", letterSpacing: "-1px" }}>
+                    <Typography variant="h5" sx={{ fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", fontSize: "28px" }}>
                         ऑथेंटिकेटर ऐप सेटअप करें
                     </Typography>
-                    <Typography variant="body2" sx={{ color: "#64748b", mt: 0.5, fontSize: "14px" }}>
+                    <Typography variant="body2" sx={{ color: "#64748b", fontSize: "15px", lineHeight: 1.5 }}>
                         अपने ऑथेंटिकेटर ऐप से QR कोड स्कैन करें।
                     </Typography>
                 </Box>
@@ -217,10 +218,10 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                     disabled={isVerifying || verificationCode.length !== 6}
                     onClick={handleVerifyTotp}
                     sx={{
-                        py: 1.25,
+                        height: "48px",
                         borderRadius: "8px",
                         textTransform: "none",
-                        fontSize: "15.5px",
+                        fontSize: "16px",
                         fontWeight: 700,
                         background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)",
                         transition: "all 0.2s ease-in-out",
@@ -249,10 +250,10 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
     return (
         <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 2 }}>
             <Box sx={{ mb: 1 }}>
-                <Typography variant="h5" sx={{ fontWeight: 800, color: "#0f172a", letterSpacing: "-1px" }}>
+                <Typography variant="h5" sx={{ fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", fontSize: "28px" }}>
                     अकाउंट सुरक्षित करें
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#64748b", mt: 0.5, fontSize: "14px" }}>
+                <Typography variant="body2" sx={{ color: "#64748b", fontSize: "15px", lineHeight: 1.5 }}>
                     टू-फैक्टर ऑथेंटिकेशन सुरक्षा की एक अतिरिक्त परत जोड़ता है।
                 </Typography>
             </Box>
@@ -339,11 +340,11 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                 disabled={isVerifying || isLoading}
                 onClick={handleSkip}
                 sx={{
-                    py: 1.5,
+                    height: "44px",
                     borderRadius: "8px",
                     textTransform: "none",
                     fontWeight: 600,
-                    fontSize: "14px",
+                    fontSize: "14.5px",
                     color: "#64748b",
                     "&:hover": { bgcolor: "rgba(0,0,0,0.02)" }
                 }}
@@ -360,7 +361,7 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                         setMode("login");
                         setStep(1);
                     }}
-                    sx={{ textTransform: "none", color: "#64748b", fontWeight: 600, fontSize: "14px", mt: 1 }}
+                    sx={{ textTransform: "none", color: "#64748b", fontWeight: 600, fontSize: "14.5px", mt: 1, height: "44px" }}
                 >
                     {"← लॉगिन पर वापस जाएं"}
                 </Button>

@@ -1,0 +1,33 @@
+{
+  "idDocumentTypes": [
+    "Aadhar Card",
+    "PAN Card",
+    "Voter ID",
+    "Passport",
+    "Driving License",
+    "Other"
+  ],
+  "achievementTypes": [
+    "Research",
+    "Innovation",
+    "Project",
+    "Sports",
+    "Extracurricular",
+    "Other"
+  ],
+  "guardianRelations": [
+    "Father",
+    "Mother",
+    "Other"
+  ],
+  "siblingRelations": [
+    "Brother",
+    "Sister",
+    "Half-Brother",
+    "Half-Sister",
+    "Step-Brother",
+    "Step-Sister",
+    "Other"
+  ],
+  "yesNo": ["Yes", "No"]
+}

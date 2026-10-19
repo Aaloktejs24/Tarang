@@ -1,0 +1,57 @@
+{
+  "heroTitle": {
+    "en": "Personal Education & Extraordinary Success",
+    "hi": "व्यक्तिगत शिक्षा और असाधारण सफलता",
+    "sa": "व्यक्तिगत शिक्षा एवं असाधारण सफलता"
+  },
+  "heroSubtitle": {
+    "en": "The philosophy of continuous growth and unwavering commitment.",
+    "hi": "निरंतर विकास और अटूट समर्पण का दर्शन।",
+    "sa": "निरन्तरवृद्धेः अचञ्चलप्रतिबद्धतायाः च दर्शनम्।"
+  },
+  "section1Title": {
+    "en": "The Price of Commitment",
+    "hi": "समर्पण की कीमत",
+    "sa": "प्रतिबद्धतायाः मूल्यम्"
+  },
+  "section1Text1": {
+    "en": "Commitment is something that comes from understanding that everything has its price and then having the willingness to pay that price. Success isn’t really that difficult. There is a significant portion of the population here in North America, that actually want and need success to be hard!",
+    "hi": "समर्पण तब उत्पन्न होता है जब हम यह समझते हैं कि हर चीज़ की एक कीमत होती है और उसे चुकाने की इच्छा रखते हैं। सफलता वास्तव में उतनी कठिन नहीं है। एक बड़ी आबादी है जो वास्तव में यह चाहती है कि सफलता प्राप्त करना कठिन हो!",
+    "sa": "प्रतिबद्धता किमपि यत् सर्वस्य मूल्यं भवति इति अवगत्य ततः तत् मूल्यं दातुं इच्छा भवति । सफलता वस्तुतः तावत् कठिना नास्ति । अत्र उत्तर-अमेरिकायां जनसंख्यायाः महत्त्वपूर्णः भागः अस्ति, यः वास्तवतः सफलतां कठिनं भवितुम् इच्छति, आवश्यकं च!"
+  },
+  "section1Text2": {
+    "en": "Why? So they then have a built-in excuse when things don't go their way! Pretty sad situation, to say the least.",
+    "hi": "क्यों? ताकि जब चीजें उनके मनमुताबिक न हों तो उनके पास एक बहाना हो! यह एक बहुत ही दुखद स्थिति है।",
+    "sa": "किमर्थम्‌? अतः तेषां तदा अन्तर्निर्मितं बहाना भवति यदा विषयाः स्वमार्गेण न गच्छन्ति! सुन्दरं दुःखदं स्थितिः, न्यूनतया वक्तुं।"
+  },
+  "section2Title": {
+    "en": "The 13 Virtues of Benjamin Franklin",
+    "hi": "बेंजामिन फ्रैंकलिन के 13 गुण",
+    "sa": "बेन्जामिन फ्रेंक्लिन् इत्यस्य १३ गुणाः"
+  },
+  "section2Text": {
+    "en": "The other virtues practiced in succession by Franklin were silence, order, resolution, frugality, industry, sincerity, Justice, moderation, cleanliness, tranquility, chastity, and humility. For the summary order, he followed a little scheme of employing his time each day.",
+    "hi": "फ्रैंकलिन द्वारा क्रमशः अपनाए गए अन्य गुण थे—मौन, व्यवस्था, संकल्प, मितव्ययिता, उद्योग, ईमानदारी, न्याय, संयम, स्वच्छता, शांति, पवित्रता, और विनम्रता। इन सभी को व्यवस्थित करने के लिए उन्होंने प्रतिदिन अपने समय के सदुपयोग की एक सरल योजना बनाई थी।",
+    "sa": "फ्रेंक्लिन् इत्यनेन क्रमेण अभ्यासिताः अन्ये गुणाः मौनम्, क्रमः, संकल्पः, मितव्ययः, उद्योगः, निष्कपटता, न्यायः, संयमः, स्वच्छता, शान्तिः, पतिव्रता, विनयः च आसन् सारांशक्रमाय सः प्रतिदिनं स्वसमयं नियोक्तुं किञ्चित् योजनां अनुसृत्य आसीत् ।"
+  },
+  "section3Title": {
+    "en": "Let Success Motivate You",
+    "hi": "सफलता को अपनी प्रेरणा बनने दें",
+    "sa": "सफलता भवन्तं प्रेरयतु"
+  },
+  "section3Text": {
+    "en": "Find a picture of what epitomizes success to you and then pull it out when you are in need of motivation. Have a clear vision of your goals, maintain discipline, and the path to extraordinary success will become evident.",
+    "hi": "उस लक्ष्य की कल्पना करें जो आपके लिए सफलता का प्रतीक है, और जब भी प्रेरणा की आवश्यकता हो, उसे याद करें। अपने लक्ष्यों का एक स्पष्ट दृष्टिकोण रखें, अनुशासन बनाए रखें, और असाधारण सफलता का मार्ग स्पष्ट हो जाएगा।",
+    "sa": "भवतः कृते सफलतायाः प्रतिरूपं किं भवति इति चित्रं अन्विष्य ततः यदा भवतः प्रेरणायाः आवश्यकता भवति तदा तत् बहिः आकर्षयन्तु। लक्ष्यस्य स्पष्टदृष्टिः भवतु, अनुशासनं धारयन्तु, असाधारणसफलतायाः मार्गः स्पष्टः भविष्यति ।"
+  },
+  "breadcrumbHome": {
+    "en": "Home",
+    "hi": "होम",
+    "sa": "गृहम्‌"
+  },
+  "breadcrumbTitle": {
+    "en": "Article",
+    "hi": "लेख",
+    "sa": "आलेख"
+  }
+}

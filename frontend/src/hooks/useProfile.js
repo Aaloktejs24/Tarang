@@ -1,18 +1,29 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { getProfile } from "../features/auth/authService";
+import { AuthContext } from "../contexts/AuthContext";
 
 export const useProfile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { isAuthenticated, isLoading: authLoading } = useContext(AuthContext);
 
   useEffect(() => {
+    // Wait until auth state is resolved
+    if (authLoading) return;
+
+    // If not authenticated, don't fetch
+    if (!isAuthenticated) {
+      setLoading(false);
+      setProfile(null);
+      return;
+    }
+
     const fetchProfile = async () => {
       try {
+        setLoading(true);
         const data = await getProfile();
-        // Backend doesn't have is_profile_completed field — compute it
-        // A profile is considered complete when essential fields are filled
         if (data) {
           if (data.role === 'institute' || data.role === 'organisation') {
             data.is_profile_completed = !!(data.institution_name && data.location);
@@ -30,7 +41,7 @@ export const useProfile = () => {
     };
 
     fetchProfile();
-  }, []);
+  }, [isAuthenticated, authLoading]);
 
   return { profile, loading, error };
 };

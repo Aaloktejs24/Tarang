@@ -47,7 +47,7 @@ export default function LandingFooter() {
                   flex: 1,
                   bgcolor: "rgba(255,255,255,0.15)",
                   border: "1px solid rgba(255,255,255,0.2)",
-                  borderRadius: "12px",
+                  borderRadius: "8px",
                   px: 3,
                   py: 1.5,
                   height: "48px",
@@ -71,7 +71,7 @@ export default function LandingFooter() {
                 sx={{ 
                   bgcolor: "#0056b3", 
                   color: "#fff", 
-                  borderRadius: "12px", 
+                  borderRadius: "8px", 
                   px: 5, 
                   "&:hover": { bgcolor: "#004494" }, 
                   textTransform: "none", 

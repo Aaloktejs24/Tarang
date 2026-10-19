@@ -1,0 +1,217 @@
+{
+  "title": {
+    "en": "Create Admission Flow",
+    "hi": "एडमिशन फ्लो बनाएं",
+    "sa": "प्रवेशप्रवाहं रचयन्तु"
+  },
+  "subtitle": {
+    "en": "Design the step-by-step admission process for your institute.",
+    "hi": "अपने संस्थान के लिए चरण-दर-चरण एडमिशन प्रक्रिया डिज़ाइन करें।",
+    "sa": "स्वस्य संस्थायाः कृते पदे पदे प्रवेशप्रक्रियायाः डिजाइनं कुर्वन्तु।"
+  },
+  "step1Label": {
+    "en": "1. Admission Flow Details",
+    "hi": "1. एडमिशन फ्लो विवरण",
+    "sa": "1. प्रवेशप्रवाहविवरणम्"
+  },
+  "step2Label": {
+    "en": "2. Admission Stages",
+    "hi": "2. एडमिशन चरण",
+    "sa": "2. प्रवेशपदार्थाः"
+  },
+  "titleField": {
+    "en": "Title",
+    "hi": "शीर्षक",
+    "sa": "शीर्षक"
+  },
+  "titlePlaceholder": {
+    "en": "e.g. B.Tech Admissions 2026",
+    "hi": "उदा. B.Tech एडमिशन 2026",
+    "sa": "यथा--- B.Tech प्रवेश 2026"
+  },
+  "descField": {
+    "en": "Description & Instructions for Applicants",
+    "hi": "आवेदकों के लिए विवरण और निर्देश",
+    "sa": "आवेदकानां कृते विवरणं तथा निर्देशाः"
+  },
+  "descPlaceholder": {
+    "en": "Write a few details about this workflow...",
+    "hi": "इस वर्कफ़्लो के बारे में कुछ विवरण लिखें...",
+    "sa": "अस्य कार्यप्रवाहस्य विषये कतिपयानि विवरणानि लिखन्तु..."
+  },
+  "stagesHeading": {
+    "en": "Admission Stages",
+    "hi": "एडमिशन चरण",
+    "sa": "प्रवेश चरण"
+  },
+  "addStage": {
+    "en": "Add Stage",
+    "hi": "चरण जोड़ें",
+    "sa": "स्टेज योजयतु"
+  },
+  "menuRequestDocs": {
+    "en": "Request Documents",
+    "hi": "दस्तावेज़ माँगें",
+    "sa": "दस्तावेजान् अनुरोधयन्तु"
+  },
+  "menuCreateQuiz": {
+    "en": "Create Quiz",
+    "hi": "क्विज़ बनाएं",
+    "sa": "प्रश्नोत्तरी रचयन्तु"
+  },
+  "menuScheduleInterview": {
+    "en": "Schedule Interview",
+    "hi": "इंटरव्यू शेड्यूल करें",
+    "sa": "साक्षात्कारस्य समयसूची"
+  },
+  "stageTitlePlaceholder": {
+    "en": "Stage Title",
+    "hi": "चरण शीर्षक",
+    "sa": "मञ्चशीर्षकम्"
+  },
+  "documentInstructions": {
+    "en": "Documents:",
+    "hi": "दस्तावेज़:",
+    "sa": "दस्तावेजा::"
+  },
+  "addAnotherDocument": {
+    "en": "Add Document",
+    "hi": "एक दस्तावेज़ जोड़ें",
+    "sa": "अन्यत् दस्तावेजं योजयतु"
+  },
+  "attachQuiz": {
+    "en": "Attach Quiz:",
+    "hi": "क्विज़ जोड़ें:",
+    "sa": "प्रश्नोत्तरी संलग्नं कुर्वन्तु : १."
+  },
+  "noQuizAttached": {
+    "en": "No Quiz Attached",
+    "hi": "कोई क्विज़ नहीं जुड़ा",
+    "sa": "कोऽपि प्रश्नोत्तरी संलग्नः नास्ति"
+  },
+  "selectFromLibrary": {
+    "en": "Select a quiz from your cloud library",
+    "hi": "अपनी क्लाउड लाइब्रेरी से क्विज़ चुनें",
+    "sa": "स्वस्य मेघपुस्तकालयात् प्रश्नोत्तरं चिनोतु"
+  },
+  "selectQuizBtn": {
+    "en": "Select Quiz",
+    "hi": "क्विज़ चुनें",
+    "sa": "प्रश्नोत्तरी चयनं कुर्वन्तु"
+  },
+  "interviewInstructions": {
+    "en": "Configure interview and instructions:",
+    "hi": "इंटरव्यू और निर्देश कॉन्फ़िगर करें:",
+    "sa": "साक्षात्कारस्य निर्देशान् च विन्यस्यताम्:"
+  },
+  "dateLabel": {
+    "en": "Date",
+    "hi": "तारीख",
+    "sa": "दिनाङ्कः"
+  },
+  "timeLabel": {
+    "en": "Time",
+    "hi": "समय",
+    "sa": "कालः"
+  },
+  "meetingLink": {
+    "en": "Meeting Link",
+    "hi": "मीटिंग लिंक",
+    "sa": "सभा लिङ्क्"
+  },
+  "meetingLinkPlaceholder": {
+    "en": "https://...",
+    "hi": "https://...",
+    "sa": "https://..."
+  },
+  "passcode": {
+    "en": "Passcode",
+    "hi": "पासकोड",
+    "sa": "पासकोड्"
+  },
+  "passcodePlaceholder": {
+    "en": "Enter passcode",
+    "hi": "पासकोड दर्ज करें",
+    "sa": "पासकोड् प्रविष्टं कुर्वन्तु"
+  },
+  "interviewInstructionsField": {
+    "en": "Interview Instructions",
+    "hi": "इंटरव्यू निर्देश",
+    "sa": "साक्षात्कारनिर्देशः (वैकल्पिकः) २."
+  },
+  "interviewInstructionsPlaceholder": {
+    "en": "Enter instructions here...",
+    "hi": "यहाँ निर्देश दर्ज करें...",
+    "sa": "अत्र निर्देशान् प्रविशन्तु..."
+  },
+  "documentPlaceholder": {
+    "en": "Write the Title of Document",
+    "hi": "दस्तावेज़ का शीर्षक लिखें",
+    "sa": "दस्तावेजस्य शीर्षकं लिखन्तु"
+  },
+  "noStagesTitle": {
+    "en": "No stages added yet.",
+    "hi": "अभी कोई चरण नहीं जोड़ा गया।",
+    "sa": "अद्यापि कोऽपि चरणः न योजितः।"
+  },
+  "noStagesSubtitle": {
+    "en": "Click \"Add Stage\" to start building your admission workflow.",
+    "hi": "एडमिशन वर्कफ़्लो बनाना शुरू करने के लिए \"चरण जोड़ें\" पर क्लिक करें।",
+    "sa": "प्रवेशकार्यप्रवाहस्य निर्माणं आरभ्य \"Add Stage\" नुदन्तु ।"
+  },
+  "cloudQuizzesLabel": {
+    "en": "Your Cloud Quizzes",
+    "hi": "आपके क्लाउड क्विज़",
+    "sa": "भवतः मेघ प्रश्नोत्तरी"
+  },
+  "searchQuizzesPlaceholder": {
+    "en": "Search quizzes...",
+    "hi": "क्विज़ खोजें...",
+    "sa": "अन्वेषण प्रश्नोत्तरी..."
+  },
+  "noQuizzesFound": {
+    "en": "No quizzes found",
+    "hi": "कोई क्विज़ नहीं मिला",
+    "sa": "प्रश्नोत्तराणि न प्राप्तानि"
+  },
+  "academicYear": {
+    "en": "Academic Year",
+    "hi": "शैक्षणिक वर्ष",
+    "sa": "शैक्षणिकवर्षम्"
+  },
+  "discardBtn": {
+    "en": "Discard",
+    "hi": "हटाएं",
+    "sa": "परित्यजतु"
+  },
+  "cancelBtn": {
+    "en": "Cancel",
+    "hi": "रद्द करें",
+    "sa": "निरसयतु"
+  },
+  "backBtn": {
+    "en": "Back",
+    "hi": "वापस",
+    "sa": "पृष्ठभागः"
+  },
+  "nextBtn": {
+    "en": "Next",
+    "hi": "अगला",
+    "sa": "अग्रिम"
+  },
+  "publishBtn": {
+    "en": "Publish Workflow",
+    "hi": "वर्कफ़्लो प्रकाशित करें",
+    "sa": "कार्यप्रवाह प्रकाशित करें"
+  },
+  "saveDraftBtn": {
+    "en": "Save as Draft",
+    "hi": "ड्राफ़्ट के रूप में सहेजें",
+    "sa": "ड्राफ़्टरूपेण रक्षन्तु"
+  },
+  "draftSaved": {
+    "en": "Draft saved successfully",
+    "hi": "ड्राफ़्ट सफलतापूर्वक सहेजा गया",
+    "sa": "ड्राफ़्ट सफलतापूर्वक रक्षितम्"
+  }
+}

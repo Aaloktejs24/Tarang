@@ -163,66 +163,270 @@ class LocationMatcher {
 
 // ---------------------------------------------------------------------------
 // Pre-built singleton matchers (instantiated once at module load)
-// Aliases are loaded from localeData.json → indiaLocationLanguages.stateAliases
-// and indiaLocationLanguages.districtAliases — edit that file to add new ones.
 // ---------------------------------------------------------------------------
-import localeData from '../data/localeData.json';
+import gazeteer from '../data/formated/gazeteer.json';
 
-const { indiaLocationLanguages: locationMappings } = localeData;
+const india = gazeteer.Countries.find(c => c.code === 'IN') || { states: [] };
 
-const stateMatcher = new LocationMatcher(
-  Object.keys(locationMappings.states),
-  locationMappings.stateAliases
-);
+const stateNames = india.states.map(s => s.name);
+const districtNames = [];
+india.states.forEach(s => {
+  if (s.districts) {
+    s.districts.forEach(d => districtNames.push(d.name));
+  }
+});
 
-const districtMatcher = new LocationMatcher(
-  Object.keys(locationMappings.districts),
-  locationMappings.districtAliases,
-  0.80
-  // threshold 0.80 — safe because:
-  //   "Kanpur Nagr"       → "Kanpur Nagar"    0.867 ✓
-  //   "Tiruchirpalli"     → "Tiruchirappalli"  0.821 ✓
-  //   "Thiruchirappalli"  → "Tiruchirappalli"  0.913 ✓
-  //   short-name collisions top out at ~0.78   ✓ (won't false-fire)
-);
+const stateAliases = {
+  "Orissa": "Odisha",
+  "Pondicherry": "Puducherry (UT)",
+  "Andaman & Nicobar": "Andaman and Nicobar Islands",
+  "Dadra and Nagar Haveli and Daman and Diu": "Dadra and Nagar Haveli (UT)",
+  "NCT of Delhi": "Delhi (NCT)",
+  "Jammu & Kashmir": "Jammu and Kashmir",
+  // Nominatim returns "Kerala" but gazeteer stores native name "Keralam"
+  "Kerala": "Keralam"
+};
+
+const districtAliases = {
+  "Allahabad": "Prayagraj",
+  "Faizabad": "Ayodhya",
+  "Gurgaon": "Gurugram",
+  "Osmanabad": "Dharashiv",
+  "Bellary": "Ballari (Bellary)",
+  "Gulbarga": "Kalaburagi (Gulbarga)",
+  "Mysore": "Mysuru (Mysore)",
+  "Bangalore Urban": "Bengaluru (Bangalore) Urban",
+  "Bangalore Rural": "Bengaluru (Bangalore) Rural",
+  "Bengalore Urban": "Bengaluru (Bangalore) Urban",
+  "Kanpur": "Kanpur Nagar",
+  "Trivandrum": "Thiruvananthapuram",
+  "Calicut": "Kozhikode",
+  "Trichur": "Thrissur",
+  "Quilon": "Kollam",
+  "Cochin": "Ernakulam",
+  "Poona": "Pune",
+  "Madras": "Chennai",
+  "Calcutta": "Kolkata",
+  "Ahmednagar": "Ahilyanagar",
+  "Mohali": "Sahibzada Ajit Singh Nagar (Mohali)",
+  "Cuddapah": "YSR Kadapa",
+  "Kadapa": "YSR Kadapa",
+  "Bombay": "Mumbai City"
+};
+
+const stateMatcher = new LocationMatcher(stateNames, stateAliases);
+const districtMatcher = new LocationMatcher(districtNames, districtAliases, 0.80);
+
+// Helper to look up language codes from the new gazeteer structure
+function lookupStateLang(canonicalState) {
+  const s = india.states.find(x => x.name === canonicalState);
+  return s ? s.state_lang : null;
+}
+
+function lookupDistrictLang(canonicalDistrict) {
+  for (const s of india.states) {
+    if (s.districts) {
+      const d = s.districts.find(x => x.name === canonicalDistrict);
+      if (d && d.local_lang) return d.local_lang;
+    }
+  }
+  return null;
+}
 
 // ---------------------------------------------------------------------------
-// Public API (drop-in replacement for old geoNormalize.js exports)
+// Public API
 // ---------------------------------------------------------------------------
 
 /**
- * Look up a Nominatim place name in a mapping object.
- * Returns the *value* (language code) or null.
+ * Look up a Nominatim place name to find its language code.
+ * Pass type = 'states' or 'districts'.
  */
-export function lookupMapping(name, mapping) {
-  if (!name || !mapping) return null;
-  const isStates    = mapping === locationMappings.states;
-  const isDistricts = mapping === locationMappings.districts;
-  const matcher     = isStates ? stateMatcher : isDistricts ? districtMatcher : null;
+export function lookupMapping(name, type) {
+  if (!name) return null;
+  const isStates = type === 'states' || type === 'state';
+  const isDistricts = type === 'districts' || type === 'district';
+  
+  const matcher = isStates ? stateMatcher : isDistricts ? districtMatcher : null;
 
   if (matcher) {
     const key = matcher.resolve(name);
-    return key ? mapping[key] : null;
+    if (!key) return null;
+    return isStates ? lookupStateLang(key) : lookupDistrictLang(key);
   }
-
-  // Fallback for any other mapping objects passed directly
-  const fallback = new LocationMatcher(Object.keys(mapping), {});
-  const key = fallback.resolve(name);
-  return key ? mapping[key] : null;
+  return null;
 }
 
 /**
  * Returns the canonical key from our mapping (e.g. "Prayagraj" for "Allahabad"),
  * or null if no match. Useful when you need the display name.
  */
-export function resolveCanonicalName(name, mapping) {
-  if (!name || !mapping) return null;
-  const isStates    = mapping === locationMappings.states;
-  const isDistricts = mapping === locationMappings.districts;
-  const matcher     = isStates ? stateMatcher : isDistricts ? districtMatcher : null;
-
+export function resolveCanonicalName(name, type) {
+  if (!name) return null;
+  const isStates = type === 'states' || type === 'state';
+  const isDistricts = type === 'districts' || type === 'district';
+  
+  const matcher = isStates ? stateMatcher : isDistricts ? districtMatcher : null;
   if (matcher) return matcher.resolve(name);
+  return null;
+}
 
-  const fallback = new LocationMatcher(Object.keys(mapping), {});
-  return fallback.resolve(name);
+/**
+ * Haversine formula to calculate distance between two coordinates in km
+ */
+export function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Earth's radius in km
+  const dlat = (lat2 - lat1) * Math.PI / 180;
+  const dlon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dlat / 2) ** 2 + 
+            Math.cos(lat1 * Math.PI / 180) * 
+            Math.cos(lat2 * Math.PI / 180) * 
+            Math.sin(dlon / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+/**
+ * Sorts locations by minimum distance to the given user coordinates.
+ * type: 'countries' | 'states' | 'districts'
+ */
+export function sortLocationsByDistance(items, userLat, userLon, type) {
+  if (!items || !Array.isArray(items)) return [];
+  if (!userLat || !userLon) {
+    return [...items].sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+  }
+
+  const itemsWithDist = items.map(item => {
+    let minDist = Infinity;
+    if (type === 'districts') {
+       // Expects item to have lat/lon directly (we'll pass raw district objects)
+       if (item.lat && item.lon) minDist = haversine(userLat, userLon, item.lat, item.lon);
+    } else if (type === 'states') {
+       if (item.districts) {
+          item.districts.forEach(d => {
+            if (d.lat && d.lon) {
+              const dist = haversine(userLat, userLon, d.lat, d.lon);
+              if (dist < minDist) minDist = dist;
+            }
+          });
+       }
+    } else if (type === 'countries') {
+       if (item.lat && item.lon) {
+         minDist = haversine(userLat, userLon, item.lat, item.lon);
+       }
+       if (item.states) {
+         item.states.forEach(s => {
+           if (s.districts) {
+             s.districts.forEach(d => {
+               if (d.lat && d.lon) {
+                 const dist = haversine(userLat, userLon, d.lat, d.lon);
+                 if (dist < minDist) minDist = dist;
+               }
+             });
+           }
+         });
+       }
+    }
+    return { ...item, _dist: minDist };
+  });
+
+  return itemsWithDist.sort((a, b) => {
+    if (a._dist !== b._dist) return a._dist - b._dist;
+    return (a.name || "").localeCompare(b.name || "");
+  });
+}
+
+
+/**
+ * Returns a Map of { langCode: minDistanceInKm } based on user coordinates
+ */
+export function getSortedLanguagesByLocation(userLat, userLon) {
+  const langData = new Map();
+  if (!userLat || !userLon) return langData;
+
+  let closestDistrict = null;
+  let closestState = null;
+  let closestCountry = null;
+  let minDist = Infinity;
+
+  // 1. First pass: Calculate min distance for EVERY language and find the closest location
+  for (const country of gazeteer.Countries) {
+    if (country.lat && country.lon) {
+      const dist = haversine(userLat, userLon, country.lat, country.lon);
+      if (country.officialLang) {
+        const codes = Array.isArray(country.officialLang) ? country.officialLang : String(country.officialLang).split(',');
+        codes.forEach(l => {
+          const code = l.trim();
+          const currentData = langData.get(code) || { priority: Infinity, distance: Infinity };
+          if (dist < currentData.distance) {
+            currentData.distance = dist;
+            langData.set(code, currentData);
+          }
+        });
+      }
+      if (dist < minDist) {
+        minDist = dist;
+        closestCountry = country;
+        closestState = null;
+        closestDistrict = null;
+      }
+    }
+
+    if (country.states) {
+      for (const state of country.states) {
+        if (state.districts) {
+          for (const district of state.districts) {
+            if (district.lat && district.lon) {
+              const dist = haversine(userLat, userLon, district.lat, district.lon);
+              
+              // Record distance for the local language(s)
+              if (district.local_lang) {
+                const codes = Array.isArray(district.local_lang) ? district.local_lang : String(district.local_lang).split(',');
+                codes.forEach(l => {
+                  const code = l.trim();
+                  const currentData = langData.get(code) || { priority: Infinity, distance: Infinity };
+                  if (dist < currentData.distance) {
+                    currentData.distance = dist;
+                    langData.set(code, currentData);
+                  }
+                });
+              }
+
+              // Track absolute closest district for priority assignments
+              if (dist < minDist) {
+                minDist = dist;
+                closestDistrict = district;
+                closestState = state;
+                closestCountry = country;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 2. Second pass: Assign strict priorities (1 to N) based on the closest location
+  if (closestDistrict) {
+    let p = 1; // Priority rank, lower is better (top of the list)
+    
+    const setPriority = (codeStr) => {
+      if (!codeStr) return;
+      const codes = Array.isArray(codeStr) ? codeStr : String(codeStr).split(',');
+      codes.forEach(l => {
+        const code = l.trim();
+        const currentData = langData.get(code) || { priority: Infinity, distance: Infinity };
+        if (currentData.priority === Infinity) {
+          currentData.priority = p++;
+          langData.set(code, currentData);
+        }
+      });
+    };
+
+    setPriority(closestDistrict.local_lang);
+    if (closestState) setPriority(closestState.state_lang);
+    if (closestCountry) setPriority(closestCountry.officialLang);
+    setPriority('en');
+  }
+
+  return langData;
 }

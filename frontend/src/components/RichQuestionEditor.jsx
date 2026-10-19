@@ -159,7 +159,7 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
         tabIndex={0}
         sx={{
           border: '1.5px solid #cbd5e1',
-          borderRadius: '12px',
+          borderRadius: '8px',
           p: 2,
           minHeight: '60px',
           bgcolor: '#fff',
@@ -205,7 +205,7 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
           backdropFilter: 'blur(16px)', color: '#0f172a', py: 0, px: { xs: 3, md: 6 }, 
           borderBottom: '2px solid transparent', 
           borderImage: 'linear-gradient(90deg, #0056b3 0%, #28a745 50%, #ffc107 100%) 1',
-          boxShadow: '0 4px 20px rgba(0, 86, 179, 0.08)', position: 'sticky', top: 0, zIndex: 10
+          borderBottom: '1px solid #E2E8F0', position: 'sticky', top: 0, zIndex: 10
         }}>
           <Typography variant="h6" component="div" sx={{ fontWeight: 800, fontFamily: "'Inter', sans-serif", letterSpacing: '-1px', fontSize: '22px' }}>
             {label ? `${label}` : 'Rich Editor'}
@@ -237,7 +237,7 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
               flexShrink: 0, display: 'flex', flexDirection: 'column', width: '100%', maxWidth: '850px',
               mx: 'auto', mt: { xs: 2, md: 5 }, mb: '120px', bgcolor: 'white',
               border: '1px solid #cbd5e1', borderRadius: { xs: 0, md: '4px' }, minHeight: '800px', overflow: 'hidden',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+              boxShadow: 'none'
             }}>
               <Box sx={{ p: { xs: 3, md: 6 }, flexGrow: 1, cursor: 'text' }} onClick={() => editor?.commands.focus()}>
                 <EditorContent editor={editor} style={{ minHeight: '700px', outline: 'none' }} />
@@ -333,7 +333,7 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
             onClose={handleColorClose}
             anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
             transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-            sx={{ '& .MuiPopover-paper': { p: 1, display: 'flex', gap: 1, mb: 1, borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)' } }}
+            sx={{ '& .MuiPopover-paper': { p: 1, display: 'flex', gap: 1, mb: 1, borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: 'none' } }}
           >
             {['#000000', '#dc2626', '#2563eb', '#16a34a', '#d97706', '#9333ea'].map(color => (
               <Box 
@@ -350,7 +350,7 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
             onClose={handleSizeClose}
             anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
             transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-            sx={{ '& .MuiPopover-paper': { p: 1, mb: 1, display: 'flex', flexDirection: 'column', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)', minWidth: '120px' } }}
+            sx={{ '& .MuiPopover-paper': { p: 1, mb: 1, display: 'flex', flexDirection: 'column', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: 'none', minWidth: '120px' } }}
           >
             {[
               { label: 'Small', value: '12px' },

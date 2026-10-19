@@ -1,0 +1,178 @@
+{
+  "emptyStateTitle": {
+    "en": "Create your first course",
+    "hi": "अपना पहला कोर्स बनाएं",
+    "sa": "प्रथमं पाठ्यक्रमं रचयन्तु"
+  },
+  "emptyStateSubtitle": {
+    "en": "Structure lessons, upload videos, and add quizzes. Launch your masterclass to the world in minutes.",
+    "hi": "पाठों को व्यवस्थित करें, वीडियो अपलोड करें और क्विज़ जोड़ें। अपनी मास्टरक्लास को मिनटों में दुनिया के सामने लॉन्च करें।",
+    "sa": "पाठस्य संरचनां कुर्वन्तु, विडियो अपलोड् कुर्वन्तु, प्रश्नोत्तराणि च योजयन्तु। निमेषेषु एव विश्वे स्वस्य मास्टरक्लास् प्रारम्भं कुर्वन्तु।"
+  },
+  "createCourseBtn": {
+    "en": "Create course",
+    "hi": "कोर्स बनाएं",
+    "sa": "पाठ्यक्रमं रचयन्तु"
+  },
+  "breadcrumbs": {
+    "dashboard": {
+      "en": "Dashboard",
+      "hi": "डैशबोर्ड",
+      "sa": "डैशबोर्ड"
+    },
+    "academicAffairs": {
+      "en": "Academic Affairs",
+      "hi": "शैक्षणिक मामले",
+      "sa": "शैक्षणिक मामिला"
+    },
+    "courses": {
+      "en": "Courses",
+      "hi": "पाठ्यक्रम",
+      "sa": "पाठ्यक्रमाः"
+    }
+  },
+  "modal": {
+    "createCourse": {
+      "en": "Create Course",
+      "hi": "नया कोर्स बनाएं",
+      "sa": "पाठ्यक्रम रचयतु"
+    },
+    "basicDetails": {
+      "en": "Enter basic course details.",
+      "hi": "कोर्स का सामान्य विवरण दर्ज करें।",
+      "sa": "मूलभूतपाठ्यक्रमविवरणं प्रविशतु।"
+    },
+    "stepDetails": {
+      "en": "1. Details",
+      "hi": "1. विवरण",
+      "sa": "1. विवरणम्"
+    },
+    "stepCurriculum": {
+      "en": "2. Curriculum",
+      "hi": "2. पाठ्यक्रम",
+      "sa": "2. पाठ्यक्रमः"
+    },
+    "courseTitle": {
+      "en": "Course Title *",
+      "hi": "कोर्स का शीर्षक *",
+      "sa": "पाठ्यक्रमस्य शीर्षकम् * ."
+    },
+    "courseTitlePlaceholder": {
+      "en": "e.g. Physics (PHY101), Data Structures",
+      "hi": "उदा. भौतिकी (PHY101), डेटा स्ट्रक्चर्स",
+      "sa": "यथा--- भौतिकी (PHY101), डेटा संरचनाएँ"
+    },
+    "targetAudience": {
+      "en": "Target Audience Level *",
+      "hi": "लक्षित दर्शक स्तर *",
+      "sa": "लक्षितदर्शकस्तर * ."
+    },
+    "selectAudience": {
+      "en": "Select educational level",
+      "hi": "शैक्षिक स्तर चुनें",
+      "sa": "शैक्षणिकस्तरं चयनं कुर्वन्तु"
+    },
+    "courseCategory": {
+      "en": "Course Category *",
+      "hi": "कोर्स श्रेणी *",
+      "sa": "पाठ्यक्रम श्रेणी * ."
+    },
+    "selectCategory": {
+      "en": "Select category",
+      "hi": "श्रेणी चुनें",
+      "sa": "श्रेणीं चिनोतु"
+    },
+    "courseTags": {
+      "en": "Course Tags",
+      "hi": "कोर्स टैग्स",
+      "sa": "पाठ्यक्रम टैग्स"
+    },
+    "courseDescription": {
+      "en": "Course Description *",
+      "hi": "कोर्स का विवरण *",
+      "sa": "पाठ्यक्रमस्य विवरणम् * ."
+    },
+    "courseDescPlaceholder": {
+      "en": "Write some description about this course...",
+      "hi": "इस कोर्स के बारे में कुछ विवरण लिखें...",
+      "sa": "अस्य पाठ्यक्रमस्य विषये किञ्चित् वर्णनं लिखन्तु..."
+    },
+    "courseThumbnail": {
+      "en": "Course Thumbnail *",
+      "hi": "कोर्स थंबनेल *",
+      "sa": "पाठ्यक्रमस्य लघुचित्रम् * ."
+    },
+    "uploadThumbnail": {
+      "en": "Click to upload thumbnail",
+      "hi": "थंबनेल अपलोड करने के लिए क्लिक करें",
+      "sa": "लघुचित्रं अपलोड् कर्तुं क्लिक् कुर्वन्तु"
+    },
+    "changeImage": {
+      "en": "Change Image",
+      "hi": "छवि बदलें",
+      "sa": "चित्रं परिवर्तयतु"
+    },
+    "uploading": {
+      "en": "Uploading...",
+      "hi": "अपलोड हो रहा है...",
+      "sa": "अपलोड् कुर्वन्..."
+    },
+    "fileFormats": {
+      "en": "PNG, JPG or JPEG",
+      "hi": "PNG, JPG या JPEG",
+      "sa": "पीएनजी, जेपीजी अथवा जेपीईजी"
+    },
+    "cancel": {
+      "en": "Cancel",
+      "hi": "रद्द करें",
+      "sa": "निरसयतु"
+    },
+    "proceed": {
+      "en": "Proceed",
+      "hi": "आगे बढ़ें",
+      "sa": "प्रवर्तते"
+    },
+    "curriculumHeading": {
+      "en": "Curriculum",
+      "hi": "पाठ्यक्रम",
+      "sa": "पाठ्यक्रमः"
+    },
+    "back": {
+      "en": "Back",
+      "hi": "पीछे",
+      "sa": "पृष्ठभागः"
+    },
+    "publishCourse": {
+      "en": "Publish Course",
+      "hi": "प्रकाशित करें",
+      "sa": "पाठ्यक्रम प्रकाशित करें"
+    },
+    "moduleDescPlaceholder": {
+      "en": "Write module description here... *",
+      "hi": "मॉड्यूल का विवरण लिखें... *",
+      "sa": "अत्र मॉड्यूलविवरणं लिखन्तु... *"
+    },
+    "searchTagsPlaceholder": {
+      "en": "Search tags...",
+      "hi": "टैग खोजें...",
+      "sa": "टैग्स् अन्वेषणं कुर्वन्तु..."
+    }
+  },
+  "accessOptions": {
+    "public": {
+      "en": "Public (Everyone)",
+      "hi": "सार्वजनिक (सभी के लिए)",
+      "sa": "सार्वजनिकम् (सर्वेभ्यः)"
+    },
+    "enrolled": {
+      "en": "Accessible only to enrolled students",
+      "hi": "केवल नामांकित छात्रों के लिए सुलभ",
+      "sa": "केवलं नामांकितच्छात्रेभ्यः सुलभम्"
+    },
+    "locked": {
+      "en": "Locked (Hidden)",
+      "hi": "लॉक किया गया (छिपा हुआ)",
+      "sa": "तालाबद्धम् (गुप्तम्)"
+    }
+  }
+}

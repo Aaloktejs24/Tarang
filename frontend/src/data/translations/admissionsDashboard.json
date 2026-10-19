@@ -1,0 +1,76 @@
+{
+  "breadcrumbs": {
+    "dashboard": {
+      "en": "Dashboard",
+      "hi": "डैशबोर्ड",
+      "sa": "डैशबोर्ड"
+    },
+    "institute": {
+      "en": "Institute",
+      "hi": "संस्थान",
+      "sa": "संस्था"
+    },
+    "admissions": {
+      "en": "Admissions",
+      "hi": "एडमिशन",
+      "sa": "प्रवेशः"
+    }
+  },
+  "title": {
+    "en": "Admissions Management",
+    "hi": "एडमिशन मैनेजमेंट",
+    "sa": "प्रवेश प्रबन्धन"
+  },
+  "subtitle": {
+    "en": "Create and manage your institutional admission workflows.",
+    "hi": "अपने संस्थागत एडमिशन वर्कफ़्लो बनाएं और प्रबंधित करें।",
+    "sa": "स्वस्य संस्थागतप्रवेशकार्यप्रवाहं निर्माय प्रबन्धयतु।"
+  },
+  "createWorkflowBtn": {
+    "en": "Create Workflow",
+    "hi": "वर्कफ़्लो बनाएं",
+    "sa": "कार्यप्रवाहं रचयन्तु"
+  },
+  "emptyStateTitle": {
+    "en": "No Admissions Workflows Yet",
+    "hi": "अभी कोई एडमिशन वर्कफ़्लो नहीं है",
+    "sa": "अद्यापि प्रवेशकार्यप्रवाहाः नास्ति"
+  },
+  "emptyStateSubtitle": {
+    "en": "Looks like you haven't set up any admission campaigns. Click the 'Create Workflow' button above to design your first admission process with quizzes, document requests, and more!",
+    "hi": "आपने अभी तक कोई इंजीनियरिंग डिज़ाइन वर्कफ़्लो नहीं बनाया है। पहला वर्कफ़्लो शुरू करने के लिए ऊपर “वर्कफ़्लो बनाएं” पर क्लिक करें।",
+    "sa": "इदं दृश्यते यत् भवान् किमपि प्रवेश-अभियानं न स्थापितवान्। प्रश्नोत्तरैः, दस्तावेजानुरोधैः, इत्यादिभिः सह स्वस्य प्रथमप्रवेशप्रक्रियायाः डिजाइनं कर्तुं उपरि 'कार्यप्रवाहं रचयन्तु' इति बटनं क्लिक् कुर्वन्तु!"
+  },
+  "startBuildingBtn": {
+    "en": "Start Building",
+    "hi": "बनाना शुरू करें",
+    "sa": "निर्माणं आरभत"
+  },
+  "status": {
+    "active": {
+      "en": "Active",
+      "hi": "सक्रिय",
+      "sa": "सक्रियं"
+    },
+    "draft": {
+      "en": "Draft",
+      "hi": "ड्राफ्ट",
+      "sa": "प्रारूप"
+    },
+    "closed": {
+      "en": "Closed",
+      "hi": "बंद",
+      "sa": "निमीलितम्"
+    }
+  },
+  "applicants": {
+    "en": "Applicants",
+    "hi": "आवेदक",
+    "sa": "आवेदक"
+  },
+  "manageBtn": {
+    "en": "Manage",
+    "hi": "प्रबंध",
+    "sa": "प्रबंधनं"
+  }
+}

@@ -3,7 +3,7 @@
 import React from "react";
 import LandingPage from "../features/landing/LandingPage";
 import { useAuth } from "../hooks/useAuth";
-import { Box, CircularProgress } from "@mui/material";
+import { Box } from "@mui/material";
 
 export default function RootPage() {
   const [mounted, setMounted] = React.useState(false);
@@ -15,7 +15,7 @@ export default function RootPage() {
 
   if (!mounted) return null;
 
-  if (isLoading) return <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}><CircularProgress /></Box>;
+  if (isLoading) return <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}></Box>;
   if (isAuthenticated) return null; // Let the router redirect
 
   return <LandingPage />;

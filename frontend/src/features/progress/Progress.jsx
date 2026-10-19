@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Paper, LinearProgress, Chip } from "@mui/material";
+import { Box, Typography, Paper, Chip } from "@mui/material";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 
 import mockData from '../../data/dashboardMockData.json';
@@ -38,7 +38,7 @@ export default function Progress() {
                 <Typography fontSize={13} fontWeight="bold">{s.name}</Typography>
                 <Typography fontSize={13} color="text.secondary">{s.score}% / लक्ष्य {s.target}%</Typography>
               </Box>
-              <LinearProgress variant="determinate" value={s.score} sx={{ height: 8, borderRadius: "16px", bgcolor: "#f0f0f0", "& .MuiLinearProgress-bar": { bgcolor: s.color, borderRadius: "16px" } }} />
+              
             </Box>
           ))}
         </Box>

@@ -13,7 +13,7 @@ export default function LoginStep({ setStep, setMode, formData, updateFormData, 
     const { t } = useTranslation();
 
     return (
-        <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 2 }}>
+        <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 3 }}>
             <Box>
                 <Typography variant="h5" sx={{ mb: 0.5, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", fontSize: "28px" }}>
                     {t('auth.loginTitle')}
@@ -120,7 +120,7 @@ export default function LoginStep({ setStep, setMode, formData, updateFormData, 
                 />
                 <Typography
                     onClick={() => { setMode("forgot_password"); setStep(1); setError(""); }}
-                    sx={{ fontSize: 13.5, color: "#0056b3", fontWeight: 600, cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
+                    sx={{ fontSize: 13.5, color: "#0056b3", fontWeight: 600, cursor: "pointer", "&:hover": { textDecoration: "none" } }}
                 >
                     {t('auth.forgotPassword')}
                 </Typography>
@@ -171,7 +171,7 @@ export default function LoginStep({ setStep, setMode, formData, updateFormData, 
                     }
                 }}
                 sx={{
-                    py: 1.5,
+                    height: "48px",
                     borderRadius: "8px",
                     textTransform: "none",
                     fontSize: "16px",
@@ -192,7 +192,7 @@ export default function LoginStep({ setStep, setMode, formData, updateFormData, 
                 {t('auth.noAccount')} {" "}
                 <Box
                     component="span"
-                    sx={{ color: "#0056b3", fontWeight: 600, cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
+                    sx={{ color: "#0056b3", fontWeight: 600, cursor: "pointer", "&:hover": { textDecoration: "none" } }}
                     onClick={() => { setMode("register"); setStep(1); }}
                 >
                     {t('auth.registerHere')}

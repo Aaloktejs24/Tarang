@@ -314,3 +314,7 @@ func (s *Service) VerifyJWT(tokenString string) (uuid.UUID, bool, error) {
 
 	return uuid.Nil, false, fmt.Errorf("invalid token")
 }
+
+func (s *Service) GetInstitutes(ctx context.Context, limit, offset int) ([]*User, error) {
+	return s.repo.GetInstitutes(ctx, limit, offset)
+}

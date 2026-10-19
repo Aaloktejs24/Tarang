@@ -86,10 +86,10 @@ export default function ForgotStep3({ formData, onResetPassword, isLoading, erro
                     <CheckCircleIcon sx={{ fontSize: 48, color: "rgba(16, 185, 129, 0.9)" }} />
                 </Box>
                 <Box>
-                    <Typography variant="h4" sx={{ mb: 1.5, fontWeight: 800, color: "#0f172a", letterSpacing: "-1px" }}>
+                    <Typography variant="h5" sx={{ mb: 1.5, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", fontSize: "28px" }}>
                         सब तैयार है!
                     </Typography>
-                    <Typography variant="body2" sx={{ color: "#64748b", fontSize: "16px", mb: 2 }}>
+                    <Typography variant="body2" sx={{ color: "#64748b", fontSize: "15px", mb: 2, lineHeight: 1.5 }}>
                         आपका पासवर्ड सफलतापूर्वक रीसेट कर दिया गया है।
                     </Typography>
                 </Box>
@@ -101,7 +101,7 @@ export default function ForgotStep3({ formData, onResetPassword, isLoading, erro
                         setStep(1);
                     }}
                     sx={{
-                        py: 1.5,
+                        height: "48px",
                         borderRadius: "8px",
                         textTransform: "none",
                         fontSize: "16px",
@@ -122,10 +122,10 @@ export default function ForgotStep3({ formData, onResetPassword, isLoading, erro
     return (
         <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 2 }}>
             <Box>
-                <Typography variant="h4" sx={{ mb: 1, fontWeight: 800, color: "#0f172a", letterSpacing: "-1px" }}>
+                <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", fontSize: "28px" }}>
                     पासवर्ड रीसेट करें
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#64748b", mb: 1, fontSize: "15px" }}>
+                <Typography variant="body2" sx={{ color: "#64748b", mb: 1, fontSize: "15px", lineHeight: 1.5 }}>
                     अपने अकाउंट के लिए एक मज़बूत नया पासवर्ड चुनें।
                 </Typography>
             </Box>
@@ -275,7 +275,7 @@ export default function ForgotStep3({ formData, onResetPassword, isLoading, erro
                 disabled={isLoading || isInvalid}
                 onClick={() => onResetPassword(password)}
                 sx={{
-                    py: 1.5,
+                    height: "48px",
                     mt: 1,
                     borderRadius: "8px",
                     textTransform: "none",
@@ -298,7 +298,7 @@ export default function ForgotStep3({ formData, onResetPassword, isLoading, erro
                 fullWidth
                 disabled={isLoading}
                 onClick={() => { setStep(2); }}
-                sx={{ textTransform: "none", color: "#64748b", fontWeight: 600, fontSize: "14px", mt: 0.5 }}
+                sx={{ textTransform: "none", color: "#64748b", fontWeight: 600, fontSize: "14.5px", mt: 0.5, height: "44px" }}
             >
                 ← वेरिफिकेशन पर वापस जाएं
             </Button>
@@ -307,7 +307,7 @@ export default function ForgotStep3({ formData, onResetPassword, isLoading, erro
                 variant="text"
                 fullWidth
                 onClick={() => { setMode("login"); setStep(1); }}
-                sx={{ textTransform: "none", color: "#64748b", fontWeight: 600, fontSize: "14px", mt: 0.5 }}
+                sx={{ textTransform: "none", color: "#64748b", fontWeight: 600, fontSize: "14.5px", mt: 0.5, height: "44px" }}
             >
                 रद्द करें और लॉगिन करें
             </Button>

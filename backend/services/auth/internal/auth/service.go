@@ -16,6 +16,7 @@ import (
 	"backend/shared/queue"
 
 	"github.com/alexedwards/argon2id"
+	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/pquerna/otp/totp"
@@ -23,9 +24,10 @@ import (
 )
 
 const (
-	AccessTTL  = 15 * time.Minute
-	RefreshTTL = 7 * 24 * time.Hour
-	OTP_TTL    = 15 * time.Minute
+	AccessTTL       = 15 * time.Minute
+	RefreshTTL      = 7 * 24 * time.Hour
+	AdminRefreshTTL = 6 * time.Hour
+	OTP_TTL         = 15 * time.Minute
 )
 
 ////////////////////////////////////////////////////////////
@@ -52,11 +54,12 @@ type UserClient interface {
 ////////////////////////////////////////////////////////////
 
 type Service struct {
-	repo  *Repository
-	users UserClient
-	cfg   *config.Config
-	redis *redis.Client
-	queue *queue.Publisher
+	repo     *Repository
+	users    UserClient
+	cfg      *config.Config
+	redis    *redis.Client
+	queue    *queue.Publisher
+	webAuthn *webauthn.WebAuthn
 }
 
 func NewService(
@@ -67,12 +70,24 @@ func NewService(
 	q *queue.Publisher,
 ) *Service {
 
+	wconfig := &webauthn.Config{
+		RPDisplayName: "Tarang",
+		RPID:          "localhost",
+		RPOrigins:     []string{"http://localhost:3000"},
+	}
+
+	wa, err := webauthn.New(wconfig)
+	if err != nil {
+		log.Fatalf("Failed to initialize WebAuthn: %v", err)
+	}
+
 	return &Service{
-		repo:  repo,
-		users: users,
-		redis: r,
-		cfg:   cfg,
-		queue: q,
+		repo:     repo,
+		users:    users,
+		redis:    r,
+		cfg:      cfg,
+		queue:    q,
+		webAuthn: wa,
 	}
 }
 
@@ -153,6 +168,22 @@ func (s *Service) GetUserByIdentifier(ctx context.Context, identifier string) (*
 	}
 	// Try username
 	return s.users.GetByUsername(ctx, identifier)
+}
+
+////////////////////////////////////////////////////////////
+//// LOGIN SESSIONS
+////////////////////////////////////////////////////////////
+
+func (s *Service) CreateLoginSession(ctx context.Context, session *LoginSession) error {
+	return s.repo.CreateLoginSession(ctx, session)
+}
+
+func (s *Service) GetLoginSessionByID(ctx context.Context, id uuid.UUID) (*LoginSession, error) {
+	return s.repo.GetLoginSessionByID(ctx, id)
+}
+
+func (s *Service) DeleteLoginSession(ctx context.Context, id uuid.UUID) error {
+	return s.repo.DeleteLoginSession(ctx, id)
 }
 
 ////////////////////////////////////////////////////////////
@@ -599,7 +630,7 @@ func (s *Service) Logout(ctx context.Context, tokenString string) error {
 //// REFRESH TOKENS
 ////////////////////////////////////////////////////////////
 
-func (s *Service) GenerateRefreshToken(ctx context.Context, userID uuid.UUID) (string, uuid.UUID, error) {
+func (s *Service) GenerateRefreshToken(ctx context.Context, userID uuid.UUID, ttl time.Duration) (string, uuid.UUID, error) {
 
 	raw, err := randBase32(32)
 	if err != nil {
@@ -612,7 +643,7 @@ func (s *Service) GenerateRefreshToken(ctx context.Context, userID uuid.UUID) (s
 		UserID:    userID,
 		Kind:      TokenRefresh,
 		TokenHash: hash,
-		ExpiresAt: time.Now().Add(RefreshTTL),
+		ExpiresAt: time.Now().Add(ttl),
 	}
 
 	if err := s.repo.CreateToken(ctx, t); err != nil {
@@ -629,13 +660,19 @@ func (s *Service) VerifyRefreshToken(ctx context.Context, raw string) (*UserToke
 	return s.repo.GetValidTokenByHash(ctx, hash, TokenRefresh)
 }
 
-func (s *Service) RotateRefreshToken(ctx context.Context, old *UserToken) (string, uuid.UUID, error) {
+func (s *Service) RotateRefreshToken(ctx context.Context, old *UserToken) (string, uuid.UUID, time.Duration, error) {
 
 	if err := s.repo.ConsumeToken(ctx, old.ID); err != nil {
-		return "", uuid.Nil, err
+		return "", uuid.Nil, 0, err
 	}
 
-	return s.GenerateRefreshToken(ctx, old.UserID)
+	ttl := old.ExpiresAt.Sub(old.CreatedAt)
+	if ttl <= 0 {
+		ttl = RefreshTTL
+	}
+
+	raw, id, err := s.GenerateRefreshToken(ctx, old.UserID, ttl)
+	return raw, id, ttl, err
 }
 
 ////////////////////////////////////////////////////////////
@@ -798,4 +835,62 @@ func sha256Bytes(s string) []byte {
 
 func normalizeEmail(email string) string {
 	return strings.ToLower(strings.TrimSpace(email))
+}
+
+////////////////////////////////////////////////////////////
+//// ADMIN TOKENS & SUPER ADMIN
+////////////////////////////////////////////////////////////
+
+func (s *Service) ValidateAdminToken(ctx context.Context, token string, role string) bool {
+	t, err := s.repo.GetAdminTokenByValue(ctx, token)
+	if err != nil || t == nil {
+		return false
+	}
+	if t.Role != role {
+		return false
+	}
+	return true
+}
+
+func (s *Service) GetActiveAdminToken(ctx context.Context, role string) (string, error) {
+	t, err := s.repo.GetActiveAdminToken(ctx, role)
+	if err != nil {
+		return "", err
+	}
+	return t.Token, nil
+}
+
+func (s *Service) SuperAdminLogin(ctx context.Context, password string) (string, error) {
+	// For now, hardcode super password. In production, this should come from env: s.cfg.SuperAdminPassword
+	superPassword := "tarang_super_123" 
+	if password != superPassword {
+		return "", fmt.Errorf("invalid super admin password")
+	}
+
+	now := time.Now()
+	claims := jwt.MapClaims{
+		"sub": uuid.Nil.String(),
+		"iat": now.Unix(),
+		"exp": now.Add(24 * time.Hour).Unix(),
+		"typ": "super_access",
+	}
+
+	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return t.SignedString([]byte(s.cfg.JWTSecret))
+}
+
+func (s *Service) SendAdminTokenEmail(ctx context.Context, email string) error {
+	token, err := s.GetActiveAdminToken(ctx, "admin")
+	if err != nil {
+		return err
+	}
+
+	// Currently mock the email send via console log
+	// In production, publish to RabbitMQ or use notification service
+	log.Printf("[MOCK EMAIL] Sending Admin Token to %s: Link: /%s/admin", email, token)
+	return nil
+}
+
+func (s *Service) GetAdminWebAuthnCredentials(ctx context.Context, role, identifier string) ([]AdminWebAuthnCredential, error) {
+	return s.repo.GetAdminWebAuthnCredentials(ctx, role, identifier)
 }

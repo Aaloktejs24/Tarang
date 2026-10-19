@@ -28,10 +28,10 @@ export default function RegisterSuccessStep({ onProceedTo2fa, onSkipToLogin }) {
       </motion.div>
 
       <Box>
-        <Typography variant="h5" sx={{ fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", mb: 1 }}>
+        <Typography variant="h5" sx={{ fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", fontSize: "28px", mb: 1 }}>
           बधाई हो!
         </Typography>
-        <Typography variant="body1" sx={{ color: "#475569", fontWeight: 500 }}>
+        <Typography variant="body2" sx={{ color: "#64748b", fontSize: "15px", lineHeight: 1.5 }}>
           आपका रजिस्ट्रेशन सफलतापूर्वक पूरा हो गया है।
         </Typography>
       </Box>
@@ -42,7 +42,7 @@ export default function RegisterSuccessStep({ onProceedTo2fa, onSkipToLogin }) {
           variant="contained" disableElevation
           onClick={onSkipToLogin}
           sx={{
-            py: 1.5,
+            height: "48px",
             borderRadius: "8px",
             textTransform: "none",
             fontSize: "16px",

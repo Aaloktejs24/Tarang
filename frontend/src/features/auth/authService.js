@@ -1,5 +1,5 @@
 import { apiClient } from "../../lib/apiClient";
-import { setToken } from "../../lib/auth";
+import { setToken, removeToken, removeTempToken } from "../../lib/auth";
 
 export const onRegisterStart = async (email) => {
   const response = await apiClient.post("/auth/registration-sessions", { email });
@@ -56,24 +56,22 @@ export const loginUser = async (identifier, password) => {
   return data;
 };
 
-export const verifyLoginOtp = async (code, tempToken) => {
-  const config = tempToken ? { headers: { Authorization: `Bearer ${tempToken}` } } : {};
-  const response = await apiClient.post("/auth/login/otp", { code }, config);
+export const verifyLoginOtp = async (code, sessionId) => {
+  const response = await apiClient.post("/auth/login/otp", { code, session_id: sessionId });
   const data = response.data;
   if (data.access_token) {
     setToken(data.access_token);
-    localStorage.removeItem("temp_token");
+    removeTempToken(); // Optional: clean up old localstorage logic
   }
   return data;
 };
 
-export const verifyLoginTotp = async (code, tempToken) => {
-  const config = tempToken ? { headers: { Authorization: `Bearer ${tempToken}` } } : {};
-  const response = await apiClient.post("/auth/login/totp", { code }, config);
+export const verifyLoginTotp = async (code, sessionId) => {
+  const response = await apiClient.post("/auth/login/totp", { code, session_id: sessionId });
   const data = response.data;
   if (data.access_token) {
     setToken(data.access_token);
-    localStorage.removeItem("temp_token");
+    removeTempToken();
   }
   return data;
 };
@@ -98,19 +96,23 @@ export const updateMfaPreference = async (preference, token = null) => {
   return response.data;
 };
 
-export const setupTotp = async (token = null) => {
-  const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-  const response = await apiClient.post("/auth/totp/setup", {}, config);
+export const setupTotp = async (sessionId = null) => {
+  // If we are setting up during login flow, send session_id
+  const payload = sessionId ? { session_id: sessionId } : {};
+  const response = await apiClient.post("/auth/totp/setup", payload);
   return response.data;
 };
 
-export const verifyTotp = async (code, token = null) => {
-  const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-  const response = await apiClient.post("/auth/totp/verify", { code }, config);
+export const verifyTotp = async (code, sessionId = null) => {
+  const payload = { code };
+  if (sessionId) {
+    payload.session_id = sessionId;
+  }
+  const response = await apiClient.post("/auth/totp/verify", payload);
   const data = response.data;
   if (data.access_token) {
     setToken(data.access_token);
-    localStorage.removeItem("temp_token");
+    removeTempToken();
   }
   return data;
 };
@@ -146,25 +148,29 @@ export const startDigilocker = async (userId) => {
   return response.data;
 };
 
+let refreshPromise = null;
+
 export const refreshAuthToken = async () => {
-    // We send an empty body because the backend now primarily looks for the cookie
-    const response = await apiClient.post("/auth/refresh", {});
-    const data = response.data;
-    if (data.access_token) {
-        setToken(data.access_token);
-    }
-    return data;
+  if (refreshPromise) return refreshPromise;
+  refreshPromise = apiClient.post("/auth/refresh").then(response => {
+    setToken(response.data.access_token);
+    return response.data;
+  }).finally(() => {
+    refreshPromise = null;
+  });
+  return refreshPromise;
 };
 
 export const logoutUser = async () => {
   try {
     await apiClient.post("/auth/logout");
   } finally {
-    localStorage.removeItem("token");
-    sessionStorage.removeItem("auth_mode");
-    sessionStorage.removeItem("auth_step");
-    sessionStorage.removeItem("auth_formData");
-    sessionStorage.removeItem("auth_maskedEmail");
-    sessionStorage.removeItem("registration_token");
+    removeToken();
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("auth_flow_in_progress");
+      sessionStorage.removeItem("registration_token");
+      sessionStorage.removeItem("auth_mode");
+      sessionStorage.removeItem("auth_step");
+    }
   }
 };

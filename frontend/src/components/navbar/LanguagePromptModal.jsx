@@ -1,18 +1,16 @@
 "use client";
 
-import localeData from '../../data/localeData.json';
-import geoData from '../../data/geoData.json';
-import appConfig from '../../data/appConfig.json';
+import langFeture from '../../data/formated/langFeture.json';
+import gazeteer from '../../data/formated/gazeteer.json';
+import miscData from '../../data/miscData.json';
 import { lookupMapping, resolveCanonicalName } from '../../lib/geoNormalize';
-const { indiaLocationLanguages: locationMappings } = localeData;
-const { languageNames: languageNames } = localeData;
-const { stateDistricts: stateDistricts } = geoData;
-const { miscData: miscData } = appConfig;
+const { languageNames: languageNames } = langFeture;
+const INDIA_STATES = (gazeteer.Countries.find(c => c.code === 'IN')?.states) || [];
 
 import React, { useState, useEffect } from 'react';
 import {
   Dialog, Box, Typography, Button, IconButton, Select,
-  MenuItem, FormControl, InputLabel, CircularProgress,
+  MenuItem, FormControl, InputLabel,
   Autocomplete, TextField
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
@@ -20,8 +18,8 @@ import MyLocationIcon from '@mui/icons-material/MyLocation';
 import TranslateIcon from '@mui/icons-material/Translate';
 import { useAccessibility } from '../../contexts/AccessibilityContext';
 import useScrollLock from '../../hooks/useScrollLock';
-import { Country, State, City } from 'country-state-city';
 import countryToCurrency from 'country-to-currency';
+import { useLoading } from '../../contexts/LoadingContext';
 
 const { POPULAR_COUNTRIES } = miscData;
 
@@ -89,16 +87,16 @@ export default function LanguagePromptModal() {
             const dist = data.address?.state_district || data.address?.county || data.address?.city || data.address?.town || data.address?.village;
             
             // Resolve to canonical names from our mapping (handles case, hyphen spacing, aliases)
-            const canonicalSt = resolveCanonicalName(st, locationMappings.states) || st;
-            const canonicalDist = resolveCanonicalName(dist, locationMappings.districts) || dist;
+            const canonicalSt = resolveCanonicalName(st, 'states') || st;
+            const canonicalDist = resolveCanonicalName(dist, 'districts') || dist;
 
             setStateName(canonicalSt);
             setDistrictName(canonicalDist);
             
-            const stateLang = lookupMapping(st, locationMappings.states);
+            const stateLang = lookupMapping(st, 'states');
             if (stateLang) setStateLanguageCode(stateLang);
 
-            const districtLang = lookupMapping(dist, locationMappings.districts);
+            const districtLang = lookupMapping(dist, 'districts');
             if (districtLang) setLocalDialectCode(districtLang);
           } catch (error) {
             console.error("Error detecting location:", error);
@@ -133,8 +131,9 @@ export default function LanguagePromptModal() {
     setStateName(st);
     setDistrictName(null);
     setLocalDialectCode("");
-    if (st && locationMappings.states[st]) {
-      setStateLanguageCode(locationMappings.states[st]);
+    const lang = lookupMapping(st, 'states');
+    if (st && lang) {
+      setStateLanguageCode(lang);
     } else {
       setStateLanguageCode("");
     }
@@ -143,8 +142,9 @@ export default function LanguagePromptModal() {
   const handleManualDistrictChange = (e, val) => {
     const dist = val || null;
     setDistrictName(dist);
-    if (dist && locationMappings.districts[dist]) {
-      setLocalDialectCode(locationMappings.districts[dist]);
+    const lang = lookupMapping(dist, 'districts');
+    if (dist && lang) {
+      setLocalDialectCode(lang);
     } else {
       setLocalDialectCode("");
     }
@@ -217,11 +217,13 @@ export default function LanguagePromptModal() {
     }
   };
   const autocompletePaperSx = {
-    maxHeight: 280, 
-    borderRadius: '12px', 
-    boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+    borderRadius: '8px', 
+    boxShadow: 'none',
+    border: '1px solid #E2E8F0',
     '& .MuiAutocomplete-listbox': {
+      maxHeight: 280,
       padding: '8px',
+      overflowY: 'auto',
       '& .MuiAutocomplete-option': {
         borderRadius: "8px",
         margin: '2px 4px',
@@ -245,28 +247,20 @@ export default function LanguagePromptModal() {
   };
 
   // Global list of countries
-  const allCountries = Country.getAllCountries();
+  const allCountries = gazeteer.Countries;
   const countryOptions = allCountries.map(c => c.name);
 
   // Derive country code for selected country
   const selectedCountryObj = allCountries.find(c => c.name === countryName);
-  const countryCode = selectedCountryObj ? selectedCountryObj.isoCode : null;
+  const countryCode = selectedCountryObj ? selectedCountryObj.code : null;
 
-  // Derive states for the selected country
-  const stateOptions = countryCode 
-    ? State.getStatesOfCountry(countryCode).map(s => s.name).sort() 
-    : [];
+  // Derive states for the selected country (only India)
+  const stateOptions = countryName === "India" ? INDIA_STATES.map(s => s.name).sort() : [];
 
-  // Derive state code for selected state
-  const selectedStateObj = countryCode ? State.getStatesOfCountry(countryCode).find(s => s.name === stateName) : null;
-  const stateCode = selectedStateObj ? selectedStateObj.isoCode : null;
-
-  // Derive districts/cities
+  // Derive districts/cities (only India)
   let districtOptions = [];
   if (countryName === "India") {
-    districtOptions = (Reflect.get(stateDistricts, stateName) || []).sort();
-  } else if (countryCode && stateCode) {
-    districtOptions = City.getCitiesOfState(countryCode, stateCode).map(c => c.name).sort();
+    districtOptions = (INDIA_STATES.find(s => s.name === stateName)?.districts.map(d => d.name) || []).sort();
   }
 
   // Determine which buttons to show
@@ -334,8 +328,8 @@ export default function LanguagePromptModal() {
             #eef2f6
           `,
           backdropFilter: 'blur(28px) saturate(200%)',
-          boxShadow: '0 24px 64px rgba(0,0,0,0.12)',
-          border: 'none',
+          boxShadow: 'none',
+          border: '1px solid #E2E8F0',
           textAlign: 'center',
           position: 'relative'
         }
@@ -349,7 +343,8 @@ export default function LanguagePromptModal() {
           background: 'linear-gradient(135deg, rgba(0, 86, 179, 0.1) 0%, rgba(40, 167, 69, 0.1) 100%)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           margin: '0 auto 20px', color: '#0056b3',
-          boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.02)',
+          boxShadow: 'none',
+          border: '1px solid #E2E8F0',
         }}>
           <TranslateIcon sx={{ fontSize: 34 }} />
         </Box>
@@ -364,14 +359,7 @@ export default function LanguagePromptModal() {
         {/* Loading State */}
         {loading && (
           <Box sx={{ py: 4 }}>
-            <CircularProgress 
-              size={48} 
-              thickness={4} 
-              sx={{ 
-                color: '#0056b3',
-                '& .MuiCircularProgress-circle': { strokeLinecap: 'round' }
-              }} 
-            />
+            
             <Typography variant="body2" sx={{ mt: 2, color: '#64748b', fontSize: '13px', fontWeight: 500 }}>
               {"Detecting location..."}
             </Typography>
@@ -525,7 +513,7 @@ export default function LanguagePromptModal() {
               fullWidth
               onClick={() => selectLanguage(primaryLang)}
               sx={{ 
-                height: '48px', borderRadius: '12px', textTransform: 'none', fontWeight: 600,
+                height: '48px', borderRadius: '8px', textTransform: 'none', fontWeight: 600,
                 bgcolor: '#28a745',
                 color: '#ffffff',
                 fontSize: '14px',
@@ -547,7 +535,7 @@ export default function LanguagePromptModal() {
               fullWidth
               onClick={() => selectLanguage(secondaryLang)}
               sx={{ 
-                height: '48px', borderRadius: '12px', textTransform: 'none', fontWeight: 600,
+                height: '48px', borderRadius: '8px', textTransform: 'none', fontWeight: 600,
                 bgcolor: '#0056b3',
                 color: '#ffffff',
                 fontSize: '14px',
@@ -570,7 +558,7 @@ export default function LanguagePromptModal() {
                 fullWidth
                 onClick={() => selectLanguage('hi')}
                 sx={{ 
-                  height: '48px', borderRadius: '12px', textTransform: 'none', fontWeight: 700,
+                  height: '48px', borderRadius: '8px', textTransform: 'none', fontWeight: 700,
                   fontSize: '15px',
                   lineHeight: 1,
                   whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', px: 2,
@@ -593,7 +581,7 @@ export default function LanguagePromptModal() {
               fullWidth
               onClick={() => selectLanguage('en')}
               sx={{ 
-                height: '48px', borderRadius: '12px', textTransform: 'none', fontWeight: 700,
+                height: '48px', borderRadius: '8px', textTransform: 'none', fontWeight: 700,
                 fontSize: '15px',
                 lineHeight: 1,
                 whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', px: 2,

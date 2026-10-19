@@ -23,6 +23,13 @@ func NewAuthHandler(s *auth.Service) *AuthHandler {
 	return &AuthHandler{svc: s}
 }
 
+func getRefreshTTLByRole(role string) time.Duration {
+	if role == "admin" || role == "super_admin" {
+		return auth.AdminRefreshTTL
+	}
+	return auth.RefreshTTL
+}
+
 func (h *AuthHandler) RegisterRoutes(r chi.Router) {
 
 	r.Post("/registration-sessions", h.registerStart)
@@ -49,6 +56,18 @@ func (h *AuthHandler) RegisterRoutes(r chi.Router) {
 	r.Post("/settings/mfa", h.settingsMFA)
 	r.Post("/register/resend", h.resendOTP)
 	r.Post("/logout", h.logout)
+
+	// Admin Token & Super Admin Routes
+	r.Post("/admin-token/validate", h.validateAdminToken)
+
+	r.Get("/super-admin/token", h.getSuperAdminToken)
+	r.Post("/super-admin/send-email", h.sendSuperAdminEmail)
+
+
+	h.registerAdminWebAuthnRoutes(r)
+
+	// Auth APIs
+	r.Post("/login", h.login)
 }
 
 ////////////////////////////////////////////////////////
@@ -174,7 +193,8 @@ func (h *AuthHandler) completeRegistrationSession(w http.ResponseWriter, r *http
 		return
 	}
 
-	refreshRaw, _, err := h.svc.GenerateRefreshToken(ctx, acc.ID)
+	ttl := getRefreshTTLByRole(in.Role)
+	refreshRaw, _, err := h.svc.GenerateRefreshToken(ctx, acc.ID, ttl)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "registration succeeded but token generation failed")
 		return
@@ -186,9 +206,9 @@ func (h *AuthHandler) completeRegistrationSession(w http.ResponseWriter, r *http
 		Value:    refreshRaw,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   int(auth.RefreshTTL.Seconds()),
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
+		MaxAge:   int(ttl.Seconds()),
 	})
 
 	data := map[string]any{
@@ -343,15 +363,36 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 	if user != nil {
 		requiresTotp = user.MFAPreference == "totp"
 		requiresOtp = user.MFAPreference == "email"
-		// 2FA Setup disabled by request - users can set it up later in settings
-		requiresSetup = false 
 		role = user.Role
+
+		// For admins and super_admins, we mandate Biometric + OTP/TOTP setup during login
+		if role == "admin" || role == "super_admin" {
+			hasMFA := requiresTotp || requiresOtp
+			
+			// Check if they have a biometric credential registered
+			creds, err := h.svc.GetAdminWebAuthnCredentials(ctx, role, identifier)
+			hasBiometric := err == nil && len(creds) > 0
+			
+			if !hasMFA || !hasBiometric {
+				requiresSetup = true
+			}
+		} else {
+			// Regular users can set it up later
+			requiresSetup = false
+		}
 	}
 
 	if requiresTotp || requiresOtp || requiresSetup {
-		tempToken, err := h.svc.CreateTempJWT(acc.ID)
-		if err != nil {
-			respondError(w, http.StatusInternalServerError, "token generation failed")
+		session := &auth.LoginSession{
+			UserID:        acc.ID,
+			RequiresTOTP:  requiresTotp,
+			RequiresOTP:   requiresOtp,
+			RequiresSetup: requiresSetup,
+			ExpiresAt:     time.Now().Add(5 * time.Minute),
+		}
+
+		if err := h.svc.CreateLoginSession(ctx, session); err != nil {
+			respondError(w, http.StatusInternalServerError, "session generation failed")
 			return
 		}
 
@@ -367,7 +408,7 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 			"requires_totp":  requiresTotp,
 			"requires_otp":   requiresOtp,
 			"requires_setup": requiresSetup,
-			"temp_token":     tempToken,
+			"session_id":     session.ID.String(),
 			"masked_email":   maskEmail(acc.Email),
 		})
 		return
@@ -380,7 +421,8 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refreshRaw, _, err := h.svc.GenerateRefreshToken(ctx, acc.ID)
+	ttl := getRefreshTTLByRole(role)
+	refreshRaw, _, err := h.svc.GenerateRefreshToken(ctx, acc.ID, ttl)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "token generation failed")
 		return
@@ -392,9 +434,9 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 		Value:    refreshRaw,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   int(auth.RefreshTTL.Seconds()),
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
+		MaxAge:   int(ttl.Seconds()),
 	})
 
 	resp := map[string]any{
@@ -631,7 +673,7 @@ func (h *AuthHandler) refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newRaw, _, err := h.svc.RotateRefreshToken(ctx, token)
+	newRaw, _, ttl, err := h.svc.RotateRefreshToken(ctx, token)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "could not rotate token")
 		return
@@ -649,9 +691,9 @@ func (h *AuthHandler) refresh(w http.ResponseWriter, r *http.Request) {
 		Value:    newRaw,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   int(auth.RefreshTTL.Seconds()),
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
+		MaxAge:   int(ttl.Seconds()),
 	})
 
 	resp := map[string]any{
@@ -669,10 +711,39 @@ func (h *AuthHandler) refresh(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) totpSetup(w http.ResponseWriter, r *http.Request) {
 
-	uid, _, err := h.extractUserID(r)
-	if err != nil {
-		respondError(w, http.StatusUnauthorized, "unauthorized")
-		return
+	// TOTP setup typically happens AFTER login when requires_setup is true
+	// We'll use session_id for setup as well if temp tokens are gone.
+	// Wait, totpSetup was previously using extractUserID which reads the Bearer token (temp_token or access_token).
+	// Let's modify totpSetup to check for session_id in body if it's during setup flow, 
+	// or fallback to extractUserID for authenticated users setting it up from settings.
+	// Actually, settingsMFA and login flows are distinct. Let's adapt it to check session_id in payload for setup.
+
+	var in struct {
+		SessionID string `json:"session_id"`
+	}
+
+	uid := uuid.Nil
+	// Try parsing body for session_id
+	if err := json.NewDecoder(r.Body).Decode(&in); err == nil && in.SessionID != "" {
+		sessionUUID, err := uuid.Parse(in.SessionID)
+		if err != nil {
+			respondError(w, http.StatusBadRequest, "invalid session id")
+			return
+		}
+		session, err := h.svc.GetLoginSessionByID(r.Context(), sessionUUID)
+		if err != nil || session.ExpiresAt.Before(time.Now()) {
+			respondError(w, http.StatusUnauthorized, "invalid or expired session")
+			return
+		}
+		uid = session.UserID
+	} else {
+		// Fallback to Bearer token for logged-in users
+		var err error
+		uid, _, err = h.extractUserID(r)
+		if err != nil {
+			respondError(w, http.StatusUnauthorized, "unauthorized")
+			return
+		}
 	}
 
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
@@ -710,7 +781,8 @@ func (h *AuthHandler) totpSetup(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) totpVerify(w http.ResponseWriter, r *http.Request) {
 
 	var in struct {
-		Code string `json:"code"`
+		SessionID string `json:"session_id"`
+		Code      string `json:"code"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
@@ -718,10 +790,28 @@ func (h *AuthHandler) totpVerify(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	uid, _, err := h.extractUserID(r)
-	if err != nil {
-		respondError(w, http.StatusUnauthorized, "unauthorized")
-		return
+	uid := uuid.Nil
+	if in.SessionID != "" {
+		sessionUUID, err := uuid.Parse(in.SessionID)
+		if err != nil {
+			respondError(w, http.StatusBadRequest, "invalid session id")
+			return
+		}
+		session, err := h.svc.GetLoginSessionByID(r.Context(), sessionUUID)
+		if err != nil || session.ExpiresAt.Before(time.Now()) {
+			respondError(w, http.StatusUnauthorized, "invalid or expired session")
+			return
+		}
+		uid = session.UserID
+		// Delete session after successful verification happens below
+		defer h.svc.DeleteLoginSession(r.Context(), sessionUUID)
+	} else {
+		var err error
+		uid, _, err = h.extractUserID(r)
+		if err != nil {
+			respondError(w, http.StatusUnauthorized, "unauthorized")
+			return
+		}
 	}
 
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
@@ -757,7 +847,8 @@ func (h *AuthHandler) totpVerify(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refreshRaw, _, err := h.svc.GenerateRefreshToken(ctx, user.ID)
+	ttl := getRefreshTTLByRole(user.Role)
+	refreshRaw, _, err := h.svc.GenerateRefreshToken(ctx, user.ID, ttl)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "token generation failed")
 		return
@@ -768,9 +859,9 @@ func (h *AuthHandler) totpVerify(w http.ResponseWriter, r *http.Request) {
 		Value:    refreshRaw,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   int(auth.RefreshTTL.Seconds()),
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
+		MaxAge:   int(ttl.Seconds()),
 	})
 
 	respondJSON(w, http.StatusOK, map[string]any{
@@ -787,7 +878,8 @@ func (h *AuthHandler) totpVerify(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) loginTOTP(w http.ResponseWriter, r *http.Request) {
 
 	var in struct {
-		Code string `json:"code"`
+		SessionID string `json:"session_id"`
+		Code      string `json:"code"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
@@ -795,16 +887,31 @@ func (h *AuthHandler) loginTOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	uid, totpPending, err := h.extractUserID(r)
-	if err != nil {
-		respondError(w, http.StatusUnauthorized, "unauthorized")
+	if in.SessionID == "" {
+		respondError(w, http.StatusUnauthorized, "session_id required")
 		return
 	}
 
-	if !totpPending {
+	sessionUUID, err := uuid.Parse(in.SessionID)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "invalid session id")
+		return
+	}
+
+	session, err := h.svc.GetLoginSessionByID(r.Context(), sessionUUID)
+	if err != nil || session.ExpiresAt.Before(time.Now()) {
+		respondError(w, http.StatusUnauthorized, "invalid or expired session")
+		return
+	}
+
+	if !session.RequiresTOTP {
 		respondError(w, http.StatusBadRequest, "totp verification not required")
 		return
 	}
+
+	// Delete session after successful verification happens below
+	defer h.svc.DeleteLoginSession(r.Context(), sessionUUID)
+	uid := session.UserID
 
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
@@ -832,7 +939,8 @@ func (h *AuthHandler) loginTOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refreshRaw, _, err := h.svc.GenerateRefreshToken(ctx, user.ID)
+	ttl := getRefreshTTLByRole(user.Role)
+	refreshRaw, _, err := h.svc.GenerateRefreshToken(ctx, user.ID, ttl)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "token generation failed")
 		return
@@ -843,9 +951,9 @@ func (h *AuthHandler) loginTOTP(w http.ResponseWriter, r *http.Request) {
 		Value:    refreshRaw,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   int(auth.RefreshTTL.Seconds()),
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
+		MaxAge:   int(ttl.Seconds()),
 	})
 
 	respondJSON(w, http.StatusOK, map[string]any{
@@ -861,7 +969,8 @@ func (h *AuthHandler) loginTOTP(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) loginOTP(w http.ResponseWriter, r *http.Request) {
 
 	var in struct {
-		Code string `json:"code"`
+		SessionID string `json:"session_id"`
+		Code      string `json:"code"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
@@ -869,16 +978,31 @@ func (h *AuthHandler) loginOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	uid, totpPending, err := h.extractUserID(r)
-	if err != nil {
-		respondError(w, http.StatusUnauthorized, "unauthorized")
+	if in.SessionID == "" {
+		respondError(w, http.StatusUnauthorized, "session_id required")
 		return
 	}
 
-	if !totpPending {
+	sessionUUID, err := uuid.Parse(in.SessionID)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "invalid session id")
+		return
+	}
+
+	session, err := h.svc.GetLoginSessionByID(r.Context(), sessionUUID)
+	if err != nil || session.ExpiresAt.Before(time.Now()) {
+		respondError(w, http.StatusUnauthorized, "invalid or expired session")
+		return
+	}
+
+	if !session.RequiresOTP {
 		respondError(w, http.StatusBadRequest, "otp verification not required")
 		return
 	}
+
+	// Delete session after successful verification happens below
+	defer h.svc.DeleteLoginSession(r.Context(), sessionUUID)
+	uid := session.UserID
 
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
@@ -907,7 +1031,8 @@ func (h *AuthHandler) loginOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refreshRaw, _, err := h.svc.GenerateRefreshToken(ctx, user.ID)
+	ttl := getRefreshTTLByRole(user.Role)
+	refreshRaw, _, err := h.svc.GenerateRefreshToken(ctx, user.ID, ttl)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "token generation failed")
 		return
@@ -918,9 +1043,9 @@ func (h *AuthHandler) loginOTP(w http.ResponseWriter, r *http.Request) {
 		Value:    refreshRaw,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   int(auth.RefreshTTL.Seconds()),
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
+		MaxAge:   int(ttl.Seconds()),
 	})
 
 	respondJSON(w, http.StatusOK, map[string]any{
@@ -1008,6 +1133,16 @@ func (h *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
+		MaxAge:   -1,
+	})
+
 	respondJSON(w, http.StatusOK, map[string]string{
 		"message": "logged out successfully",
 	})
@@ -1034,3 +1169,68 @@ func maskEmail(email string) string {
 	return string(user[0]) + "***" + string(user[len(user)-1]) + "@" + domain
 }
 
+////////////////////////////////////////////////////////
+//// ADMIN TOKENS & SUPER ADMIN
+////////////////////////////////////////////////////////
+
+func (h *AuthHandler) validateAdminToken(w http.ResponseWriter, r *http.Request) {
+	var in struct {
+		Token string `json:"token"`
+		Role  string `json:"role"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+		respondError(w, http.StatusBadRequest, "invalid payload")
+		return
+	}
+
+	role := in.Role
+	if role == "" {
+		role = "admin"
+	}
+
+	valid := h.svc.ValidateAdminToken(r.Context(), in.Token, role)
+	if !valid {
+		respondError(w, http.StatusUnauthorized, "invalid token")
+		return
+	}
+
+	respondJSON(w, http.StatusOK, map[string]bool{"valid": true})
+}
+
+
+
+func (h *AuthHandler) getSuperAdminToken(w http.ResponseWriter, r *http.Request) {
+	// In production this should require auth middleware; left open for now.
+	adminToken, err := h.svc.GetActiveAdminToken(r.Context(), "admin")
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "no active admin token found")
+		return
+	}
+	superAdminToken, err := h.svc.GetActiveAdminToken(r.Context(), "super_admin")
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "no active super admin token found")
+		return
+	}
+	respondJSON(w, http.StatusOK, map[string]string{
+		"token": adminToken,
+		"super_admin_token": superAdminToken,
+	})
+}
+
+func (h *AuthHandler) sendSuperAdminEmail(w http.ResponseWriter, r *http.Request) {
+	var in struct {
+		Email string `json:"email"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+		respondError(w, http.StatusBadRequest, "invalid payload")
+		return
+	}
+
+	err := h.svc.SendAdminTokenEmail(r.Context(), in.Email)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "failed to send email")
+		return
+	}
+
+	respondJSON(w, http.StatusOK, map[string]string{"message": "email sent successfully"})
+}

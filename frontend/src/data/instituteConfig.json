@@ -1,0 +1,231 @@
+{
+  "steps": [
+    "auth.steps.basicInfo",
+    "auth.steps.contactLocation",
+    "auth.steps.academicDocs"
+  ],
+  "instituteCategoryOptions": [
+    {
+      "category": "School Education",
+      "label": "National Board"
+    },
+    {
+      "category": "School Education",
+      "label": "State Board"
+    },
+    {
+      "category": "School Education",
+      "label": "International Board"
+    },
+    {
+      "category": "School Education",
+      "label": "University-Affiliated"
+    },
+    {
+      "category": "Higher Education (Universities)",
+      "label": "Central University"
+    },
+    {
+      "category": "Higher Education (Universities)",
+      "label": "State Public University"
+    },
+    {
+      "category": "Higher Education (Universities)",
+      "label": "State Private University"
+    },
+    {
+      "category": "Higher Education (Universities)",
+      "label": "Deemed-to-be University"
+    },
+    {
+      "category": "Higher Education (Universities)",
+      "label": "Institute of National Importance"
+    },
+    {
+      "category": "Higher Education (Colleges)",
+      "label": "Constituent College (Central Univ)"
+    },
+    {
+      "category": "Higher Education (Colleges)",
+      "label": "Affiliated Autonomous College (Central Univ)"
+    },
+    {
+      "category": "Higher Education (Colleges)",
+      "label": "Affiliated Non-Autonomous College (Central Univ)"
+    },
+    {
+      "category": "Higher Education (Colleges)",
+      "label": "Constituent College (State Public Univ)"
+    },
+    {
+      "category": "Higher Education (Colleges)",
+      "label": "Affiliated Autonomous College (State Public Univ)"
+    },
+    {
+      "category": "Higher Education (Colleges)",
+      "label": "Affiliated Non-Autonomous College (State Public Univ)"
+    },
+    {
+      "category": "Standalone Institutions",
+      "label": "Management Institute"
+    },
+    {
+      "category": "Standalone Institutions",
+      "label": "Polytechnic & Technical Institute"
+    },
+    {
+      "category": "Standalone Institutions",
+      "label": "Nursing & Paramedical Institute"
+    },
+    {
+      "category": "Standalone Institutions",
+      "label": "Teacher Training Institute"
+    }
+  ],
+  "educationLevels": [
+    "Primary",
+    "Secondary",
+    "Undergraduate",
+    "Postgraduate",
+    "Certificate",
+    "Diploma"
+  ],
+  "courseOptions": [
+    "B.Tech",
+    "M.Tech",
+    "B.Sc",
+    "M.Sc",
+    "B.A.",
+    "M.A.",
+    "B.Com",
+    "M.Com",
+    "MBA",
+    "BBA",
+    "BCA",
+    "MCA",
+    "MBBS",
+    "BDS",
+    "B.Pharm",
+    "M.Pharm",
+    "LLB",
+    "LLM",
+    "Ph.D",
+    "Diploma",
+    "Certificate"
+  ],
+  "campusTypes": [
+    "Urban",
+    "Suburban",
+    "Rural"
+  ],
+  "centralUniversitiesList": [
+    "Central University of Andhra Pradesh",
+    "Central Tribal University of Andhra Pradesh",
+    "The National Sanskrit University",
+    "Rajiv Gandhi University",
+    "Assam University",
+    "Tezpur University",
+    "Central University of South Bihar",
+    "Mahatma Gandhi Central University",
+    "Nalanda University",
+    "Dr. Rajendra Prasad Central Agricultural University",
+    "Guru Ghasidas Vishwavidyalaya",
+    "Indira Gandhi National Open University",
+    "Jamia Millia Islamia",
+    "Jawaharlal Nehru University",
+    "South Asian University",
+    "University of Delhi",
+    "The Central Sanskrit University",
+    "Shri Lal Bahadur Shastri National Sanskrit University",
+    "Central University of Gujarat",
+    "Gati Shakti Vishwavidyalaya",
+    "Central University of Haryana",
+    "Central University of Himachal Pradesh",
+    "Central University of Jammu",
+    "Central University of Kashmir",
+    "Central University of Jharkhand",
+    "Central University of Karnataka",
+    "Central University of Kerala",
+    "Sindhu Central University",
+    "Dr. Harisingh Gour Vishwavidyalaya",
+    "The Indira Gandhi National Tribal University",
+    "Mahatma Gandhi Antarrashtriya Hindi Vishwavidyalaya",
+    "Central Agricultural University",
+    "Manipur University",
+    "National Sports University",
+    "Mizoram University",
+    "North Eastern Hill University",
+    "Nagaland University",
+    "Central University of Odisha",
+    "Pondicherry University",
+    "Central University of Punjab",
+    "Central University of Rajasthan",
+    "Sikkim University",
+    "Central University of Tamil Nadu",
+    "Indian Maritime University",
+    "English and Foreign Languages University",
+    "Maulana Azad National Urdu University",
+    "University of Hyderabad",
+    "Tripura University",
+    "Hemwati Nandan Bahuguna Garhwal University",
+    "Aligarh Muslim University",
+    "Babasaheb Bhimrao Ambedkar University",
+    "Banaras Hindu University",
+    "University of Allahabad",
+    "Rajiv Gandhi National Aviation University",
+    "Rani Lakshmi Bai Central Agricultural University",
+    "Visva Bharati",
+    "Other"
+  ],
+  "affiliationOptionsMap": {
+    "National Board": [
+      "Central Board of Secondary Education (CBSE)",
+      "Council for the Indian School Certificate Examinations (CISCE)",
+      "National Institute of Open Schooling (NIOS)",
+      "Other"
+    ],
+    "State Board": [
+      "Board of Secondary Education, Andhra Pradesh (BSEAP)",
+      "Board of Intermediate Education, Andhra Pradesh (BIEAP)",
+      "Secondary Education Board of Assam (SEBA)",
+      "Assam Higher Secondary Education Council (AHSEC)",
+      "Bihar School Examination Board (BSEB)",
+      "Chhattisgarh Board of Secondary Education (CGBSE)",
+      "Goa Board of Secondary & Higher Secondary Education (GBSHSE)",
+      "Gujarat Secondary and Higher Secondary Education Board (GSEB)",
+      "Board of School Education Haryana (BSEH)",
+      "Himachal Pradesh Board of School Education (HPBOSE)",
+      "Jammu and Kashmir State Board of School Education (JKBOSE)",
+      "Jharkhand Academic Council (JAC)",
+      "Karnataka School Examination and Assessment Board (KSEAB)",
+      "Kerala Board of Public Examinations (KBPE)",
+      "Madhya Pradesh Board of Secondary Education (MPBSE)",
+      "Maharashtra State Board of Secondary and Higher Secondary Education (MSBSHSE)",
+      "Board of Secondary Education, Odisha (BSE)",
+      "Punjab School Education Board (PSEB)",
+      "Board of Secondary Education, Rajasthan (RBSE)",
+      "Tamil Nadu State Board of School Examination (TNBSE)",
+      "Uttar Pradesh Madhyamik Shiksha Parishad (UPMSP)",
+      "Uttarakhand Board of School Education (UBSE)",
+      "West Bengal Board of Secondary Education (WBBSE)",
+      "West Bengal Council of Higher Secondary Education (WBCHSE)",
+      "Other"
+    ],
+    "International Board": [
+      "International Baccalaureate (IB)",
+      "Cambridge Assessment International Education (CAIE)",
+      "Edexcel",
+      "Other"
+    ],
+    "Constituent College (Central Univ)": "ref:centralUniversitiesList",
+    "Affiliated Autonomous College (Central Univ)": "ref:centralUniversitiesList",
+    "Affiliated Non-Autonomous College (Central Univ)": "ref:centralUniversitiesList"
+  },
+  "noChildTypes": [
+    "Central University",
+    "State Public University",
+    "State Private University",
+    "Deemed-to-be University",
+    "Institute of National Importance"
+  ]
+}

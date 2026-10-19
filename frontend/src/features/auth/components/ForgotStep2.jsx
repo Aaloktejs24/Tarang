@@ -1,4 +1,5 @@
 import { Box, Typography, Button } from "@mui/material";
+import { getMaskedEmail } from "../../../utils/maskUtils";
 import OtpInput from "./OtpInput";
 import { motion as Motion, AnimatePresence } from "framer-motion";
 import Loader from "../../../components/common/Loader";
@@ -19,11 +20,11 @@ export default function ForgotStep2({ setStep, formData, updateFormData, isLoadi
     return (
         <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 2 }}>
             <Box>
-                <Typography variant="h4" sx={{ mb: 1, fontWeight: 800, color: "#0f172a", letterSpacing: "-1px" }}>
+                <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", fontSize: "28px" }}>
                     OTP वेरीफाई करें
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#64748b", mb: 3, fontSize: "15px" }}>
-                    हमने <span style={{ color: "#0f172a", fontWeight: 700 }}>{maskedEmail || formData.email}</span> पर एक वेरिफिकेशन कोड भेजा है
+                <Typography variant="body2" sx={{ color: "#64748b", mb: 3, fontSize: "15px", lineHeight: 1.5 }}>
+                    हमने <span style={{ color: "#0f172a", fontWeight: 700 }}>{getMaskedEmail(maskedEmail || formData.email)}</span> पर एक वेरिफिकेशन कोड भेजा है
                 </Typography>
             </Box>
 
@@ -78,7 +79,7 @@ export default function ForgotStep2({ setStep, formData, updateFormData, isLoadi
                 disabled={isLoading || formData.otp.length < 6}
                 onClick={() => { setError(""); setSuccess(""); setStep(3); }}
                 sx={{
-                    py: 1.5,
+                    height: "48px",
                     borderRadius: "8px",
                     textTransform: "none",
                     fontSize: "16px",
@@ -105,7 +106,7 @@ export default function ForgotStep2({ setStep, formData, updateFormData, isLoadi
                             fontWeight: 600,
                             cursor: (resendTimer > 0 || isLoading) ? "default" : "pointer",
                             ml: 0.5,
-                            "&:hover": { textDecoration: (resendTimer > 0 || isLoading) ? "none" : "underline" }
+                            "&:hover": { textDecoration: "none" }
                         }}
                         onClick={() => {
                             if (resendTimer === 0 && !isLoading) {
@@ -122,7 +123,7 @@ export default function ForgotStep2({ setStep, formData, updateFormData, isLoadi
                 variant="text"
                 fullWidth
                 onClick={() => { resetOtp(); setError(""); setSuccess(""); setStep(1); }}
-                sx={{ textTransform: "none", color: "#64748b", fontWeight: 600, fontSize: "14px", mt: 1 }}
+                sx={{ textTransform: "none", color: "#64748b", fontWeight: 600, fontSize: "14.5px", mt: 1, height: "44px" }}
             >
                 ← रिकवरी पर वापस जाएं
             </Button>

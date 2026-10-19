@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { 
   Box, Typography, Button, IconButton, 
-  TextField, CircularProgress, Paper, InputAdornment 
+  TextField, Paper, InputAdornment 
 } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
@@ -14,6 +14,7 @@ import Loader from "../../../components/common/Loader";
 import useScrollLock from "../../../hooks/useScrollLock";
 
 import { startAadhaarOtp, verifyAadhaarOtp, startDigilocker, getProfile } from "../../auth/authService";
+import { useLoading } from '../../../contexts/LoadingContext';
 
 export default function KycVerificationModal({ open, onClose, userId, onSuccess }) {
   const [step, setStep] = useState("method_select"); // method_select, aadhaar_input, otp_input, digilocker_pending, success
@@ -155,7 +156,8 @@ export default function KycVerificationModal({ open, onClose, userId, onSuccess 
             radial-gradient(at 20% 100%, rgba(0, 86, 179, 0.1) 0, transparent 50%),
             #ffffff
           `,
-          boxShadow: "0 25px 50px -12px rgba(0,0,0,0.3)",
+          boxShadow: "none",
+          border: "1px solid #E2E8F0",
           overflowY: 'auto', maxHeight: '92vh'
         }}
       >
@@ -284,7 +286,7 @@ export default function KycVerificationModal({ open, onClose, userId, onSuccess 
                 onClick={handleStartOtp}
                 disabled={loading || aadhaar.length !== 12}
                 sx={{ 
-                  py: 1.5, borderRadius: "12px", bgcolor: "#0056b3", fontWeight: 700, fontSize: 16,
+                  py: 1.5, borderRadius: "8px", bgcolor: "#0056b3", fontWeight: 700, fontSize: 16,
                   "&:hover": { bgcolor: "#153b7a" }
                 }}
               >
@@ -332,7 +334,7 @@ export default function KycVerificationModal({ open, onClose, userId, onSuccess 
                 onClick={handleVerifyOtp}
                 disabled={loading || otp.length !== 6}
                 sx={{ 
-                  py: 1.5, borderRadius: "12px", bgcolor: "#28a745", fontWeight: 700, fontSize: 16,
+                  py: 1.5, borderRadius: "8px", bgcolor: "#28a745", fontWeight: 700, fontSize: 16,
                   "&:hover": { bgcolor: "#218838" }
                 }}
               >
@@ -360,7 +362,7 @@ export default function KycVerificationModal({ open, onClose, userId, onSuccess 
                 onClick={checkDigilockerStatus}
                 disabled={loading}
                 sx={{ 
-                  py: 1.5, borderRadius: "12px", bgcolor: "#0056b3", fontWeight: 700, fontSize: 16,
+                  py: 1.5, borderRadius: "8px", bgcolor: "#0056b3", fontWeight: 700, fontSize: 16,
                   "&:hover": { bgcolor: "#153b7a" }
                 }}
               >
@@ -376,7 +378,7 @@ export default function KycVerificationModal({ open, onClose, userId, onSuccess 
                 <Box sx={{ 
                   width: 100, height: 100, borderRadius: "50%", bgcolor: "#28a745", 
                   display: "flex", alignItems: "center", justifyContent: "center", mx: "auto", mb: 3,
-                  boxShadow: "0 10px 30px rgba(16, 185, 129, 0.3)"
+                  boxShadow: "none"
                 }}>
                   <GppGoodOutlinedIcon sx={{ fontSize: 50, color: "white" }} />
                 </Box>

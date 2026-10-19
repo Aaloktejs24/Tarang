@@ -367,3 +367,49 @@ func (r *Repository) GetByPhone(ctx context.Context, phone string) (*User, error
 
 	return &u, nil
 }
+
+// GetInstitutes fetches a paginated list of users with the 'institute' role.
+func (r *Repository) GetInstitutes(ctx context.Context, limit, offset int) ([]*User, error) {
+	rows, err := r.db.Query(ctx, `
+		SELECT id, email, username, role, phone, phone_hash, phone_verified_at, email_verified_at, 
+		       kyc_verified_at, kyc_reference_id, aadhaar_hash, full_name, dob, gender,
+		       profile_pic_url, banner_url, bio, institution_name, social_links, skills, recognitions,
+		       totp_secret, mfa_preference, disabled, created_at, updated_at,
+		       location, languages, demographic
+		FROM users WHERE role IN ('institute', 'organisation') AND disabled=false
+		ORDER BY created_at DESC
+		LIMIT $1 OFFSET $2
+	`, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []*User
+	for rows.Next() {
+		var u User
+		err := rows.Scan(&u.ID, &u.Email, &u.Username, &u.Role, &u.Phone, &u.PhoneHash, &u.PhoneVerifiedAt, &u.EmailVerifiedAt,
+			&u.KycVerifiedAt, &u.KycReferenceID, &u.AadhaarHash, &u.FullName, &u.DOB, &u.Gender,
+			&u.ProfilePicURL, &u.BannerURL, &u.Bio, &u.InstitutionName, &u.SocialLinks, &u.Skills, &u.Recognitions,
+			&u.TOTPSecret, &u.MFAPreference, &u.Disabled, &u.CreatedAt, &u.UpdatedAt,
+			&u.Location, &u.Languages, &u.Demographic)
+		if err != nil {
+			return nil, err
+		}
+		u.FullName = r.decrypt(u.FullName)
+		u.DOB = r.decrypt(u.DOB)
+		u.Gender = r.decrypt(u.Gender)
+		u.Phone = r.decrypt(u.Phone)
+
+		ip, err := r.GetInstituteProfile(ctx, u.ID)
+		if err == nil {
+			u.InstituteProfile = ip
+		}
+		users = append(users, &u)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}

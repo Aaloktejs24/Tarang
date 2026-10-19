@@ -1,0 +1,28 @@
+{
+  "contentFormats": [
+    "video",
+    "audio",
+    "pdf",
+    "ebook",
+    "article",
+    "code",
+    "quiz"
+  ],
+  "courseAccessOptions": [
+    {
+      "label": "Public (Everyone)",
+      "labelKey": "courseDashboard.accessOptions.public",
+      "value": "public"
+    },
+    {
+      "label": "Accessible only to enrolled students",
+      "labelKey": "courseDashboard.accessOptions.enrolled",
+      "value": "enrolled"
+    },
+    {
+      "label": "Locked (Hidden)",
+      "labelKey": "courseDashboard.accessOptions.locked",
+      "value": "locked"
+    }
+  ]
+}

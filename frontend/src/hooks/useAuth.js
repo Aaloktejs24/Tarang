@@ -1,39 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getToken, getAuthFlowInProgress } from "../lib/auth";
+import { AuthContext } from "../contexts/AuthContext";
+import { getAuthFlowInProgress } from "../lib/auth";
 
 export const useAuth = (requireAuth = true) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const { isAuthenticated, isLoading, checkAuth } = useContext(AuthContext);
   const router = useRouter();
 
   useEffect(() => {
-    const checkAuth = () => {
-      const token = getToken();
-      const inProgress = getAuthFlowInProgress();
+    if (isLoading) return;
 
-      console.log("useAuth Check:", { token: !!token, inProgress, requireAuth });
+    const inProgress = getAuthFlowInProgress();
 
-      if (requireAuth && !token) {
-        // Protected route, no token -> kick to landing page
-        console.log("useAuth: Redirecting to landing (unauthorized)");
-        // Temporary bypass auth check for debugging
-        router.push("/");
-      } else if (!requireAuth && token && !inProgress) {
-        // Public route (like login), has token and NOT in middle of a flow -> kick to dashboard
-        console.log("useAuth: Redirecting to dashboard (authorized)");
-        router.push("/dashboard/home/institute");
-      } else {
-        // Authorized access or flow in progress
-        setIsAuthenticated(!!token);
-        setIsLoading(false);
-      }
-    };
+    if (requireAuth && !isAuthenticated) {
+      router.push("/");
+    } else if (!requireAuth && isAuthenticated && !inProgress) {
+      router.push("/dashboard/home/institute");
+    }
+  }, [isLoading, isAuthenticated, requireAuth, router]);
 
-    checkAuth();
-  }, [router, requireAuth]);
-
-  return { isAuthenticated, isLoading };
+  return { isAuthenticated, isLoading, checkAuth };
 };

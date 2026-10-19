@@ -1,7 +1,9 @@
 "use client";
 
 import mockData from '../../data/dashboardMockData.json';
+import courseConfig from '../../data/courseConfig.json';
 const { dashboardMockData: dashboardMockData } = mockData;
+const { contentFormats } = courseConfig;
 import React from "react";
 import { useSearchParams, usePathname } from "next/navigation";
 import { Box, Typography, Container, Grid, Card, CardContent, Avatar, IconButton, Button } from "@mui/material";
@@ -132,18 +134,17 @@ export default function FlowPage() {
   const isChecked = (type) => filters.includes(type);
 
   // Format filters (Group 1 in UI)
-  const formatGroup = ["video", "audio", "pdf", "ebook", "article", "code", "quiz"];
-  const activeFormats = filters.filter(f => formatGroup.includes(f));
+  const activeFormats = filters.filter(f => contentFormats.includes(f));
 
   // Topic/Category filters (Group 2 in UI)
-  const activeCategories = filters.filter(f => !formatGroup.includes(f));
+  const activeCategories = filters.filter(f => !contentFormats.includes(f));
 
   // Multi-dimensional filter mapping logic exactly satisfying user requirements:
   // 1. Within a single group: OR behavior (e.g., Selecting Video & Audio returns both)
   // 2. Across different groups: AND behavior (e.g., Selecting Video & Hackathon returns ONLY things that are BOTH)
   const filteredItems = feedItems.filter(item => {
-    const itemFormats = item.types.filter(t => formatGroup.includes(t));
-    const itemCategories = item.types.filter(t => !formatGroup.includes(t));
+    const itemFormats = item.types.filter(t => contentFormats.includes(t));
+    const itemCategories = item.types.filter(t => !contentFormats.includes(t));
 
     const matchesFormat = activeFormats.length === 0 ||
       activeFormats.some(f => itemFormats.includes(f));
@@ -156,23 +157,7 @@ export default function FlowPage() {
 
   return (
     <>
-      {/* ─── FIXED BACKGROUND LAYER ─── */}
-      <Box
-        sx={{
-          position: "fixed",
-          top: 0, left: 0, right: 0, bottom: 0,
-          zIndex: -1,
-          background: `
-            radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.55) 0, transparent 50%), 
-            radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.4) 0, transparent 50%), 
-            radial-gradient(at 80% 90%, rgba(40, 167, 69, 0.3) 0, transparent 50%),
-            radial-gradient(at 20% 80%, rgba(0, 86, 179, 0.3) 0, transparent 50%),
-            #eef2f6
-          `
-        }}
-      >
-        <Box sx={{ position: "absolute", width: "50vw", height: "50vw", top: "-10%", left: "-10%", background: "rgba(16, 185, 129, 0.05)", filter: "blur(120px)", borderRadius: "50%", pointerEvents: "none" }} />
-      </Box>
+
       {/* ─── SCROLLABLE CONTENT LAYER ─── */}
       <Box
         sx={{

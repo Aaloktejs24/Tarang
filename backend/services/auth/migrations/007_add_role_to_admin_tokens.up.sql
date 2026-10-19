@@ -1,0 +1,1 @@
+ALTER TABLE admin_tokens ADD COLUMN role VARCHAR(20) NOT NULL DEFAULT 'admin';

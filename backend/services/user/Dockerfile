@@ -12,7 +12,7 @@ RUN go mod download
 COPY . .
 
 # Build the user service
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/user-service ./services/user/cmd/server
+RUN CGO_ENABLED=0 GOOS=linux GOMAXPROCS=1 go build -p 1 -o /app/user-service ./services/user/cmd/server
 
 # Final stage
 FROM alpine:latest

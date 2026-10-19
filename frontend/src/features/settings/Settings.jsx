@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Switch, Divider, Chip, useTheme, useMediaQuery, Button, CircularProgress } from "@mui/material";
+import { Box, Typography, Switch, Divider, Chip, useTheme, useMediaQuery, Button } from "@mui/material";
 import { motion } from "framer-motion";
 import ResponsiveSection from "../../components/ui/ResponsiveSection";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
@@ -105,7 +105,6 @@ export default function Settings() {
       sx={{ 
         minHeight: "calc(100vh - 64px)",
         position: "relative",
-        background: `radial-gradient(at 0% 0%, rgba(30, 79, 163, 0.45) 0, transparent 50%), radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.3) 0, transparent 50%), radial-gradient(at 80% 90%, #28a74526 0, transparent 50%), radial-gradient(at 20% 80%, rgba(30, 79, 163, 0.2) 0, transparent 50%), #ffffff`,
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",

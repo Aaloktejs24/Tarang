@@ -47,3 +47,21 @@ type RegistrationSession struct {
 	ExpiresAt     time.Time `db:"expires_at" json:"expires_at"`
 	CreatedAt     time.Time `db:"created_at" json:"created_at"`
 }
+
+type LoginSession struct {
+	ID            uuid.UUID `db:"id" json:"id"`
+	UserID        uuid.UUID `db:"user_id" json:"user_id"`
+	RequiresTOTP  bool      `db:"requires_totp" json:"requires_totp"`
+	RequiresOTP   bool      `db:"requires_otp" json:"requires_otp"`
+	RequiresSetup bool      `db:"requires_setup" json:"requires_setup"`
+	ExpiresAt     time.Time `db:"expires_at" json:"expires_at"`
+	CreatedAt     time.Time `db:"created_at" json:"created_at"`
+}
+
+type AdminToken struct {
+	ID        int       `db:"id" json:"id"`
+	Token     string    `db:"token" json:"token"`
+	Role      string    `db:"role" json:"role"`
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
+	ExpiresAt time.Time `db:"expires_at" json:"expires_at"`
+}

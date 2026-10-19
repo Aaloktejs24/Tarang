@@ -1,0 +1,14 @@
+{
+  "options": [
+    "Male",
+    "Female",
+    "Transgender",
+    "Non-Binary",
+    "Genderqueer",
+    "Agender",
+    "Genderfluid",
+    "Two-Spirit",
+    "Prefer not to say",
+    "Other"
+  ]
+}

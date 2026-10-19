@@ -364,7 +364,7 @@ export default function BlogDetailPage() {
               justifyContent: "center",
               cursor: "pointer",
               borderRadius: "12px",
-              boxShadow: "0 10px 25px rgba(40, 167, 69, 0.4)",
+              boxShadow: "none",
               "&:hover": { bgcolor: "#218838" },
               transition: "all 0.3s ease",
             }}

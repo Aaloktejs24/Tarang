@@ -98,7 +98,7 @@
         "typeLabel": "Video / Webinar",
         "title": "Quantum Physics: Wave-Particle Duality",
         "description": "An incredibly deep dive into the dual nature of light and matter with modern real-world examples and experiments.",
-        "uploader": "IIT Kanpur Physics",
+        "uploader": "Institute Physics",
         "instructor": "Dr. H. C. Verma",
         "date": "2 Hrs ago",
         "rating": "4.9",
@@ -193,7 +193,7 @@
         "typeLabel": "PDF Document",
         "title": "Thermodynamics Notes",
         "description": "Complete chapter notes covering the Laws of Thermodynamics, Carnot Engine, and solved numericals.",
-        "uploader": "IIT Delhi OpenCourse",
+        "uploader": "Institute OpenCourse",
         "instructor": "Prof. S. R. Bhat",
         "date": "5 Hrs ago",
         "rating": "4.8",
@@ -385,28 +385,28 @@
       {
         "rank": 1,
         "name": "अनन्या सिंह",
-        "institute": "IIT कानपुर",
+        "institute": "Institute",
         "score": 9850,
         "badge": "gold"
       },
       {
         "rank": 2,
         "name": "विक्रम रेड्डी",
-        "institute": "IIT मुंबई",
+        "institute": "Institute",
         "score": 9720,
         "badge": "silver"
       },
       {
         "rank": 3,
         "name": "श्रेया ओझा",
-        "institute": "IIT दिल्ली",
+        "institute": "Institute",
         "score": 9605,
         "badge": "bronze"
       },
       {
         "rank": 4,
         "name": "आलोक",
-        "institute": "IIT कानपुर",
+        "institute": "Institute",
         "score": 9480,
         "badge": "",
         "isMe": true
@@ -414,28 +414,28 @@
       {
         "rank": 5,
         "name": "रिया जोशी",
-        "institute": "IIT मद्रास",
+        "institute": "Institute",
         "score": 9310,
         "badge": ""
       },
       {
         "rank": 6,
         "name": "कार्तिक नायर",
-        "institute": "IIT खड़गपुर",
+        "institute": "Institute",
         "score": 9150,
         "badge": ""
       },
       {
         "rank": 7,
         "name": "मानसी देसाई",
-        "institute": "IIT रुड़की",
+        "institute": "Institute",
         "score": 8990,
         "badge": ""
       },
       {
         "rank": 8,
         "name": "सिद्धार्थ राव",
-        "institute": "IIT गुवाहाटी",
+        "institute": "Institute",
         "score": 8830,
         "badge": ""
       }
@@ -533,7 +533,7 @@
         "name": "अनन्या सिंह",
         "subject": "भौतिकी",
         "score": 98.5,
-        "institute": "IIT कानपुर",
+        "institute": "Institute",
         "change": "+2"
       },
       {
@@ -541,7 +541,7 @@
         "name": "करण मेहता",
         "subject": "गणित",
         "score": 97.2,
-        "institute": "IIT बॉम्बे",
+        "institute": "Institute",
         "change": "0"
       },
       {
@@ -549,7 +549,7 @@
         "name": "श्रेया ओझा",
         "subject": "रसायन",
         "score": 96.8,
-        "institute": "IIT दिल्ली",
+        "institute": "Institute",
         "change": "+1"
       },
       {
@@ -557,7 +557,7 @@
         "name": "आलोक",
         "subject": "भौतिकी",
         "score": 94.5,
-        "institute": "IIT कानपुर",
+        "institute": "Institute",
         "change": "+3",
         "isMe": true
       },
@@ -566,7 +566,7 @@
         "name": "रिया जोशी",
         "subject": "जीव विज्ञान",
         "score": 93.1,
-        "institute": "IIT मद्रास",
+        "institute": "Institute",
         "change": "-1"
       },
       {
@@ -574,7 +574,7 @@
         "name": "विशाल यादव",
         "subject": "गणित",
         "score": 91.7,
-        "institute": "IIT रुड़की",
+        "institute": "Institute",
         "change": "0"
       },
       {
@@ -582,7 +582,7 @@
         "name": "नेहा वर्मा",
         "subject": "भौतिकी",
         "score": 90.4,
-        "institute": "IIT खड़गपुर",
+        "institute": "Institute",
         "change": "+2"
       },
       {
@@ -590,7 +590,7 @@
         "name": "अजय कुमार",
         "subject": "रसायन",
         "score": 89.9,
-        "institute": "IIT गुवाहाटी",
+        "institute": "Institute",
         "change": "-2"
       }
     ],
@@ -598,7 +598,7 @@
       {
         "id": 1,
         "title": "भौतिकी - उन्नत स्तर",
-        "issuer": "IIT कानपुर",
+        "issuer": "Institute",
         "date": "मार्च 2026",
         "score": "92/100",
         "type": "पाठ्यक्रम",

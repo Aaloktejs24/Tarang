@@ -3,7 +3,7 @@
 import mockData from '../../data/dashboardMockData.json';
 const { dashboardMockData: dashboardMockData } = mockData;
 import React, { useState } from "react";
-import { Box, Typography, Paper, Chip, LinearProgress, Checkbox } from "@mui/material";
+import { Box, Typography, Paper, Chip, Checkbox } from "@mui/material";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 
 const { initialTasks } = dashboardMockData;
@@ -37,7 +37,7 @@ export default function Tasks() {
                   <Typography fontSize={12} color="text.secondary">⏰ {task.deadline}</Typography>
                 </Box>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <LinearProgress variant="determinate" value={task.progress} sx={{ flex: 1, height: 6, borderRadius: "8px", bgcolor: "#f0f0f0", "& .MuiLinearProgress-bar": { bgcolor: task.done ? "#28a745" : "#0056b3", borderRadius: "8px" } }} />
+                  
                   <Typography fontSize={11} color="text.secondary">{task.progress}%</Typography>
                 </Box>
               </Box>

@@ -27,6 +27,7 @@ import { translateError } from "./utils/authErrors";
 import {
   setAuthFlowInProgress,
   setToken,
+  removeToken,
 } from "../../lib/auth";
 
 // Import step components
@@ -43,9 +44,12 @@ import ForgotStep2 from "./components/ForgotStep2";
 import ForgotStep3 from "./components/ForgotStep3";
 import CloseIcon from '@mui/icons-material/Close';
 import Loader from "../../components/common/Loader";
+import { AuthContext } from "../../contexts/AuthContext";
+import { getMaskedEmail } from "../../utils/maskUtils";
 
 export default function LoginForm({ onClose }) {
   const router = useRouter();
+  const { checkAuth } = React.useContext(AuthContext);
 
   const [mode, setMode] = useState("login");
   const [step, setStep] = useState(1);
@@ -90,7 +94,7 @@ export default function LoginForm({ onClose }) {
     } else {
       if (storedMode) setMode(storedMode);
       if (storedStep) setStep(parseInt(storedStep, 10));
-      if (storedMasked) setMaskedEmail(storedMasked);
+      if (storedMasked) setMaskedEmail(getMaskedEmail(storedMasked));
 
       if (storedData) {
         try {
@@ -175,7 +179,7 @@ export default function LoginForm({ onClose }) {
     // Context-Aware Clean-up: If starting or resuming a registration,
     // clear any stale tokens from previous sessions to prevent interference.
     if (mode === "register") {
-      localStorage.removeItem("token");
+      removeToken();
       // However, DO NOT clear registrationToken if we are in Step 4 or 5
       if (step < 4) {
         sessionStorage.removeItem("registration_token");
@@ -208,8 +212,9 @@ export default function LoginForm({ onClose }) {
     if (target) localStorage.setItem("lastOtpTarget", target);
     if (purpose) localStorage.setItem("lastOtpPurpose", purpose);
     if (masked) {
-      localStorage.setItem("lastMaskedEmail", masked);
-      setMaskedEmail(masked);
+      const properlyMasked = getMaskedEmail(masked);
+      localStorage.setItem("lastMaskedEmail", properlyMasked);
+      setMaskedEmail(properlyMasked);
     }
     setResendTimer(30);
   };
@@ -240,15 +245,14 @@ export default function LoginForm({ onClose }) {
   const handleFinalLogin = async (identifier, password) => {
     const lastTarget = localStorage.getItem("lastOtpTarget");
     const lastPurpose = localStorage.getItem("lastPurpose");
-    const tempToken = localStorage.getItem("temp_token");
+    const sessionId = formData.sessionId;
 
-    if (resendTimer > 0 && lastTarget === identifier && lastPurpose === "login" && tempToken) {
+    if (resendTimer > 0 && lastTarget === identifier && lastPurpose === "login" && sessionId) {
       setFormData(prev => ({ ...prev, otp: "" }));
       setStep(2);
       return;
     }
 
-    localStorage.removeItem("temp_token");
     setIsLoading(true);
     setError("");
     try {
@@ -256,11 +260,10 @@ export default function LoginForm({ onClose }) {
 
       if (data.requires_otp || data.requires_totp || data.requires_mfa || data.otp_sent) {
         persistRememberMe(identifier);
-        if (data.temp_token) localStorage.setItem("temp_token", data.temp_token); // save for TOTP/OTP auth
         setMfaType(data.requires_totp ? "totp" : "email");
-        setMaskedEmail(data.masked_email || identifier);
+        setMaskedEmail(getMaskedEmail(data.masked_email || identifier));
         setAuthFlowInProgress(true);
-        setFormData(prev => ({ ...prev, otp: "" }));
+        setFormData(prev => ({ ...prev, otp: "", sessionId: data.session_id }));
         setStep(2);
         triggerOtpCooldown(identifier, "login", data.masked_email);
         return;
@@ -275,7 +278,7 @@ export default function LoginForm({ onClose }) {
         }
         // If no full token, the backend might still return requires_setup but we handle it as success
         // since we enabled 2FA setup bypass.
-        if (data.temp_token && !data.access_token) {
+        if (data.session_id && !data.access_token) {
             // This case shouldn't happen with our backend changes to requiresSetup = false
         }
       }
@@ -283,6 +286,7 @@ export default function LoginForm({ onClose }) {
       if (data.access_token) {
         persistRememberMe(identifier);
         cleanupAuthContext();
+        await checkAuth();
         router.push("/dashboard/home/institute");
       }
     } catch (err) {
@@ -296,18 +300,19 @@ export default function LoginForm({ onClose }) {
     setIsLoading(true);
     setError("");
     try {
-      const tempToken = localStorage.getItem("temp_token");
+      const sessionId = formData.sessionId;
       let data;
       if (mfaType === "totp") {
-        data = await verifyLoginTotp(formData.otp, tempToken);
+        data = await verifyLoginTotp(formData.otp, sessionId);
       } else {
-        data = await verifyLoginOtp(formData.otp, tempToken);
+        data = await verifyLoginOtp(formData.otp, sessionId);
       }
 
       if (data.access_token) {
         setToken(data.access_token);
         persistRememberMe(formData.email);
         cleanupAuthContext();
+        await checkAuth();
         router.push("/dashboard/home/institute");
       }
     } catch (err) {
@@ -336,7 +341,7 @@ export default function LoginForm({ onClose }) {
       await sendRegistrationEmailOtp(sessionId);
 
       setAuthFlowInProgress(true);
-      setMaskedEmail(email); // Or backend can return masked email
+      setMaskedEmail(getMaskedEmail(data.masked_email || email));
       setFormData(prev => ({ ...prev, otp: "", sessionId }));
       setStep(2);
       setSuccess("OTP सफलतापूर्वक भेजा गया!");
@@ -358,7 +363,14 @@ export default function LoginForm({ onClose }) {
       await verifyRegistrationEmailOtp(formData.sessionId, formData.otp);
       setStep(3); // Go to final details step
     } catch (err) {
-      setError(translateError(err.response?.data?.error || "अमान्य या समाप्त OTP"));
+      const errMsg = err.response?.data?.error || "अमान्य या समाप्त OTP";
+      if (errMsg.toLowerCase().includes("session expired") || errMsg.toLowerCase().includes("session not found")) {
+          setMode("login");
+          setStep(1);
+          setError("पंजीकरण सत्र समाप्त हो गया है। कृपया पुनः लॉगिन करें।");
+      } else {
+          setError(translateError(errMsg));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -385,7 +397,14 @@ export default function LoginForm({ onClose }) {
       setStep(4);
       return data;
     } catch (err) {
-      setError(translateError(err.response?.data?.error || err.message || String(err)));
+      const errMsg = err.response?.data?.error || err.message || String(err);
+      if (errMsg.toLowerCase().includes("session expired") || errMsg.toLowerCase().includes("session not found")) {
+          setMode("login");
+          setStep(1);
+          setError("पंजीकरण सत्र समाप्त हो गया है। कृपया पुनः लॉगिन करें।");
+      } else {
+          setError(translateError(errMsg));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -415,7 +434,7 @@ export default function LoginForm({ onClose }) {
     try {
       const data = await startForgotPassword(target);
       setAuthFlowInProgress(true);
-      setMaskedEmail(data.masked_email || target);
+      setMaskedEmail(getMaskedEmail(data.masked_email || target));
       setFormData(prev => ({ ...prev, email: target, otp: "" }));
       setStep(2);
       setSuccess("OTP सफलतापूर्वक भेजा गया!");
@@ -461,10 +480,10 @@ export default function LoginForm({ onClose }) {
         await sendRegistrationEmailOtp(formData.sessionId);
         setFormData(prev => ({ ...prev, otp: "" }));
         setSuccess("OTP फिर से भेजा गया!");
-        triggerOtpCooldown(formData.email, purpose, maskedEmail || formData.email);
+        triggerOtpCooldown(formData.email, purpose, maskedEmail || getMaskedEmail(formData.email));
       } else {
         const data = await resendOtp(formData.email, purpose);
-        if (data.masked_email) setMaskedEmail(data.masked_email);
+        if (data.masked_email) setMaskedEmail(getMaskedEmail(data.masked_email));
         setFormData(prev => ({ ...prev, otp: "" }));
         setSuccess("OTP फिर से भेजा गया!");
         triggerOtpCooldown(formData.email, purpose, data.masked_email);
@@ -483,7 +502,7 @@ export default function LoginForm({ onClose }) {
     if (mode === "login") {
       switch (step) {
         case 1: return <LoginStep setStep={setStep} setMode={setMode} formData={formData} updateFormData={updateFormData} onLogin={handleFinalLogin} isLoading={isLoading} error={error} setError={setError} success={success} setSuccess={setSuccess} />;
-        case 2: return <LoginOtpStep setStep={setStep} formData={formData} updateFormData={updateFormData} handleFinalSubmit={handleVerifyLoginOtp} isLoading={isLoading} error={error} setError={setError} onResendOtp={handleResendOtp} resendTimer={resendTimer} resetOtp={resetOtp} success={success} setSuccess={setSuccess} maskedEmail={maskedEmail} mfaType={mfaType} />;
+        case 2: return <LoginOtpStep setStep={setStep} formData={formData} updateFormData={updateFormData} handleFinalSubmit={handleVerifyLoginOtp} isLoading={isLoading} error={error} setError={setError} onResendOtp={handleResendOtp} resendTimer={resendTimer} resetOtp={resetOtp} success={success} setSuccess={setSuccess} maskedEmail={maskedEmail || getMaskedEmail(formData?.email)} mfaType={mfaType} />;
         case 3: return <Register2faStep setStep={setStep} setMode={setMode} onFinish={() => { setSuccess("MFA सक्षम हो गया! कृपया साइन इन करें।"); setStep(1); }} handleFinalSubmit={async () => ({ success: true })} isLoading={isLoading} />;
         default: return null;
       }
@@ -491,7 +510,7 @@ export default function LoginForm({ onClose }) {
     if (mode === "register") {
       switch (step) {
         case 1: return <RegisterEmailStep setStep={setStep} setMode={setMode} formData={formData} updateFormData={updateFormData} setError={setError} error={error} isLoading={isLoading} onRegisterStart={handleRegisterStart} success={success} setSuccess={setSuccess} />;
-        case 2: return <RegisterOtpStep setStep={setStep} formData={formData} updateFormData={updateFormData} setError={setError} error={error} isLoading={isLoading} onResendOtp={handleResendOtp} onVerifyOtp={handleVerifyRegisterOtp} resendTimer={resendTimer} resetOtp={resetOtp} success={success} setSuccess={setSuccess} maskedEmail={maskedEmail} />;
+        case 2: return <RegisterOtpStep setStep={setStep} formData={formData} updateFormData={updateFormData} setError={setError} error={error} isLoading={isLoading} onResendOtp={handleResendOtp} onVerifyOtp={handleVerifyRegisterOtp} resendTimer={resendTimer} resetOtp={resetOtp} success={success} setSuccess={setSuccess} maskedEmail={maskedEmail || getMaskedEmail(formData?.email)} />;
         case 3: return <RegisterDetailsStep setStep={setStep} formData={formData} updateFormData={updateFormData} handleFinalRegister={handleFinalRegister} isLoading={isLoading} error={error} />;
         case 4: return <RegisterSuccessStep onProceedTo2fa={() => setStep(5)} onSkipToLogin={handleRegistrationComplete} />;
         case 5: return <Register2faStep setStep={setStep} setMode={setMode} onFinish={handleRegistrationComplete} handleFinalSubmit={handleFinalRegister} isLoading={isLoading} isRegistered={isRegistered} />;
@@ -502,7 +521,7 @@ export default function LoginForm({ onClose }) {
     if (mode === "forgot_password") {
       switch (step) {
         case 1: return <ForgotStep1 setMode={setMode} onStartRecovery={handleStartRecovery} isLoading={isLoading} error={error} setError={setError} success={success} />;
-        case 2: return <ForgotStep2 setStep={setStep} formData={formData} updateFormData={updateFormData} isLoading={isLoading} error={error} setError={setError} onResendOtp={handleResendOtp} resendTimer={resendTimer} resetOtp={resetOtp} success={success} setSuccess={setSuccess} maskedEmail={maskedEmail} />;
+        case 2: return <ForgotStep2 setStep={setStep} formData={formData} updateFormData={updateFormData} isLoading={isLoading} error={error} setError={setError} onResendOtp={handleResendOtp} resendTimer={resendTimer} resetOtp={resetOtp} success={success} setSuccess={setSuccess} maskedEmail={maskedEmail || getMaskedEmail(formData?.email)} />;
         case 3: return <ForgotStep3 formData={formData} onResetPassword={handleResetPassword} isLoading={isLoading} error={error} setError={setError} success={success} clearAlerts={clearAlerts} setMode={setMode} setStep={setStep} />;
         default: return null;
       }
@@ -597,7 +616,8 @@ export default function LoginForm({ onClose }) {
             `,
             backdropFilter: "blur(28px) saturate(200%)",
             border: "none",
-            boxShadow: { sm: "0 24px 64px rgba(0,0,0,0.12)" },
+            border: "1px solid #E2E8F0",
+            boxShadow: "none",
             position: "relative",
             zIndex: 1,
             overflowY: "auto",

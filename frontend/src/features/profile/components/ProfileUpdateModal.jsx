@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { 
   Button, TextField, Box, Typography, IconButton, 
-  Grid, Chip, CircularProgress, InputAdornment, Paper
+  Grid, Chip, InputAdornment, Paper
 } from "@mui/material";
 import { motion } from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
@@ -13,6 +13,7 @@ import LinkIcon from "@mui/icons-material/Link";
 import { apiClient } from "../../../lib/apiClient";
 import Loader from "../../../components/common/Loader";
 import useScrollLock from "../../../hooks/useScrollLock";
+import { useLoading } from '../../../contexts/LoadingContext';
 
 export default function ProfileUpdateModal({ open, onClose, profile, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -124,7 +125,8 @@ export default function ProfileUpdateModal({ open, onClose, profile, onSuccess }
             radial-gradient(at 20% 100%, rgba(0, 86, 179, 0.1) 0, transparent 50%),
             #ffffff
           `,
-          boxShadow: "0 25px 50px -12px rgba(0,0,0,0.3)",
+          boxShadow: "none",
+          border: "1px solid #E2E8F0",
           overflowY: 'auto', maxHeight: '92vh'
         }}
       >
@@ -282,14 +284,14 @@ export default function ProfileUpdateModal({ open, onClose, profile, onSuccess }
             </Grid>
           </Grid>
 
-          <Box sx={{ display: 'flex', gap: 2, mt: 5, pt: 3, borderTop: '1px solid #F3F4F6' }}>
+          <Box sx={{ display: 'flex', gap: 2, mt: 4, pt: 2.5, borderTop: '1px solid #F3F4F6' }}>
             <Button 
               onClick={onClose} 
               fullWidth
               variant="outlined"
               disableElevation
               sx={{ 
-                py: 1.5, borderRadius: "12px", textTransform: "none", fontSize: "15px", fontWeight: 600, 
+                py: 1.5, borderRadius: "8px", textTransform: "none", fontSize: "15px", fontWeight: 600, 
                 borderColor: "#D1D5DB", color: "#374151",
                 "&:hover": { borderColor: "#9CA3AF", backgroundColor: "#F9FAFB" }
               }}
@@ -303,7 +305,7 @@ export default function ProfileUpdateModal({ open, onClose, profile, onSuccess }
               disableElevation
               disabled={loading}
               sx={{ 
-                py: 1.5, borderRadius: "12px", textTransform: "none", fontSize: "15px", fontWeight: 700, 
+                py: 1.5, borderRadius: "8px", textTransform: "none", fontSize: "15px", fontWeight: 700, 
                 background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', color: '#ffffff',
                 "&:hover": { background: 'linear-gradient(135deg, #004494 0%, #218838 100%)' }
               }}

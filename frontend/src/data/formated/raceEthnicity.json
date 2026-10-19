@@ -1,0 +1,18 @@
+{
+  "pinTop": ["Prefer not to say", "Multi-ethnic"],
+  "pinBottom": ["Other"],
+  "options": [
+    "Prefer not to say",
+    "Multi-ethnic",
+    "Asian",
+    "Black or African Descent",
+    "Hispanic or Latino",
+    "Indigenous or Aboriginal",
+    "Middle Eastern or North African (MENA)",
+    "Native Hawaiian or Pacific Islander",
+    "South Asian",
+    "Southeast Asian",
+    "White or Caucasian",
+    "Other"
+  ]
+}

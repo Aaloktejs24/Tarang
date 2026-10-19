@@ -12,7 +12,7 @@ RUN go mod download
 COPY . .
 
 # Build the auth service
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/auth-service ./services/auth/cmd/server
+RUN CGO_ENABLED=0 GOOS=linux GOMAXPROCS=1 go build -p 1 -o /app/auth-service ./services/auth/cmd/server
 
 # Final stage
 FROM alpine:latest

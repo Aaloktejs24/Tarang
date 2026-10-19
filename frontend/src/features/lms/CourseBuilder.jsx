@@ -10,6 +10,9 @@ import OndemandVideoIcon from '@mui/icons-material/OndemandVideo';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+import { useBreadcrumbs } from '../../contexts/BreadcrumbContext';
+import { useProfile } from '../../hooks/useProfile';
+import { formatBreadcrumbName } from '../../utils/stringUtils';
 
 export default function CourseBuilder() {
   const router = useRouter();
@@ -22,6 +25,17 @@ export default function CourseBuilder() {
 
   const [modules, setModules] = useState([
     { id: 1, title: 'Module 1: Introduction', lessons: [{ id: 101, title: 'Welcome to the Course', type: 'video' }] }
+  ]);
+
+  const { profile } = useProfile();
+  const rawInstituteName = profile ? (profile.full_name || profile.institution_name || profile.username) : 'Institute';
+  const breadcrumbInstituteName = formatBreadcrumbName(rawInstituteName);
+
+  useBreadcrumbs([
+    { labelEn: 'Home', labelHi: 'गृह', onClick: () => router.push('/dashboard/home') },
+    { label: breadcrumbInstituteName, onClick: () => router.push('/dashboard/home/institute') },
+    { labelEn: 'Courses', labelHi: 'पाठ्यक्रम', onClick: () => router.push('/dashboard/home/institute/courses') },
+    { labelEn: 'Course Builder', labelHi: 'कोर्स बिल्डर' }
   ]);
 
   const addModule = () => {
@@ -42,54 +56,10 @@ export default function CourseBuilder() {
 
   return (
     <>
-      {/* ─── FIXED BACKGROUND LAYER ─── */}
-      <Box
-        sx={{
-          position: "fixed",
-          top: 0, left: 0, right: 0, bottom: 0,
-          zIndex: -1,
-          background: `
-            radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.55) 0, transparent 50%), 
-            radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.4) 0, transparent 50%), 
-            radial-gradient(at 80% 90%, rgba(40, 167, 69, 0.3) 0, transparent 50%),
-            radial-gradient(at 20% 80%, rgba(0, 86, 179, 0.3) 0, transparent 50%),
-            #eef2f6
-          `
-        }}
-      >
-        <Box sx={{ position: "absolute", width: "50vw", height: "50vw", top: "-10%", left: "-10%", background: "rgba(16, 185, 129, 0.05)", filter: "blur(120px)", borderRadius: "50%", pointerEvents: "none" }} />
-      </Box>
 
-      <Box sx={{ minHeight: 'calc(100vh - 64px)', pb: 10, pt: 4, position: 'relative' }}>
+
+      <Box sx={{ minHeight: 'calc(100vh - 64px)', pb: 10, pt: { xs: 8, md: 10 }, position: 'relative' }}>
         <Container maxWidth="xl" sx={{ px: { xs: 4, md: 6, lg: 8 }, zIndex: 1, position: "relative" }}>
-        
-        {/* Minimalist Bold Breadcrumbs (Screenshot Style) */}
-        <Box sx={{ mb: 2, mt: 1, display: 'flex', alignItems: 'center', gap: 1, px: { xs: 2, md: 3 } }}>
-          <Typography 
-            onClick={() => router.push('/dashboard/home')}
-            sx={{ color: '#64748b', fontWeight: 700, fontSize: "1.2rem", cursor: 'pointer', '&:hover': { color: '#0056b3' } }}
-          >
-            Dashboard
-          </Typography>
-          <Typography sx={{ color: '#334155', fontWeight: 900, fontSize: "1.2rem" }}>/</Typography>
-          <Typography 
-            onClick={() => router.push('/dashboard/home/institute')}
-            sx={{ color: '#64748b', fontWeight: 700, fontSize: "1.2rem", cursor: 'pointer', '&:hover': { color: '#0056b3' } }}
-          >
-            Institute
-          </Typography>
-          <Typography sx={{ color: '#334155', fontWeight: 900, fontSize: "1.2rem" }}>/</Typography>
-          <Typography 
-            onClick={() => router.push('/dashboard/home/institute/courses')}
-            sx={{ color: '#64748b', fontWeight: 700, fontSize: "1.2rem", cursor: 'pointer', '&:hover': { color: '#0056b3' } }}
-          >
-            Courses
-          </Typography>
-          <Typography sx={{ color: '#334155', fontWeight: 900, fontSize: "1.2rem" }}>/</Typography>
-          <Typography sx={{ color: '#0f172a', fontWeight: 700, fontSize: "1.2rem" }}>
-            Course Builder
-          </Typography>
-        </Box>
 
         {/* Header */}
         <Box sx={{ 
@@ -117,7 +87,7 @@ export default function CourseBuilder() {
               color: 'white', 
               textTransform: 'none',
               fontWeight: 800,
-              borderRadius: '12px',
+              borderRadius: '8px',
               px: 4,
               py: 1.5,
               fontSize: '0.95rem',
@@ -143,7 +113,7 @@ export default function CourseBuilder() {
             <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a', mb: 4 }}>Course Details</Typography>
             <TextField fullWidth label="Course Title" variant="outlined" value={courseTitle} onChange={(e) => setCourseTitle(e.target.value)} sx={{ mb: 4, '& .MuiOutlinedInput-root': { bgcolor: 'rgba(255,255,255,0.6)' } }} />
             <TextField fullWidth label="Course Description" variant="outlined" multiline rows={4} value={courseDesc} onChange={(e) => setCourseDesc(e.target.value)} sx={{ mb: 4, '& .MuiOutlinedInput-root': { bgcolor: 'rgba(255,255,255,0.6)' } }} />
-            <Button variant="outlined" sx={{ textTransform: 'none', borderRadius: '12px', borderColor: '#0056b3', color: '#0056b3', fontWeight: 700, px: 3, py: 1, '&:hover': { borderWidth: 2 } }}>Upload Thumbnail</Button>
+            <Button variant="outlined" sx={{ textTransform: 'none', borderRadius: '8px', borderColor: '#0056b3', color: '#0056b3', fontWeight: 700, px: 3, py: 1, '&:hover': { borderWidth: 2 } }}>Upload Thumbnail</Button>
           </Paper>
 
           {/* Curriculum Builder */}

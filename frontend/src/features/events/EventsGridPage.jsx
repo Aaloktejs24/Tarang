@@ -125,7 +125,7 @@ const { mockEvents } = dashboardMockData;
                 borderRadius: "24px", // Pill shape like dashboard navbar
                 px: 2,
                 width: { xs: "100%", sm: "320px" },
-                boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+                boxShadow: "none",
                 height: "44px", // Match navbar search height
                 boxSizing: "border-box",
                 border: "1px solid rgba(255, 255, 255, 0.3)",
@@ -166,7 +166,7 @@ const { mockEvents } = dashboardMockData;
                     borderRadius: "8px",
                     overflow: "hidden",
                     border: "1px solid rgba(0,0,0,0.06)",
-                    boxShadow: "0 10px 30px rgba(0,0,0,0.02)",
+                    boxShadow: "none",
                     transition: "transform 0.3s ease, box-shadow 0.3s ease",
                     "&:hover": {
                        

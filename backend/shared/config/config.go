@@ -9,6 +9,7 @@ import (
 type Config struct {
 	AuthDBURL string
 	UserDBURL string
+	AdmissionDBURL string
 
 	RedisAddr     string
 	RedisPassword string
@@ -48,6 +49,11 @@ func Load() *Config {
 			"postgresql://user:pass@localhost:5432/user_db?sslmode=disable",
 		),
 
+		AdmissionDBURL: getEnv(
+			"ADMISSION_DATABASE_URL",
+			"postgresql://user:pass@localhost:5432/admission_db?sslmode=disable",
+		),
+
 		RedisAddr:     getEnv("REDIS_ADDR", "localhost:6379"),
 		RedisPassword: getEnv("REDIS_PASSWORD", ""),
 		RedisDB:       getEnvAsInt("REDIS_DB", 0),
@@ -81,6 +87,10 @@ func (c *Config) Validate() error {
 	}
 
 	if _, err := url.ParseRequestURI(c.UserDBURL); err != nil {
+		return err
+	}
+
+	if _, err := url.ParseRequestURI(c.AdmissionDBURL); err != nil {
 		return err
 	}
 

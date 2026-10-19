@@ -1,14 +1,16 @@
 import { Box, Typography, Button } from "@mui/material";
+import { getMaskedEmail } from "../../../utils/maskUtils";
 import OtpInput from "./OtpInput";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import Loader from "../../../components/common/Loader";
 import { useEffect } from "react";
+import { getTempToken } from "../../../lib/auth";
 
 export default function LoginOtpStep({ setStep, formData, updateFormData, handleFinalSubmit, isLoading, error, setError, onResendOtp, resendTimer, success, setSuccess, maskedEmail, mfaType }) {
 
     useEffect(() => {
-        if (!formData?.email || !localStorage.getItem("temp_token")) setStep(1);
+        if (!formData?.email || !getTempToken()) setStep(1);
     }, [formData, setStep]);
 
     const isTotp = mfaType === "totp";
@@ -16,13 +18,13 @@ export default function LoginOtpStep({ setStep, formData, updateFormData, handle
     return (
         <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 2 }}>
             <Box>
-                <Typography variant="h4" sx={{ mb: 1, fontWeight: 800, color: "#0f172a", letterSpacing: "-1px" }}>
+                <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", fontSize: "28px" }}>
                     {isTotp ? "सुरक्षा कोड" : "OTP वेरीफाई करें"}
                 </Typography>
                 <Typography variant="body2" sx={{ color: "#64748b", mb: 0, fontSize: "15px" }}>
                     {isTotp
                         ? "जारी रखने के लिए अपने ऑथेंटिकेटर ऐप से 6-अंकों का कोड डालें।"
-                        : <>हमने <span style={{ color: "#0f172a", fontWeight: 700 }}>{maskedEmail || formData.email}</span> पर एक वेरिफिकेशन कोड भेजा है</>
+                        : <>हमने <span style={{ color: "#0f172a", fontWeight: 700 }}>{getMaskedEmail(maskedEmail || formData.email)}</span> पर एक वेरिफिकेशन कोड भेजा है</>
                     }
                 </Typography>
             </Box>
@@ -78,7 +80,7 @@ export default function LoginOtpStep({ setStep, formData, updateFormData, handle
                 disabled={isLoading || formData.otp.length < 6}
                 onClick={handleFinalSubmit}
                 sx={{
-                    py: 1.5,
+                    height: "48px",
                     mt: 1,
                     borderRadius: "8px",
                     textTransform: "none",
@@ -107,7 +109,7 @@ export default function LoginOtpStep({ setStep, formData, updateFormData, handle
                                 fontWeight: 600,
                                 cursor: (resendTimer > 0 || isLoading) ? "default" : "pointer",
                                 ml: 0.5,
-                                "&:hover": { textDecoration: (resendTimer > 0 || isLoading) ? "none" : "underline" }
+                                "&:hover": { textDecoration: "none" }
                             }}
                             onClick={() => {
                                 if (resendTimer === 0 && !isLoading) {
@@ -130,7 +132,7 @@ export default function LoginOtpStep({ setStep, formData, updateFormData, handle
                     updateFormData({ otp: "", password: "" });
                     setStep(1);
                 }}
-                sx={{ textTransform: "none", color: "#64748b", fontWeight: 600, fontSize: "14px", mt: 1 }}
+                sx={{ textTransform: "none", color: "#64748b", fontWeight: 600, fontSize: "14.5px", mt: 1, height: "44px" }}
             >
                 ← साइन इन पर वापस जाएं
             </Button>

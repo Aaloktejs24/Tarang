@@ -15,7 +15,7 @@ import PollIcon from "@mui/icons-material/Poll";
 import ForumIcon from "@mui/icons-material/Forum";
 import SortByAlphaIcon from "@mui/icons-material/SortByAlpha";
 import indiaFlag from "../../assets/Flag_of_India.svg";
-import { Country } from "country-state-city";
+import gazeteer from "../../data/formated/gazeteer.json";
 import "../../styles/sidebar.css";
 
 import AccessibleBadges from "../ui/Notification";
@@ -24,6 +24,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { logoutUser } from "../../features/auth/authService";
 import Loader from "../common/Loader";
+import Skeleton from "../common/Skeleton";
 
 export default function Sidebar({ open, toggleDrawer }) {
   const { profile, loading } = useProfile();
@@ -34,8 +35,8 @@ export default function Sidebar({ open, toggleDrawer }) {
   const region = locationParts.length > 0 ? locationParts[0] : "सोनभद्र";
   const country = locationParts.length > 1 ? locationParts[locationParts.length - 1] : "भारत";
 
-  const countryData = Country.getAllCountries().find(c => c.name.toLowerCase() === country.toLowerCase() || (country === "भारत" && c.isoCode === "IN"));
-  const flagUrl = countryData ? `https://flagcdn.com/${countryData.isoCode.toLowerCase()}.svg` : indiaFlag.src;
+  const countryData = gazeteer.Countries.find(c => c.name.toLowerCase() === country.toLowerCase() || (country === "भारत" && c.code === "IN"));
+  const flagUrl = countryData ? countryData.flagUrl : indiaFlag.src;
 
   const handleLogout = async () => {
     try {
@@ -80,7 +81,9 @@ export default function Sidebar({ open, toggleDrawer }) {
                 borderRadius: "27px",
               }}
             >
-              {profile?.username ? (
+              {loading ? (
+                <Skeleton variant="circular" width={56} height={56} style={{ border: "3px solid rgba(255,255,255,0.4)" }} />
+              ) : profile?.username ? (
                 <Avatar
                   src={profile.profile_pic_url}
                   sx={{
@@ -90,7 +93,7 @@ export default function Sidebar({ open, toggleDrawer }) {
                     color: "#0056b3",
                     fontWeight: "bold",
                     border: "3px solid rgba(255,255,255,0.4)",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    borderRight: "1px solid #E2E8F0",
                   }}
                 >
                   {profile.username.charAt(0).toUpperCase()}
@@ -109,10 +112,10 @@ export default function Sidebar({ open, toggleDrawer }) {
                     margin: "0 0 0 10px",
                   }}
                 >
-                  {loading ? <Loader mini /> : (profile?.full_name || profile?.username || "आलोक")}
+                  {loading ? <Skeleton width={100} /> : (profile?.full_name || profile?.username || "आलोक")}
                 </div>
                 <div className="user_role" style={{ margin: "0 0 0 10px" }}>
-                  {loading ? "---" : (profile?.role || "छात्र")}
+                  {loading ? <Skeleton width={60} /> : (profile?.role || "छात्र")}
                 </div>
               </div>
             </div>
@@ -123,22 +126,24 @@ export default function Sidebar({ open, toggleDrawer }) {
             </Link>
           </div>
         </div>
-        <div className="school_s">
-          <div className="ins_icon">
-            <SchoolIcon sx={{ width: "25px", height: "25px", color: "#ffffff" }} />
-          </div>
-          <div className="name_type_container">
-            <div
-              className="ins_name"
-              style={{ color: "#fff", fontSize: "14px", margin: "0 0 0 3px" }}
-            >
-              भारतीय प्रौद्योगिकी संस्थान कानपुर
+        {profile?.institution_name && (
+          <div className="school_s">
+            <div className="ins_icon">
+              <SchoolIcon sx={{ width: "25px", height: "25px", color: "#ffffff" }} />
             </div>
-            <div className="user_role" style={{ margin: "0 0 0 3px" }}>
-              भारत सरकार के तहत स्वायत्त संस्थान
+            <div className="name_type_container">
+              <div
+                className="ins_name"
+                style={{ color: "#fff", fontSize: "14px", margin: "0 0 0 3px" }}
+              >
+                {profile.institution_name}
+              </div>
+              <div className="user_role" style={{ margin: "0 0 0 3px" }}>
+                {profile.institution_type || "संबद्ध संस्थान"}
+              </div>
             </div>
           </div>
-        </div>
+        )}
         <div
           style={{
             display: "flex",
@@ -178,9 +183,9 @@ export default function Sidebar({ open, toggleDrawer }) {
                 className="region"
                 style={{ color: "#fff", fontSize: "14px" }}
               >
-                {loading ? "..." : region}
+                {loading ? <Skeleton width={60} /> : region}
               </div>
-              <div className="country_name">{loading ? "..." : country}</div>
+              <div className="country_name">{loading ? <Skeleton width={40} /> : country}</div>
             </div>
           </div>
         </div>

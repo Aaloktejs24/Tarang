@@ -1,10 +1,12 @@
 # Database URLs (Sirf wahi jo zaroori hain)
 USER_DB = postgresql://tarang:password@localhost:5432/user_db?sslmode=disable
 AUTH_DB = postgresql://tarang:password@localhost:5432/auth_db?sslmode=disable
+ADMISSION_DB = postgresql://tarang:password@localhost:5432/admission_db?sslmode=disable
 
 # Migration Paths
 USER_PATH = ./services/user/migrations
 AUTH_PATH = ./services/auth/migrations
+ADMISSION_PATH = ./services/admission/migrations
 
 # --- Migration Commands ---
 
@@ -18,10 +20,15 @@ migrate-up:
 	docker exec backend-postgres-1 psql -U tarang -d auth_db -c 'CREATE EXTENSION IF NOT EXISTS "citext"; CREATE EXTENSION IF NOT EXISTS "pgcrypto";'
 	migrate -path $(AUTH_PATH) -database "$(AUTH_DB)" up
 
+	@echo "--- Migrating Admission Database ---"
+	docker exec backend-postgres-1 psql -U tarang -d admission_db -c 'CREATE EXTENSION IF NOT EXISTS "citext"; CREATE EXTENSION IF NOT EXISTS "pgcrypto";'
+	migrate -path $(ADMISSION_PATH) -database "$(ADMISSION_DB)" up
+
 # 2. Saare databases ko reset karne ke liye
 migrate-reset:
 	-migrate -path $(AUTH_PATH) -database "$(AUTH_DB)" down
 	-migrate -path $(USER_PATH) -database "$(USER_DB)" down
+	-migrate -path $(ADMISSION_PATH) -database "$(ADMISSION_DB)" down
 
 # 3. Nayi migration files banane ke liye
 migrate-new-user:
@@ -35,6 +42,12 @@ ifndef name
 	$(error name is not set, usage: make migrate-new-auth name=migration_name)
 endif
 	migrate create -ext sql -dir $(AUTH_PATH) -seq $(name)
+
+migrate-new-admission:
+ifndef name
+	$(error name is not set, usage: make migrate-new-admission name=migration_name)
+endif
+	migrate create -ext sql -dir $(ADMISSION_PATH) -seq $(name)
 
 # --- Troubleshooting Commands ---
 
@@ -54,4 +67,7 @@ db-recreate:
 	docker exec backend-postgres-1 psql -U tarang -d postgres -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'auth_db' AND pid <> pg_backend_pid();" || true
 	docker exec backend-postgres-1 psql -U tarang -d postgres -c "DROP DATABASE IF EXISTS auth_db;" || true
 	docker exec backend-postgres-1 psql -U tarang -d postgres -c "CREATE DATABASE auth_db;"
+	docker exec backend-postgres-1 psql -U tarang -d postgres -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'admission_db' AND pid <> pg_backend_pid();" || true
+	docker exec backend-postgres-1 psql -U tarang -d postgres -c "DROP DATABASE IF EXISTS admission_db;" || true
+	docker exec backend-postgres-1 psql -U tarang -d postgres -c "CREATE DATABASE admission_db;"
 	@echo "Databases recreated. Now run 'make migrate-up'."

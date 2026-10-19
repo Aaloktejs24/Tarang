@@ -5,8 +5,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useState } from "react";
 import Loader from "../../../components/common/Loader";
 
-import geoData from '../../../data/geoData.json';
-const { countryCodes: COUNTRY_CODES } = geoData;
+import gazeteer from '../../../data/formated/gazeteer.json';
+const COUNTRY_CODES = gazeteer.Countries.map(c => ({ ...c, code: c.phoneCode, enName: c.name, label: c.phoneCode }));
 export default function RegisterEmailStep({ setStep, setMode, formData, updateFormData, setError, error, isLoading, onRegisterStart, success, setSuccess }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -38,27 +38,15 @@ export default function RegisterEmailStep({ setStep, setMode, formData, updateFo
   };
 
   return (
-    <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 2 }}>
+    <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 3 }}>
       <Box sx={{ mb: 1 }}>
-        <Typography variant="h4" sx={{ mb: 1, fontWeight: 800, color: "#0f172a", letterSpacing: "-1px" }}>
+        <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", fontSize: "28px" }}>
           नया अकाउंट बनाएँ
         </Typography>
-        <Typography variant="body2" sx={{ color: "#64748b", fontSize: "15px" }}>
+        <Typography variant="body2" sx={{ color: "#64748b", fontSize: "15px", lineHeight: 1.5 }}>
           हमारी कम्युनिटी से जुड़ें और अपनी यात्रा शुरू करें।
         </Typography>
       </Box>
-
-      {error && (
-        <Typography variant="body2" sx={{ color: "#f87171", fontSize: "14px", textAlign: "center", fontWeight: 500 }}>
-          {error}
-        </Typography>
-      )}
-
-      {success && (
-        <Typography variant="body2" sx={{ color: "#34d399", fontSize: "14px", textAlign: "center", fontWeight: 500 }}>
-          {success}
-        </Typography>
-      )}
 
       <Box>
         <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px" }}>
@@ -99,14 +87,30 @@ export default function RegisterEmailStep({ setStep, setMode, formData, updateFo
         />
       </Box>
 
-      <Box sx={{ mt: 1 }}>
+      <Box sx={{ mt: 0 }}>
+        {/* Message Area with Fixed Height */}
+        {(error || (success && !error)) && (
+            <Box sx={{ height: "24px", display: "flex", alignItems: "center", justifyContent: "center", mb: 1 }}>
+                {error && (
+                    <Typography variant="body2" sx={{ color: "#ef4444 !important", fontSize: "13px", fontWeight: 600 }}>
+                        {error}
+                    </Typography>
+                )}
+                {success && !error && (
+                    <Typography variant="body2" sx={{ color: "#28a745", fontSize: "13px", fontWeight: 600 }}>
+                        {success}
+                    </Typography>
+                )}
+            </Box>
+        )}
+
         <Button
           fullWidth
           variant="contained" disableElevation
           disabled={isLoading}
           onClick={handleSendOtp}
           sx={{
-            py: 1.5,
+            height: "48px",
             borderRadius: "8px",
             textTransform: "none",
             fontSize: "16px",
@@ -127,7 +131,7 @@ export default function RegisterEmailStep({ setStep, setMode, formData, updateFo
           क्या आपका पहले से अकाउंट है?{" "}
           <Box
             component="span"
-            sx={{ color: "#0056b3", fontWeight: 600, cursor: "pointer", ml: 0.5, "&:hover": { textDecoration: "underline" } }}
+            sx={{ color: "#0056b3", fontWeight: 600, cursor: "pointer", ml: 0.5, "&:hover": { textDecoration: "none" } }}
             onClick={() => { setMode("login"); setStep(1); }}
           >
             अभी लॉगिन करें

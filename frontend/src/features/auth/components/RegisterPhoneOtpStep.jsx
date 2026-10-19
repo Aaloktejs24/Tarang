@@ -42,16 +42,16 @@ export default function RegisterPhoneOtpStep({ setStep, formData, isLoading, set
     return (
         <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 2 }}>
             <Box>
-                <Typography variant="h4" sx={{ mb: 1, fontWeight: 800, color: "#0f172a", letterSpacing: "-1px" }}>
+                <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", fontSize: "28px" }}>
                     फ़ोन वेरीफाई करें
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#64748b", mb: 3, fontSize: "15px" }}>
+                <Typography variant="body2" sx={{ color: "#64748b", mb: 3, fontSize: "15px", lineHeight: 1.5 }}>
                     हमने <span style={{ color: "#0f172a", fontWeight: 700 }}>{formData.phone}</span> पर एक वेरिफिकेशन कोड भेजा है
                 </Typography>
             </Box>
 
             <Box>
-                <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 600, color: "#334155", fontSize: "14px" }}>
+                <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px" }}>
                     वेरिफिकेशन कोड
                 </Typography>
                 <TextField
@@ -69,7 +69,7 @@ export default function RegisterPhoneOtpStep({ setStep, formData, isLoading, set
                 disabled={isLoading || localOtp.length < 6}
                 onClick={handleVerify}
                 sx={{
-                    py: 1.5,
+                    height: "48px",
                     mt: 1,
                     borderRadius: "8px",
                     textTransform: "none",
@@ -93,7 +93,7 @@ export default function RegisterPhoneOtpStep({ setStep, formData, isLoading, set
                     variant="text"
                     disabled={isLoading}
                     onClick={handleSkip}
-                    sx={{ textTransform: "none", color: "#64748b", fontWeight: 600, fontSize: "14px" }}
+                    sx={{ textTransform: "none", color: "#64748b", fontWeight: 600, fontSize: "14.5px", height: "44px" }}
                 >
                     अभी के लिए छोड़ें
                 </Button>

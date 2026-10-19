@@ -10,16 +10,16 @@ export default function ForgotStep1({ setMode, onStartRecovery, isLoading, error
     return (
         <Box sx={{ width: "100%", display: "flex", flexDirection: "column" }}>
             <Box sx={{ mb: 4 }}>
-                <Typography variant="h4" sx={{ mb: 1.5, fontWeight: 800, color: "#0f172a", letterSpacing: "-1px" }}>
+                <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", fontSize: "28px" }}>
                     पासवर्ड भूल गए?
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#64748b", fontSize: "15px", lineHeight: 1.6 }}>
+                <Typography variant="body2" sx={{ color: "#64748b", fontSize: "15px", lineHeight: 1.5 }}>
                     पंजीकृत ईमेल दर्ज करें। OTP भेजा जाएगा।
                 </Typography>
             </Box>
 
             <Box sx={{ mb: 1 }}>
-                <Typography variant="body2" sx={{ mb: 1.2, fontWeight: 600, color: "#334155", fontSize: "14px" }}>
+                <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px" }}>
                     ईमेल पता
                 </Typography>
                 <Box sx={{ display: "flex", gap: 1.5, alignItems: "flex-start" }}>
@@ -59,11 +59,11 @@ export default function ForgotStep1({ setMode, onStartRecovery, isLoading, error
                         disabled={isLoading || !target}
                         onClick={() => onStartRecovery(target)}
                         sx={{
-                            height: "46.5px",
+                            height: "48px",
                             px: 3,
                             borderRadius: "8px",
                             textTransform: "none",
-                            fontSize: "15px",
+                            fontSize: "16px",
                             fontWeight: 700,
                             whiteSpace: "nowrap",
                             background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)",
@@ -113,7 +113,7 @@ export default function ForgotStep1({ setMode, onStartRecovery, isLoading, error
                 क्या आपको अपना पासवर्ड याद है?{" "}
                 <Box
                     component="span"
-                    sx={{ color: "#0056b3", fontWeight: 600, cursor: "pointer", ml: 0.5, "&:hover": { textDecoration: "underline" } }}
+                    sx={{ color: "#0056b3", fontWeight: 600, cursor: "pointer", ml: 0.5, "&:hover": { textDecoration: "none" } }}
                     onClick={() => { setMode("login"); setError(""); }}
                 >
                     लॉगिन पर वापस जाएं

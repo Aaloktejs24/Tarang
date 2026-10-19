@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -31,6 +32,7 @@ func (h *UserHandler) RegisterRoutes(r chi.Router) {
 	r.Post("/profile/update-bio", h.updateBio)
 	r.Post("/profile/update", h.updateProfile)
 	r.Get("/public/profile/{username}", h.getPublicProfile)
+	r.Get("/public/institutes", h.getInstitutes)
 }
 
 func (h *UserHandler) extractUserID(r *http.Request) (uuid.UUID, bool, error) {
@@ -386,4 +388,78 @@ func (h *UserHandler) getKycStatus(u *user.User) string {
 		return "verified"
 	}
 	return "none"
+}
+
+func (h *UserHandler) getInstitutes(w http.ResponseWriter, r *http.Request) {
+	limit := 50
+	offset := 0
+
+	if l := r.URL.Query().Get("limit"); l != "" {
+		if parsed, err := strconv.Atoi(l); err == nil && parsed > 0 {
+			limit = parsed
+		}
+	}
+	if o := r.URL.Query().Get("offset"); o != "" {
+		if parsed, err := strconv.Atoi(o); err == nil && parsed >= 0 {
+			offset = parsed
+		}
+	}
+
+	users, err := h.svc.GetInstitutes(r.Context(), limit, offset)
+	if err != nil {
+		fmt.Printf("[UserHandler] GetInstitutes error: %v\n", err)
+		respondError(w, http.StatusInternalServerError, "failed to fetch institutes")
+		return
+	}
+
+	var results []map[string]any
+	bucket := "tarang-user-service"
+	for _, u := range users {
+		fullName := ""
+		if u.FullName != nil {
+			fullName = *u.FullName
+		}
+		profilePic := ""
+		if u.ProfilePicURL != nil {
+			profilePic = *u.ProfilePicURL
+			if key := h.getS3KeyFromURL(profilePic); key != "" {
+				if signed, err := h.s3.GenerateDownloadURL(r.Context(), bucket, key, 1*time.Hour); err == nil {
+					profilePic = signed
+				}
+			}
+		}
+
+		banner := ""
+		if u.BannerURL != nil {
+			banner = *u.BannerURL
+			if key := h.getS3KeyFromURL(banner); key != "" {
+				if signed, err := h.s3.GenerateDownloadURL(r.Context(), bucket, key, 1*time.Hour); err == nil {
+					banner = signed
+				}
+			}
+		}
+
+		results = append(results, map[string]any{
+			"id":                u.ID,
+			"username":          u.Username,
+			"email":             u.Email,
+			"full_name":         fullName,
+			"profile_pic_url":   profilePic,
+			"banner_url":        banner,
+			"location":          u.Location,
+			"languages":         u.Languages,
+			"demographic":       u.Demographic,
+			"bio":               u.Bio,
+			"recognitions":      u.Recognitions,
+			"institution_name":  u.InstitutionName,
+			"institute_profile": u.InstituteProfile,
+		})
+	}
+
+	// Make sure we return an empty array instead of null if no results
+	if results == nil {
+		results = []map[string]any{}
+	}
+
+	respondJSON(w, http.StatusOK, results)
 }

@@ -5,7 +5,7 @@ import DashboardNavbar from "../../components/navbar/DashboardNavbar";
 import { useAuth } from "../../hooks/useAuth";
 import { useProfile } from "../../hooks/useProfile";
 import Loader from "../../components/common/Loader";
-import { Box, SpeedDial, SpeedDialIcon, SpeedDialAction, Fab } from "@mui/material";
+import { Box, SpeedDial, SpeedDialIcon, SpeedDialAction, Fab, Grid, Skeleton } from "@mui/material";
 
 import SchoolIcon from "@mui/icons-material/School";
 import DynamicFeedIcon from "@mui/icons-material/DynamicFeed";
@@ -16,6 +16,13 @@ import SetupOverlay from "../../features/auth/components/SetupOverlay";
 
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import { BreadcrumbProvider, useBreadcrumbs } from "../../contexts/BreadcrumbContext";
+import ProjectBreadcrumbs from "../../components/ui/ProjectBreadcrumbs";
+
+const GlobalBreadcrumbs = () => {
+  const { breadcrumbs } = useBreadcrumbs();
+  return <ProjectBreadcrumbs items={breadcrumbs} floating={true} />;
+};
 
 export default function DashboardLayout({ children }) {
   const [mounted, setMounted] = useState(false);
@@ -33,8 +40,29 @@ export default function DashboardLayout({ children }) {
     return null; // Prevents SSR Hydration mismatch with MUI Box
   }
 
+  const isSetupPage = pathname === "/dashboard/home/setup";
+  const hideLayoutExtras = isSetupPage && profile && !profile.is_profile_completed;
+
   if (isLoading) {
-    return <Loader fullPage />;
+    return (
+      <>
+        {!hideLayoutExtras && <DashboardNavbar />}
+        <Box className={!hideLayoutExtras ? "user-content margin-top-72" : ""} sx={{ p: { xs: 2, md: 4, lg: 6 }, display: 'flex', flexDirection: 'column', gap: 4, minHeight: 'calc(100vh - 72px)' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Skeleton variant="text" width={200} height={40} />
+            <Skeleton variant="rounded" width={100} height={40} sx={{ borderRadius: "20px" }} />
+          </Box>
+          <Grid container spacing={3}>
+            {[1, 2, 3].map(i => (
+              <Grid item xs={12} md={4} key={i}>
+                <Skeleton variant="rounded" height={150} sx={{ borderRadius: "16px" }} />
+              </Grid>
+            ))}
+          </Grid>
+          <Skeleton variant="rounded" height={300} sx={{ borderRadius: "16px", mt: 2 }} />
+        </Box>
+      </>
+    );
   }
 
   if (!isAuthenticated) return null; // Component won't render while router redirects to /
@@ -42,13 +70,28 @@ export default function DashboardLayout({ children }) {
   const isManagement = profile?.role === 'institute' || profile?.role === 'organisation';
   const showViewTabs = !isManagement && (pathname?.includes("/institute") || pathname?.includes("/feed"));
 
-  const isSetupPage = pathname === "/dashboard/home/setup";
-  const hideLayoutExtras = isSetupPage && profile && !profile.is_profile_completed;
-
   return (
-    <>
-      {!hideLayoutExtras && <DashboardNavbar />}
+    <BreadcrumbProvider>
+      {!hideLayoutExtras && (
+        <>
+          {/* Solid 'bg' blocker behind Navbar (nav -> bg -> image order) */}
+          <Box sx={{ 
+            position: 'fixed', top: 0, left: 0, right: 0, height: '72px', 
+            zIndex: 500, // Below nav (1000), Above image (0)
+            backgroundAttachment: "fixed",
+            background: `
+              radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.55) 0, transparent 50%), 
+              radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.4) 0, transparent 50%), 
+              radial-gradient(at 80% 90%, rgba(40, 167, 69, 0.3) 0, transparent 50%),
+              radial-gradient(at 20% 80%, rgba(0, 86, 179, 0.3) 0, transparent 50%),
+              #eef2f6
+            `
+          }} />
+          <DashboardNavbar />
+        </>
+      )}
       <Box className={!hideLayoutExtras ? "user-content margin-top-72" : ""}>
+        <GlobalBreadcrumbs />
         {children}
       </Box>
 
@@ -139,7 +182,7 @@ export default function DashboardLayout({ children }) {
           </SpeedDial>
         </Box>
       )}
-    </>
+    </BreadcrumbProvider>
   );
 }
 

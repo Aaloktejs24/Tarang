@@ -113,6 +113,24 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  admission-service:
+    build:
+      context: .
+      dockerfile: services/admission/Dockerfile
+    environment:
+      - ADMISSION_DATABASE_URL
+      - USER_GRPC_URL
+      - PORT
+      - JWT_SECRET
+      - ALE_MASTER_KEY
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+    ports:
+      - "50052:50052"
+      - "8082:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   krakend:
     image: devopsfaith/krakend:2.6.0
     volumes:

@@ -1,16 +1,18 @@
 "use client";
 
-import geoData from '../../../data/geoData.json';
-import appConfig from '../../../data/appConfig.json';
-const { countryCodes: COUNTRY_CODES } = geoData;
-const { stateDistricts: stateDistricts } = geoData;
-const { authConfigData: authConfigData } = appConfig;
+import authConfigData from '../../../data/instituteConfig.json';
+import gazeteer from '../../../data/formated/gazeteer.json';
+import { useAccessibility } from '../../../contexts/AccessibilityContext';
+import { sortLocationsByDistance } from '../../../lib/geoNormalize';
+
+const COUNTRY_CODES = gazeteer.Countries.map(c => ({ ...c, code: c.phoneCode, enName: c.name, label: c.phoneCode }));
+const INDIA_STATES = (gazeteer.Countries.find(c => c.code === 'IN')?.states) || [];
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable security/detect-object-injection */
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
-  Box, Typography, TextField, Button, Paper, CircularProgress,
+  Box, Typography, TextField, Button, Paper,
   Stepper, Step, StepLabel, Autocomplete, MenuItem, Select, FormControl, Checkbox, ListItemText, OutlinedInput,
   Avatar, IconButton, InputAdornment, Popover, List, ListItemButton
 } from "@mui/material";
@@ -26,35 +28,39 @@ import { useRouter } from "next/navigation";
 import { updateProfile } from "../authService";
 import { apiClient } from "../../../lib/apiClient";
 import Loader from "../../../components/common/Loader";
-import { Country, State, City } from 'country-state-city';
-import {
-  COUNTRIES_HINDI,
-  INDIAN_STATES_HINDI,
-  INDIAN_DISTRICTS_HINDI,
-  transliterateToHindi
-} from '../../../lib/localization';
 import useScrollLock from "../../../hooks/useScrollLock";
+import { useLoading } from '../../../contexts/LoadingContext';
 
 const fontFam = "inherit";
 
 const fieldSx = {
   "& .MuiOutlinedInput-root": {
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
-    backdropFilter: "blur(4px)",
-    borderRadius: "12px",
+    backgroundColor: "#ffffff",
+    borderRadius: "8px",
     transition: "all 0.2s ease",
     fontFamily: fontFam,
-    "& fieldset": { borderColor: "rgba(203, 213, 225, 0.8)", borderWidth: "1.5px" },
-    "&:hover fieldset": { borderColor: "#94a3b8" },
+    "& fieldset": { borderColor: "#e5e7eb" },
+    "&:hover fieldset": { borderColor: "#d1d5db" },
     "&.Mui-focused fieldset": { borderColor: "#0056b3", borderWidth: "1.5px" },
-    "&.Mui-focused": {
-      backgroundColor: "#ffffff",
-    },
-    "& input, & .MuiSelect-select": {
-      color: "#111827",
-      fontSize: "15px",
-    }
+    "&.Mui-disabled fieldset": { borderColor: "#f3f4f6" },
+    "&.Mui-disabled input": { WebkitTextFillColor: "#9ca3af" },
+    "&.Mui-error fieldset": { borderColor: "#ef4444" },
+    "&.Mui-error:hover fieldset": { borderColor: "#ef4444" },
+    "&.Mui-error.Mui-focused fieldset": { borderColor: "#ef4444" },
+    "& input, & .MuiSelect-select": { color: "#0f172a", fontSize: "15px" },
+    "& input::placeholder": { color: "#9CA3AF", opacity: 1 },
+    "&.Mui-disabled": { backgroundColor: "#fafafa" }
   },
+  "& .MuiOutlinedInput-root:not(.MuiInputBase-multiline) .MuiOutlinedInput-input": {
+    padding: "12.5px 14px"
+  },
+  "& .MuiAutocomplete-inputRoot": {
+    padding: "4px 8px !important",
+  },
+  "& .MuiAutocomplete-inputRoot .MuiAutocomplete-input": {
+    padding: "8.5px 6px !important",
+  },
+  "& .MuiFormHelperText-root": { color: "#ef4444", fontSize: "12px", mt: 0.5 },
   "& .MuiInputLabel-root": {
     fontFamily: fontFam,
     color: "#64748b",
@@ -67,14 +73,16 @@ const fieldSx = {
 };
 
 const menuPaperSx = {
-  borderRadius: "16px",
-  mt: 1,
-  boxShadow: "0 10px 40px -10px rgba(0,0,0,0.15), 0 4px 10px -5px rgba(0, 86, 179, 0.1)",
-  border: "1px solid rgba(255, 255, 255, 0.7)",
+  borderRadius: "8px",
+  margin: "6px 0",
+  boxShadow: "none",
+  border: "1px solid #E2E8F0",
   backdropFilter: "blur(20px)",
-  backgroundColor: "rgba(255, 255, 255, 0.85)",
-  "& .MuiList-root": {
-    padding: "4px"
+  backgroundColor: "rgba(255, 255, 255, 0.95)",
+  "& .MuiAutocomplete-listbox, & .MuiList-root": {
+    padding: "4px",
+    maxHeight: "220px",
+    overflowY: "auto",
   },
   "& .MuiAutocomplete-groupLabel": {
     fontFamily: fontFam,
@@ -91,11 +99,30 @@ const menuPaperSx = {
   "& .MuiAutocomplete-groupUl": {
     padding: 0,
     margin: 0
+  },
+  "& .MuiAutocomplete-option, & .MuiMenuItem-root": {
+    borderRadius: "8px",
+    margin: "2px 4px",
+    padding: "10px 14px",
+    fontSize: "15px",
+    color: "#334155",
+    fontWeight: 500,
+    fontFamily: fontFam,
+    transition: "all 0.15s ease",
+    "&[aria-selected='true']": {
+      backgroundColor: "rgba(0, 86, 179, 0.08) !important",
+      color: "#0056b3",
+      fontWeight: 600
+    },
+    "&.Mui-focused, &:hover": {
+      backgroundColor: "#f8fafc",
+      color: "#0f172a"
+    }
   }
 };
 
 const LabelTypography = ({ children }) => (
-  <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 600, color: "#374151", fontSize: "13px", fontFamily: fontFam }}>
+  <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px", fontFamily: fontFam }}>
     {children}
   </Typography>
 );
@@ -128,7 +155,7 @@ export default function InstituteSetupOverlay({ profile }) {
   const [uploadingVerificationDoc, setUploadingVerificationDoc] = useState(false);
   const [uploadingContactDoc, setUploadingContactDoc] = useState(false);
   const [uploadedFileNames, setUploadedFileNames] = useState({});
-  
+
   const [phoneAnchorEl, setPhoneAnchorEl] = useState(null);
   const [activePhoneField, setActivePhoneField] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -147,12 +174,12 @@ export default function InstituteSetupOverlay({ profile }) {
     bio: profile?.bio || "",
     banner_url: profile?.banner_url || "",
     profile_pic_url: profile?.profile_pic_url || "",
-    
+
     institute_type: ip.institute_type || "",
     affiliation_board: ip.affiliation_board || "",
     established_year: ip.established_year || "",
     registration_number: ip.registration_number || "",
-    
+
     primary_contact_name: ip.primary_contact_name || "",
     primary_contact_designation: ip.primary_contact_designation || "",
     official_phone: ip.official_phone || "",
@@ -161,13 +188,13 @@ export default function InstituteSetupOverlay({ profile }) {
     website_url: ip.website_url || "",
     alternate_contact: ip.alternate_contact || "",
     alternate_country_code: ip.alternate_country_code || "+91",
-    
+
     location_country: "",
     location_state: "",
     location_city: "",
     address_line: ip.address_line || "",
     pincode: ip.pincode || "",
-    
+
     courses_offered: (() => {
       if (!ip.courses_offered) return [];
       try {
@@ -182,7 +209,7 @@ export default function InstituteSetupOverlay({ profile }) {
     faculty_count: ip.faculty_count || "",
     campus_type: ip.campus_type || "",
     operating_hours: ip.operating_hours || "",
-    
+
     license_certificate_url: ip.license_certificate_url || "",
     accreditation_docs: ip.accreditation_docs || ""
   });
@@ -212,22 +239,29 @@ export default function InstituteSetupOverlay({ profile }) {
     handlePhoneClose();
   };
 
-  const countries = useMemo(() => Country.getAllCountries(), []);
+  const { userLocation } = useAccessibility();
+
+  const countries = useMemo(() => 
+    sortLocationsByDistance(gazeteer.Countries, userLocation?.lat, userLocation?.lon, 'countries')
+  , [userLocation]);
+
   const states = useMemo(() =>
-    formData.location_country ? State.getStatesOfCountry(formData.location_country) : [],
-    [formData.location_country]
+    formData.location_country === 'IN' 
+      ? sortLocationsByDistance(INDIA_STATES, userLocation?.lat, userLocation?.lon, 'states').map(s => ({ name: s.name, isoCode: s.name })) 
+      : [],
+    [formData.location_country, userLocation]
   );
+
   const cities = useMemo(() => {
     if (!formData.location_country || !formData.location_state) return [];
     if (formData.location_country === 'IN') {
-      const stateObj = State.getStateByCodeAndCountry(formData.location_state, 'IN');
-      if (stateObj) {
-        const districtList = Reflect.get(stateDistricts, stateObj.name) || [];
-        if (districtList.length > 0) return districtList.map(name => ({ name }));
+      const stateObj = INDIA_STATES.find(s => s.name === formData.location_state);
+      const districtList = stateObj ? stateObj.districts : [];
+      if (districtList.length > 0) {
+        return sortLocationsByDistance(districtList, userLocation?.lat, userLocation?.lon, 'districts').map(d => ({ name: d.name }));
       }
-      return [];
     }
-    return City.getCitiesOfState(formData.location_country, formData.location_state);
+    return [];
   }, [formData.location_country, formData.location_state]);
 
   const currentYear = new Date().getFullYear();
@@ -240,13 +274,14 @@ export default function InstituteSetupOverlay({ profile }) {
         const [cName, sName, cntryName] = parts;
         const foundCountry = countries.find(c => c.name === cntryName);
         if (foundCountry) {
-          const cIso = foundCountry.isoCode;
-          const foundState = State.getStatesOfCountry(cIso).find(s => s.name === sName);
+          const cIso = foundCountry.code;
+          const foundState = cIso === 'IN' ? sName : null;
           if (foundState) {
-            const sIso = foundState.isoCode;
-            const districtList = Reflect.get(stateDistricts, foundState.name) || [];
+            const sIso = foundState;
+            const stateObj = INDIA_STATES.find(s => s.name === foundState);
+            const districtList = stateObj ? stateObj.districts.map(d => d.name) : [];
             const exactMatch = districtList.find(dist => dist.toLowerCase() === cName.toLowerCase());
-            
+
             setFormData(p => ({
               ...p,
               location_country: cIso,
@@ -267,7 +302,7 @@ export default function InstituteSetupOverlay({ profile }) {
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (Reflect.get(formErrors, name)) setFormErrors(prev => ({ ...prev, [name]: false }));
   };
-  
+
   const handleLevelChange = (event) => {
     const { target: { value } } = event;
     setFormData(p => ({ ...p, education_levels: typeof value === 'string' ? value.split(',') : value }));
@@ -315,13 +350,13 @@ export default function InstituteSetupOverlay({ profile }) {
           user_id: profile.id,
           url: data.file_url
         });
-        setFormData(p => ({ ...p, banner_url: data.file_url }));
+        setFormData(p => ({ ...p, banner_url: `${data.file_url}?t=${Date.now()}` }));
       } else if (fieldName === 'profile') {
         await apiClient.post("/user/profile/update-pic", {
           user_id: profile.id,
           url: data.file_url
         });
-        setFormData(p => ({ ...p, profile_pic_url: data.file_url }));
+        setFormData(p => ({ ...p, profile_pic_url: `${data.file_url}?t=${Date.now()}` }));
       } else {
         setFormData(p => ({ ...p, [fieldName]: data.file_url }));
         setUploadedFileNames(p => ({ ...p, [fieldName]: file.name }));
@@ -384,8 +419,8 @@ export default function InstituteSetupOverlay({ profile }) {
     }
     setLoading(true);
     try {
-      const countryName = Country.getCountryByCode(formData.location_country)?.name || "";
-      const stateName = State.getStateByCodeAndCountry(formData.location_state, formData.location_country)?.name || "";
+      const countryName = gazeteer.Countries.find(c => c.code === formData.location_country)?.name || "";
+      const stateName = formData.location_state || "";
       const fullLocationString = [formData.location_city, stateName, countryName].filter(Boolean).join(", ");
 
       const institute_profile = {
@@ -431,25 +466,33 @@ export default function InstituteSetupOverlay({ profile }) {
     switch (step) {
       case 0:
         return (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2 }}>
             <Box sx={{ mb: 2 }}>
               <LabelTypography>संस्थान की कवर फ़ोटो (Cover Photo) और लोगो (Logo) *</LabelTypography>
               <Box sx={{ position: 'relative', mb: 6 }}>
-                <Box 
-                  sx={{ 
-                    width: '100%', height: 160, borderRadius: '12px', 
-                    backgroundColor: '#F3F4F6', backgroundImage: `url(${formData.banner_url})`,
-                    backgroundSize: 'cover', backgroundPosition: 'center',
+                <Box
+                  sx={{
+                    width: '100%', height: 160, borderRadius: '12px',
+                    backgroundColor: '#F3F4F6',
                     display: 'flex', justifyContent: 'center', alignItems: 'center',
-                    border: formErrors.banner ? '2px dashed #d32f2f' : '2px dashed #CBD5E1', cursor: 'pointer', overflow: 'hidden', position: 'relative'
+                    border: formErrors.banner ? '2px dashed #d32f2f' : ((formData.banner_url && formData.banner_url !== 'null' && formData.banner_url !== 'undefined' && formData.banner_url.trim() !== '') ? '1px solid #E5E7EB' : '2px dashed #CBD5E1'), cursor: 'pointer', overflow: 'hidden', position: 'relative'
                   }}
-                  onClick={() => { bannerInputRef.current?.click(); if(formErrors.banner) setFormErrors(p => ({...p, banner: false})); }}
+                  onClick={() => { bannerInputRef.current?.click(); if (formErrors.banner) setFormErrors(p => ({ ...p, banner: false })); }}
                 >
-                  {!formData.banner_url && !uploadingBanner && <CloudUploadIcon sx={{ color: formErrors.banner ? '#d32f2f' : '#94A3B8', fontSize: 48 }} />}
-                  {uploadingBanner && <Loader mini />}
+                  {(formData.banner_url && formData.banner_url !== 'null' && formData.banner_url !== 'undefined' && formData.banner_url.trim() !== '') && (
+                    <Box
+                      component="img"
+                      src={formData.banner_url}
+                      alt="Cover"
+                      onError={(e) => { e.target.style.display = 'none'; }}
+                      sx={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0, zIndex: 0 }}
+                    />
+                  )}
+                  {(!formData.banner_url || formData.banner_url === 'null' || formData.banner_url === 'undefined' || formData.banner_url.trim() === '') && !uploadingBanner && <CloudUploadIcon sx={{ color: formErrors.banner ? '#d32f2f' : '#94A3B8', fontSize: 48, position: 'relative', zIndex: 1 }} />}
+                  {uploadingBanner && <Box sx={{ position: 'relative', zIndex: 2 }}><Loader mini /></Box>}
                   <input type="file" hidden ref={bannerInputRef} accept="image/*" onChange={(e) => handleFileUpload(e, 'banner', setUploadingBanner)} />
                 </Box>
-                
+
                 <Box sx={{ position: 'absolute', bottom: -44, left: 32, zIndex: 10 }}>
                   <Box sx={{ position: 'relative' }}>
                     <Avatar
@@ -459,7 +502,8 @@ export default function InstituteSetupOverlay({ profile }) {
                         height: 104,
                         border: formErrors.profile ? '4px solid #d32f2f' : '4px solid #ffffff',
                         bgcolor: '#F3F4F6',
-                        boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+                        boxShadow: 'none',
+                        border: '1px solid #E2E8F0',
                         fontSize: '36px',
                         fontFamily: fontFam,
                         fontWeight: 600,
@@ -479,7 +523,7 @@ export default function InstituteSetupOverlay({ profile }) {
                         bgcolor: '#ffffff',
                         color: '#374151',
                         border: '1px solid #E5E7EB',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                        boxShadow: 'none',
                         '&:hover': { bgcolor: '#F9FAFB' }
                       }}
                       size="small"
@@ -527,12 +571,12 @@ export default function InstituteSetupOverlay({ profile }) {
                   )}
                 />
               </Box>
-              
+
               {formData.institute_type && !noChildTypes.includes(formData.institute_type) && (
                 <Box sx={{ flex: 1, minWidth: '250px' }}>
                   <LabelTypography>
-                    {['National Board', 'State Board', 'International Board'].includes(formData.institute_type) 
-                      ? "बोर्ड का नाम (Board Name) *" 
+                    {['National Board', 'State Board', 'International Board'].includes(formData.institute_type)
+                      ? "बोर्ड का नाम (Board Name) *"
                       : "विश्वविद्यालय का नाम (Name of University) *"}
                   </LabelTypography>
                   <Autocomplete
@@ -595,32 +639,32 @@ export default function InstituteSetupOverlay({ profile }) {
               </Box>
             </Box>
             <Box>
-              <LabelTypography>संस्थान के बारे में (About the Institution) * {formErrors.bio && <span style={{color: '#d32f2f'}}>(कम से कम 100 शब्द आवश्यक)</span>}</LabelTypography>
-              <TextField 
-                fullWidth 
-                multiline 
-                rows={4} 
-                name="bio" 
-                sx={fieldSx} 
-                value={formData.bio} 
-                onChange={handleChange} 
-                required 
+              <LabelTypography>संस्थान के बारे में (About the Institution) * {formErrors.bio && <span style={{ color: '#d32f2f' }}>(कम से कम 100 शब्द आवश्यक)</span>}</LabelTypography>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                name="bio"
+                sx={fieldSx}
+                value={formData.bio}
+                onChange={handleChange}
+                required
                 error={!!formErrors.bio}
                 placeholder="कम से कम 100 शब्द लिखें... (Minimum 100 words...)"
                 helperText={
                   formData.bio && formData.bio.trim().split(/\s+/).filter(w => w.length > 0).length < 100
-                  ? `${100 - formData.bio.trim().split(/\s+/).filter(w => w.length > 0).length} शब्द और लिखें (words remaining to reach minimum)`
-                  : formData.bio 
-                    ? `न्यूनतम शब्द सीमा पूरी हुई (${formData.bio.trim().split(/\s+/).filter(w => w.length > 0).length} शब्द)`
-                    : ""
+                    ? `${100 - formData.bio.trim().split(/\s+/).filter(w => w.length > 0).length} शब्द और लिखें (words remaining to reach minimum)`
+                    : formData.bio
+                      ? `न्यूनतम शब्द सीमा पूरी हुई (${formData.bio.trim().split(/\s+/).filter(w => w.length > 0).length} शब्द)`
+                      : ""
                 }
-                FormHelperTextProps={{ 
-                  sx: { 
+                FormHelperTextProps={{
+                  sx: {
                     color: (!formData.bio || formData.bio.trim().split(/\s+/).filter(w => w.length > 0).length < 100) ? '#d32f2f' : '#28a745',
                     fontWeight: 500,
                     ml: 0,
                     mt: 1
-                  } 
+                  }
                 }}
               />
             </Box>
@@ -628,18 +672,18 @@ export default function InstituteSetupOverlay({ profile }) {
         );
       case 1:
         return (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2 }}>
 
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Box sx={{ flex: 1 }}>
                 <LabelTypography>आधिकारिक फ़ोन (Official Phone) *</LabelTypography>
-                <TextField 
-                  fullWidth 
-                  name="official_phone" 
-                  sx={fieldSx} 
-                  required 
-                  value={formData.official_phone} 
-                  onChange={handleChange} 
+                <TextField
+                  fullWidth
+                  name="official_phone"
+                  sx={fieldSx}
+                  required
+                  value={formData.official_phone}
+                  onChange={handleChange}
                   placeholder="XXXXXXXXXX"
                   error={!!formErrors.official_phone}
                   InputProps={{
@@ -667,13 +711,13 @@ export default function InstituteSetupOverlay({ profile }) {
               </Box>
               <Box sx={{ flex: 1 }}>
                 <LabelTypography>वैकल्पिक संपर्क (Alternate Contact) *</LabelTypography>
-                <TextField 
-                  fullWidth 
-                  name="alternate_contact" 
-                  sx={fieldSx} 
-                  required 
-                  value={formData.alternate_contact} 
-                  onChange={handleChange} 
+                <TextField
+                  fullWidth
+                  name="alternate_contact"
+                  sx={fieldSx}
+                  required
+                  value={formData.alternate_contact}
+                  onChange={handleChange}
                   placeholder="XXXXXXXXXX"
                   error={!!formErrors.alternate_contact}
                   InputProps={{
@@ -692,7 +736,7 @@ export default function InstituteSetupOverlay({ profile }) {
             </Box>
 
 
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.25 }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
               <Box>
                 <LabelTypography>पिन कोड (Pincode) *</LabelTypography>
                 <TextField fullWidth name="pincode" sx={fieldSx} required value={formData.pincode} onChange={handleChange} placeholder="जैसे - 110001" error={!!formErrors.pincode} />
@@ -702,12 +746,12 @@ export default function InstituteSetupOverlay({ profile }) {
                 <Autocomplete
                   options={countries}
                   getOptionLabel={(option) => {
-                    const iso = typeof option === 'string' ? option : option?.isoCode;
-                    const found = countries.find(c => c.isoCode === iso);
-                    return found ? (Reflect.get(COUNTRIES_HINDI, found.isoCode) || transliterateToHindi(found.name)) : (iso || "");
+                    const iso = typeof option === 'string' ? option : option?.code;
+                    const found = countries.find(c => c.code === iso);
+                    return found ? found.name : (iso || "");
                   }}
-                  value={countries.find(c => c.isoCode === formData.location_country) || null}
-                  onChange={(e, val) => handleAutocompleteChange("location_country", val?.isoCode || "")}
+                  value={countries.find(c => c.code === formData.location_country) || null}
+                  onChange={(e, val) => handleAutocompleteChange("location_country", val?.code || "")}
                   renderInput={(params) => React.createElement(TextField, { ...params, sx: fieldSx, required: true, placeholder: "चुनें", error: !!formErrors.location_country })}
                   slotProps={{ paper: { sx: menuPaperSx } }}
                 />
@@ -720,7 +764,7 @@ export default function InstituteSetupOverlay({ profile }) {
                   getOptionLabel={(option) => {
                     const iso = typeof option === 'string' ? option : option?.isoCode;
                     const found = states.find(s => s.isoCode === iso);
-                    return found ? (Reflect.get(INDIAN_STATES_HINDI, found.isoCode) || transliterateToHindi(found.name)) : (iso || "");
+                    return found ? found.name : (iso || "");
                   }}
                   value={states.find(s => s.isoCode === formData.location_state) || null}
                   onChange={(e, val) => handleAutocompleteChange("location_state", val?.isoCode || "")}
@@ -735,7 +779,7 @@ export default function InstituteSetupOverlay({ profile }) {
                   options={cities}
                   getOptionLabel={(option) => {
                     const name = typeof option === 'string' ? option : option?.name;
-                    return name ? (Reflect.get(INDIAN_DISTRICTS_HINDI, name) || transliterateToHindi(name)) : "";
+                    return name || "";
                   }}
                   value={cities.find(c => c.name === formData.location_city) || null}
                   onChange={(e, val) => handleAutocompleteChange("location_city", val?.name || "")}
@@ -748,7 +792,7 @@ export default function InstituteSetupOverlay({ profile }) {
         );
       case 2:
         return (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2 }}>
             <Box>
               <LabelTypography>ऑफ़र किए गए कोर्स (Courses Offered) *</LabelTypography>
               <Autocomplete
@@ -771,7 +815,7 @@ export default function InstituteSetupOverlay({ profile }) {
                   );
                 }}
                 renderInput={(params) => (
-                  <TextField 
+                  <TextField
                     id={params.id}
                     disabled={params.disabled}
                     fullWidth={params.fullWidth}
@@ -779,9 +823,9 @@ export default function InstituteSetupOverlay({ profile }) {
                     InputLabelProps={params.InputLabelProps}
                     InputProps={params.InputProps}
                     inputProps={params.inputProps}
-                    sx={fieldSx} 
-                    placeholder={!formData.courses_offered || formData.courses_offered.length === 0 ? "कोर्स चुनें या टाइप करें (e.g. B.Tech, MBA)" : ""} 
-                    error={!!formErrors.courses_offered} 
+                    sx={fieldSx}
+                    placeholder={!formData.courses_offered || formData.courses_offered.length === 0 ? "कोर्स चुनें या टाइप करें (e.g. B.Tech, MBA)" : ""}
+                    error={!!formErrors.courses_offered}
                   />
                 )}
                 slotProps={{ paper: { sx: menuPaperSx } }}
@@ -808,7 +852,7 @@ export default function InstituteSetupOverlay({ profile }) {
                   );
                 }}
                 renderInput={(params) => (
-                  <TextField 
+                  <TextField
                     id={params.id}
                     disabled={params.disabled}
                     fullWidth={params.fullWidth}
@@ -816,9 +860,9 @@ export default function InstituteSetupOverlay({ profile }) {
                     InputLabelProps={params.InputLabelProps}
                     InputProps={params.InputProps}
                     inputProps={params.inputProps}
-                    sx={fieldSx} 
-                    placeholder={!formData.education_levels || formData.education_levels.length === 0 ? "शिक्षा स्तर चुनें (Select levels)" : ""} 
-                    error={!!formErrors.education_levels} 
+                    sx={fieldSx}
+                    placeholder={!formData.education_levels || formData.education_levels.length === 0 ? "शिक्षा स्तर चुनें (Select levels)" : ""}
+                    error={!!formErrors.education_levels}
                   />
                 )}
                 slotProps={{ paper: { sx: menuPaperSx } }}
@@ -828,15 +872,15 @@ export default function InstituteSetupOverlay({ profile }) {
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <LabelTypography>मान्यता / संबद्धता प्रमाणपत्र (Recognition / Affiliation Doc) *</LabelTypography>
-                <Button 
-                  variant={formData.accreditation_docs ? "contained" : "outlined"} 
-                  component="label" 
-                  fullWidth 
+                <Button
+                  variant={formData.accreditation_docs ? "contained" : "outlined"}
+                  component="label"
+                  fullWidth
                   startIcon={formData.accreditation_docs && !uploadingVerificationDoc ? <CheckCircleIcon /> : null}
-                  sx={{ 
-                    py: 1.5, 
-                    borderColor: formErrors.accreditation_docs ? '#d32f2f' : (formData.accreditation_docs ? 'transparent' : '#CBD5E1'), 
-                    color: formErrors.accreditation_docs ? '#d32f2f' : (formData.accreditation_docs ? '#16a34a' : '#374151'), 
+                  sx={{
+                    py: 1.5,
+                    borderColor: formErrors.accreditation_docs ? '#d32f2f' : (formData.accreditation_docs ? 'transparent' : '#CBD5E1'),
+                    color: formErrors.accreditation_docs ? '#d32f2f' : (formData.accreditation_docs ? '#16a34a' : '#374151'),
                     backgroundColor: formData.accreditation_docs ? '#dcfce7' : 'transparent',
                     textTransform: 'none',
                     fontWeight: formData.accreditation_docs ? 600 : 500,
@@ -848,7 +892,7 @@ export default function InstituteSetupOverlay({ profile }) {
                   }}
                 >
                   {uploadingVerificationDoc ? <Loader mini /> : (formData.accreditation_docs ? "Uploaded (Click to change)" : "Upload File")}
-                  <input type="file" hidden accept=".pdf,image/*" onChange={(e) => { handleFileUpload(e, 'accreditation_docs', setUploadingVerificationDoc); if(formErrors.accreditation_docs) setFormErrors(p => ({...p, accreditation_docs: false})); }} />
+                  <input type="file" hidden accept=".pdf,image/*" onChange={(e) => { handleFileUpload(e, 'accreditation_docs', setUploadingVerificationDoc); if (formErrors.accreditation_docs) setFormErrors(p => ({ ...p, accreditation_docs: false })); }} />
                 </Button>
                 {formData.accreditation_docs && (
                   <Typography variant="caption" sx={{ color: '#16a34a', mt: 1, textAlign: 'center', display: 'block', fontWeight: 500, fontFamily: fontFam, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -858,15 +902,15 @@ export default function InstituteSetupOverlay({ profile }) {
               </Box>
               <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <LabelTypography>संपर्क विवरण वाला दस्तावेज़ (Document with School Contact) *</LabelTypography>
-                <Button 
-                  variant={formData.license_certificate_url ? "contained" : "outlined"} 
-                  component="label" 
-                  fullWidth 
+                <Button
+                  variant={formData.license_certificate_url ? "contained" : "outlined"}
+                  component="label"
+                  fullWidth
                   startIcon={formData.license_certificate_url && !uploadingContactDoc ? <CheckCircleIcon /> : null}
-                  sx={{ 
-                    py: 1.5, 
-                    borderColor: formErrors.license_certificate_url ? '#d32f2f' : (formData.license_certificate_url ? 'transparent' : '#CBD5E1'), 
-                    color: formErrors.license_certificate_url ? '#d32f2f' : (formData.license_certificate_url ? '#16a34a' : '#374151'), 
+                  sx={{
+                    py: 1.5,
+                    borderColor: formErrors.license_certificate_url ? '#d32f2f' : (formData.license_certificate_url ? 'transparent' : '#CBD5E1'),
+                    color: formErrors.license_certificate_url ? '#d32f2f' : (formData.license_certificate_url ? '#16a34a' : '#374151'),
                     backgroundColor: formData.license_certificate_url ? '#dcfce7' : 'transparent',
                     textTransform: 'none',
                     fontWeight: formData.license_certificate_url ? 600 : 500,
@@ -878,7 +922,7 @@ export default function InstituteSetupOverlay({ profile }) {
                   }}
                 >
                   {uploadingContactDoc ? <Loader mini /> : (formData.license_certificate_url ? "Uploaded (Click to change)" : "Upload File")}
-                  <input type="file" hidden accept=".pdf,image/*" onChange={(e) => { handleFileUpload(e, 'license_certificate_url', setUploadingContactDoc); if(formErrors.license_certificate_url) setFormErrors(p => ({...p, license_certificate_url: false})); }} />
+                  <input type="file" hidden accept=".pdf,image/*" onChange={(e) => { handleFileUpload(e, 'license_certificate_url', setUploadingContactDoc); if (formErrors.license_certificate_url) setFormErrors(p => ({ ...p, license_certificate_url: false })); }} />
                 </Button>
                 {formData.license_certificate_url && (
                   <Typography variant="caption" sx={{ color: '#16a34a', mt: 1, textAlign: 'center', display: 'block', fontWeight: 500, fontFamily: fontFam, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -895,12 +939,23 @@ export default function InstituteSetupOverlay({ profile }) {
   };
 
   return (
-    <Box sx={{ position: 'fixed', inset: 0, zIndex: 1200, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 86, 179, 0.1)', backdropFilter: 'blur(15px)', p: 2, overflow: 'auto' }}>
+    <Box sx={{
+      position: 'fixed',
+      inset: 0,
+      zIndex: 1200,
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0, 86, 179, 0.1)',
+      backdropFilter: 'blur(15px)',
+      p: { xs: 0, sm: 2 },
+      overflow: 'hidden'
+    }}>
       <Paper elevation={0} component={Motion.div} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} sx={{ 
         width: { xs: "100%", sm: "800px" }, 
         borderRadius: { xs: 0, sm: "28px" }, 
         p: { xs: 3, sm: 5 }, 
-        maxHeight: '95vh', 
+        maxHeight: '95vh',
         overflowY: 'auto',
         background: `
           radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.25) 0, transparent 50%), 
@@ -909,7 +964,8 @@ export default function InstituteSetupOverlay({ profile }) {
           radial-gradient(at 20% 100%, rgba(0, 86, 179, 0.1) 0, transparent 50%),
           #ffffff
         `,
-        boxShadow: { sm: "0 25px 50px -12px rgba(0,0,0,0.3)" }
+        boxShadow: "none",
+        border: "1px solid #E2E8F0"
       }}>
         <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Box>
@@ -935,32 +991,33 @@ export default function InstituteSetupOverlay({ profile }) {
 
         <form onSubmit={handleSubmit}>
           {renderStepContent(activeStep)}
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 5, pt: 3, borderTop: '1px solid #F3F4F6' }}>
-            <Button 
-              disabled={activeStep === 0} 
-              onClick={handleBack} 
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4, pt: 2.5, borderTop: '1px solid #F3F4F6' }}>
+            <Button
+              disabled={activeStep === 0}
+              onClick={handleBack}
               variant="outlined"
-              sx={{ 
-                py: 1.2, 
-                px: 4, 
-                borderRadius: '12px', 
-                textTransform: 'none', 
-                fontWeight: 600, 
-                color: '#475569', 
-                borderColor: '#CBD5E1', 
+              sx={{
+                py: 1.2,
+                px: 4,
+                minWidth: { xs: '100px', sm: '130px' },
+                borderRadius: '8px',
+                textTransform: 'none',
+                fontWeight: 600,
+                color: '#475569',
+                borderColor: '#CBD5E1',
                 fontFamily: fontFam,
-                '&.Mui-disabled': { color: '#94A3B8', borderColor: '#E2E8F0', opacity: 1 } 
+                '&.Mui-disabled': { color: '#94A3B8', borderColor: '#E2E8F0', opacity: 1 }
               }}
             >
-              <span style={{ color: 'inherit' }}>पीछे (Back)</span>
+              <span style={{ color: 'inherit' }}>पीछे</span>
             </Button>
-            <Button 
-              type="submit" 
-              variant="contained" disableElevation 
+            <Button
+              type="submit"
+              variant="contained" disableElevation
               disabled={loading || uploadingBanner || uploadingAvatar || uploadingVerificationDoc || uploadingContactDoc}
-              sx={{ py: 1.2, px: 4, borderRadius: '12px', textTransform: 'none', fontWeight: 600, background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', boxShadow: 'none', fontFamily: fontFam }}
+              sx={{ py: 1.2, px: 4, minWidth: { xs: '100px', sm: '130px' }, borderRadius: '8px', textTransform: 'none', fontWeight: 600, background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', boxShadow: 'none', fontFamily: fontFam }}
             >
-              {activeStep === steps.length - 1 ? (loading ? <Loader mini /> : "सबमिट करें (Submit)") : "आगे (Next)"}
+              {activeStep === steps.length - 1 ? (loading ? <Loader mini /> : "सबमिट करें") : "आगे"}
             </Button>
           </Box>
         </form>
@@ -1016,9 +1073,7 @@ export default function InstituteSetupOverlay({ profile }) {
                 >
                   <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "center" }}>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                      <Typography sx={{ fontSize: "18px" }}>
-                        {country.label.split(" ")[0]}
-                      </Typography>
+                      <img src={country.flagUrl} alt={country.isoCode} style={{ width: 24, height: 16, objectFit: 'cover', borderRadius: 2 }} />
                       <Box>
                         <Typography sx={{ fontSize: "inherit", fontWeight: "inherit", lineHeight: "inherit", color: "inherit" }}>
                           {country.name}

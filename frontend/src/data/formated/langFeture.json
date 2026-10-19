@@ -1,0 +1,1104 @@
+{
+  "languageNames": {
+    "adi": "आदी",
+    "adl": "गालो",
+    "af": "Afrikaans",
+    "ahi": "अहीरवाटी",
+    "ajm": "अजमेरी",
+    "am": "አማርኛ",
+    "anm": "आनाल",
+    "anp": "अंगिका",
+    "apt": "अपातानी",
+    "ar": "العربية",
+    "as": "অসমীয়া",
+    "awa": "अवधी",
+    "az": "Azərbaycan",
+    "bag": "बघेली",
+    "be": "Беларуская",
+    "bg": "Български",
+    "bgi": "बागड़ी",
+    "bhb": "भीली",
+    "bhd": "भद्रवाही",
+    "bho": "भोजपुरी",
+    "bls": "कहलूरी",
+    "bn": "বাংলা",
+    "bra": "ब्रज",
+    "brx": "बोडो",
+    "bs": "Bosanski",
+    "bun": "बुंदेली",
+    "ca": "Català",
+    "chm": "चंबियाली",
+    "clk": "इदु मिश्मी",
+    "cs": "Čeština",
+    "da": "Dansk",
+    "dac": "ડાંગી",
+    "de": "Deutsch",
+    "dhd": "ढूंढाड़ी",
+    "dis": "ডিমাছা",
+    "doa": "ਦੁਆਬੀ",
+    "doi": "डोगरी",
+    "dso": "ଦେଶିୟା",
+    "dv": "ދިވެހި",
+    "dz": "རྫོང་ཁ",
+    "el": "Ελληνικά",
+    "en": "English",
+    "es": "Español",
+    "et": "Eesti",
+    "fa": "فارسی",
+    "fi": "Suomi",
+    "fr": "Français",
+    "gar": "गढ़वाली",
+    "gon": "गोंडी",
+    "grt": "গারো",
+    "gu": "ગુજરાતી",
+    "har": "हरियाणवी",
+    "he": "עברית",
+    "hi": "हिन्दी",
+    "hlb": "हल्बी",
+    "hne": "छत्तीसगढ़ी",
+    "hoc": "𑢹𑣗𑣁",
+    "hoj": "हाड़ौती",
+    "hr": "Hrvatski",
+    "hu": "Magyar",
+    "hy": "Հայերեն",
+    "id": "Bahasa Indonesia",
+    "is": "Íslenska",
+    "it": "Italiano",
+    "ja": "日本語",
+    "ka": "ქართული",
+    "kan": "कन्नौजी",
+    "kau": "कौरवी",
+    "kfa": "ಕೊಡವ",
+    "kff": "కోయ",
+    "kgr": "कांगड़ी",
+    "kha": "खड़ी बोली",
+    "khi": "खियामनियुंगन",
+    "kht": "ၶမ်းတီ",
+    "kk": "Қазақша",
+    "km": "ខ្មែរ",
+    "kn": "ಕನ್ನಡ",
+    "knn": "किन्नौरी",
+    "ko": "한국어",
+    "koc": "खोरठा",
+    "kok": "कोंकणी",
+    "kru": "कुड़ुख",
+    "ks": "کٲشُر",
+    "ksw": "کشتواڑی",
+    "kui": "କୁଇ",
+    "kul": "कुल्लूवी",
+    "kum": "कुमाऊँनी",
+    "kvd": "કાઠિયાવાડી",
+    "ky": "Кыргызча",
+    "lad": "ལ་དྭགས་སྐད་",
+    "lb": "Lëtzebuergesch",
+    "lep": "ᰛᰬᰦᰵᰀᰡᰦᰵ",
+    "lo": "ລາວ",
+    "lt": "Lietuvių",
+    "lus": "मिज़ो",
+    "lv": "Latviešu",
+    "mag": "मगही",
+    "mai": "मैथिली",
+    "maj": "ਮਾਝੀ",
+    "mal": "ਮਲਵਈ",
+    "mew": "मेवाती",
+    "mg": "Malagasy",
+    "mhk": "महाकोशली",
+    "mhu": "दिगारु मिश्मी",
+    "mjw": "কাৰ্বি",
+    "ml": "മലയാളം",
+    "mlv": "मालवी",
+    "mn": "Монгол",
+    "mnd": "मंडयाली",
+    "mni": "ꯃꯤꯇꯩꯂꯣꯟ",
+    "mon": "མོན་པའི་སྐད་",
+    "mr": "मराठी",
+    "mrh": "मारा",
+    "ms": "Bahasa Melayu",
+    "mt": "Malti",
+    "mtr": "मेवाड़ी",
+    "mwr": "मारवाड़ी",
+    "mxj": "मिजु मिश्मी",
+    "my": "မြန်မာ",
+    "nag": "নাগামিজ",
+    "nbc": "चांग",
+    "nbe": "कोन्याक",
+    "ne": "नेपाली",
+    "njb": "नोक्टे",
+    "njh": "लोथा",
+    "njm": "अंगामी",
+    "njo": "आओ",
+    "njy": "न्यिशी",
+    "nl": "Nederlands",
+    "nma": "माराम",
+    "nmf": "तांगखुल",
+    "nmo": "माओ",
+    "nnp": "𞋒𞋀𞋉𞋃𞋓",
+    "no": "Norsk",
+    "noe": "निमाड़ी",
+    "npo": "पोचुरी",
+    "nri": "चखेसंग",
+    "nsa": "संगतम",
+    "nsm": "सूमी",
+    "nst": "तांगसा",
+    "nze": "जेलियांग",
+    "or": "ଓଡ଼ିଆ",
+    "pa": "ਪੰਜਾਬੀ",
+    "pah": "پہاڑی",
+    "pbv": "পনার",
+    "pl": "Polski",
+    "prg": "پرگی",
+    "ps": "پښتو",
+    "pt": "Português",
+    "ro": "Română",
+    "roh": "रोहिलखंडी",
+    "ron": "रोंगमेई",
+    "ru": "Русский",
+    "rw": "Kinyarwanda",
+    "sa": "संस्कृतम्",
+    "sat": "ᱥᱟᱱᱛᱟᱲᱤ",
+    "sck": "नागपुरी",
+    "sgj": "सरगुजिया",
+    "sgu": "દક્ષિણ ગુજરાતી",
+    "shm": "महासूवी",
+    "si": "සිංහල",
+    "sk": "Slovenčina",
+    "sl": "Slovenščina",
+    "sln": "बघाटी",
+    "sm": "Gagana Samoa",
+    "so": "Soomaali",
+    "sq": "Shqip",
+    "sr": "Српски",
+    "srb": "ସୋରା",
+    "srm": "सिरमौरी",
+    "srz": "सराजी",
+    "st": "Sesotho",
+    "sur": "सुरजापुरी",
+    "sv": "Svenska",
+    "sw": "Kiswahili",
+    "swv": "शेखावाटी",
+    "ta": "தமிழ்",
+    "tcy": "ತುಳು",
+    "te": "తెలుగు",
+    "tg": "Тоҷикӣ",
+    "tgj": "तागिन",
+    "th": "ไทย",
+    "thd": "थादौ कुकी",
+    "ti": "ትግርኛ",
+    "tk": "Türkmençe",
+    "tl": "Filipino",
+    "tr": "Türkçe",
+    "trp": "ককবরক",
+    "uk": "Українська",
+    "una": "पंजाबी-पहाड़ी",
+    "ur": "اردو",
+    "uz": "O'zbek",
+    "vi": "Tiếng Việt",
+    "wbr": "वागड़ी",
+    "yim": "यिमखियुंग",
+    "zh": "中文"
+  },
+  "scriptLanguages": {
+    "WRITING_SYSTEMS": {
+      "Logographic": {
+        "Chinese": {
+          "Hanzi": [
+            "zh"
+          ],
+          "Japanese": {
+            "Kanji": [],
+            "Hiragana": [],
+            "Katakana": [
+              "ja"
+            ]
+          }
+        }
+      },
+      "Independent Scripts": {
+        "Hangul": [
+          "ko"
+        ],
+        "Armenian": [
+          "hy"
+        ],
+        "Georgian": [
+          "ka"
+        ],
+        "Thaana": [
+          "dv"
+        ],
+        "Ol Chiki": [
+          "sat"
+        ]
+      },
+      "Alphabetic and Abugida": {
+        "Proto-Sinaitic": {
+          "Phoenician": {
+            "Greek": {
+              "Greek Script": [
+                "el"
+              ],
+              "Latin": {
+                "Germanic": [
+                  "af",
+                  "da",
+                  "de",
+                  "en",
+                  "is",
+                  "lb",
+                  "nl",
+                  "no",
+                  "sv"
+                ],
+                "Romance": [
+                  "ca",
+                  "es",
+                  "fr",
+                  "it",
+                  "pt",
+                  "ro"
+                ],
+                "Other": [
+                  "adi",
+                  "adl",
+                  "ahi",
+                  "ajm",
+                  "am",
+                  "anm",
+                  "anp",
+                  "apt",
+                  "awa",
+                  "az",
+                  "bag",
+                  "bgi",
+                  "bhb",
+                  "bhd",
+                  "bls",
+                  "bra",
+                  "bs",
+                  "bun",
+                  "chm",
+                  "clk",
+                  "cs",
+                  "dac",
+                  "dhd",
+                  "dis",
+                  "doa",
+                  "dso",
+                  "et",
+                  "fi",
+                  "gar",
+                  "gon",
+                  "grt",
+                  "har",
+                  "hlb",
+                  "hne",
+                  "hoc",
+                  "hoj",
+                  "hr",
+                  "hu",
+                  "id",
+                  "kan",
+                  "kau",
+                  "kfa",
+                  "kff",
+                  "kgr",
+                  "kha",
+                  "khi",
+                  "kht",
+                  "knn",
+                  "koc",
+                  "kru",
+                  "ksw",
+                  "kui",
+                  "kul",
+                  "kum",
+                  "kvd",
+                  "lad",
+                  "lep",
+                  "lt",
+                  "lus",
+                  "lv",
+                  "mag",
+                  "maj",
+                  "mal",
+                  "mew",
+                  "mg",
+                  "mhk",
+                  "mhu",
+                  "mjw",
+                  "mlv",
+                  "mnd",
+                  "mon",
+                  "mrh",
+                  "ms",
+                  "mtr",
+                  "mwr",
+                  "mxj",
+                  "nag",
+                  "nbc",
+                  "nbe",
+                  "njb",
+                  "njh",
+                  "njm",
+                  "njo",
+                  "njy",
+                  "nma",
+                  "nmf",
+                  "nmo",
+                  "nnp",
+                  "noe",
+                  "npo",
+                  "nri",
+                  "nsa",
+                  "nsm",
+                  "nst",
+                  "nze",
+                  "pah",
+                  "pbv",
+                  "pl",
+                  "prg",
+                  "roh",
+                  "rw",
+                  "sck",
+                  "sgj",
+                  "sgu",
+                  "shm",
+                  "sk",
+                  "sl",
+                  "sln",
+                  "sm",
+                  "so",
+                  "sq",
+                  "srb",
+                  "srm",
+                  "srz",
+                  "st",
+                  "sur",
+                  "sw",
+                  "swv",
+                  "tcy",
+                  "tgj",
+                  "thd",
+                  "ti",
+                  "tk",
+                  "tl",
+                  "tr",
+                  "trp",
+                  "una",
+                  "uz",
+                  "vi",
+                  "wbr",
+                  "yim"
+                ]
+              },
+              "Cyrillic": {
+                "East Slavic": [
+                  "be",
+                  "ru",
+                  "uk"
+                ],
+                "South Slavic": [
+                  "bg",
+                  "sr"
+                ],
+                "Other": [
+                  "kk",
+                  "ky",
+                  "mn",
+                  "tg"
+                ]
+              }
+            },
+            "Aramaic": {
+              "Hebrew": [
+                "he"
+              ],
+              "Arabic": {
+                "Arabic": [
+                  "ar",
+                  "mt"
+                ],
+                "Persian": [
+                  "fa"
+                ],
+                "Urdu": [
+                  "ks",
+                  "ur"
+                ],
+                "Pashto": [
+                  "ps"
+                ],
+                "Sorani Kurdish": []
+              },
+              "Brahmi": {
+                "Northern": {
+                  "Devanagari": [
+                    "bho",
+                    "brx",
+                    "doi",
+                    "hi",
+                    "kok",
+                    "mai",
+                    "mr",
+                    "ne",
+                    "sa",
+                    "ron"
+                  ],
+                  "Bengali-Assamese": [
+                    "as",
+                    "bn",
+                    "mni"
+                  ],
+                  "Gujarati": [
+                    "gu"
+                  ],
+                  "Gurmukhi": [
+                    "pa"
+                  ],
+                  "Odia": [
+                    "or"
+                  ],
+                  "Tibetan": [
+                    "dz"
+                  ]
+                },
+                "Southern": {
+                  "Tamil": [
+                    "ta"
+                  ],
+                  "Telugu": [
+                    "te"
+                  ],
+                  "Kannada": [
+                    "kn"
+                  ],
+                  "Malayalam": [
+                    "ml"
+                  ],
+                  "Sinhala": [
+                    "si"
+                  ],
+                  "Southeast Asian": {
+                    "Thai": [
+                      "th"
+                    ],
+                    "Lao": [
+                      "lo"
+                    ],
+                    "Khmer": [
+                      "km"
+                    ],
+                    "Burmese": [
+                      "my"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "languageScripts": {
+    "en": "Latin",
+    "hi": "देवनागरी",
+    "bn": "বাংলা",
+    "te": "తెలుగు",
+    "mr": "देवनागरी",
+    "ta": "தமிழ்",
+    "ur": "نستعلیق",
+    "gu": "ગુજરાતી",
+    "kn": "ಕನ್ನಡ",
+    "or": "ଓଡ଼ିଆ",
+    "ml": "മലയാളം",
+    "pa": "ਗੁਰਮੁਖੀ",
+    "as": "অসমীয়া",
+    "mai": "देवनागरी",
+    "sat": "ᱚᱞ ᱪᱤᱠᱤ",
+    "ks": "نستعلیق",
+    "ne": "देवनागरी",
+    "kok": "देवनागरी",
+    "doi": "देवनागरी",
+    "mni": "ꯃꯤꯇꯩ ꯃꯌꯦꯛ",
+    "brx": "देवनागरी",
+    "sa": "देवनागरी",
+    "bho": "देवनागरी",
+    "kha": "देवनागरी",
+    "bra": "देवनागरी",
+    "roh": "देवनागरी",
+    "kan": "देवनागरी",
+    "awa": "देवनागरी",
+    "bun": "देवनागरी",
+    "bag": "देवनागरी",
+    "pah": "نستعلیق",
+    "bhd": "देवनागरी",
+    "ksw": "نستعلیق",
+    "srz": "देवनागरी",
+    "lad": "བོད་ཡིག་",
+    "prg": "نستعلیق",
+    "chm": "देवनागरी",
+    "kgr": "देवनागरी",
+    "kul": "देवनागरी",
+    "mnd": "देवनागरी",
+    "una": "देवनागरी",
+    "bls": "देवनागरी",
+    "sln": "देवनागरी",
+    "shm": "देवनागरी",
+    "srm": "देवनागरी",
+    "knn": "देवनागरी",
+    "maj": "ਗੁਰਮੁਖੀ",
+    "doa": "ਗੁਰਮੁਖੀ",
+    "mal": "ਗੁਰਮੁਖੀ",
+    "har": "देवनागरी",
+    "ahi": "देवनागरी",
+    "bgi": "देवनागरी",
+    "kau": "देवनागरी",
+    "mew": "देवनागरी",
+    "gar": "देवनागरी",
+    "kum": "देवनागरी",
+    "mwr": "देवनागरी",
+    "mtr": "देवनागरी",
+    "dhd": "देवनागरी",
+    "swv": "देवनागरी",
+    "hoj": "देवनागरी",
+    "wbr": "देवनागरी",
+    "mlv": "देवनागरी",
+    "ajm": "देवनागरी",
+    "mag": "देवनागरी",
+    "sur": "देवनागरी",
+    "mjw": "অসমীয়া",
+    "dis": "অসমীয়া",
+    "mon": "བོད་ཡིག་",
+    "njy": "देवनागरी",
+    "apt": "देवनागरी",
+    "tgj": "देवनागरी",
+    "adl": "देवनागरी",
+    "adi": "देवनागरी",
+    "clk": "देवनागरी",
+    "mxj": "देवनागरी",
+    "mhu": "देवनागरी",
+    "kht": "မြန်မာ",
+    "nst": "देवनागरी",
+    "njb": "देवनागरी",
+    "nnp": "𞋀𞋓𞋉𞋃𞋓",
+    "njm": "देवनागरी",
+    "nag": "অসমীয়া",
+    "nsm": "देवनागरी",
+    "njo": "देवनागरी",
+    "njh": "देवनागरी",
+    "nri": "देवनागरी",
+    "nsa": "देवनागरी",
+    "yim": "देवनागरी",
+    "nbc": "देवनागरी",
+    "khi": "देवनागरी",
+    "nbe": "देवनागरी",
+    "nze": "देवनागरी",
+    "npo": "देवनागरी",
+    "nmf": "देवनागरी",
+    "thd": "देवनागरी",
+    "nmo": "देवनागरी",
+    "nma": "देवनागरी",
+    "ron": "देवनागरी",
+    "anm": "देवनागरी",
+    "lus": "देवनागरी",
+    "mrh": "देवनागरी",
+    "trp": "বাংলা",
+    "sck": "देवनागरी",
+    "koc": "देवनागरी",
+    "hoc": "𑢹𑣗𑣁",
+    "hne": "देवनागरी",
+    "sgj": "देवनागरी",
+    "hlb": "देवनागरी",
+    "gon": "देवनागरी",
+    "kru": "देवनागरी",
+    "noe": "देवनागरी",
+    "mhk": "देवनागरी",
+    "bhb": "देवनागरी",
+    "kvd": "ગુજરાતી",
+    "dac": "ગુજરાતી",
+    "sgu": "ગુજરાતી",
+    "kui": "ଓଡ଼ିଆ",
+    "dso": "ଓଡ଼ିଆ",
+    "tcy": "ಕನ್ನಡ",
+    "kfa": "ಕನ್ನಡ",
+    "es": "Latin",
+    "fr": "Latin",
+    "de": "Latin",
+    "vi": "Latin",
+    "tr": "Latin",
+    "id": "Latin",
+    "ru": "Кириллица",
+    "uk": "Кириллица",
+    "bg": "Кириллица",
+    "sr": "Кириллица",
+    "kk": "Кириллица",
+    "mn": "Кириллица",
+    "el": "Ελληνικά",
+    "hy": "Հայերեն",
+    "ka": "ქართული",
+    "th": "ไทย",
+    "km": "ខ្មែរ",
+    "my": "မြန်မာ",
+    "fa": "عربی",
+    "ps": "عربی",
+    "he": "עברית",
+    "ja": "仮名/漢字",
+    "ko": "한글",
+    "am": "ግዕዝ",
+    "mt": "Latin",
+    "zh": "汉字",
+    "dv": "ތާނަ",
+    "anp": "देवनागरी",
+    "be": "Кириллица",
+    "dz": "བོད་ཡིག་",
+    "grt": "বাংলা",
+    "kff": "తెలుగు",
+    "ky": "Кириллица",
+    "lo": "ລາວ",
+    "pbv": "বাংলা",
+    "si": "සිංහල",
+    "srb": "ଓଡ଼ିଆ",
+    "tg": "Кириллица",
+    "ti": "ግዕዝ",
+    "ar": "عربی",
+    "lep": "ᰛᰬᰦᰵ",
+    "af": "Latin",
+    "da": "Latin",
+    "is": "Latin",
+    "lb": "Latin",
+    "nl": "Latin",
+    "no": "Latin",
+    "sv": "Latin",
+    "ca": "Latin",
+    "it": "Latin",
+    "pt": "Latin",
+    "ro": "Latin",
+    "az": "Latin",
+    "bs": "Latin",
+    "cs": "Latin",
+    "et": "Latin",
+    "fi": "Latin",
+    "hr": "Latin",
+    "hu": "Latin",
+    "lt": "Latin",
+    "lv": "Latin",
+    "mg": "Latin",
+    "ms": "Latin",
+    "pl": "Latin",
+    "rw": "Latin",
+    "sk": "Latin",
+    "sl": "Latin",
+    "sm": "Latin",
+    "so": "Latin",
+    "sq": "Latin",
+    "st": "Latin",
+    "sw": "Latin",
+    "tk": "Latin",
+    "tl": "Latin",
+    "uz": "Latin"
+  },
+  "scriptFonts": {
+    "Latin": [
+      {
+        "name": "Inter",
+        "value": "'Inter', sans-serif",
+        "isDefault": true
+      },
+      {
+        "name": "Roboto",
+        "value": "'Roboto', sans-serif"
+      },
+      {
+        "name": "Open Sans",
+        "value": "'Open Sans', sans-serif"
+      },
+      {
+        "name": "Lato",
+        "value": "'Lato', sans-serif"
+      },
+      {
+        "name": "Playfair Display",
+        "value": "'Playfair Display', serif"
+      }
+    ],
+    "देवनागरी": [
+      {
+        "name": "Noto Sans Devanagari",
+        "value": "'Noto Sans Devanagari', sans-serif",
+        "isDefault": true
+      },
+      {
+        "name": "Tiro Devanagari Hindi",
+        "value": "'Tiro Devanagari Hindi', serif"
+      },
+      {
+        "name": "Baloo 2",
+        "value": "'Baloo 2', sans-serif"
+      },
+      {
+        "name": "Poppins",
+        "value": "'Poppins', sans-serif"
+      },
+      {
+        "name": "Mukta",
+        "value": "'Mukta', sans-serif"
+      }
+    ],
+    "বাংলা": [
+      {
+        "name": "Noto Sans Bengali",
+        "value": "'Noto Sans Bengali', sans-serif",
+        "isDefault": true
+      },
+      {
+        "name": "Hind Siliguri",
+        "value": "'Hind Siliguri', sans-serif"
+      },
+      {
+        "name": "Tiro Bangla",
+        "value": "'Tiro Bangla', serif"
+      },
+      {
+        "name": "Baloo Da 2",
+        "value": "'Baloo Da 2', sans-serif"
+      }
+    ],
+    "অসমীয়া": [
+      {
+        "name": "Noto Sans Bengali",
+        "value": "'Noto Sans Bengali', sans-serif",
+        "isDefault": true
+      },
+      {
+        "name": "Hind Siliguri",
+        "value": "'Hind Siliguri', sans-serif"
+      },
+      {
+        "name": "Tiro Bangla",
+        "value": "'Tiro Bangla', serif"
+      }
+    ],
+    "తెలుగు": [
+      {
+        "name": "Noto Sans Telugu",
+        "value": "'Noto Sans Telugu', sans-serif",
+        "isDefault": true
+      },
+      {
+        "name": "Hind Guntur",
+        "value": "'Hind Guntur', sans-serif"
+      },
+      {
+        "name": "Tiro Telugu",
+        "value": "'Tiro Telugu', serif"
+      },
+      {
+        "name": "Baloo Tammudu 2",
+        "value": "'Baloo Tammudu 2', sans-serif"
+      }
+    ],
+    "தமிழ்": [
+      {
+        "name": "Noto Sans Tamil",
+        "value": "'Noto Sans Tamil', sans-serif",
+        "isDefault": true
+      },
+      {
+        "name": "Hind Madurai",
+        "value": "'Hind Madurai', sans-serif"
+      },
+      {
+        "name": "Tiro Tamil",
+        "value": "'Tiro Tamil', serif"
+      },
+      {
+        "name": "Baloo Thambi 2",
+        "value": "'Baloo Thambi 2', sans-serif"
+      }
+    ],
+    "نستعلیق": [
+      {
+        "name": "Noto Nastaliq Urdu",
+        "value": "'Noto Nastaliq Urdu', serif",
+        "isDefault": true
+      },
+      {
+        "name": "Jameel Noori Nastaleeq",
+        "value": "'Jameel Noori Nastaleeq', serif"
+      }
+    ],
+    "عربی": [
+      {
+        "name": "Noto Sans Arabic",
+        "value": "'Noto Sans Arabic', sans-serif",
+        "isDefault": true
+      },
+      {
+        "name": "Cairo",
+        "value": "'Cairo', sans-serif"
+      },
+      {
+        "name": "Scheherazade New",
+        "value": "'Scheherazade New', serif"
+      },
+      {
+        "name": "Amiri",
+        "value": "'Amiri', serif"
+      }
+    ],
+    "ગુજરાતી": [
+      {
+        "name": "Noto Sans Gujarati",
+        "value": "'Noto Sans Gujarati', sans-serif",
+        "isDefault": true
+      },
+      {
+        "name": "Hind Vadodara",
+        "value": "'Hind Vadodara', sans-serif"
+      },
+      {
+        "name": "Baloo Bhai 2",
+        "value": "'Baloo Bhai 2', sans-serif"
+      }
+    ],
+    "ಕನ್ನಡ": [
+      {
+        "name": "Noto Sans Kannada",
+        "value": "'Noto Sans Kannada', sans-serif",
+        "isDefault": true
+      },
+      {
+        "name": "Hind Mysuru",
+        "value": "'Hind Mysuru', sans-serif"
+      },
+      {
+        "name": "Baloo Tamma 2",
+        "value": "'Baloo Tamma 2', sans-serif"
+      }
+    ],
+    "ଓଡ଼ିଆ": [
+      {
+        "name": "Noto Sans Oriya",
+        "value": "'Noto Sans Oriya', sans-serif",
+        "isDefault": true
+      },
+      {
+        "name": "Baloo Bhaina 2",
+        "value": "'Baloo Bhaina 2', sans-serif"
+      }
+    ],
+    "മലയാളം": [
+      {
+        "name": "Noto Sans Malayalam",
+        "value": "'Noto Sans Malayalam', sans-serif",
+        "isDefault": true
+      },
+      {
+        "name": "Baloo Chettan 2",
+        "value": "'Baloo Chettan 2', sans-serif"
+      },
+      {
+        "name": "Manjari",
+        "value": "'Manjari', sans-serif"
+      }
+    ],
+    "ਗੁਰਮੁਖੀ": [
+      {
+        "name": "Noto Sans Gurmukhi",
+        "value": "'Noto Sans Gurmukhi', sans-serif",
+        "isDefault": true
+      },
+      {
+        "name": "Baloo Paaji 2",
+        "value": "'Baloo Paaji 2', sans-serif"
+      }
+    ],
+    "ᱚᱞ ᱪᱤᱠᱤ": [
+      {
+        "name": "Noto Sans Ol Chiki",
+        "value": "'Noto Sans Ol Chiki', sans-serif",
+        "isDefault": true
+      }
+    ],
+    "ꯃꯤꯇꯩ ꯃꯌꯦꯛ": [
+      {
+        "name": "Noto Sans Meetei Mayek",
+        "value": "'Noto Sans Meetei Mayek', sans-serif",
+        "isDefault": true
+      }
+    ],
+    "བོད་ཡིག་": [
+      {
+        "name": "Noto Serif Tibetan",
+        "value": "'Noto Serif Tibetan', serif",
+        "isDefault": true
+      }
+    ],
+    "Кириллица": [
+      {
+        "name": "Noto Sans",
+        "value": "'Noto Sans', sans-serif",
+        "isDefault": true
+      },
+      {
+        "name": "Roboto",
+        "value": "'Roboto', sans-serif"
+      },
+      {
+        "name": "Open Sans",
+        "value": "'Open Sans', sans-serif"
+      }
+    ],
+    "Ελληνικά": [
+      {
+        "name": "Noto Sans",
+        "value": "'Noto Sans', sans-serif",
+        "isDefault": true
+      },
+      {
+        "name": "GFS Didot",
+        "value": "'GFS Didot', serif"
+      }
+    ],
+    "Հայերեն": [
+      {
+        "name": "Noto Sans Armenian",
+        "value": "'Noto Sans Armenian', sans-serif",
+        "isDefault": true
+      }
+    ],
+    "ქართული": [
+      {
+        "name": "Noto Sans Georgian",
+        "value": "'Noto Sans Georgian', sans-serif",
+        "isDefault": true
+      },
+      {
+        "name": "BPG Nino Elite",
+        "value": "'BPG Nino Elite', sans-serif"
+      }
+    ],
+    "ไทย": [
+      {
+        "name": "Noto Sans Thai",
+        "value": "'Noto Sans Thai', sans-serif",
+        "isDefault": true
+      },
+      {
+        "name": "Sarabun",
+        "value": "'Sarabun', sans-serif"
+      }
+    ],
+    "ខ្មែរ": [
+      {
+        "name": "Noto Sans Khmer",
+        "value": "'Noto Sans Khmer', sans-serif",
+        "isDefault": true
+      },
+      {
+        "name": "Hanuman",
+        "value": "'Hanuman', serif"
+      }
+    ],
+    "עברית": [
+      {
+        "name": "Noto Sans Hebrew",
+        "value": "'Noto Sans Hebrew', sans-serif",
+        "isDefault": true
+      },
+      {
+        "name": "Frank Ruhl Libre",
+        "value": "'Frank Ruhl Libre', serif"
+      }
+    ],
+    "仮名/漢字": [
+      {
+        "name": "Noto Sans JP",
+        "value": "'Noto Sans JP', sans-serif",
+        "isDefault": true
+      }
+    ],
+    "한글": [
+      {
+        "name": "Noto Sans KR",
+        "value": "'Noto Sans KR', sans-serif",
+        "isDefault": true
+      }
+    ],
+    "汉字": [
+      {
+        "name": "Noto Sans SC",
+        "value": "'Noto Sans SC', sans-serif",
+        "isDefault": true
+      }
+    ],
+    "漢字": [
+      {
+        "name": "Noto Sans TC",
+        "value": "'Noto Sans TC', sans-serif",
+        "isDefault": true
+      }
+    ],
+    "ግዕዝ": [
+      {
+        "name": "Noto Sans Ethiopic",
+        "value": "'Noto Sans Ethiopic', sans-serif",
+        "isDefault": true
+      }
+    ],
+    "ތާނަ": [
+      {
+        "name": "Noto Sans Thaana",
+        "value": "'Noto Sans Thaana', sans-serif",
+        "isDefault": true
+      }
+    ],
+    "ລາວ": [
+      {
+        "name": "Noto Sans Lao",
+        "value": "'Noto Sans Lao', sans-serif",
+        "isDefault": true
+      }
+    ],
+    "සිංහල": [
+      {
+        "name": "Noto Sans Sinhala",
+        "value": "'Noto Sans Sinhala', sans-serif",
+        "isDefault": true
+      }
+    ],
+    "မြန်မာ": [
+      {
+        "name": "Noto Sans Myanmar",
+        "value": "'Noto Sans Myanmar', sans-serif",
+        "isDefault": true
+      },
+      {
+        "name": "Padauk",
+        "value": "'Padauk', sans-serif"
+      }
+    ],
+    "𞋀𞋓𞋉𞋃𞋓": [
+      {
+        "name": "Noto Sans Wancho",
+        "value": "'Noto Sans Wancho', sans-serif",
+        "isDefault": true
+      }
+    ],
+    "𑢹𑣗𑣁": [
+      {
+        "name": "Noto Sans Warang Citi",
+        "value": "'Noto Sans Warang Citi', sans-serif",
+        "isDefault": true
+      }
+    ],
+    "ᰛᰬᰦᰵ": [
+      {
+        "name": "Noto Sans Lepcha",
+        "value": "'Noto Sans Lepcha', sans-serif",
+        "isDefault": true
+      }
+    ]
+  }
+}

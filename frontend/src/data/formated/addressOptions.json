@@ -1,0 +1,14 @@
+{
+  "areaTypes": [
+    "Rural Areas",
+    "Urban Areas"
+  ],
+  "ruralLocalBodyTypes": [
+    "Gram Panchayat"
+  ],
+  "urbanLocalBodyTypes": [
+    "Nagar Nigam",
+    "Nagar Palika Parishad",
+    "Nagar Panchayat"
+  ]
+}

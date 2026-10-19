@@ -5,9 +5,19 @@ import Link from "next/link";
 import { Button, Box } from "@mui/material";
 import logo from "../../assets/logo.svg";
 import "../../styles/navbar.css";
+import { useAccessibility } from "../../contexts/AccessibilityContext";
+import navTranslations from "../../data/landing_navbar.json";
 
 export default function LandingNavbar({ onLoginClick }) {
   const [scrolled, setScrolled] = useState(false);
+  const { language } = useAccessibility();
+
+  // Helper to get navbar translation with English fallback
+  const nt = (key) => {
+    const section = navTranslations[key];
+    if (!section) return key;
+    return section[language] || section["en"] || key;
+  };
 
   useEffect(() => {
     const handleScroll = (e) => {
@@ -21,12 +31,16 @@ export default function LandingNavbar({ onLoginClick }) {
 
   return (
     <nav className="nav" style={{
-      background: scrolled ? "rgba(255, 255, 255, 0.95)" : "#ffffff",
-      borderBottom: "1px solid rgba(0, 86, 179, 0.15)",
-      backdropFilter: scrolled ? "blur(12px)" : "none",
-      transition: "all 0.3s ease",
+      background: 'linear-gradient(135deg, rgba(0, 86, 179, 0.15) 0%, rgba(40, 167, 69, 0.15) 100%)',
+      backgroundColor: scrolled ? 'rgba(255, 255, 255, 0.92)' : 'rgba(255, 255, 255, 0.75)',
+      backdropFilter: 'blur(16px)',
+      WebkitBackdropFilter: 'blur(16px)',
+      borderBottom: scrolled ? '1px solid #E2E8F0' : 'none',
+      borderBottom: '2px solid transparent',
+      borderImage: 'linear-gradient(90deg, #0056b3 0%, #28a745 50%, #ffc107 100%) 1',
+      transition: 'all 0.3s ease',
       zIndex: 1000,
-      padding: "0 4vw"
+      padding: '0 4vw'
     }}>
       <div className="menu_logo_container">
         <div className="logo" style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "12px" }}>
@@ -36,13 +50,20 @@ export default function LandingNavbar({ onLoginClick }) {
       </div>
 
       <Box sx={{ display: { xs: "none", md: "flex" }, gap: 4, alignItems: "center", position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
-        {["Home", "Courses", "Institutes", "About Us", "Contact"].map((item) => (
+        {[
+          { key: "home" },
+          { key: "courses" },
+          { key: "institutes" },
+          { key: "blogs" },
+          { key: "events" },
+          { key: "contact" }
+        ].map((item) => (
           <Box 
-            key={item} 
+            key={item.key} 
             component="span"
             sx={{ 
               fontFamily: "'Poppins', sans-serif", 
-              fontWeight: 600, 
+              fontWeight: 600,
               fontSize: "1rem", 
               color: "#000000", 
               cursor: "pointer",
@@ -66,7 +87,7 @@ export default function LandingNavbar({ onLoginClick }) {
               transition: "color 0.3s ease"
             }}
           >
-            {item}
+            {nt(item.key)}
           </Box>
         ))}
       </Box>
@@ -88,7 +109,7 @@ export default function LandingNavbar({ onLoginClick }) {
             fontSize: "1rem"
           }}
         >
-          आरंभ करें
+          {nt('start')}
         </Button>
       </div>
     </nav>

@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Paper, Chip, Button, LinearProgress } from "@mui/material";
+import { Box, Typography, Paper, Chip, Button } from "@mui/material";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import FlagIcon from "@mui/icons-material/Flag";
@@ -43,7 +43,7 @@ export default function Competition() {
                 <Typography fontSize={12} color="text.secondary">{c.participants} प्रतिभागी</Typography>
                 <Typography fontSize={12} color="text.secondary">{c.seats} सीटें शेष</Typography>
               </Box>
-              <LinearProgress variant="determinate" value={Math.min(100, (c.participants / (c.participants + c.seats)) * 100)} sx={{ height: 6, borderRadius: "8px", bgcolor: "#f0f0f0", "& .MuiLinearProgress-bar": { bgcolor: "#0056b3", borderRadius: "8px" } }} />
+              
             </Box>
             <Button variant="contained" disableElevation size="small" disabled={c.status === "closed"} sx={{ borderRadius: "8px", bgcolor: "#0056b3", "&:hover": { bgcolor: "#004494" }, textTransform: "none", fontWeight: "bold" }}>
               {c.status === "closed" ? "बंद" : "अभी आवेदन करें"}

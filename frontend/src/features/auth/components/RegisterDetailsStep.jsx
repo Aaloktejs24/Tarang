@@ -1,4 +1,4 @@
-import { Box, Typography, TextField, Button, InputAdornment, IconButton, Select, MenuItem, FormControl, ListItemButton } from "@mui/material";
+import { Box, Typography, TextField, Button, InputAdornment, IconButton, Select, MenuItem, FormControl, ListItemButton, Tooltip } from "@mui/material";
 import { motion as Motion, AnimatePresence } from "framer-motion";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -19,19 +19,20 @@ const RULES = [
   { id: "special", label: "एक विशेष अक्षर (@$!%*?&)",    test: (p) => /[@$!%*?&]/.test(p) },
 ];
 
-const RuleRow = ({ passed, label, color }) => (
+const RuleRow = ({ passed, label, color, isIncorrect }) => (
   <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
     <Box sx={{
-      width: 16, height: 16, borderRadius: "50%",
-      bgcolor: passed ? (color || "#28a745") : "#e2e8f0",
+      width: 14, height: 14, borderRadius: "50%",
+      bgcolor: passed ? "#28a745" : (isIncorrect ? "#ef4444" : "#e2e8f0"),
       display: "flex", alignItems: "center", justifyContent: "center",
       flexShrink: 0, transition: "background-color 0.2s ease"
     }}>
-      {passed && <CheckIcon sx={{ color: "white", fontSize: 11, strokeWidth: 4 }} />}
+      {passed && <CheckIcon sx={{ color: "white", fontSize: 10, strokeWidth: 4 }} />}
+      {isIncorrect && <ErrorIcon sx={{ color: "white", fontSize: 10, strokeWidth: 4 }} />}
     </Box>
     <Typography sx={{
       fontSize: "12px",
-      color: passed ? (color || "#28a745") : "#94a3b8",
+      color: passed ? "#28a745" : (isIncorrect ? "#ef4444" : "#94a3b8"),
       fontWeight: passed ? 600 : 500,
       transition: "color 0.2s ease"
     }}>
@@ -57,6 +58,9 @@ const fieldSx = {
       "& fieldset": { borderColor: "#e2e8f0" },
       "&:hover fieldset": { borderColor: "#cbd5e1" },
       "&.Mui-focused fieldset": { borderColor: "#0056b3", borderWidth: "1.5px" },
+      "&.Mui-error fieldset": { borderColor: "#ef4444" },
+      "&.Mui-error:hover fieldset": { borderColor: "#ef4444" },
+      "&.Mui-error.Mui-focused fieldset": { borderColor: "#ef4444" },
       "& input": { color: "#0f172a", fontSize: "15px" },
   },
   "& .MuiOutlinedInput-input": { padding: "12px 14px" },
@@ -68,7 +72,6 @@ export default function RegisterDetailsStep({ setStep, formData, updateFormData,
   const [errors, setErrors] = useState({});
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [usernameStatus, setUsernameStatus] = useState(null);
-  const [isRoleMenuOpen, setIsRoleMenuOpen] = useState(false);
   const strength = getStrength(formData.password || "");
 
   useEffect(() => {
@@ -158,33 +161,30 @@ export default function RegisterDetailsStep({ setStep, formData, updateFormData,
   };
 
   const passwordFilled = (formData.password || "").length > 0;
+  
+  const isFormValid = formData.full_name?.trim().length >= 2 &&
+                      formData.role && formData.role !== "none" &&
+                      formData.username?.length >= 3 && /^[a-zA-Z0-9_]+$/.test(formData.username) &&
+                      usernameStatus === "available" &&
+                      RULES.every(r => r.test(formData.password || "")) &&
+                      formData.password === formData.confirmPassword;
 
   return (
     <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 1.25 }}>
-      <Box sx={{ mb: -0.5 }}>
-        <Typography variant="h5" sx={{ fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", fontSize: "20px" }}>
+      <Box sx={{ mb: 1 }}>
+        <Typography variant="h5" sx={{ fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", fontSize: "28px", mb: 1 }}>
           प्रोफ़ाइल विवरण
         </Typography>
-        <Typography variant="body2" sx={{ color: "#64748b", mt: 0, fontSize: "13px" }}>
+        <Typography variant="body2" sx={{ color: "#64748b", fontSize: "15px", lineHeight: 1.5 }}>
           अपनी प्रोफ़ाइल पूरी करें।
         </Typography>
       </Box>
 
-      <AnimatePresence mode="wait">
-        {error && (
-          <Motion.div key="server-err" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-            <Box sx={{ p: 1, borderRadius: "8px", bgcolor: "#fef2f2", border: "1px solid #fecaca" }}>
-              <Typography sx={{ color: "#ef4444", fontSize: "12.5px", fontWeight: 600 }}>{error}</Typography>
-            </Box>
-          </Motion.div>
-        )}
-      </AnimatePresence>
-
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
         {/* Compact Name & Username Row */}
         <Box sx={{ display: "flex", gap: 1.5 }}>
           <Box sx={{ flex: 1.2 }}>
-              <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 600, color: "#334155", fontSize: "13px" }}>
+              <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px" }}>
                   पूरा नाम
               </Typography>
               <TextField
@@ -211,149 +211,149 @@ export default function RegisterDetailsStep({ setStep, formData, updateFormData,
           </Box>
 
           <Box sx={{ flex: 1 }}>
-            <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 600, color: "#334155", fontSize: "13px" }}>
+            <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px" }}>
               यूज़रनेम
             </Typography>
-            <TextField
-              fullWidth
-              value={formData.username}
-              onChange={(e) => {
-                updateFormData({ username: e.target.value });
-                if (errors.username) setErrors(p => { const e = { ...p }; delete e.username; return e; });
+            <Tooltip
+              placement="top"
+              arrow
+              PopperProps={{ sx: { zIndex: 99999 } }}
+              disableHoverListener={!(!!formData.username && !/^[a-zA-Z0-9_]+$/.test(formData.username))}
+              disableFocusListener={!(!!formData.username && !/^[a-zA-Z0-9_]+$/.test(formData.username))}
+              disableTouchListener={!(!!formData.username && !/^[a-zA-Z0-9_]+$/.test(formData.username))}
+              slotProps={{
+                tooltip: { sx: { bgcolor: "white", color: "#ef4444", boxShadow: "none", border: "1px solid #E2E8F0" } },
+                arrow: { sx: { color: "white" } }
               }}
-              placeholder="यूज़रनेम"
-              error={!!errors.username}
-              helperText={errors.username}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Box sx={{ mr: 0.5, color: "#94a3b8", display: "flex", alignItems: "center", flexShrink: 0 }}>
-                      <PersonIcon sx={{ fontSize: 18 }} />
-                    </Box>
-                  </InputAdornment>
-                ),
-                endAdornment: (
-                  <InputAdornment position="end">
-                    {isCheckingUsername && <Loader mini />}
-                    {!isCheckingUsername && usernameStatus === "available" && <CheckCircleIcon sx={{ color: "#28a745", fontSize: 18 }} />}
-                    {!isCheckingUsername && usernameStatus === "taken" && <ErrorIcon sx={{ color: "#ef4444", fontSize: 18 }} />}
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                ...fieldSx,
-                "& .MuiFormHelperText-root": {
-                    color: errors.username ? "#ef4444" : "#94a3b8",
-                }
-              }}
-            />
+              title={
+                <Typography sx={{ fontSize: "12px", fontWeight: 600 }}>यूज़रनेम में केवल अक्षर, अंक, और अंडरस्कोर (_) हो सकते हैं</Typography>
+              }
+            >
+              <Box sx={{ width: '100%' }}>
+                <TextField
+                  fullWidth
+                  value={formData.username}
+                  onChange={(e) => {
+                    updateFormData({ username: e.target.value });
+                    if (errors.username) setErrors(p => { const e = { ...p }; delete e.username; return e; });
+                  }}
+                  placeholder="यूज़रनेम"
+                  error={!!errors.username || (!!formData.username && !/^[a-zA-Z0-9_]+$/.test(formData.username))}
+                  helperText={(errors.username && errors.username !== "यूज़रनेम में केवल अक्षर, अंक, और अंडरस्कोर (_) हो सकते हैं") ? errors.username : null}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Box sx={{ mr: 0.5, color: "#94a3b8", display: "flex", alignItems: "center", flexShrink: 0 }}>
+                          <PersonIcon sx={{ fontSize: 18 }} />
+                        </Box>
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        {isCheckingUsername && <Loader mini />}
+                        {!isCheckingUsername && usernameStatus === "available" && <CheckCircleIcon sx={{ color: "#28a745", fontSize: 18 }} />}
+                        {!isCheckingUsername && usernameStatus === "taken" && <ErrorIcon sx={{ color: "#ef4444", fontSize: 18 }} />}
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    ...fieldSx,
+                    "& .MuiFormHelperText-root": {
+                        color: errors.username ? "#ef4444" : "#94a3b8",
+                    }
+                  }}
+                />
+              </Box>
+            </Tooltip>
           </Box>
         </Box>
 
         {/* Custom Hand-Crafted Role Dropdown - Consistent Layout */}
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 0.75 }}>
-            <Typography variant="body2" sx={{ fontWeight: 600, color: "#334155", fontSize: "13px" }}>
-                भूमिका:
+        <Box sx={{ display: "flex", flexDirection: "column" }}>
+            <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px" }}>
+                भूमिका
             </Typography>
             
-            <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                {/* Primary Role Dropdown */}
-                <Box sx={{ position: "relative", flex: 1.1 }}>
-                    <Box 
-                        onClick={() => setIsRoleMenuOpen(!isRoleMenuOpen)}
-                        sx={{
-                            height: "45px", display: "flex", alignItems: "center", justifyContent: "space-between",
-                            px: 1.75, borderRadius: "8px", bgcolor: "#f8fafc", border: "1.5px solid",
-                            borderColor: isRoleMenuOpen ? "#0056b3" : "#e2e8f0",
-                            cursor: "pointer", transition: "all 0.2s ease",
-                            "&:hover": { borderColor: isRoleMenuOpen ? "#0056b3" : "#cbd5e1" },
-                            boxShadow: isRoleMenuOpen ? "0 0 0 1px rgba(0, 86, 179, 0.1)" : "none"
-                        }}
-                    >
-                        <Typography sx={{ fontSize: "14px", color: (formData.role === "none" || !formData.role) ? "#94a3b8" : "#0f172a", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden" }}>
-                            {formData.role === "organisation" ? "संस्थागत" : 
-                             (formData.role === "teacher" || formData.role === "student") ? "व्यक्तिगत" : "चुनें"}
-                        </Typography>
-                        <Box sx={{ 
-                            width: 0, height: 0, borderLeft: "5px solid transparent", borderRight: "5px solid transparent",
-                            borderTop: "5px solid #94a3b8", transition: "transform 0.3s ease",
-                            transform: isRoleMenuOpen ? "rotate(180deg)" : "rotate(0)", ml: 0.5
-                        }} />
-                    </Box>
-
-                    <AnimatePresence>
-                        {isRoleMenuOpen && (
-                            <>
-                                <Box onClick={() => setIsRoleMenuOpen(false)} sx={{ position: "fixed", inset: 0, zIndex: 9998 }} />
-                                <Motion.div
-                                    initial={{ opacity: 0, y: -5 }}
-                                    animate={{ opacity: 1, y: 4 }}
-                                    exit={{ opacity: 0, y: -5, transition: { duration: 0.1 } }}
-                                    style={{ position: "absolute", top: "100%", left: 0, right: 0, zIndex: 10000 }}
-                                >
-                                    <Box sx={{
-                                        bgcolor: "rgba(255, 255, 255, 0.98)", backdropFilter: "blur(12px)",
-                                        borderRadius: "12px", border: "1px solid rgba(0, 86, 179, 0.15)",
-                                        boxShadow: "0 10px 30px rgba(0,0,0,0.12)", p: 0.75
-                                    }}>
-                                        {[
-                                            { id: "organisation", label: "संस्थागत (Organisation)" },
-                                            { id: "individual", label: "व्यक्तिगत (Individual)" }
-                                        ].map((item) => {
-                                            const isCurrent = (item.id === "organisation" && formData.role === "organisation") || 
-                                                              (item.id === "individual" && (formData.role === "teacher" || formData.role === "student"));
-                                            return (
-                                                <ListItemButton
-                                                    key={item.id}
-                                                    selected={isCurrent}
-                                                    onClick={() => {
-                                                        updateFormData({ role: item.id === "individual" ? "teacher" : "organisation" });
-                                                        setIsRoleMenuOpen(false);
-                                                        if (errors.role) setErrors(p => { const e = { ...p }; delete e.role; return e; });
-                                                    }}
-                                                >
-                                                    <Typography sx={{ fontSize: "inherit", fontWeight: "inherit", lineHeight: "inherit", color: "inherit" }}>{item.label}</Typography>
-                                                </ListItemButton>
-                                            );
-                                        })}
-                                    </Box>
-                                </Motion.div>
-                            </>
-                        )}
-                    </AnimatePresence>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                {/* Primary Role Tabs */}
+                <Box sx={{ display: "flex", gap: "8px", width: "100%" }}>
+                    {[
+                        { id: "organisation", label: "संस्थागत" },
+                        { id: "individual", label: "व्यक्तिगत" }
+                    ].map((item) => {
+                        const isCurrent = (item.id === "organisation" && formData.role === "organisation") || 
+                                          (item.id === "individual" && (formData.role === "teacher" || formData.role === "student"));
+                        return (
+                            <Box
+                                key={item.id}
+                                onClick={() => {
+                                    updateFormData({ role: item.id === "individual" ? "teacher" : "organisation" });
+                                    if (errors.role) setErrors(p => { const e = { ...p }; delete e.role; return e; });
+                                }}
+                                sx={{
+                                    flex: 1, height: "45px", display: "flex", alignItems: "center", justifyContent: "center",
+                                    borderRadius: "8px", border: "1.5px solid",
+                                    borderColor: isCurrent ? "#0056b3" : "#e2e8f0",
+                                    bgcolor: isCurrent ? "rgba(0, 86, 179, 0.04)" : "#f8fafc",
+                                    cursor: "pointer", transition: "all 0.2s ease",
+                                    "&:hover": { borderColor: isCurrent ? "#0056b3" : "#cbd5e1" }
+                                }}
+                            >
+                                <Typography sx={{ 
+                                    fontWeight: 700, 
+                                    color: isCurrent ? "#0056b3" : "#64748b", 
+                                    fontSize: "13.5px", 
+                                    transition: "color 0.2s ease" 
+                                }}>
+                                    {item.label}
+                                </Typography>
+                            </Box>
+                        );
+                    })}
                 </Box>
 
-                {/* Sub-role Buttons on the same line */}
+                {/* Sub-role Tabs */}
                 <AnimatePresence mode="wait">
                     {(formData.role === "teacher" || formData.role === "student") && (
                         <Motion.div 
                             key="sub-roles"
-                            initial={{ opacity: 0 }} 
-                            animate={{ opacity: 1 }} 
-                            exit={{ opacity: 0 }}
-                            style={{ flex: 1.9, display: "flex", gap: "8px" }}
+                            initial={{ opacity: 0, height: 0, overflow: "hidden" }} 
+                            animate={{ opacity: 1, height: "auto", overflow: "visible" }} 
+                            exit={{ opacity: 0, height: 0, overflow: "hidden" }}
+                            transition={{ duration: 0.2 }}
+                            style={{ width: "100%" }}
                         >
-                            {[
-                                { id: "teacher", label: "शिक्षक" },
-                                { id: "student", label: "विद्यार्थी" }
-                            ].map((item) => (
-                                <Box
-                                    key={item.id}
-                                    onClick={() => updateFormData({ role: item.id })}
-                                    sx={{
-                                        flex: 1, height: "45px", display: "flex", alignItems: "center", justifyContent: "center",
-                                        borderRadius: "8px", border: "1.5px solid",
-                                        borderColor: formData.role === item.id ? "#28a745" : "#e2e8f0",
-                                        bgcolor: formData.role === item.id ? "rgba(40, 167, 69, 0.04)" : "#f8fafc",
-                                        cursor: "pointer", transition: "all 0.2s ease",
-                                        "&:hover": { borderColor: formData.role === item.id ? "#28a745" : "#cbd5e1" }
-                                    }}
-                                >
-                                    <Typography sx={{ fontWeight: 800, color: formData.role === item.id ? "#28a745" : "#64748b", fontSize: "13px" }}>
-                                        {item.label}
-                                    </Typography>
-                                </Box>
-                            ))}
+                            <Box sx={{ display: "flex", gap: "8px", width: "100%" }}>
+                                {[
+                                    { id: "teacher", label: "शिक्षक" },
+                                    { id: "student", label: "विद्यार्थी" }
+                                ].map((item) => {
+                                    const isCurrent = formData.role === item.id;
+                                    return (
+                                        <Box
+                                            key={item.id}
+                                            onClick={() => updateFormData({ role: item.id })}
+                                            sx={{
+                                                flex: 1, height: "45px", display: "flex", alignItems: "center", justifyContent: "center",
+                                                borderRadius: "8px", border: "1.5px solid",
+                                                borderColor: isCurrent ? "#28a745" : "#e2e8f0",
+                                                bgcolor: isCurrent ? "rgba(40, 167, 69, 0.04)" : "#f8fafc",
+                                                cursor: "pointer", transition: "all 0.2s ease",
+                                                "&:hover": { borderColor: isCurrent ? "#28a745" : "#cbd5e1" }
+                                            }}
+                                        >
+                                            <Typography sx={{ 
+                                                fontWeight: 700, 
+                                                color: isCurrent ? "#28a745" : "#64748b", 
+                                                fontSize: "13.5px",
+                                                transition: "color 0.2s ease" 
+                                            }}>
+                                                {item.label}
+                                            </Typography>
+                                        </Box>
+                                    );
+                                })}
+                            </Box>
                         </Motion.div>
                     )}
                 </AnimatePresence>
@@ -361,42 +361,78 @@ export default function RegisterDetailsStep({ setStep, formData, updateFormData,
         </Box>
         {errors.role && <Typography sx={{ color: "#ef4444", fontSize: "11px", mt: -0.5 }}>{errors.role}</Typography>}
 
-        <Box sx={{ display: "flex", gap: 1.5, alignItems: "flex-start", mt: 0 }}>
+        {/* Password Section */}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          <Box sx={{ display: "flex", gap: 1.5, alignItems: "flex-start", mt: 0 }}>
           <Box sx={{ flex: 1 }}>
-            <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 600, color: "#334155", fontSize: "13px" }}>
+            <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px" }}>
                 पासवर्ड
             </Typography>
-            <TextField
-              fullWidth
-              type="password"
-              value={formData.password}
-              onChange={(e) => {
-                  updateFormData({ password: e.target.value });
-                  if (errors.password) setErrors(p => { const e = { ...p }; delete e.password; return e; });
+            <Tooltip
+              placement="top"
+              arrow
+              PopperProps={{ sx: { zIndex: 99999 } }}
+              slotProps={{
+                tooltip: { sx: { bgcolor: "white", color: "#334155", boxShadow: "none", border: "1px solid #E2E8F0" } },
+                arrow: { sx: { color: "white" } }
               }}
-              placeholder="पासवर्ड"
-              error={!!errors.password}
-              InputProps={{
-                  startAdornment: (
-                      <InputAdornment position="start">
-                          <Box sx={{ mr: 0.5, color: "#94a3b8", display: "flex", alignItems: "center", flexShrink: 0 }}>
-                              <LockIcon sx={{ fontSize: 18 }} />
-                          </Box>
-                      </InputAdornment>
-                  ),
-              }}
-              sx={{
-                ...fieldSx,
-                "& .MuiOutlinedInput-root": {
-                  ...fieldSx["& .MuiOutlinedInput-root"],
-                  paddingRight: "14px",
-                }
-              }}
-            />
+              title={
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5, p: 0.5 }}>
+                  {RULES.map((rule) => {
+                      const passed = rule.test(formData.password || "");
+                      const isIncorrect = passwordFilled && !passed;
+                      return (
+                          <RuleRow
+                              key={rule.id}
+                              passed={passed}
+                              label={rule.label}
+                              isIncorrect={isIncorrect}
+                          />
+                      );
+                  })}
+
+                </Box>
+              }
+            >
+              <Box sx={{ width: '100%' }}>
+                <TextField
+                  fullWidth
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => {
+                      updateFormData({ password: e.target.value });
+                      if (errors.password) setErrors(p => { const e = { ...p }; delete e.password; return e; });
+                  }}
+                  placeholder="पासवर्ड"
+                  error={!!errors.password}
+                  InputProps={{
+                      startAdornment: (
+                          <InputAdornment position="start">
+                              <Box sx={{ mr: 0.5, color: "#94a3b8", display: "flex", alignItems: "center", flexShrink: 0 }}>
+                                  <LockIcon sx={{ fontSize: 18 }} />
+                              </Box>
+                          </InputAdornment>
+                      ),
+                  }}
+                  sx={{
+                    ...fieldSx,
+                    "& .MuiOutlinedInput-root": {
+                      ...fieldSx["& .MuiOutlinedInput-root"],
+                      paddingRight: "14px",
+                      ...(passwordFilled && !errors.password ? {
+                         "& fieldset": { borderColor: strength.color },
+                         "&:hover fieldset": { borderColor: strength.color },
+                         "&.Mui-focused fieldset": { borderColor: strength.color, borderWidth: "1.5px" },
+                      } : {})
+                    }
+                  }}
+                />
+              </Box>
+            </Tooltip>
           </Box>
 
           <Box sx={{ flex: 1 }}>
-              <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 600, color: "#334155", fontSize: "13px" }}>
+              <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px" }}>
                   पुष्टि करें
               </Typography>
               <TextField
@@ -425,93 +461,91 @@ export default function RegisterDetailsStep({ setStep, formData, updateFormData,
                       </InputAdornment>
                   ),
               }}
-              sx={fieldSx}
+              sx={{
+                  ...fieldSx,
+                  "& .MuiOutlinedInput-root": {
+                      ...fieldSx["& .MuiOutlinedInput-root"],
+                      ...(formData.confirmPassword ? (
+                         formData.password === formData.confirmPassword ? {
+                           "& fieldset": { borderColor: "#28a745" },
+                           "&:hover fieldset": { borderColor: "#28a745" },
+                           "&.Mui-focused fieldset": { borderColor: "#28a745", borderWidth: "1.5px" },
+                         } : {
+                           "& fieldset": { borderColor: "#ef4444" },
+                           "&:hover fieldset": { borderColor: "#ef4444" },
+                           "&.Mui-focused fieldset": { borderColor: "#ef4444", borderWidth: "1.5px" },
+                         }
+                      ) : {})
+                  }
+              }}
               />
           </Box>
         </Box>
 
-        {/* Validation Indicators moved below the row */}
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-          <AnimatePresence>
-            {passwordFilled && (
-              <Motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }}>
-                <Box>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
-                    <Box sx={{ display: "flex", gap: 0.5, flex: 1 }}>
-                        {RULES.map((_, i) => (
-                          <Box key={i} sx={{ flex: 1, height: 2.5, borderRadius: "99px", bgcolor: i < strength.score ? strength.color : "#e2e8f0", transition: "background-color 0.3s ease" }} />
-                        ))}
-                    </Box>
-                    {strength.label && (
-                        <Typography sx={{ fontSize: "10px", fontWeight: 700, color: strength.color, whiteSpace: "nowrap" }}>
-                            {strength.label}
-                        </Typography>
-                    )}
-                  </Box>
-                  <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 8px" }}>
-                      {RULES.map((rule) => (
-                          <RuleRow
-                              key={rule.id}
-                              passed={rule.test(formData.password || "")}
-                              label={rule.label}
-                          />
-                      ))}
-                      <RuleRow
-                          passed={formData.confirmPassword ? formData.password === formData.confirmPassword : false}
-                          label={formData.confirmPassword
-                              ? (formData.password === formData.confirmPassword ? "पासवर्ड मेल खाते हैं" : "पासवर्ड मेल नहीं खाते")
-                              : "कंफर्म करें"}
-                          color={formData.confirmPassword
-                              ? (formData.password === formData.confirmPassword ? "#28a745" : "#ef4444")
-                              : undefined}
-                      />
-                  </Box>
-                </Box>
-              </Motion.div>
-            )}
-          </AnimatePresence>
 
-          {errors.confirmPassword && (
-             <Typography sx={{ color: "#ef4444", fontSize: "11px", mt: 0.25 }}>{errors.confirmPassword}</Typography>
-          )}
+        {/* End Password Section */}
         </Box>
       </Box>
 
-      <Box sx={{ flexGrow: 1 }} />
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "24px", mt: 1 }}>
+        <AnimatePresence mode="wait">
+          {error && (
+            <Motion.div
+              key="error"
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 5 }}
+            >
+              <Typography variant="body2" sx={{ color: "#ef4444 !important", fontSize: "13px", fontWeight: 600 }}>
+                {error}
+              </Typography>
+            </Motion.div>
+          )}
+        </AnimatePresence>
+      </Box>
 
-      <Button
-          fullWidth
-          variant="contained" disableElevation
-          disabled={isLoading || isCheckingUsername || usernameStatus === "taken"}
-          onClick={handleContinue}
-          sx={{
-              py: 1.25,
-              borderRadius: "8px",
-              textTransform: "none",
-              fontSize: "16px",
-              fontWeight: 700,
-              background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)",
-              transition: "all 0.2s ease-in-out",
-              "&:hover": {
-                  background: "linear-gradient(135deg, #004494 0%, #218838 100%)",
-                  
-              },
-              
-              "&.Mui-disabled": { background: "#e2e8f0", color: "#94a3b8" },
-          }}
-      >
-          {isLoading ? <Loader mini /> : "सबमिट करें"}
-      </Button>
-
-      <Button
-          variant="text"
-          fullWidth
-          disabled={isLoading}
-          onClick={() => setStep(2)}
-          sx={{ textTransform: "none", color: "#64748b", fontWeight: 600, fontSize: "14px" }}
-      >
-          ← वेरिफिकेशन पर वापस जाएं
-      </Button>
+      <Box sx={{ display: "flex", gap: 1.5, mt: 1 }}>
+        <Button
+            variant="outlined"
+            disabled={isLoading}
+            onClick={() => setStep(2)}
+            sx={{ 
+                flex: 1,
+                height: "48px",
+                borderRadius: "8px",
+                textTransform: "none", 
+                color: "#475569", 
+                bgcolor: "#f8fafc",
+                borderColor: "#e2e8f0", 
+                fontWeight: 600, 
+                fontSize: "16px", 
+                "&:hover": { borderColor: "#cbd5e1", bgcolor: "#f1f5f9" } 
+            }}
+        >
+            वापस जाएं
+        </Button>
+        <Button
+            variant="contained" disableElevation
+            disabled={isLoading || isCheckingUsername || usernameStatus === "taken" || !isFormValid}
+            onClick={handleContinue}
+            sx={{
+                flex: 1,
+                height: "48px",
+                borderRadius: "8px",
+                textTransform: "none",
+                fontSize: "16px",
+                fontWeight: 700,
+                background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)",
+                transition: "all 0.2s ease-in-out",
+                "&:hover": {
+                    background: "linear-gradient(135deg, #004494 0%, #218838 100%)",
+                },
+                "&.Mui-disabled": { background: "#e2e8f0", color: "#94a3b8" },
+            }}
+        >
+            {isLoading ? <Loader mini /> : "सबमिट करें"}
+        </Button>
+      </Box>
     </Box>
   );
 }

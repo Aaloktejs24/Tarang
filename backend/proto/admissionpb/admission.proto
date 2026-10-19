@@ -1,0 +1,234 @@
+syntax = "proto3";
+
+package admission;
+
+option go_package = "backend/proto/admissionpb";
+
+import "google/protobuf/empty.proto";
+
+service AdmissionService {
+  rpc CreateProgram (CreateProgramRequest) returns (ProgramResponse);
+  rpc UpdateProgram (UpdateProgramRequest) returns (ProgramResponse);
+  rpc GetProgramByID (ProgramIDRequest) returns (ProgramResponse);
+  rpc GetProgramsByInstitute (InstituteIDRequest) returns (ProgramListResponse);
+  rpc DeleteProgram (DeleteProgramRequest) returns (google.protobuf.Empty);
+
+  // Drafts
+  rpc SaveDraft (SaveDraftRequest) returns (DraftResponse);
+  rpc GetDrafts (GetDraftsRequest) returns (DraftListResponse);
+  rpc DeleteDraft (DeleteDraftRequest) returns (google.protobuf.Empty);
+
+  // Applications & Transactions (ACID Progress Tracking)
+  rpc ApplyForProgram (ApplyRequest) returns (TransactionResponse);
+  rpc UpdateApplicationProgress (UpdateProgressRequest) returns (TransactionResponse);
+  rpc GetApplicationHistory (HistoryRequest) returns (HistoryResponse);
+  rpc GetUserApplications (UserApplicationsRequest) returns (ApplicationListResponse);
+  rpc GetInstituteApplications (InstituteApplicationsRequest) returns (ApplicationListResponse);
+}
+
+// Stages
+message Stage {
+  int32 id = 1; // Internal ordering or DB ID
+  string title = 2;
+  string type = 3; // 'document', 'quiz', 'interview'
+  repeated string requirements = 4;
+  repeated Attachment quiz_attachments = 5;
+  string start_date = 6;       // Combined datetime e.g. 2025-01-15T09:00
+  string end_date = 7;         // Combined datetime e.g. 2025-01-30T18:00
+  string start_date_only = 8;  // e.g. 2025-01-15
+  string start_time_only = 9;  // e.g. 09:00
+  string end_date_only = 10;   // e.g. 2025-01-30
+  string end_time_only = 11;   // e.g. 18:00
+  InterviewDetails interview_details = 12;
+  PaymentDetails payment_details = 13;
+  repeated string selected_fields = 14;
+  repeated AcademicRecordConfig academic_records_config = 15;
+}
+
+message AcademicRecordConfig {
+  string name = 1;
+}
+
+message PaymentDetails {
+  double amount = 1;
+  string currency = 2;
+}
+
+message InterviewDetails {
+  string meeting_link = 1;
+  string passcode = 2;
+}
+
+message Attachment {
+  string name = 1;
+  string size = 2;
+}
+
+// Program Models
+message Program {
+  string id = 1;
+  string institute_id = 2;
+  string workflow_title = 3;
+  string workflow_desc = 4;
+  string image_url = 5;
+  string last_date = 6;
+  int32 seats = 7;
+  string academic_year = 8;
+  string eligibility = 9;
+  string fees = 10;
+  string duration = 11;
+  repeated Stage stages = 12;
+  string publish_date = 13;
+}
+
+// Requests & Responses
+message DeleteProgramRequest {
+  string id = 1;
+}
+
+message CreateProgramRequest {
+  string institute_id = 1;
+  string workflow_title = 2;
+  string workflow_desc = 3;
+  string image_url = 4;
+  string last_date = 5;
+  int32 seats = 6;
+  string academic_year = 7;
+  string eligibility = 8;
+  string fees = 9;
+  string duration = 10;
+  repeated Stage stages = 11;
+  string publish_date = 12;
+}
+
+message UpdateProgramRequest {
+  string id = 1;
+  string institute_id = 2;
+  string workflow_title = 3;
+  string workflow_desc = 4;
+  string image_url = 5;
+  string last_date = 6;
+  int32 seats = 7;
+  string academic_year = 8;
+  string eligibility = 9;
+  string fees = 10;
+  string duration = 11;
+  repeated Stage stages = 12;
+  string publish_date = 13;
+}
+
+message ProgramIDRequest {
+  string id = 1;
+}
+
+message InstituteIDRequest {
+  string institute_id = 1;
+}
+
+message ProgramResponse {
+  Program program = 1;
+}
+
+message ProgramListResponse {
+  repeated Program programs = 1;
+}
+
+// Drafts
+message Draft {
+  string id = 1;
+  string institute_id = 2;
+  string program_id = 3; // Nullable equivalent if editing
+  string draft_data = 4; // JSON string
+  string created_at = 5;
+  string updated_at = 6;
+}
+
+message SaveDraftRequest {
+  string institute_id = 1;
+  string program_id = 2; // Optional
+  string draft_data = 3; // JSON
+  string draft_id = 4; // Optional
+}
+
+message GetDraftsRequest {
+  string institute_id = 1;
+}
+
+message DeleteDraftRequest {
+  string institute_id = 1;
+  string draft_id = 2;
+}
+
+message DraftResponse {
+  Draft draft = 1;
+}
+
+message DraftListResponse {
+  repeated Draft drafts = 1;
+}
+
+// Applications
+message Application {
+  string id = 1;
+  string user_id = 2;
+  string institute_id = 3;
+  string program_id = 4;
+  int32 current_stage_index = 5;
+  string status = 6;
+  string created_at = 7;
+  string updated_at = 8;
+  Program program = 9; // Optional nested program details
+}
+
+// Transactions (Progress Log)
+message Transaction {
+  string id = 1; // Unique ID for every transaction
+  string application_id = 2;
+  string actor_id = 3;
+  string action_type = 4;
+  string metadata = 5; // JSON string
+  string created_at = 6;
+}
+
+// Requests & Responses for Applications
+message ApplyRequest {
+  string user_id = 1;
+  string institute_id = 2;
+  string program_id = 3;
+  string metadata = 4; // Any initial JSON data
+}
+
+message UpdateProgressRequest {
+  string application_id = 1;
+  string actor_id = 2;
+  string action_type = 3; // e.g., "STAGE_APPROVED", "REJECTED"
+  string metadata = 4;
+  int32 new_stage_index = 5;
+  string new_status = 6;
+}
+
+message HistoryRequest {
+  string application_id = 1;
+}
+
+message UserApplicationsRequest {
+  string user_id = 1;
+}
+
+message InstituteApplicationsRequest {
+  string institute_id = 1;
+}
+
+message TransactionResponse {
+  Transaction transaction = 1;
+  Application application = 2; // Returns updated application state too
+}
+
+message HistoryResponse {
+  repeated Transaction transactions = 1;
+  Application application = 2;
+}
+
+message ApplicationListResponse {
+  repeated Application applications = 1;
+}

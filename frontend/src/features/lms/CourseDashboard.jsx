@@ -1,10 +1,15 @@
 "use client";
 
 import mockData from '../../data/lmsData.json';
+import courseConfig from '../../data/courseConfig.json';
 const { lmsData: lmsData } = mockData;
+const { courseAccessOptions: accessOptions } = courseConfig;
 import React from 'react';
 import dayjs from 'dayjs';
-import { Box, Typography, Button, Container, Grid, Card, CardMedia, CardContent, IconButton, Chip, Fab, SpeedDialIcon, Breadcrumbs, Link, TextField, Paper, Accordion, AccordionSummary, AccordionDetails, Autocomplete, Dialog, Popover, Tooltip, InputAdornment, ListItemButton } from '@mui/material';
+import { useBreadcrumbs } from '../../contexts/BreadcrumbContext';
+import { formatBreadcrumbName } from '../../utils/stringUtils';
+import { useTheme } from '@mui/material';
+import { Box, Typography, Button, Container, Grid, Card, CardMedia, CardContent, IconButton, Chip, Fab, SpeedDialIcon, Breadcrumbs, Link, TextField, Paper, Accordion, AccordionSummary, AccordionDetails, Autocomplete, Dialog, Popover, Tooltip, InputAdornment, ListItemButton, Avatar, Skeleton } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { ShowMore } from '@re-dev/react-truncate';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -19,6 +24,9 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
+import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined';
+import EmptyState from '../../components/ui/EmptyState';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
@@ -31,6 +39,10 @@ import useScrollLock from "../../hooks/useScrollLock";
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { motion } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useProfile } from '../../hooks/useProfile';
+import UniversalHero from '../../components/hero/UniversalHero';
+import { getHeroPropsFromProfile } from '../../utils/heroUtils';
+import { useAccessibility } from '../../contexts/AccessibilityContext';
 
 
 
@@ -75,7 +87,6 @@ const timelineCalendarPaperSx = {
   width: 'min(340px, calc(100vw - 32px))',
   p: 0.75,
   borderRadius: '16px',
-  border: '1.5px solid rgba(255, 255, 255, 0.78)',
   background: `
     radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.1) 0, transparent 55%),
     radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.09) 0, transparent 55%),
@@ -83,7 +94,8 @@ const timelineCalendarPaperSx = {
   `,
   backdropFilter: 'blur(24px)',
   WebkitBackdropFilter: 'blur(24px)',
-  boxShadow: '0 18px 50px -18px rgba(0, 86, 179, 0.42), 0 12px 28px -18px rgba(15, 23, 42, 0.35)',
+  boxShadow: 'none',
+  border: '1px solid #E2E8F0',
   overflow: 'hidden'
 };
 
@@ -124,10 +136,10 @@ const timelineCalendarSx = {
     alignItems: 'center',
     gap: 0.35,
     p: 0.35,
-    borderRadius: "12px",
-    border: '1px solid rgba(203, 213, 225, 0.9)',
+    borderRadius: "8px",
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    boxShadow: '0 12px 24px -18px rgba(15, 23, 42, 0.35)'
+    boxShadow: 'none',
+    border: '1px solid #E2E8F0'
   },
   '& .MuiPickersCalendarHeader-switchViewButton, & .MuiPickersArrowSwitcher-button': {
     width: 36,
@@ -193,7 +205,7 @@ const timelineCalendarSx = {
     color: '#ffffff',
     borderColor: 'transparent',
     background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%) !important',
-    boxShadow: '0 10px 20px -12px rgba(0, 86, 179, 0.7)'
+    boxShadow: 'none', border: '1px solid #E2E8F0'
   },
   '& .MuiPickersDay-root.Mui-disabled': {
     color: '#cbd5e1'
@@ -223,9 +235,21 @@ const timelineCalendarSx = {
 
 export default function CourseDashboard() {
   const { t } = useTranslation();
+  const { language } = useAccessibility();
   const router = useRouter();
+  const theme = useTheme();
+  const rawInstituteName = profile ? (profile.full_name || profile.institution_name || profile.username) : 'Institute';
+  const breadcrumbInstituteName = formatBreadcrumbName(rawInstituteName);
+
+  useBreadcrumbs([
+    { labelEn: 'Home', labelHi: 'गृह', onClick: () => router.push('/dashboard/home') },
+    { label: breadcrumbInstituteName, onClick: () => router.push('/dashboard/home/institute') },
+    { labelEn: 'Courses', labelHi: 'पाठ्यक्रम' }
+  ]);
+
   const [courses, setCourses] = React.useState([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
+  const { profile } = useProfile();
 
   useScrollLock(isCreateModalOpen);
 
@@ -237,6 +261,7 @@ export default function CourseDashboard() {
   const thumbnailInputRef = React.useRef(null);
   const docInputRef = React.useRef(null);
   const tagsContainerRef = React.useRef(null);
+  const heroContentRef = React.useRef(null);
   const [activeStep, setActiveStep] = React.useState(0);
   const [audienceLevel, setAudienceLevel] = React.useState("");
   const [courseCategory, setCourseCategory] = React.useState("");
@@ -281,10 +306,10 @@ export default function CourseDashboard() {
   const handleCourseAccessChange = (newAccess) => {
     setCourseAccess(newAccess);
     setCourseAccessPopoverAnchor(null);
-    
+
     setModules(prevModules => prevModules.map(module => {
       let newModuleAccess = module.access;
-      
+
       if (newAccess === 'locked') {
         newModuleAccess = 'locked';
       } else if (newAccess === 'enrolled') {
@@ -292,7 +317,7 @@ export default function CourseDashboard() {
           newModuleAccess = 'enrolled';
         }
       }
-      
+
       return { ...module, access: newModuleAccess };
     }));
   };
@@ -400,11 +425,7 @@ export default function CourseDashboard() {
     closeAccessPopover();
   };
 
-  const accessOptions = [
-    { label: 'Public (Everyone)', value: 'public' },
-    { label: 'Accessible only to enrolled students', value: 'enrolled' },
-    { label: 'Locked (Hidden)', value: 'locked' }
-  ];
+  // accessOptions are now imported from appConfig
 
   const updateLessonTitle = (moduleId, lessonId, newTitle) => {
     setModules(modules.map(mod => {
@@ -444,181 +465,125 @@ export default function CourseDashboard() {
     }
   };
 
+  const heroTitle = profile?.institution_name || profile?.full_name || profile?.username;
+  const heroSubtitle = profile?.nameLocal || profile?.nameHindi;
   return (
     <>
-      {/* ─── FIXED BACKGROUND LAYER ─── */}
-      <Box
-        sx={{
-          position: "fixed",
-          top: 0, left: 0, right: 0, bottom: 0,
-          zIndex: -1,
-          background: `
-            radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.55) 0, transparent 50%), 
-            radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.4) 0, transparent 50%), 
-            radial-gradient(at 80% 90%, rgba(40, 167, 69, 0.3) 0, transparent 50%),
-            radial-gradient(at 20% 80%, rgba(0, 86, 179, 0.3) 0, transparent 50%),
-            #eef2f6
-          `
-        }}
-      >
-        <Box sx={{ position: "absolute", width: "50vw", height: "50vw", top: "-10%", left: "-10%", background: "rgba(16, 185, 129, 0.05)", filter: "blur(120px)", borderRadius: "50%", pointerEvents: "none" }} />
-      </Box>
+      <Box sx={{ position: "relative", minHeight: "calc(100vh - 72px)", overflowX: "hidden", bgcolor: "transparent", mt: "-1px" }}>
 
-      <Box sx={{ minHeight: 'calc(100vh - 64px)', pb: 10, pt: 4, position: 'relative' }}>
-        <Container maxWidth="xl" sx={{ px: { xs: 4, md: 6, lg: 8 }, zIndex: 1, position: "relative" }}>
+        <UniversalHero 
+          {...getHeroPropsFromProfile(profile, language)}
+          hideContent={courses.length === 0}
+          showSpacer={courses.length !== 0}
+          fadeAnchorRef={heroContentRef}
+        />
 
-          {/* Minimalist Bold Breadcrumbs (Screenshot Style) */}
-          <Box sx={{ mb: 4, mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography
-              onClick={() => router.push('/dashboard/home')}
-              sx={{ color: '#64748b', fontWeight: 700, fontSize: "1.2rem", cursor: 'pointer', '&:hover': { color: '#0056b3' } }}
-            >
-              {t('courseDashboard.breadcrumbs.dashboard')}
-            </Typography>
-            <Typography sx={{ color: '#334155', fontWeight: 900, fontSize: "1.2rem" }}>/</Typography>
-            <Typography
-              onClick={() => router.push('/dashboard/home/institute')}
-              sx={{ color: '#64748b', fontWeight: 700, fontSize: "1.2rem", cursor: 'pointer', '&:hover': { color: '#0056b3' } }}
-            >
-              {t('courseDashboard.breadcrumbs.academicAffairs')}
-            </Typography>
-            <Typography sx={{ color: '#334155', fontWeight: 900, fontSize: "1.2rem" }}>/</Typography>
-            <Typography sx={{ color: '#0f172a', fontWeight: 700, fontSize: "1.2rem" }}>
-              {t('courseDashboard.breadcrumbs.courses')}
-            </Typography>
-          </Box>
+        <Container ref={heroContentRef} maxWidth="xl" sx={{
+          px: { xs: 4, md: 6, lg: 8 },
+          zIndex: 1,
+          position: "relative",
+          ...(courses.length === 0 && {
+            height: "calc(100vh - 72px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          })
+        }}>
 
           {/* Content Area */}
           {courses.length === 0 ? (
-            /* ─── CREATIVE EMPTY STATE ─── */
             <Box sx={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              py: { xs: 8, md: 12 },
+              py: { xs: 4, md: 6 },
               px: 3,
               textAlign: 'center',
               position: 'relative'
             }}>
-              {/* Full Body Person & Aesthetic Whiteboard Illustration */}
-              <Box sx={{
-                width: '100%',
-                maxWidth: 420,
-                height: 240,
-                mb: 5,
-                position: 'relative',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: 1
-              }}>
-                {/* Subtle ambient glow behind illustration */}
-                <Box sx={{
-                  position: 'absolute',
-                  top: '-20%',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '80%',
-                  height: '400px',
-                  background: 'radial-gradient(ellipse, rgba(0, 86, 179, 0.06) 0%, rgba(255,255,255,0) 70%)',
-                  pointerEvents: 'none'
-                }} />
+             <EmptyState
+              title={t('courseDashboard.emptyStateTitle')}
+              subtitle={t('courseDashboard.emptyStateSubtitle')}
+              actionLabel={t('courseDashboard.createCourseBtn')}
+              actionIcon={
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" style={{ width: 20, height: 20, transition: 'transform 0.2s' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
+                </svg>
+              }
+              onAction={() => setIsCreateModalOpen(true)}
+              illustration={
                 <svg viewBox="0 0 260 180" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%', animation: 'float 6s ease-in-out infinite' }}>
                   <style>
                     {`
-                    @keyframes float {
-                      0%, 100% { transform: translateY(0px); }
-                      50% { transform: translateY(-8px); }
-                    }
-                    @keyframes floatSlow {
-                      0%, 100% { transform: translateY(0px) rotate(0deg); }
-                      50% { transform: translateY(-4px) rotate(5deg); }
-                    }
-                    @keyframes pulseGlow {
-                      0%, 100% { opacity: 0.5; r: 65px; }
-                      50% { opacity: 0.7; r: 68px; }
-                    }
-                  `}
+                      @keyframes float {
+                        0%, 100% { transform: translateY(0px); }
+                        50% { transform: translateY(-8px); }
+                      }
+                      @keyframes floatSlow {
+                        0%, 100% { transform: translateY(0px) rotate(0deg); }
+                        50% { transform: translateY(-4px) rotate(5deg); }
+                      }
+                      @keyframes pulseGlow {
+                        0%, 100% { opacity: 0.5; r: 65px; }
+                        50% { opacity: 0.7; r: 68px; }
+                      }
+                    `}
                   </style>
+
                   {/* Ground Shadow Blob */}
                   <ellipse cx="130" cy="165" rx="110" ry="12" fill="rgba(0, 0, 0, 0.04)" />
 
                   {/* Background Ambient Glow */}
-                  <circle cx="170" cy="80" r="65" fill="rgba(37, 99, 235, 0.05)" style={{ animation: 'pulseGlow 4s ease-in-out infinite' }} />
+                  <circle cx="130" cy="80" r="65" fill="rgba(37, 99, 235, 0.05)" style={{ animation: 'pulseGlow 4s ease-in-out infinite' }} />
 
-                  {/* Floating decorative elements (Learning theme) */}
+                  {/* Floating decorative elements (math/science/creativity symbols) */}
                   <path d="M 40 35 Q 40 45 30 45 Q 40 45 40 55 Q 40 45 50 45 Q 40 45 40 35" fill="#f59e0b" opacity="0.9" style={{ animation: 'floatSlow 4s ease-in-out infinite', transformOrigin: '40px 45px' }} />
                   <rect x="220" y="30" width="12" height="12" rx="3" fill="#10b981" opacity="0.8" style={{ animation: 'float 5s ease-in-out infinite', transformOrigin: '226px 36px' }} transform="rotate(15 226 36)" />
                   <path d="M 210 120 L 222 128 L 210 136 Z" fill="#3b82f6" opacity="0.7" style={{ animation: 'floatSlow 6s ease-in-out infinite' }} />
 
-                  {/* ================= BOARD (Modern Filled) ================= */}
-                  {/* Back Leg */}
-                  <line x1="180" y1="100" x2="180" y2="155" stroke="#94a3b8" strokeWidth="5" strokeLinecap="round" />
+                  {/* WHITEBOARD (Background layer) */}
+                  <rect x="90" y="30" width="140" height="110" rx="4" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="3" />
+                  <rect x="95" y="137" width="130" height="3" fill="#94a3b8" />
+                  <path d="M 120 135 L 128 135 L 128 137 L 120 137 Z" fill="#ef4444" />
+                  <path d="M 132 135 L 140 135 L 140 137 L 132 137 Z" fill="#10b981" />
 
-                  {/* Main Board Frame */}
-                  <rect x="130" y="30" width="100" height="70" rx="8" fill="#e2e8f0" />
+                  {/* Scribbles on whiteboard */}
+                  <path d="M 110 50 Q 130 30 150 50 T 190 50" stroke="#94a3b8" strokeWidth="3" strokeLinecap="round" fill="none" opacity="0.6" />
+                  <path d="M 110 70 L 160 70" stroke="#94a3b8" strokeWidth="3" strokeLinecap="round" opacity="0.6" />
+                  <path d="M 110 90 L 140 90" stroke="#94a3b8" strokeWidth="3" strokeLinecap="round" opacity="0.6" />
+                  <circle cx="190" cy="90" r="15" stroke="#94a3b8" strokeWidth="3" fill="none" opacity="0.6" />
+                  <path d="M 175 90 L 205 90 M 190 75 L 190 105" stroke="#94a3b8" strokeWidth="2" opacity="0.6" />
 
-                  {/* Inner Board Canvas */}
-                  <rect x="136" y="36" width="88" height="58" rx="4" fill="#ffffff" />
+                  {/* CHARACTER */}
+                  {/* Left Arm (Behind) */}
+                  <path d="M 60 70 L 45 95 L 55 100 L 70 80 Z" fill="#004b9c" />
+                  <circle cx="48" cy="100" r="5" fill="#fad6ca" />
 
-                  {/* Content on Board: Video Player & Text Lines */}
-                  <rect x="146" y="46" width="34" height="24" rx="4" fill="#eff6ff" />
-                  <polygon points="159,53 159,63 167,58" fill="#3b82f6" />
+                  {/* Torso */}
+                  <path d="M 50 60 Q 80 50 100 65 L 90 145 L 45 145 Z" fill="#0056b3" />
 
-                  <line x1="188" y1="48" x2="212" y2="48" stroke="#cbd5e1" strokeWidth="3" strokeLinecap="round" />
-                  <line x1="188" y1="56" x2="204" y2="56" stroke="#cbd5e1" strokeWidth="3" strokeLinecap="round" />
-                  <line x1="188" y1="64" x2="210" y2="64" stroke="#cbd5e1" strokeWidth="3" strokeLinecap="round" />
+                  {/* Tie and Collar */}
+                  <polygon points="70,58 90,58 80,80" fill="#f1f5f9" />
+                  <polygon points="78,70 82,70 80,95" fill="#f59e0b" />
 
-                  {/* Progress bar on board */}
-                  <rect x="146" y="78" width="68" height="6" rx="3" fill="#f1f5f9" />
-                  <rect x="146" y="78" width="40" height="6" rx="3" fill="#10b981" />
+                  {/* Right Arm (Reaching up to write) */}
+                  <path d="M 90 75 Q 120 60 145 70 L 140 85 Q 115 75 95 90 Z" fill="#004b9c" />
+                  
+                  {/* Hand and Marker */}
+                  <circle cx="147" cy="69" r="6" fill="#fad6ca" />
+                  <rect x="145" y="60" width="4" height="15" rx="1" fill="#ef4444" transform="rotate(30 147 67)" />
 
-                  {/* Board Marker Tray */}
-                  <rect x="120" y="100" width="120" height="8" rx="4" fill="#cbd5e1" />
-
-                  {/* Little Eraser & Marker on Tray */}
-                  <rect x="190" y="94" width="14" height="6" rx="1" fill="#64748b" />
-                  <circle cx="180" cy="97" r="3" fill="#ef4444" />
-
-                  {/* Front Legs */}
-                  <line x1="150" y1="106" x2="140" y2="160" stroke="#64748b" strokeWidth="5" strokeLinecap="round" />
-                  <line x1="210" y1="106" x2="220" y2="160" stroke="#64748b" strokeWidth="5" strokeLinecap="round" />
-
-                  {/* ================= CHARACTER (Modern Flat Design) ================= */}
-                  {/* Back Arm (Right Arm) */}
-                  <path d="M 98 70 L 116 80 L 112 86 L 94 76 Z" fill="#004b9c" />
-                  {/* Back Hand */}
-                  <circle cx="116" cy="83" r="4.5" fill="#fad6ca" />
-
-                  {/* Stick */}
-                  <line x1="116" y1="83" x2="166" y2="60" stroke="#334155" strokeWidth="3" strokeLinecap="round" />
-
-                  {/* Pants & Legs */}
-                  {/* Left Leg */}
-                  <path d="M 75 115 L 84 115 L 82 165 L 73 165 Z" fill="#1e293b" />
-                  {/* Right Leg */}
-                  <path d="M 86 115 L 95 115 L 97 165 L 88 165 Z" fill="#1e293b" />
-
+                  {/* Legs */}
+                  <path d="M 50 140 L 55 170 L 65 170 L 65 140 Z" fill="#1e293b" />
+                  <path d="M 75 140 L 70 170 L 80 170 L 85 140 Z" fill="#1e293b" />
+                  
                   {/* Shoes */}
-                  <path d="M 71 165 L 84 165 Q 84 170 78 170 Q 69 170 71 165 Z" fill="#0f172a" />
-                  <path d="M 86 165 L 99 165 Q 101 170 92 170 Q 86 170 86 165 Z" fill="#0f172a" />
-
-                  {/* Torso (Suit Jacket) */}
-                  <path d="M 65 65 Q 85 62 105 65 L 95 120 L 75 120 Z" fill="#0056b3" />
-
-                  {/* Shirt Collar / V-neck */}
-                  <polygon points="85,64 92,82 78,82" fill="#f1f5f9" />
-                  <polygon points="85,74 88,80 85,95 82,80" fill="#f59e0b" />
+                  <ellipse cx="60" cy="170" rx="10" ry="4" fill="#0f172a" />
+                  <ellipse cx="75" cy="170" rx="10" ry="4" fill="#0f172a" />
 
                   {/* Neck */}
-                  <rect x="81" y="48" width="8" height="18" fill="#fad6ca" />
-
-                  {/* Front Arm (Left Arm) */}
-                  <path d="M 72 68 L 60 85 L 67 89 L 77 72 Z" fill="#004b9c" />
-                  <path d="M 60 84 L 70 102 L 77 98 L 66 81 Z" fill="#004b9c" />
-                  {/* Front Hand */}
-                  <circle cx="73" cy="100" r="4.5" fill="#fad6ca" />
+                  <rect x="75" y="47" width="10" height="15" fill="#fad6ca" />
 
                   {/* Head */}
                   <circle cx="85" cy="38" r="14" fill="#fad6ca" />
@@ -631,51 +596,14 @@ export default function CourseDashboard() {
                   <path d="M 78 36 L 84 36 Q 84 42 81 42 Q 78 42 78 36 Z" fill="#ffffff" opacity="0.8" stroke="#0f172a" strokeWidth="1" />
                   <path d="M 90 36 L 96 36 Q 96 42 93 42 Q 90 42 90 36 Z" fill="#ffffff" opacity="0.8" stroke="#0f172a" strokeWidth="1" />
                 </svg>
-              </Box>
-
-              <Typography variant="h4" sx={{ fontWeight: 800, color: '#0f172a', mb: 2, zIndex: 1 }}>
-                {t('courseDashboard.emptyStateTitle')}
-              </Typography>
-              <Typography variant="subtitle1" sx={{ color: '#475569', maxWidth: 540, mb: 5, fontWeight: 500, lineHeight: 1.6, zIndex: 1, fontSize: '1.05rem' }}>
-                {t('courseDashboard.emptyStateSubtitle')}
-              </Typography>
-
-              <Button
-                variant="contained" disableElevation
-                onClick={() => setIsCreateModalOpen(true)}
-                sx={{
-                  bgcolor: '#0056b3',
-                  color: 'white',
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  borderRadius: "8px",
-                  px: 4,
-                  py: 1.5,
-                  fontSize: '1rem',
-                  boxShadow: 'none',
-                  '&:hover': {
-                    bgcolor: '#004494',
-                    boxShadow: 'none'
-                  },
-                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                  zIndex: 1,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 1.2
-                }}
-              >
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" style={{ width: 20, height: 20, transition: 'transform 0.2s' }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
-                </svg>
-                {t('courseDashboard.createCourseBtn')}
-              </Button>
-
+              }
+            />
             </Box>
           ) : (
             /* ─── COURSE GRID ─── */
             <Grid container spacing={4}>
               {courses.map((course) => (
-                <Grid item xs={12} sm={6} lg={4} key={course.id}>
+                <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={course.id}>
                   <Card sx={{
                     height: '100%',
                     display: "flex",
@@ -687,7 +615,6 @@ export default function CourseDashboard() {
                     border: "1px solid rgba(30, 79, 163, 0.2)",
                     boxShadow: "none",
                     transition: "all 0.3s ease",
-                    cursor: 'pointer',
                     overflow: 'hidden',
                     '&:hover': {
                       border: "1px solid rgba(30, 79, 163, 0.5)",
@@ -741,10 +668,10 @@ export default function CourseDashboard() {
                           {course.category}
                         </Typography>
                       )}
-                      <Typography variant="h6" sx={{ 
-                        fontWeight: 800, 
-                        color: '#0f172a', 
-                        lineHeight: 1.3, 
+                      <Typography variant="h6" sx={{
+                        fontWeight: 800,
+                        color: '#0f172a',
+                        lineHeight: 1.3,
                         mb: 1.5,
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -790,7 +717,7 @@ export default function CourseDashboard() {
                           ))}
                         </Box>
                       )}
-                      
+
                       <Box sx={{ mt: 'auto', pt: 2 }}>
                         <Typography variant="caption" component="div" sx={{
                           color: "#475569", fontWeight: 600,
@@ -850,20 +777,20 @@ export default function CourseDashboard() {
 
       {/* ─── CREATE COURSE OVERLAY ─── */}
       {isCreateModalOpen && (
-        <Box 
+        <Box
           onClick={() => { setIsCreateModalOpen(false); setActiveStep(0); setAudienceLevel(""); }}
           sx={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 1200,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: 'rgba(0, 86, 179, 0.1)',
-          backdropFilter: 'blur(15px)',
-          p: { xs: 0, sm: 2 },
-          overflow: 'auto'
-        }}>
+            position: 'fixed',
+            inset: 0,
+            zIndex: 1200,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0, 86, 179, 0.1)',
+            backdropFilter: 'blur(15px)',
+            p: { xs: 0, sm: 2 },
+            overflow: 'auto'
+          }}>
           <Paper
             onClick={(e) => e.stopPropagation()}
             elevation={0}
@@ -874,7 +801,7 @@ export default function CourseDashboard() {
             sx={{
               display: "flex",
               flexDirection: "column",
-              width: { xs: "100%", sm: "720px" },
+              width: { xs: "100%", sm: "1000px" },
               minHeight: { xs: "100%", sm: "auto" },
               borderRadius: { xs: 0, sm: "28px" },
               background: `
@@ -1001,7 +928,7 @@ export default function CourseDashboard() {
                               "& .MuiOutlinedInput-root": {
                                 backgroundColor: "rgba(255, 255, 255, 0.8)",
                                 backdropFilter: "blur(4px)",
-                                borderRadius: "12px",
+                                borderRadius: "8px",
                                 transition: "all 0.2s ease",
                                 "& fieldset": { borderColor: "rgba(203, 213, 225, 0.8)", borderWidth: "1.5px" },
                                 "&:hover fieldset": { borderColor: "#94a3b8" },
@@ -1030,33 +957,34 @@ export default function CourseDashboard() {
                             // Explicitly extracting props instead of spreading to satisfy securecoder
                             renderInput={(params) => {
                               const { id, disabled, fullWidth, size, InputLabelProps, InputProps, inputProps } = params;
-                              return <TextField 
-                                id={id} 
-                                disabled={disabled} 
-                                fullWidth={fullWidth} 
-                                size={size} 
-                                InputLabelProps={InputLabelProps} 
-                                InputProps={InputProps} 
-                                inputProps={inputProps} 
-                                required 
+                              return <TextField
+                                id={id}
+                                disabled={disabled}
+                                fullWidth={fullWidth}
+                                size={size}
+                                InputLabelProps={InputLabelProps}
+                                InputProps={InputProps}
+                                inputProps={inputProps}
+                                required
                                 placeholder={t('courseDashboard.modal.selectAudience')}
                                 sx={{
-                                "& .MuiOutlinedInput-root": {
-                                  backgroundColor: "rgba(255, 255, 255, 0.8)",
-                                  backdropFilter: "blur(4px)",
-                                  borderRadius: "12px",
-                                  transition: "all 0.2s ease",
-                                  "& fieldset": { borderColor: "rgba(203, 213, 225, 0.8)", borderWidth: "1.5px" },
-                                  "&:hover fieldset": { borderColor: "#94a3b8" },
-                                  "&.Mui-focused fieldset": { borderColor: "#0056b3", borderWidth: "1.5px" },
-                                  "&.Mui-focused": {
-                                    backgroundColor: "#ffffff",
-                                    boxShadow: "none"
-                                  },
-                                  "& input": { color: "#111827", fontSize: "15px", fontWeight: 500 }
-                                }
-                              }}
-                            />}}
+                                  "& .MuiOutlinedInput-root": {
+                                    backgroundColor: "rgba(255, 255, 255, 0.8)",
+                                    backdropFilter: "blur(4px)",
+                                    borderRadius: "8px",
+                                    transition: "all 0.2s ease",
+                                    "& fieldset": { borderColor: "rgba(203, 213, 225, 0.8)", borderWidth: "1.5px" },
+                                    "&:hover fieldset": { borderColor: "#94a3b8" },
+                                    "&.Mui-focused fieldset": { borderColor: "#0056b3", borderWidth: "1.5px" },
+                                    "&.Mui-focused": {
+                                      backgroundColor: "#ffffff",
+                                      boxShadow: "none"
+                                    },
+                                    "& input": { color: "#111827", fontSize: "15px", fontWeight: 500 }
+                                  }
+                                }}
+                              />
+                            }}
                           />
                         </Box>
 
@@ -1076,33 +1004,34 @@ export default function CourseDashboard() {
                           // Explicitly extracting props instead of spreading to satisfy securecoder
                           renderInput={(params) => {
                             const { id, disabled, fullWidth, size, InputLabelProps, InputProps, inputProps } = params;
-                            return <TextField 
-                              id={id} 
-                              disabled={disabled} 
-                              fullWidth={fullWidth} 
-                              size={size} 
-                              InputLabelProps={InputLabelProps} 
-                              InputProps={InputProps} 
-                              inputProps={inputProps} 
-                              required 
+                            return <TextField
+                              id={id}
+                              disabled={disabled}
+                              fullWidth={fullWidth}
+                              size={size}
+                              InputLabelProps={InputLabelProps}
+                              InputProps={InputProps}
+                              inputProps={inputProps}
+                              required
                               placeholder={t('courseDashboard.modal.selectCategory')}
                               sx={{
-                              "& .MuiOutlinedInput-root": {
-                                backgroundColor: "rgba(255, 255, 255, 0.8)",
-                                backdropFilter: "blur(4px)",
-                                borderRadius: "12px",
-                                transition: "all 0.2s ease",
-                                "& fieldset": { borderColor: "rgba(203, 213, 225, 0.8)", borderWidth: "1.5px" },
-                                "&:hover fieldset": { borderColor: "#94a3b8" },
-                                "&.Mui-focused fieldset": { borderColor: "#0056b3", borderWidth: "1.5px" },
-                                "&.Mui-focused": {
-                                  backgroundColor: "#ffffff",
-                                  boxShadow: "none"
-                                },
-                                "& input": { color: "#111827", fontSize: "15px", fontWeight: 500 }
-                              }
-                            }}
-                          />}}
+                                "& .MuiOutlinedInput-root": {
+                                  backgroundColor: "rgba(255, 255, 255, 0.8)",
+                                  backdropFilter: "blur(4px)",
+                                  borderRadius: "8px",
+                                  transition: "all 0.2s ease",
+                                  "& fieldset": { borderColor: "rgba(203, 213, 225, 0.8)", borderWidth: "1.5px" },
+                                  "&:hover fieldset": { borderColor: "#94a3b8" },
+                                  "&.Mui-focused fieldset": { borderColor: "#0056b3", borderWidth: "1.5px" },
+                                  "&.Mui-focused": {
+                                    backgroundColor: "#ffffff",
+                                    boxShadow: "none"
+                                  },
+                                  "& input": { color: "#111827", fontSize: "15px", fontWeight: 500 }
+                                }
+                              }}
+                            />
+                          }}
                         />
                       </Box>
 
@@ -1121,7 +1050,7 @@ export default function CourseDashboard() {
                               sx={{
                                 width: '100%',
                                 aspectRatio: '16/9',
-                                borderRadius: '12px',
+                                borderRadius: '8px',
                                 backgroundColor: courseThumbnail ? 'transparent' : 'rgba(0, 86, 179, 0.03)',
                                 backgroundImage: courseThumbnail ? `url(${courseThumbnail})` : 'none',
                                 backgroundSize: 'cover',
@@ -1283,7 +1212,7 @@ export default function CourseDashboard() {
                           onClick={() => setIsTagsSectionExpanded(!isTagsSectionExpanded)}
                           sx={{
                             py: 1.75,
-                            borderRadius: "12px",
+                            borderRadius: "8px",
                             textTransform: "none",
                             fontSize: "15px",
                             fontWeight: 400,
@@ -1410,7 +1339,7 @@ export default function CourseDashboard() {
                                       {filteredTags.map((tag, tagIdx) => {
                                         const isChecked = courseTags.includes(tag);
                                         return (
-                                          <Grid item xs={6} key={tagIdx}>
+                                          <Grid size={{ xs: 6 }} key={tagIdx}>
                                             <Box
                                               onClick={() => {
                                                 if (isChecked) {
@@ -1480,7 +1409,7 @@ export default function CourseDashboard() {
                           "& .MuiOutlinedInput-root": {
                             backgroundColor: "rgba(255, 255, 255, 0.8)",
                             backdropFilter: "blur(4px)",
-                            borderRadius: "12px",
+                            borderRadius: "8px",
                             transition: "all 0.2s ease",
                             "& fieldset": { borderColor: "rgba(203, 213, 225, 0.8)", borderWidth: "1.5px" },
                             "&:hover fieldset": { borderColor: "#94a3b8" },
@@ -1496,7 +1425,7 @@ export default function CourseDashboard() {
                     </Box>
 
                     {/* Step 1 Actions */}
-                    <Box sx={{ display: 'flex', gap: 2, mt: 2, pt: 3, borderTop: '1px solid #F3F4F6' }}>
+                    <Box sx={{ display: 'flex', gap: 2, mt: 4, pt: 2.5, borderTop: '1px solid #F3F4F6' }}>
                       <Button
                         fullWidth
                         variant="outlined"
@@ -1504,7 +1433,7 @@ export default function CourseDashboard() {
                         disableElevation
                         sx={{
                           py: 1.5,
-                          borderRadius: '12px',
+                          borderRadius: '8px',
                           textTransform: "none",
                           fontSize: "15px",
                           fontWeight: 600,
@@ -1530,7 +1459,7 @@ export default function CourseDashboard() {
                         disabled={!courseTitle.trim() || !audienceLevel || !courseCategory || !courseDesc.trim() || !courseThumbnail}
                         sx={{
                           py: 1.5,
-                          borderRadius: '12px',
+                          borderRadius: '8px',
                           textTransform: "none",
                           fontSize: "16px",
                           fontWeight: 700,
@@ -1663,8 +1592,8 @@ export default function CourseDashboard() {
                                   <IconButton
                                     component="span"
                                     size="small"
-                                    onClick={(e) => { 
-                                      e.stopPropagation(); 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
                                       if (courseAccess !== 'locked') {
                                         openAccessPopover(e, module.id);
                                       }
@@ -1691,9 +1620,9 @@ export default function CourseDashboard() {
                                     {t('Module Access')}
                                   </Typography>
                                   {accessOptions.map(option => {
-                                    const isBlocked = (courseAccess === 'locked' && option.value !== 'locked') || 
-                                                      (courseAccess === 'enrolled' && option.value === 'public');
-                                    const tooltipText = courseAccess === 'locked' 
+                                    const isBlocked = (courseAccess === 'locked' && option.value !== 'locked') ||
+                                      (courseAccess === 'enrolled' && option.value === 'public');
+                                    const tooltipText = courseAccess === 'locked'
                                       ? 'Course is locked — modules must also be locked'
                                       : 'Course is not public — modules cannot be public';
                                     return (
@@ -1849,7 +1778,7 @@ export default function CourseDashboard() {
                                             ? 'rgba(31, 143, 82, 0.08)'
                                             : 'rgba(255, 255, 255, 0.76)',
                                           color: activeCalendarField === 'startDate' ? '#1f8f52' : '#64748b',
-                                          borderRadius: "12px",
+                                          borderRadius: "8px",
                                           minHeight: '58px',
                                           px: 1,
                                           py: 0.85,
@@ -1880,7 +1809,7 @@ export default function CourseDashboard() {
                                             ? 'rgba(0, 86, 179, 0.08)'
                                             : 'rgba(255, 255, 255, 0.76)',
                                           color: activeCalendarField === 'endDate' ? '#0056b3' : '#64748b',
-                                          borderRadius: "12px",
+                                          borderRadius: "8px",
                                           minHeight: '58px',
                                           px: 1,
                                           py: 0.85,
@@ -2091,7 +2020,7 @@ export default function CourseDashboard() {
                     </Box>
 
                     {/* Step 2 Actions */}
-                    <Box sx={{ display: 'flex', gap: 2, mt: 2, pt: 3, borderTop: '1px solid #F3F4F6' }}>
+                    <Box sx={{ display: 'flex', gap: 2, mt: 4, pt: 2.5, borderTop: '1px solid #F3F4F6' }}>
                       <Button
                         fullWidth
                         variant="outlined"
@@ -2099,7 +2028,7 @@ export default function CourseDashboard() {
                         disableElevation
                         sx={{
                           py: 1.5,
-                          borderRadius: '12px',
+                          borderRadius: '8px',
                           textTransform: "none",
                           fontSize: "15px",
                           fontWeight: 600,
@@ -2121,7 +2050,7 @@ export default function CourseDashboard() {
                         disabled={modules.length === 0 || modules.some(m => !m.title.trim() || !m.description || !m.description.trim())}
                         sx={{
                           py: 1.5,
-                          borderRadius: '12px',
+                          borderRadius: '8px',
                           textTransform: "none",
                           fontSize: "16px",
                           fontWeight: 700,

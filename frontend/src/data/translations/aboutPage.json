@@ -1,0 +1,47 @@
+{
+  "heroTitle": {
+    "en": "About Tarang",
+    "hi": "तरंग के बारे में",
+    "sa": "तरङ्ग विषये"
+  },
+  "breadcrumbHome": {
+    "en": "Home",
+    "hi": "होम",
+    "sa": "गृहम्‌"
+  },
+  "breadcrumbTitle": {
+    "en": "About Us",
+    "hi": "हमारे बारे में",
+    "sa": "अस्माकं विषये"
+  },
+  "missionTitle": {
+    "en": "Our Mission",
+    "hi": "हमारा मिशन",
+    "sa": "अस्माकं मिशनम्"
+  },
+  "missionText": {
+    "en": "Tarang is dedicated to bridging the gap between educational institutions and students by providing a seamless, modern platform for learning, assessments, and communication.",
+    "hi": "तरंग का उद्देश्य एक सहज, आधुनिक शिक्षण मंच प्रदान करके शैक्षणिक संस्थानों और छात्रों के बीच की दूरी को पाटना है।",
+    "sa": "तरङ्गः शिक्षणस्य, मूल्याङ्कनस्य, संचारस्य च निर्बाधं, आधुनिकं मञ्चं प्रदातुं शैक्षिकसंस्थानां छात्राणां च मध्ये अन्तरं पूरयितुं समर्पितः अस्ति।"
+  },
+  "whatWeDoTitle": {
+    "en": "What We Do",
+    "hi": "हम क्या करते हैं",
+    "sa": "वयं किं कुर्मः"
+  },
+  "whatWeDoText": {
+    "en": "We provide a comprehensive Learning Management System (LMS), streamlined admission processes, interactive forums, and advanced assessment tools to empower the education ecosystem.",
+    "hi": "हम एक व्यापक शिक्षण प्रबंधन प्रणाली (LMS), सुव्यवस्थित प्रवेश प्रक्रियाएं, इंटरैक्टिव फ़ोरम और उन्नत मूल्यांकन उपकरण प्रदान करते हैं।",
+    "sa": "वयं शिक्षापारिस्थितिकीतन्त्रं सशक्तं कर्तुं व्यापकं शिक्षणप्रबन्धनप्रणाली (LMS), सुव्यवस्थितप्रवेशप्रक्रियाः, अन्तरक्रियाशीलमञ्चाः, उन्नतमूल्यांकनसाधनं च प्रदामः।"
+  },
+  "visionTitle": {
+    "en": "Our Vision",
+    "hi": "हमारा दृष्टिकोण",
+    "sa": "अस्माकं दृष्टिः"
+  },
+  "visionText": {
+    "en": "A forward-looking ecosystem focused on creating a transparent, highly accessible, and highly efficient educational environment for everyone.",
+    "hi": "एक पारदर्शी, अत्यधिक सुलभ और अत्यधिक कुशल शैक्षिक वातावरण बनाने पर केंद्रित एक अग्रगामी पारिस्थितिकी तंत्र।",
+    "sa": "अग्रगामी पारिस्थितिकीतन्त्रं सर्वेषां कृते पारदर्शकं, अत्यन्तं सुलभं, अत्यन्तं कुशलं च शैक्षिकवातावरणं निर्मातुं केन्द्रितम् आसीत् ।"
+  }
+}

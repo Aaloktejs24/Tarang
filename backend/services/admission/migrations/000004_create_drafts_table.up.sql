@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS admission_program_drafts (
+    id VARCHAR(255) PRIMARY KEY,
+    institute_id VARCHAR(255) NOT NULL,
+    program_id VARCHAR(255),
+    draft_data JSONB NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

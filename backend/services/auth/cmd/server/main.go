@@ -10,6 +10,7 @@ import (
 	"backend/services/auth/internal/auth"
 	authclient "backend/services/auth/internal/client"
 	v1 "backend/services/auth/internal/http/v1"
+	"backend/services/auth/internal/jobs"
 
 	"backend/shared/config"
 	"backend/shared/database"
@@ -24,6 +25,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/robfig/cron/v3"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.uber.org/zap"
 )
@@ -104,6 +106,22 @@ func main() {
 	//---------------------------------------------------
 
 	authRepo := auth.NewRepository(db)
+
+	//---------------------------------------------------
+	// 6.5️⃣ Cron Jobs
+	//---------------------------------------------------
+
+	adminTokenJob := jobs.NewAdminTokenJob(authRepo)
+	adminTokenJob.InitAdminToken()
+
+	c := cron.New()
+	// Run at midnight every day
+	_, err = c.AddJob("@midnight", adminTokenJob)
+	if err != nil {
+		logger.Log.Fatal("failed to schedule admin token cron", zap.Error(err))
+	}
+	c.Start()
+	defer c.Stop()
 
 	//---------------------------------------------------
 	// 7️⃣ gRPC User Client
