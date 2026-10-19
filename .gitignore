@@ -32,4 +32,3 @@ backend/services/*/tmp_*
 patch_*.js
 
 # Misc
-README.md
