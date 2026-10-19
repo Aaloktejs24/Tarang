@@ -127,7 +127,7 @@ export default function UniversalViewer({ jobId, isVideo = false }) {
 
   // Document Viewer
   if (!isVideo && metadata) {
-    const { renderer, pdf_download_url, original_download_url, filename } = metadata;
+    const { renderer, pdf_download_url, original_download_url, original_filename } = metadata;
     
     // Base URL for downloads (assuming microservice port)
     const baseUrl = `http://localhost:8084`;
@@ -159,7 +159,7 @@ export default function UniversalViewer({ jobId, isVideo = false }) {
                 fontFamily: 'Inter, sans-serif',
                 letterSpacing: '-0.01em'
               }}>
-                {filename}
+                {original_filename}
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Box sx={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#10B981' }} />
@@ -215,13 +215,13 @@ export default function UniversalViewer({ jobId, isVideo = false }) {
             {renderer === "PDF.js" && (
               <PdfViewerComponent 
                 downloadUrl={getPdfUrl()} 
-                filename={filename}
+                filename={original_filename}
                 originalDownloadUrl={getOriginalUrl()}
               />
             )}
 
             {renderer === "Monaco" && (
-              <CodeViewerComponent downloadUrl={getOriginalUrl()} filename={filename} />
+              <CodeViewerComponent downloadUrl={getOriginalUrl()} filename={original_filename} />
             )}
             
             {renderer === "Markdown" && (
@@ -237,7 +237,7 @@ export default function UniversalViewer({ jobId, isVideo = false }) {
             )}
 
             {renderer === "Image" && (
-              <ImageViewerComponent downloadUrl={getOriginalUrl()} filename={filename} />
+              <ImageViewerComponent downloadUrl={getOriginalUrl()} filename={original_filename} />
             )}
 
             {renderer === "Archive" && (
