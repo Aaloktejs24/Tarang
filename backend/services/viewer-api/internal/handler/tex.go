@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
@@ -72,7 +71,7 @@ func (h *ViewerHandler) HandleCompileTeX(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Create a temp dir for compilation
-	tmpDir, err := ioutil.TempDir("", "tex_compile_*")
+	tmpDir, err := os.MkdirTemp("", "tex_compile_*")
 	if err != nil {
 		http.Error(w, "Failed to create temp directory", http.StatusInternalServerError)
 		return
@@ -80,7 +79,7 @@ func (h *ViewerHandler) HandleCompileTeX(w http.ResponseWriter, r *http.Request)
 	defer os.RemoveAll(tmpDir)
 
 	texFile := filepath.Join(tmpDir, "main.tex")
-	if err := ioutil.WriteFile(texFile, []byte(req.SourceCode), 0644); err != nil {
+	if err := os.WriteFile(texFile, []byte(req.SourceCode), 0644); err != nil {
 		http.Error(w, "Failed to write source file", http.StatusInternalServerError)
 		return
 	}
@@ -97,7 +96,7 @@ func (h *ViewerHandler) HandleCompileTeX(w http.ResponseWriter, r *http.Request)
 	err = cmd.Run()
 
 	logFile := filepath.Join(tmpDir, "main.log")
-	logData, _ := ioutil.ReadFile(logFile)
+	logData, _ := os.ReadFile(logFile)
 	logStr := string(logData)
 	if logStr == "" {
 		logStr = out.String()
@@ -116,7 +115,7 @@ func (h *ViewerHandler) HandleCompileTeX(w http.ResponseWriter, r *http.Request)
 
 	// On success, read the PDF
 	pdfFile := filepath.Join(tmpDir, "main.pdf")
-	pdfBytes, err := ioutil.ReadFile(pdfFile)
+	pdfBytes, err := os.ReadFile(pdfFile)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)

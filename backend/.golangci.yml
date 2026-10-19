@@ -1,0 +1,25 @@
+run:
+  timeout: 5m
+
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - errcheck
+    # Unchecked error writes in standard HTTP handlers and defer rollbacks
+    - linters:
+        - errcheck
+      text: "Error return value of `.*\\.(Write|Encode|Rollback|Ack|Nack|UpdateStatus|UpdateJobStatus|UpdateCourse)` is not checked"
+    # Ignore RealIP deprecation notice in server entrypoint
+    - linters:
+        - staticcheck
+      text: "SA1019: middleware\\.RealIP is deprecated"

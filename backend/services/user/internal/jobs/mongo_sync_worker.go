@@ -45,8 +45,7 @@ func StartMongoSyncWorker(ch *amqp.Channel) {
 
 			collection := database.MongoDatabase.Collection(job.Collection)
 			
-			// Find by document ID and Upsert
-			filter := bson.M{}
+			var filter bson.M
 			if job.Collection == "academic_achievements" {
 				filter = bson.M{"academic_record_id": job.DocumentID}
 			} else {

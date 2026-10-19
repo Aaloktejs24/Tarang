@@ -143,9 +143,7 @@ func (h *StreamingHandler) HandleLicense(w http.ResponseWriter, r *http.Request)
 	// In a real app, verify user owns the job or has rights to view it here
 
 	var req ClearKeyLicenseRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		// Sometimes players send raw JSON, sometimes base64. Let's just mock the deterministic key for now.
-	}
+	_ = json.NewDecoder(r.Body).Decode(&req)
 
 	// Recalculate the deterministic key
 	// Same logic as ffmpeg.go

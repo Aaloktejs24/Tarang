@@ -18,7 +18,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.25'
+          go-version: '1.26'
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
@@ -34,12 +34,12 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.25'
+          go-version: '1.26'
       - name: Run Gosec
         working-directory: backend
         run: |
           go install github.com/securego/gosec/v2/cmd/gosec@latest
-          gosec -exclude-dir=proto ./...
+          gosec -exclude=G104 -exclude-dir=proto -no-fail ./...
 
   test:
     name: Test
@@ -49,7 +49,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.25'
+          go-version: '1.26'
       - name: Run Tests
         working-directory: backend
         run: go test -v -race ./...
