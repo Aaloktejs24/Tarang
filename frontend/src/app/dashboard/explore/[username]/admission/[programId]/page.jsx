@@ -5,11 +5,11 @@ import { FieldContext } from '../../../../../../contexts/FieldContext';
 import { apiClient } from '../../../../../../lib/apiClient';
 import { preserveSignedUrls } from '../../../../../../utils/imageUtils';
 import { styled } from '@mui/material/styles';
-import { uploadToMinIO } from '../../../../../../utils/uploadUtil';
+import { uploadToMinIO } from '../../../../../../utils/uploadUtils';
 import { tooltipClasses } from '@mui/material/Tooltip';
 import { GlassPopover } from '../../../../../../components/common/GlassPopover';
 import { Box, Typography, Container, Paper, Button, Grid, Stepper, Step, StepLabel, Divider, Tooltip, Skeleton, Card, CardContent, TextField, MenuItem, Select, InputLabel, FormControl, IconButton, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, Backdrop, Alert, Popover, FormControlLabel, Checkbox } from '@mui/material';
-import CustomCheckbox from '../../../../../../components/common/CustomCheckbox';
+import CustomCheckbox from '../../../../../../components/common/Checkbox';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useAppRouter as useRouter } from '../../../../../../hooks/useAppRouter';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
@@ -20,9 +20,9 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import CloseIcon from '@mui/icons-material/Close';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import { BroomIcon } from '../../../../../../features/institute/admissions/BroomIcon';
+import { BroomIcon } from '../../../../../../components/icons/BroomIcon';
 import { useAccessibility } from '../../../../../../contexts/AccessibilityContext';
-import gazeteer from '../../../../../../data/formated/gazeteer.json';
+import gazetteer from '../../../../../../data/formatted/gazetteer.json';
 import { sortLocationsByDistance } from '../../../../../../lib/geoNormalize';
 import { buildSortedLanguages } from '../../../../../../lib/languages';
 import { getAcronym, formatBreadcrumbName } from '../../../../../../utils/stringUtils';
@@ -34,10 +34,10 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { RELIGION_OPTIONS } from '../../../../../../lib/religion';
 import { RACE_ETHNICITY_OPTIONS } from '../../../../../../lib/raceEthnicity';
 import { RELATION_OPTIONS } from '../../../../../../lib/relation';
-import formOptions from '../../../../../../data/formated/formOptions.json';
+import formOptions from '../../../../../../data/formatted/formOptions.json';
 import ApplicationSkeleton from '../../../../../../features/admission/ApplicationSkeleton';
 import { DASHBOARD_PAGE_WRAPPER_NO_HERO_SX, DASHBOARD_CONTAINER_SX } from '../../../../../../constants/layout';
-import relationData from '../../../../../../data/formated/relation.json';
+import relationData from '../../../../../../data/formatted/relation.json';
 import {
   GENDER_OPTIONS,
   CASTE_OPTIONS,
@@ -60,14 +60,14 @@ import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalance
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import { useBreadcrumbs } from "../../../../../../contexts/BreadcrumbContext";
 import { getApplicationHistory, updateApplicationProgress, getUserApplications, applyForProgram, deleteApplication } from '../../../../../../features/admission/admissionService';
-import { useAutoSave } from '../../../../../../features/admission/useAutoSave';
+import { useApplicationAutoSave } from '../../../../../../features/admission/useApplicationAutoSave';
 import { ErrorBoundary } from '../../../../../../components/common/ErrorBoundary';
 
-import { CustomTooltip } from '../../../../../../components/common/CustomTooltip';
+import { CustomTooltip } from '../../../../../../components/common/Tooltip';
 import { useToast } from "../../../../../../contexts/ToastContext";
 import TarangButton from "../../../../../../components/common/TarangButton";
 
-import { CustomFloatingInput, CustomFloatingSelect, CustomFloatingPhoneInput, CustomFloatingDatePicker, CustomFloatingCountrySelect, CustomFloatingMinIOUpload } from '../../../../../../components/common/CustomFloatingFields';
+import { CustomFloatingInput, CustomFloatingSelect, CustomFloatingPhoneInput, CustomFloatingDatePicker, CustomFloatingCountrySelect, CustomFloatingMinIOUpload } from '../../../../../../components/common/FloatingFields';
 
 const maskEmail = (email) => {
   if (!email) return '';
@@ -247,7 +247,7 @@ export default function AdmissionProgramPage() {
   }, [isFieldDisabled, fieldComments, application?.status]);
 
 
-  const { autoSaveStatus } = useAutoSave({
+  const { autoSaveStatus } = useApplicationAutoSave({
     appId,
     activeStep,
     basicDetails,
@@ -327,7 +327,7 @@ export default function AdmissionProgramPage() {
     }
   }, [programs, programId]);
 
-  const selectedCountry = gazeteer.Countries.find(c =>
+  const selectedCountry = gazetteer.Countries.find(c =>
     (c.nationality || c.name) === basicDetails.nationality || c.name === basicDetails.nationality
   );
   const currencySymbol = selectedCountry?.currencySymbol || '₹';
@@ -1084,11 +1084,11 @@ export default function AdmissionProgramPage() {
     const uLat = userLocation?.lat || 20.5937;
     const uLon = userLocation?.lon || 78.9629;
 
-    // Derived options from gazeteer
-    const sortedCountries = sortLocationsByDistance(gazeteer.Countries, uLat, uLon, 'countries');
+    // Derived options from gazetteer
+    const sortedCountries = sortLocationsByDistance(gazetteer.Countries, uLat, uLon, 'countries');
     const countryOptions = sortedCountries.map(c => ({ value: c.name, label: c.name, flagUrl: c.flagUrl }));
 
-    const selectedCountryData = gazeteer.Countries.find(c => c.name === sourceData.country);
+    const selectedCountryData = gazetteer.Countries.find(c => c.name === sourceData.country);
 
     let stateOptions = [];
     if (selectedCountryData?.states) {

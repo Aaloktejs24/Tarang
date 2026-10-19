@@ -14,11 +14,10 @@ import FlagIcon from "@mui/icons-material/Flag";
 import PollIcon from "@mui/icons-material/Poll";
 import ForumIcon from "@mui/icons-material/Forum";
 import SortByAlphaIcon from "@mui/icons-material/SortByAlpha";
-import indiaFlag from "../../assets/Flag_of_India.svg";
-import gazeteer from "../../data/formated/gazeteer.json";
+import gazetteer from "../../data/formatted/gazetteer.json";
 import "../../styles/sidebar.css";
 
-import AccessibleBadges from "../ui/Notification";
+import NotificationBadge from "../ui/NotificationBadge";
 import { useProfile } from "../../hooks/useProfile";
 import Link from "next/link";
 import { useAppRouter } from '../../hooks/useAppRouter';
@@ -35,8 +34,8 @@ export default function Sidebar({ open, toggleDrawer }) {
   const region = locationParts.length > 0 ? locationParts[0] : "सोनभद्र";
   const country = locationParts.length > 1 ? locationParts[locationParts.length - 1] : "भारत";
 
-  const countryData = gazeteer.Countries.find(c => c.name.toLowerCase() === country.toLowerCase() || (country === "भारत" && c.code === "IN"));
-  const flagUrl = countryData ? countryData.flagUrl : indiaFlag.src;
+  const countryData = gazetteer.Countries.find(c => c.name.toLowerCase() === country.toLowerCase() || (country === "भारत" && c.code === "IN"));
+  const flagUrl = countryData?.flagUrl || gazetteer.Countries.find(c => c.code === "IN")?.flagUrl || "https://flagcdn.com/in.svg";
 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -127,7 +126,7 @@ export default function Sidebar({ open, toggleDrawer }) {
             </div>
             <Link href="/dashboard/Notification" prefetch={false}>
               <div className="notification" style={{ padding: "0 0 0 6px" }}>
-                <AccessibleBadges count={notificationCount} />
+                <NotificationBadge count={notificationCount} />
               </div>
             </Link>
           </div>

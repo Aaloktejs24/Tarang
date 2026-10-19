@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
-import { CustomFloatingInput } from "../../../components/common/CustomFloatingFields";
+import { CustomFloatingInput } from "../../../components/common/FloatingFields";
 import { TextField, InputAdornment, IconButton } from "@mui/material";
-import CustomCheckbox from "../../../components/common/CustomCheckbox";
+import CustomCheckbox from "../../../components/common/Checkbox";
 import EmailIcon from "@mui/icons-material/Email";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";

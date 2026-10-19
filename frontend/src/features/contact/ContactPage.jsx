@@ -8,11 +8,11 @@ import HeadsetMicIcon from "@mui/icons-material/HeadsetMic";
 import Navbar from "../../components/navbar/Navbar";
 import LandingFooter from "../../components/footer/LandingFooter";
 import { useTranslation } from "../../hooks/useTranslation";
-import { useBgPreloader } from "../../hooks/useBgPreloader";
+import { useBackgroundPreloader } from "../../hooks/useBackgroundPreloader";
 
 export default function ContactPage() {
   const { t } = useTranslation();
-  useBgPreloader('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2000');
+  useBackgroundPreloader('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2000');
   return (
     <Box sx={{ bgcolor: "transparent", minHeight: "var(--size-screen-h)", display: "flex", flexDirection: "column" }}>
       <Navbar variant="landing" />

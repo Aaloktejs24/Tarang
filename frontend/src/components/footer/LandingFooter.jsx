@@ -10,7 +10,6 @@ import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import InstagramIcon from "@mui/icons-material/Instagram";
-import logo from "../../assets/logo.svg";
 
 export default function LandingFooter() {
   const { t } = useTranslation();
@@ -102,7 +101,7 @@ export default function LandingFooter() {
               {/* Column 1: Logo & Socials */}
               <Grid size={{ xs: 12, md: 3 }}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
-                  <img src={logo.src} alt="Tarang" style={{ height: 'var(--box-height)' }} />
+                  <img src="/logo.svg" alt="Tarang" style={{ height: 'var(--box-height)' }} />
                   <Typography variant="h4" sx={{ color: "var(--color-success)" }}>
                     Tarang
                   </Typography>

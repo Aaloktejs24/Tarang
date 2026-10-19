@@ -1,8 +1,8 @@
 "use client";
 import React from 'react';
 import { Box, Container, Card, Skeleton, Typography } from '@mui/material';
-import UniversalHero from '../../components/hero/UniversalHero';
-import PremiumCard from '../../components/ui/PremiumCard';
+import UniversalHero from '../../components/hero/HeroBanner';
+import PremiumCard from '../../components/ui/GlassCard';
 
 import { DASHBOARD_PAGE_WRAPPER_SX, DASHBOARD_CONTAINER_SX } from '../../constants/layout';
 

@@ -35,11 +35,11 @@ import RegisterEmailStep from "./components/RegisterEmailStep";
 import RegisterOtpStep from "./components/RegisterOtpStep";
 import RegisterDetailsStep from "./components/RegisterDetailsStep";
 import RegisterSuccessStep from "./components/RegisterSuccessStep";
-import Register2faStep from "./components/Register2faStep";
+import RegisterMfaStep from "./components/RegisterMfaStep";
 import RegisterPhoneOtpStep from "./components/RegisterPhoneOtpStep";
-import ForgotStep1 from "./components/ForgotStep1";
-import ForgotStep2 from "./components/ForgotStep2";
-import ForgotStep3 from "./components/ForgotStep3";
+import ForgotEmailStep from "./components/ForgotEmailStep";
+import ForgotOtpStep from "./components/ForgotOtpStep";
+import ForgotResetPasswordStep from "./components/ForgotResetPasswordStep";
 import CloseIcon from '@mui/icons-material/Close';
 import { AuthContext } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
@@ -477,7 +477,7 @@ export default function AuthModal({ onClose }) {
       switch (step) {
         case 1: return <LoginStep setStep={setStep} setMode={setMode} formData={formData} updateFormData={updateFormData} onLogin={handleFinalLogin} isLoading={isLoading} error={error} setError={setError} success={success} setSuccess={setSuccess} onClose={onClose} />;
         case 2: return <LoginOtpStep setStep={setStep} formData={formData} updateFormData={updateFormData} handleFinalSubmit={handleVerifyLoginOtp} isLoading={isLoading} error={error} setError={setError} onResendOtp={handleResendOtp} resendTimer={resendTimer} resetOtp={resetOtp} success={success} setSuccess={setSuccess} maskedEmail={maskedEmail || getMaskedEmail(formData?.email)} mfaType={mfaType} />;
-        case 3: return <Register2faStep setStep={setStep} setMode={setMode} onFinish={() => { setSuccess("MFA सक्षम हो गया! कृपया साइन इन करें।"); setStep(1); }} handleFinalSubmit={async () => ({ success: true })} isLoading={isLoading} />;
+        case 3: return <RegisterMfaStep setStep={setStep} setMode={setMode} onFinish={() => { setSuccess("MFA सक्षम हो गया! कृपया साइन इन करें।"); setStep(1); }} handleFinalSubmit={async () => ({ success: true })} isLoading={isLoading} />;
         default: return null;
       }
     }
@@ -487,16 +487,16 @@ export default function AuthModal({ onClose }) {
         case 2: return <RegisterOtpStep setStep={setStep} formData={formData} updateFormData={updateFormData} setError={setError} error={error} isLoading={isLoading} onResendOtp={handleResendOtp} onVerifyOtp={handleVerifyRegisterOtp} resendTimer={resendTimer} resetOtp={resetOtp} success={success} setSuccess={setSuccess} maskedEmail={maskedEmail || getMaskedEmail(formData?.email)} />;
         // case 3 removed as details are collected in step 1
         case 4: return <RegisterSuccessStep onProceedTo2fa={() => setStep(5)} onSkipToLogin={handleRegistrationComplete} />;
-        case 5: return <Register2faStep setStep={setStep} setMode={setMode} onFinish={handleRegistrationComplete} handleFinalSubmit={handleFinalRegister} isLoading={isLoading} isRegistered={isRegistered} />;
+        case 5: return <RegisterMfaStep setStep={setStep} setMode={setMode} onFinish={handleRegistrationComplete} handleFinalSubmit={handleFinalRegister} isLoading={isLoading} isRegistered={isRegistered} />;
         case 6: return <RegisterPhoneOtpStep setStep={setStep} setMode={setMode} formData={formData} isLoading={isLoading} setIsLoading={setIsLoading} setError={setError} setSuccess={setSuccess} isRegistered={isRegistered} />;
         default: return null;
       }
     }
     if (mode === "forgot_password") {
       switch (step) {
-        case 1: return <ForgotStep1 setMode={setMode} onStartRecovery={handleStartRecovery} isLoading={isLoading} error={error} setError={setError} success={success} />;
-        case 2: return <ForgotStep2 setStep={setStep} formData={formData} updateFormData={updateFormData} isLoading={isLoading} error={error} setError={setError} onResendOtp={handleResendOtp} resendTimer={resendTimer} resetOtp={resetOtp} success={success} setSuccess={setSuccess} maskedEmail={maskedEmail || getMaskedEmail(formData?.email)} />;
-        case 3: return <ForgotStep3 formData={formData} onResetPassword={handleResetPassword} isLoading={isLoading} error={error} setError={setError} success={success} clearAlerts={clearAlerts} setMode={setMode} setStep={setStep} />;
+        case 1: return <ForgotEmailStep setMode={setMode} onStartRecovery={handleStartRecovery} isLoading={isLoading} error={error} setError={setError} success={success} />;
+        case 2: return <ForgotOtpStep setStep={setStep} formData={formData} updateFormData={updateFormData} isLoading={isLoading} error={error} setError={setError} onResendOtp={handleResendOtp} resendTimer={resendTimer} resetOtp={resetOtp} success={success} setSuccess={setSuccess} maskedEmail={maskedEmail || getMaskedEmail(formData?.email)} />;
+        case 3: return <ForgotResetPasswordStep formData={formData} onResetPassword={handleResetPassword} isLoading={isLoading} error={error} setError={setError} success={success} clearAlerts={clearAlerts} setMode={setMode} setStep={setStep} />;
         default: return null;
       }
     }

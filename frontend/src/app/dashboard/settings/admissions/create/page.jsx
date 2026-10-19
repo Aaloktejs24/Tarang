@@ -2,8 +2,8 @@
 import { useAppRouter as useRouter } from '../../../../../hooks/useAppRouter';
 import React, { useState } from 'react';
 import { Box, Typography, TextField, Grid, Paper, IconButton, Divider, CircularProgress, Button } from '@mui/material';
-import CentralDropdown from '../../../../../components/common/CentralDropdown';
-import CustomCheckbox from '../../../../../components/common/CustomCheckbox';
+import CentralDropdown from '../../../../../components/common/SelectDropdown';
+import CustomCheckbox from '../../../../../components/common/Checkbox';
 import { DeleteOutline, AddCircleOutline } from '@mui/icons-material';
 import { apiClient } from '../../../../../lib/apiClient';
 import { useProfile } from '../../../../../hooks/useProfile';

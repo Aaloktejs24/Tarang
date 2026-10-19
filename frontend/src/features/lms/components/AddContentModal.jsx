@@ -12,7 +12,7 @@ import {
   CircularProgress
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { CustomFloatingInput, CustomFloatingSelect, CustomFloatingMinIOUpload } from '../../../components/common/CustomFloatingFields';
+import { CustomFloatingInput, CustomFloatingSelect, CustomFloatingMinIOUpload } from '../../../components/common/FloatingFields';
 import TarangButton from '../../../components/common/TarangButton';
 import { useProfile } from '../../../hooks/useProfile';
 import { useAccessibility } from '../../../contexts/AccessibilityContext';

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import { PlayIcon, Loader2Icon, Settings2Icon, FileWarningIcon } from "lucide-react";
-import LatexViewerComponent from "../../../../components/viewer/LatexViewerComponent";
+import LatexViewer from "../../../../components/viewer/LatexViewer";
 
 // Simple PDF Viewer for the live editor (loads blob URL)
 function LocalPdfViewer({ blobUrl }) {
@@ -134,7 +134,7 @@ export default function TexEditorPage() {
         {/* Right: Preview */}
         <div className="w-1/2 bg-gray-900 relative">
           {pdfUrl && <LocalPdfViewer blobUrl={pdfUrl} />}
-          {katexUrl && <LatexViewerComponent downloadUrl={katexUrl} />}
+          {katexUrl && <LatexViewer downloadUrl={katexUrl} />}
           
           {errorLog && (
             <div className="absolute inset-0 bg-red-950/90 text-red-200 p-6 overflow-auto font-mono text-sm">

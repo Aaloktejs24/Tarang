@@ -28,12 +28,12 @@ import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
-import UniversalHero from '../../../../../components/hero/UniversalHero';
+import UniversalHero from '../../../../../components/hero/HeroBanner';
 import { getHeroPropsFromProfile } from '../../../../../utils/heroUtils';
 import { useBreadcrumbs } from "../../../../../contexts/BreadcrumbContext";
 import { applyForProgram } from '../../../../../features/admission/admissionService';
 
-import { CustomTooltip } from '../../../../../components/common/CustomTooltip';
+import { CustomTooltip } from '../../../../../components/common/Tooltip';
 
 const formatDateWithTime = (dateStr) => {
   if (!dateStr || dateStr === 'N/A') return 'N/A';

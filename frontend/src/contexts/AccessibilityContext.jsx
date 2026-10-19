@@ -1,9 +1,9 @@
 "use client";
 
-import langFeture from '../data/formated/langFeture.json';
+import langFeature from '../data/formatted/langFeature.json';
 import { lookupMapping } from '../lib/geoNormalize';
 import { buildSortedLanguages } from '../lib/languages';
-const { scriptFonts, languageScripts } = langFeture;
+const { scriptFonts, languageScripts } = langFeature;
 
 // Helper: get fonts for a language by looking up its script
 const getFontsForLanguage = (lang) => {

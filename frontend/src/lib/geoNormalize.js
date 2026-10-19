@@ -164,9 +164,9 @@ class LocationMatcher {
 // ---------------------------------------------------------------------------
 // Pre-built singleton matchers (instantiated once at module load)
 // ---------------------------------------------------------------------------
-import gazeteer from '../data/formated/gazeteer.json';
+import gazetteer from '../data/formatted/gazetteer.json';
 
-const india = gazeteer.Countries.find(c => c.code === 'IN') || { states: [] };
+const india = gazetteer.Countries.find(c => c.code === 'IN') || { states: [] };
 
 const stateNames = india.states.map(s => s.name);
 const districtNames = [];
@@ -349,7 +349,7 @@ export function getSortedLanguagesByLocation(userLat, userLon) {
   let minDist = Infinity;
 
   // 1. First pass: Calculate min distance for EVERY language and find the closest location
-  for (const country of gazeteer.Countries) {
+  for (const country of gazetteer.Countries) {
     if (country.lat && country.lon) {
       const dist = haversine(userLat, userLon, country.lat, country.lon);
       if (country.officialLang) {

@@ -6,7 +6,7 @@
  *  - Fallback: hi (Hindi) first, then en, then alphabetical
  */
 
-import langFeture from '../data/formated/langFeture.json';
+import langFeature from '../data/formatted/langFeature.json';
 import { getSortedLanguagesByLocation } from './geoNormalize';
 
 const STRUCTURAL_NODES = new Set([
@@ -21,9 +21,9 @@ const STRUCTURAL_NODES = new Set([
  * { code, nativeName, script } — exactly as AccessibilityMenu does.
  */
 function buildRawLanguageList() {
-  const tree = langFeture.scriptLanguages?.WRITING_SYSTEMS;
-  const langNames = langFeture.languageNames || {};
-  const langScripts = langFeture.languageScripts || {};
+  const tree = langFeature.scriptLanguages?.WRITING_SYSTEMS;
+  const langNames = langFeature.languageNames || {};
+  const langScripts = langFeature.languageScripts || {};
   const langs = [];
   const seen = new Set();
 

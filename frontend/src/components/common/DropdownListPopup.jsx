@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography, Tooltip } from '@mui/material';
-import CustomCheckbox from './CustomCheckbox';
-import { CustomTooltip } from './CustomTooltip';
+import CustomCheckbox from './Checkbox';
+import { CustomTooltip } from './Tooltip';
 import { GlassPopover } from './GlassPopover';
 
 export const DropdownListPopup = ({

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Button, CircularProgress } from '@mui/material';
-import { useSmartLoading } from '../../hooks/useSmartLoading';
+import { useSmartLoading } from '../../hooks/useDebouncedLoading';
 
 /**
  * TarangButton — Centralized button component

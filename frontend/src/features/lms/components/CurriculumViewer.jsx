@@ -13,9 +13,9 @@ import ScienceOutlinedIcon from '@mui/icons-material/ScienceOutlined';
 import QuizOutlinedIcon from '@mui/icons-material/QuizOutlined';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import InlineContentBuilder from './InlineContentBuilder';
-import ContentModal from './ContentModal';
+import ContentViewerModal from './ContentViewerModal';
 import { useAccessibility } from '../../../contexts/AccessibilityContext';
-import { CustomAccordion, CustomAccordionSummary, CustomAccordionDetails } from '../../../components/common/CustomAccordion';
+import { CustomAccordion, CustomAccordionSummary, CustomAccordionDetails } from '../../../components/common/Accordion';
 import EmptyState from '../../../components/ui/EmptyState';
 
 const getItemIcon = (type) => {
@@ -229,7 +229,7 @@ export default function CurriculumViewer({ modules, isManagement, onAddContent }
   return (
     <Box>
       {modules.map(module => renderNode(module, 0))}
-      <ContentModal 
+      <ContentViewerModal 
         open={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);

@@ -10,7 +10,7 @@ import { useBreadcrumbs } from '../../contexts/BreadcrumbContext';
 import { useToast } from '../../contexts/ToastContext';
 import { lmsService } from './lmsService';
 import EmptyState from '../../components/ui/EmptyState';
-import PremiumCard from '../../components/ui/PremiumCard';
+import PremiumCard from '../../components/ui/GlassCard';
 import TarangButton from '../../components/common/TarangButton';
 import { formatBreadcrumbName } from '../../utils/stringUtils';
 import { SignedAvatar } from '../../components/common/SignedAvatar';
@@ -35,7 +35,7 @@ import CurriculumViewer from './components/CurriculumViewer';
 
 import { DASHBOARD_PAGE_WRAPPER_NO_HERO_SX, DASHBOARD_CONTAINER_SX } from '../../constants/layout';
 
-import CourseModal from './components/CourseModal';
+import CourseFormModal from './components/CourseFormModal';
 
 export default function CourseDetailsDashboard({ courseId }) {
   const router = useRouter();
@@ -532,7 +532,7 @@ export default function CourseDetailsDashboard({ courseId }) {
       )}
 
       {isEditModalOpen && course && (
-        <CourseModal
+        <CourseFormModal
           open={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
           onSuccess={handleEditSuccess}

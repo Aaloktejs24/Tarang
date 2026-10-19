@@ -3,7 +3,7 @@
 import React, { Suspense } from "react";
 import { Box } from "@mui/material";
 import { useSearchParams } from "next/navigation";
-import PDFRenderer from "../../../components/viewer/renderers/PDFRenderer";
+import PdfRenderer from "../../../components/viewer/renderers/PdfRenderer";
 import Loader from "../../../components/common/Loader";
 
 function PDFViewerContent() {
@@ -21,7 +21,7 @@ function PDFViewerContent() {
 
   return (
     <Box sx={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <PDFRenderer url={url} filename={name} />
+      <PdfRenderer url={url} filename={name} />
     </Box>
   );
 }

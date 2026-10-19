@@ -5,7 +5,7 @@ import shaka from "shaka-player";
 import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, Settings, RotateCcw, Check } from "lucide-react";
 import { Box, Slider, IconButton, CircularProgress, Typography } from "@mui/material";
 import { GlassPopover } from "../common/GlassPopover";
-import EmptyMediaState from "../common/EmptyMediaState";
+import EmptyMediaState from "../ui/EmptyMediaState";
 
 export default function TarangVideoPlayer({ url, jobId, poster, isPreview = false }) {
   const effectivePoster = poster || (url && url.includes('tarang-media-processed') ? url.replace(/\/[^\/]+$/, '/poster.jpg') : '');

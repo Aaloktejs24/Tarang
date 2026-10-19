@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, CircularProgress, Alert } from '@mui/material';
 import { apiClient } from '@/lib/apiClient';
-import PDFRenderer from './renderers/PDFRenderer';
+import PdfRenderer from './renderers/PdfRenderer';
 import ImageRenderer from './renderers/ImageRenderer';
 
 export default function DocumentViewer({ jobId, width = "100%", height = "500px" }) {
@@ -73,7 +73,7 @@ export default function DocumentViewer({ jobId, width = "100%", height = "500px"
   let content;
   
   if (renderer === "PDF.js" && pdf_download_url) {
-    content = <PDFRenderer url={pdf_download_url} filename={filename} />;
+    content = <PdfRenderer url={pdf_download_url} filename={filename} />;
   } else if (renderer === "Image" && original_download_url) {
     content = <ImageRenderer url={original_download_url} filename={filename} />;
   } else {

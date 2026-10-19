@@ -20,9 +20,9 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import GroupIcon from '@mui/icons-material/Group';
 import SearchIcon from '@mui/icons-material/Search';
-import { CustomTooltip } from '../../components/common/CustomTooltip';
-import CentralDropdown from '../../components/common/CentralDropdown';
-import PremiumCard from '../../components/ui/PremiumCard';
+import { CustomTooltip } from '../../components/common/Tooltip';
+import CentralDropdown from '../../components/common/SelectDropdown';
+import PremiumCard from '../../components/ui/GlassCard';
 import TarangButton from '../../components/common/TarangButton';
 
 export default function StudentCourseDashboard() {

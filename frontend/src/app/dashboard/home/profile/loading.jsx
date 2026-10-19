@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
-import ProfileSkeleton from '../../../../features/profile/ProfileSkeleton';
+import UserProfileSkeleton from '../../../../features/profile/UserProfileSkeleton';
 
 export default function ProfileLoading() {
-  return <ProfileSkeleton />;
+  return <UserProfileSkeleton />;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import UniversalViewer from "../../../../components/viewer/UniversalViewer";
+import UniversalViewer from "../../../../components/viewer/FileViewer";
 
 export default function ViewerTestPage() {
   const [jobId, setJobId] = useState("");

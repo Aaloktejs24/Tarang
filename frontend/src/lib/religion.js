@@ -1,8 +1,8 @@
 /**
- * Religion options — sourced from data/formated/religion.json
+ * Religion options — sourced from data/formatted/religion.json
  * Sorted with pinned top items first, pinned bottom items last, rest alphabetical.
  */
-import data from '../data/formated/religion.json';
+import data from '../data/formatted/religion.json';
 
 const { options, pinTop, pinBottom } = data;
 

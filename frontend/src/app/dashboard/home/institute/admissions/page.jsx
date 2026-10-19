@@ -1,6 +1,6 @@
 import React from 'react';
-import AdmissionsDashboard from '../../../../../features/institute/admissions/AdmissionsDashboard';
+import AdmissionDashboard from '../../../../../features/admission/AdmissionDashboard';
 
 export default function Page() {
-  return <AdmissionsDashboard />;
+  return <AdmissionDashboard />;
 }

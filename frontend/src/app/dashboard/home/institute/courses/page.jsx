@@ -1,5 +1,5 @@
-import CourseDashboard from "../../../../../features/lms/CourseDashboard";
+import InstituteCourseDashboard from "../../../../../features/lms/InstituteCourseDashboard";
 
 export default function CoursesPage() {
-  return <CourseDashboard />;
+  return <InstituteCourseDashboard />;
 }

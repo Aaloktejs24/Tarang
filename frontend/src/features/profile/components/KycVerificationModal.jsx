@@ -5,7 +5,7 @@ import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
 import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
 import SmartphoneOutlinedIcon from "@mui/icons-material/SmartphoneOutlined";
 import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
-import CustomModal from "../../../components/common/CustomModal";
+import CustomModal from "../../../components/common/Modal";
 import { startAadhaarOtp, verifyAadhaarOtp, startDigilocker, getProfile } from "../../auth/authService";
 import TarangButton from "../../../components/common/TarangButton";
 

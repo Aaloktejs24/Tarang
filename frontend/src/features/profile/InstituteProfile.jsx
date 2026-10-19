@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Box, Typography, Paper, Avatar, Button, Chip, Accordion, AccordionSummary, AccordionDetails, useTheme, useMediaQuery, IconButton, TextField, Grid, Container, Skeleton } from "@mui/material";
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { uploadToMinIO } from '../../utils/uploadUtil';
+import { uploadToMinIO } from '../../utils/uploadUtils';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { apiClient } from "../../lib/apiClient";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -40,10 +40,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import EmptyState from "../../components/ui/EmptyState";
-import EmptyCoursesIllustration from "./EmptyCoursesIllustration";
-import EmptyAchievementsIllustration from "./EmptyAchievementsIllustration";
-import EmptyActivityIllustration from "./EmptyActivityIllustration";
-import EmptyEducationIllustration from "./EmptyEducationIllustration";
+import {
+  EmptyCoursesIllustration,
+  EmptyAchievementsIllustration,
+  EmptyActivityIllustration,
+  EmptyEducationIllustration,
+} from "./illustrations";
 import LibraryBooksOutlinedIcon from "@mui/icons-material/LibraryBooksOutlined";
 import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
 import Loader from "../../components/common/Loader";
@@ -56,10 +58,10 @@ import { useAppRouter as useRouter } from '../../hooks/useAppRouter';
 import { useAccessibility } from '../../contexts/AccessibilityContext';
 import Navbar from '../../components/navbar/Navbar';
 import KycVerificationModal from "./components/KycVerificationModal";
-import InstituteUpdateModal from "./components/InstituteUpdateModal";
+import InstituteProfileUpdateModal from "./components/InstituteProfileUpdateModal";
 import InstituteProfileSkeleton from "./InstituteProfileSkeleton";
-import PremiumCard from "../../components/ui/PremiumCard";
-import ProfileLayout from "../../components/profile/ProfileLayout";
+import PremiumCard from "../../components/ui/GlassCard";
+import ProfileLayout from "./components/ProfileLayout";
 
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import { useToast } from "../../contexts/ToastContext";
@@ -522,7 +524,7 @@ export default function InstituteProfile() {
 
       {/* Modals */}
       {profile && <KycVerificationModal open={isKycModalOpen} onClose={() => setKycModalOpen(false)} userId={profile.id} onSuccess={() => setProfile(prev => ({ ...prev, kyc_status: "verified" }))} />}
-      {isUpdateModalOpen && profile && <InstituteUpdateModal profile={profile} onClose={() => setUpdateModalOpen(false)} onSuccess={fetchProfile} />}
+      {isUpdateModalOpen && profile && <InstituteProfileUpdateModal profile={profile} onClose={() => setUpdateModalOpen(false)} onSuccess={fetchProfile} />}
     </>
   );
 }

@@ -30,7 +30,7 @@ import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import { Divider } from "@mui/material";
 import { useAppRouter } from '../../hooks/useAppRouter';
 import FeedMobileFilter from "./FeedMobileFilter";
-import CustomCheckbox from "../../components/common/CustomCheckbox";
+import CustomCheckbox from "../../components/common/Checkbox";
 import TarangButton from "../../components/common/TarangButton";
 const checkboxStyles = {
   color: "var(--color-slate-500)",

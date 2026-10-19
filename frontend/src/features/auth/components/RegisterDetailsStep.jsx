@@ -1,8 +1,8 @@
 import { Box, Typography }
   from "@mui/material";
-import { CustomFloatingInput, CustomFloatingDatePicker, CustomFloatingSelect, CustomFloatingPhoneInput } from "../../../components/common/CustomFloatingFields";
+import { CustomFloatingInput, CustomFloatingDatePicker, CustomFloatingSelect, CustomFloatingPhoneInput } from "../../../components/common/FloatingFields";
 import { TextField, InputAdornment, IconButton, Select, MenuItem, FormControl, ListItemButton, Tooltip } from "@mui/material";
-import CustomCheckbox from "../../../components/common/CustomCheckbox";
+import CustomCheckbox from "../../../components/common/Checkbox";
 import { FormLoadingProvider } from '../../../contexts/FormLoadingContext';
 import { motion, AnimatePresence } from "framer-motion";
 import Visibility from "@mui/icons-material/Visibility";
@@ -18,7 +18,7 @@ import { useState, useEffect } from "react";
 import { checkUsername, checkEmail } from "../authService";
 import { validateEmail, validatePhone, validateUsername, validateName, validatePassword, getPasswordStrength, RULES } from "../../../utils/validationUtils";
 import { RuleRow } from "../../../components/common/PasswordStrength";
-import { CustomTooltip } from '../../../components/common/CustomTooltip';
+import { CustomTooltip } from '../../../components/common/Tooltip';
 
 
 

@@ -28,7 +28,7 @@ import { useTranslation } from '../../../../hooks/useTranslation';
 import EmptyState from '../../../../components/ui/EmptyState';
 import { DASHBOARD_PAGE_WRAPPER_SX, DASHBOARD_CONTAINER_SX } from '../../../../constants/layout';
 import { formatBreadcrumbName } from '../../../../utils/stringUtils';
-import UniversalHero from '../../../../components/hero/UniversalHero';
+import UniversalHero from '../../../../components/hero/HeroBanner';
 import { getHeroPropsFromProfile } from '../../../../utils/heroUtils';
 import { useBreadcrumbs } from "../../../../contexts/BreadcrumbContext";
 import InstituteSkeleton from "../../../../features/institute/InstituteSkeleton";

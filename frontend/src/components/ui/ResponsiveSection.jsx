@@ -1,9 +1,9 @@
 import React from "react";
 import { Box, Typography, Paper } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { CustomAccordion, CustomAccordionSummary, CustomAccordionDetails } from "../common/CustomAccordion";
+import { CustomAccordion, CustomAccordionSummary, CustomAccordionDetails } from "../common/Accordion";
 
-import PremiumCard from "./PremiumCard";
+import PremiumCard from "./GlassCard";
 
 const ResponsiveSection = ({ isMobile, title, action, children, sxParams = {}, customTitleNode }) => {
   if (isMobile) {

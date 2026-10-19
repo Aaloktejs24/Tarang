@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import { Box, Skeleton, Stack, Typography, Grid } from '@mui/material';
-import PremiumCard from '../../components/ui/PremiumCard';
+import PremiumCard from '../../components/ui/GlassCard';
 
 export default function InstituteProfileSkeleton() {
   return (

@@ -5,7 +5,7 @@ import { Box, IconButton, Typography } from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DownloadIcon from "@mui/icons-material/Download";
-import UniversalViewer from "../../../components/viewer/UniversalViewer";
+import UniversalViewer from "../../../components/viewer/FileViewer";
 import { apiClient } from "../../../lib/apiClient";
 
 export default function ViewerPage() {

@@ -1,8 +1,8 @@
 /**
- * Race / Ethnicity options — sourced from data/formated/raceEthnicity.json
+ * Race / Ethnicity options — sourced from data/formatted/raceEthnicity.json
  * Sorted with pinned top items first, pinned bottom items last, rest alphabetical.
  */
-import data from '../data/formated/raceEthnicity.json';
+import data from '../data/formatted/raceEthnicity.json';
 
 const { options, pinTop, pinBottom } = data;
 

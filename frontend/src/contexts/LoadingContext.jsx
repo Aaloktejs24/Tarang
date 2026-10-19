@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import BackdropBlur from "../components/common/BackdropBlur";
-import { useSmartLoading } from "../hooks/useSmartLoading";
+import { useSmartLoading } from "../hooks/useDebouncedLoading";
 
 /**
  * Global loading context.

@@ -18,7 +18,7 @@ import SortIcon from '@mui/icons-material/Sort';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { styled } from '@mui/material/styles';
-import CentralDropdown from '../../../components/common/CentralDropdown';
+import CentralDropdown from '../../../components/common/SelectDropdown';
 import { tooltipClasses } from '@mui/material/Tooltip';
 import AddIcon from '@mui/icons-material/Add';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -27,7 +27,7 @@ import { useAppRouter as useRouter } from '../../../hooks/useAppRouter';
 import { Skeleton } from '@mui/material';
 import { useBreadcrumbs } from '../../../contexts/BreadcrumbContext';
 
-import { CustomTooltip } from '../../../components/common/CustomTooltip';
+import { CustomTooltip } from '../../../components/common/Tooltip';
 import ExploreListSkeleton from '../../../features/institute/ExploreListSkeleton';
 
 export default function ExploreInstitutes() {

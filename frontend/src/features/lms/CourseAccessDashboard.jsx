@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, Container, CircularProgress, IconButton, Paper, Divider, Chip, Skeleton } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import TarangVideoPlayer from '../../components/viewer/TarangVideoPlayer';
-import { CustomAccordion, CustomAccordionSummary, CustomAccordionDetails } from '../../components/common/CustomAccordion';
-import EmptyMediaState from '../../components/common/EmptyMediaState';
+import { CustomAccordion, CustomAccordionSummary, CustomAccordionDetails } from '../../components/common/Accordion';
+import EmptyMediaState from '../../components/ui/EmptyMediaState';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import AudioFileOutlinedIcon from '@mui/icons-material/AudioFileOutlined';
@@ -25,13 +25,14 @@ import { lmsService } from './lmsService';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useAppRouter as useRouter } from '../../hooks/useAppRouter';
 import { apiClient } from '../../lib/apiClient';
-import PremiumCard from '../../components/ui/PremiumCard';
+import PremiumCard from '../../components/ui/GlassCard';
 import TarangButton from '../../components/common/TarangButton';
 import { useBreadcrumbs } from '../../contexts/BreadcrumbContext';
 import Loader from '../../components/common/Loader';
-import ShakaPlayerComponent from '../../components/viewer/ShakaPlayerComponent';
-import TopicOtherContent from './components/TopicOtherContent';
+import ShakaPlayer from '../../components/viewer/ShakaPlayer';
+import TopicResources from './components/TopicResources';
 import TopicComments from './components/TopicComments';
+import { noOverscrollSx, containedScrollSx, fixedViewportLayoutSx } from '../../styles/commonStyles';
 
 const getItemIcon = (type) => {
   switch (type) {
@@ -241,12 +242,17 @@ export default function CourseAccessDashboard({ courseId }) {
 
   if (loading) {
     return (
-      <Box sx={{ minHeight: "calc(100vh - 64px)", pt: { xs: 3, md: 3 }, pb: 6, position: "relative", zIndex: 1 }}>
-        <Container maxWidth={false} sx={{ px: { xs: 2, sm: 4, md: 6, lg: 8, xl: 10 } }}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'stretch', gap: 2, height: { xs: 'auto', md: 'calc(100vh - 120px)' }, minHeight: 600 }}>
+      <Box sx={{
+        ...fixedViewportLayoutSx,
+        pt: { xs: 2, md: 2 },
+        pb: { xs: 2, md: 2 },
+        zIndex: 1,
+      }}>
+        <Container maxWidth={false} sx={{ px: { xs: 2, sm: 4, md: 6, lg: 8, xl: 10 }, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'stretch', gap: 2, flex: 1, height: '100%', minHeight: 0 }}>
 
             {/* Left Sidebar Skeleton */}
-            <PremiumCard sx={{ width: { xs: '100%', md: 320, lg: 360 }, height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0, p: 0 }}>
+            <PremiumCard sx={{ width: { xs: '100%', md: 320, lg: 360 }, height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0, p: 0, ...noOverscrollSx }}>
               <Box sx={{ p: 2.5, borderBottom: 'var(--border-thin) solid var(--card-border)' }}>
                 <Skeleton variant="text" width="80%" height={32} />
               </Box>
@@ -258,7 +264,7 @@ export default function CourseAccessDashboard({ courseId }) {
             </PremiumCard>
 
             {/* Right Content Area Skeleton */}
-            <PremiumCard sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', p: 0, height: '100%', minHeight: 0 }}>
+            <PremiumCard sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', p: 0, height: '100%', minHeight: 0, ...noOverscrollSx }}>
               {/* Video Player Skeleton (Black Box with White Spinner) */}
               <Box sx={{ width: '100%', aspectRatio: '16/9', bgcolor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <CircularProgress sx={{ color: '#ffffff' }} size={48} thickness={4} />
@@ -401,7 +407,12 @@ export default function CourseAccessDashboard({ courseId }) {
   };
 
   return (
-    <Box sx={{ minHeight: "calc(100vh - 64px)", pt: { xs: 3, md: 3 }, pb: 6, position: "relative", zIndex: 1 }}>
+    <Box sx={{
+      ...fixedViewportLayoutSx,
+      pt: { xs: 2, md: 2 },
+      pb: { xs: 2, md: 2 },
+      zIndex: 1,
+    }}>
       {/* Decorative Background Glows for Glassmorphism */}
       <Box sx={{
         position: 'absolute', top: '5%', right: '10%',
@@ -418,10 +429,10 @@ export default function CourseAccessDashboard({ courseId }) {
         borderRadius: '50%'
       }} />
 
-      <Container maxWidth={false} sx={{ px: { xs: 2, sm: 4, md: 6, lg: 8, xl: 10 } }}>
+      <Container maxWidth={false} sx={{ px: { xs: 2, sm: 4, md: 6, lg: 8, xl: 10 }, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
 
         {/* Main Layout */}
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'stretch', gap: 2, height: { xs: 'auto', md: 'calc(100vh - 120px)' }, minHeight: 600 }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'stretch', gap: 2, flex: 1, height: '100%', minHeight: 0 }}>
 
           {/* Left Sidebar: Curriculum */}
           <PremiumCard sx={{
@@ -431,7 +442,8 @@ export default function CourseAccessDashboard({ courseId }) {
             display: 'flex', flexDirection: 'column',
             overflow: 'hidden',
             flexShrink: 0,
-            p: 0
+            p: 0,
+            ...noOverscrollSx,
           }}>
             <Box
               onClick={() => {
@@ -452,18 +464,18 @@ export default function CourseAccessDashboard({ courseId }) {
               </Typography>
             </Box>
 
-            <Box sx={{ flex: 1, overflowY: 'auto', p: 2 }}>
+            <Box sx={{ flex: 1, p: 2, ...containedScrollSx }}>
               {course.modules?.map(module => renderNode(module, 0))}
             </Box>
           </PremiumCard>
 
           {/* Right Content Area: Viewer */}
-          <PremiumCard sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', p: 0, height: '100%', minHeight: 0 }}>
+          <PremiumCard sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', p: 0, height: '100%', minHeight: 0, ...noOverscrollSx }}>
             {activeTopic ? (
               <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
 
 
-                <Box sx={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', ...containedScrollSx }}>
                   {(() => {
                     const type = activeTopic.type;
                     const url = signedUrl;
@@ -709,7 +721,7 @@ export default function CourseAccessDashboard({ courseId }) {
                           maxHeight: { xs: '380px', sm: '420px', lg: '420px' },
                         }}
                       >
-                        <TopicOtherContent
+                        <TopicResources
                           activeTopic={activeTopic}
                           activeNode={activeNode}
                           onSelectContent={(item) => handleTopicClick(item)}
@@ -722,7 +734,7 @@ export default function CourseAccessDashboard({ courseId }) {
               </Box>
             ) : (
               <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', p: { xs: 3, md: 5 } }}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, overflowY: 'auto' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, ...containedScrollSx }}>
                   <Typography variant="h4" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', mb: 3 }}>
                     {course.title}
                   </Typography>

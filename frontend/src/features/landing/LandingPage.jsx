@@ -5,8 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { TextField } from '@mui/material';
 import Navbar from "../../components/navbar/Navbar";
 import AuthModal from "../../features/auth/AuthModal";
-import logo from "../../assets/logo.svg";
-import { useBgPreloader } from "../../hooks/useBgPreloader";
+import { useBackgroundPreloader } from "../../hooks/useBackgroundPreloader";
 
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
@@ -16,7 +15,6 @@ import TwitterIcon from '@mui/icons-material/Twitter';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import SearchIcon from '@mui/icons-material/Search';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import PersonIcon from '@mui/icons-material/Person';
@@ -40,7 +38,7 @@ export default function LandingPage() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   
   // Preload the first heavy hero image of the landing page slider
-  useBgPreloader("https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=2000");
+  useBackgroundPreloader("https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=2000");
 
   const runCustomJsLogic = ($) => {
     if (!$) return;
@@ -387,23 +385,6 @@ NOTE: This file contains all scripts for the actual Template.
       }
     }
 
-    /*************************
-        Search
-  *************************/
-    POTENZA.searchbox = function () {
-      if (jQuery('.search').exists()) {
-        jQuery('.search-btn').on("click", function () {
-          jQuery('.search').toggleClass("search-open");
-          return false;
-        });
-        jQuery("html, body").on('click', function (e) {
-          if (!jQuery(e.target).hasClass("not-click")) {
-
-            jQuery('.search').removeClass("search-open");
-          }
-        });
-      }
-    }
 
     /*************************
           sticky
@@ -489,7 +470,6 @@ NOTE: This file contains all scripts for the actual Template.
         POTENZA.countdownTimer(),
         POTENZA.select2(),
         POTENZA.mediaPopups(),
-        POTENZA.searchbox(),
         POTENZA.isSticky(),
         POTENZA.carousel();
     });
@@ -1460,7 +1440,7 @@ NOTE: This file contains all scripts for the actual Template.
             <div className="container pt-5">
               <div className="row pb-5 pb-lg-6 mb-lg-3">
                 <div className="col-sm-6 col-lg-4 mb-4 mb-lg-0 pr-lg-5">
-                  <Link href="/"><img className="img-fluid mb-3 footer-logo" src={logo.src} alt="" /></Link>
+                  <Link href="/"><img className="img-fluid mb-3 footer-logo" src="/logo.svg" alt="" /></Link>
                   <p className="text-white">The best way is to develop and follow a plan. Start with your goals in mind and then work backward to develop the plan.</p>
                   <h5 className="text-white mb-2 mb-sm-4">Follow Us</h5>
                   <div className="social-icon social-icon-style-02">

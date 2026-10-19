@@ -1,11 +1,11 @@
 /**
  * All dropdown/select options used in forms across the app.
- * Sourced from data/formated/ JSON files — nothing is hardcoded here.
+ * Sourced from data/formatted/ JSON files — nothing is hardcoded here.
  */
-import genderData    from '../data/formated/gender.json';
-import casteData     from '../data/formated/caste.json';
-import addressData   from '../data/formated/addressOptions.json';
-import formData      from '../data/formated/formOptions.json';
+import genderData    from '../data/formatted/gender.json';
+import casteData     from '../data/formatted/caste.json';
+import addressData   from '../data/formatted/addressOptions.json';
+import formData      from '../data/formatted/formOptions.json';
 
 // ── Gender ───────────────────────────────────────────────────────────────────
 export const GENDER_OPTIONS = genderData.options.map(v => ({ value: v, label: v }));
@@ -13,11 +13,11 @@ export const GENDER_OPTIONS = genderData.options.map(v => ({ value: v, label: v 
 // ── Caste (India) ─────────────────────────────────────────────────────────────
 export const CASTE_OPTIONS = casteData.categories.map(v => ({ value: v, label: v }));
 
-// ── Sub-caste from Gazeteer (state-aware) ─────────────────────────────────────
-import gazeteer from '../data/formated/gazeteer.json';
+// ── Sub-caste from Gazetteer (state-aware) ─────────────────────────────────────
+import gazetteer from '../data/formatted/gazetteer.json';
 import { sortLocationsByDistance } from './geoNormalize';
 
-const _indiaStates = gazeteer.Countries.find(c => c.name === 'India')?.states || [];
+const _indiaStates = gazetteer.Countries.find(c => c.name === 'India')?.states || [];
 
 /**
  * Returns sub-caste options for a given caste category and (optional) state name.

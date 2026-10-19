@@ -1,7 +1,7 @@
 "use client";
 
-import langFeture from '../../data/formated/langFeture.json';
-const { scriptFonts, languageScripts } = langFeture;
+import langFeature from '../../data/formatted/langFeature.json';
+const { scriptFonts, languageScripts } = langFeature;
 
 const getFontsForLanguage = (lang) => {
   const script = languageScripts[lang] || 'Latin';
@@ -14,7 +14,7 @@ import SettingsAccessibilityIcon from '@mui/icons-material/SettingsAccessibility
 import { useAccessibility } from '../../contexts/AccessibilityContext';
 import { useTranslation } from '../../hooks/useTranslation';
 import { buildSortedLanguages } from '../../lib/languages';
-import CentralDropdown from '../common/CentralDropdown';
+import CentralDropdown from '../common/SelectDropdown';
 import { usePathname } from 'next/navigation';
 import { GlassPopover } from '../common/GlassPopover';
 

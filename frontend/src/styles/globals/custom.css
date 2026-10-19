@@ -10,6 +10,7 @@ body {
   padding: 0;
   overflow-x: hidden;
   overscroll-behavior-y: none;
+  line-height: var(--line-height-base);
 }
 
 /* Modern CSS Reset */
@@ -19,16 +20,6 @@ body {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-}
-
-html,
-body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-  line-height: var(--line-height-base);
 }
 
 body {
@@ -179,6 +170,21 @@ nextjs-portal {
 }
 
 /* Required Asterisk Global Style */
-.required-asterisk {
-  color: var(--color-error);
+.required-asterisk,
+.MuiInputLabel-asterisk {
+  color: var(--color-error) !important;
+}
+
+/* Centralized Scroll & Gap Prevention Utilities */
+.no-overscroll {
+  overscroll-behavior: none !important;
+  overscroll-behavior-y: none !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.contained-scroll {
+  overflow-y: auto;
+  overscroll-behavior: none !important;
+  overscroll-behavior-y: none !important;
+  -webkit-overflow-scrolling: touch;
 }

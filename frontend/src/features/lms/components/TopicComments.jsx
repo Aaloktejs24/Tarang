@@ -20,6 +20,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import { useProfile } from '../../../hooks/useProfile';
 import TarangButton from '../../../components/common/TarangButton';
+import { containedScrollSx, noOverscrollSx } from '../../../styles/commonStyles';
 
 const formatTimeAgo = (timestamp, language = 'en') => {
   if (!timestamp) return language === 'en' ? 'Just now' : 'अभी';
@@ -243,6 +244,7 @@ export default function TopicComments({
         minHeight: { xs: '280px', sm: '320px', lg: '360px' },
         maxHeight: { xs: '380px', sm: '420px', lg: '420px' },
         transition: 'var(--transition-base, all 0.2s ease)',
+        ...noOverscrollSx,
       }}
     >
       {/* Header styled exactly like CustomAccordionSummary */}
@@ -296,7 +298,7 @@ export default function TopicComments({
           gap: 2,
           flex: 1,
           minHeight: 0,
-          overflowY: 'auto',
+          ...containedScrollSx,
         }}
       >
 

@@ -35,40 +35,6 @@ nav.nav {
   border-image: linear-gradient(90deg, var(--color-primary) 0%, var(--color-success) 50%, #ffc107 100%) 1;
 }
 
-.search_bar {
-  display: flex;
-  align-items: center;
-  border: var(--border-thin) solid rgba(0, 86, 179, 0.3);
-  border-radius: 24px;
-  background-color: transparent;
-  padding: 0 16px;
-  width: 32vw;
-  height: 44px;
-  transition: var(--transition-base);
-}
-
-.search_bar:focus-within {
-  border: var(--border-thin) solid var(--color-primary);
-  background-color: transparent;
-}
-
-.search_input {
-  width: var(--size-full);
-  height: var(--size-full);
-  border: none;
-  padding: 0;
-  font-size: 15px;
-  background-color: transparent;
-  color: #0f172a;
-  outline: none;
-}
-.search_input:focus {
-  outline: none;
-}
-.search_input::placeholder {
-  color: var(--color-slate-400);
-  font-weight: var(--font-medium);
-}
 
 .logo img {
   height: 46px;
@@ -202,8 +168,5 @@ nav.nav {
 @media (max-width: 768px) {
   .school {
     display: none;
-  }
-  .search_bar {
-    width: 55vw;
   }
 }

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { Box, Typography, Button, Container, TextField, IconButton, Paper, Breadcrumbs, Link } from '@mui/material';
-import { CustomAccordion, CustomAccordionSummary, CustomAccordionDetails } from '../../components/common/CustomAccordion';
+import { CustomAccordion, CustomAccordionSummary, CustomAccordionDetails } from '../../components/common/Accordion';
 import {  useSearchParams } from 'next/navigation';
 
 import { useAppRouter as useRouter } from '../../hooks/useAppRouter';

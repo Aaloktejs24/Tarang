@@ -15,9 +15,9 @@ import SearchIcon from '@mui/icons-material/Search';
 
 import { useBreadcrumbs } from '../../../../../../../contexts/BreadcrumbContext';
 import { formatBreadcrumbName } from '../../../../../../../utils/stringUtils';
-import { CustomTooltip } from '../../../../../../../components/common/CustomTooltip';
-import { CustomFloatingInput, CustomFloatingSelect } from '../../../../../../../components/common/CustomFloatingFields';
-import ApplicationReviewModal from './ApplicationReviewModal';
+import { CustomTooltip } from '../../../../../../../components/common/Tooltip';
+import { CustomFloatingInput, CustomFloatingSelect } from '../../../../../../../components/common/FloatingFields';
+import ApplicationReviewModal from '../../../../../../../features/admission/components/ApplicationReviewModal';
 
 import { DASHBOARD_PAGE_WRAPPER_NO_HERO_SX, DASHBOARD_CONTAINER_SX } from '../../../../../../../constants/layout';
 import { useToast } from '../../../../../../../contexts/ToastContext';

@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import Profile from "../../../../features/profile/Profile";
+import UserProfile from "../../../../features/profile/UserProfile";
 
 export default function ProfilePage() {
-  return <Profile />;
+  return <UserProfile />;
 }

@@ -1,11 +1,10 @@
 "use client";
 
-import langFeture from '../../data/formated/langFeture.json';
-import gazeteer from '../../data/formated/gazeteer.json';
-import miscData from '../../data/miscData.json';
+import langFeature from '../../data/formatted/langFeature.json';
+import gazetteer from '../../data/formatted/gazetteer.json';
 import { lookupMapping, resolveCanonicalName } from '../../lib/geoNormalize';
-const { languageNames: languageNames } = langFeture;
-const INDIA_STATES = (gazeteer.Countries.find(c => c.code === 'IN')?.states) || [];
+const { languageNames: languageNames } = langFeature;
+const INDIA_STATES = (gazetteer.Countries.find(c => c.code === 'IN')?.states) || [];
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -28,7 +27,7 @@ import { glassPaperSx } from '../../styles/commonStyles';
 import useScrollLock from '../../hooks/useScrollLock';
 import countryToCurrency from 'country-to-currency';
 
-const { POPULAR_COUNTRIES } = miscData;
+
 
 export default function LanguagePromptModal() {
   const isSubmitting = React.useRef(false);
@@ -241,7 +240,7 @@ export default function LanguagePromptModal() {
   };
 
   // Global list of countries
-  const allCountries = gazeteer.Countries;
+  const allCountries = gazetteer.Countries;
   const countryOptions = allCountries.map(c => c.name);
 
   // Derive country code for selected country

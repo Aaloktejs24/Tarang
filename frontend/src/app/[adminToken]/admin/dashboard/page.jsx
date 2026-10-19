@@ -12,7 +12,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import SchoolIcon from '@mui/icons-material/School';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
-import StatCard from '../../../../components/admin/StatCard';
+import StatCard from '../../../../components/ui/StatCard';
 
 const theme = createTheme({
   typography: {

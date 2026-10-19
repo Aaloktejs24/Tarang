@@ -1,5 +1,5 @@
 import { Box, Typography, TextField } from "@mui/material";
-import { CustomFloatingInput } from "../../../components/common/CustomFloatingFields";
+import { CustomFloatingInput } from "../../../components/common/FloatingFields";
 import { useState } from "react";
 import { confirmPhoneVerification } from "../authService";
 import { translateAuthError, AUTH_ERRORS } from "../../../constants/errors";

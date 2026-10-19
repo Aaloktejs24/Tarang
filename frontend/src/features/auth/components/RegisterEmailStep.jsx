@@ -6,8 +6,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { validateEmail } from "../../../utils/validationUtils";
 
-import gazeteer from '../../../data/formated/gazeteer.json';
-const COUNTRY_CODES = gazeteer.Countries.map(c => ({ ...c, code: c.phoneCode, enName: c.name, label: c.phoneCode }));
+import gazetteer from '../../../data/formatted/gazetteer.json';
+const COUNTRY_CODES = gazetteer.Countries.map(c => ({ ...c, code: c.phoneCode, enName: c.name, label: c.phoneCode }));
 import TarangButton from "../../../components/common/TarangButton";
 import { FormLoadingProvider } from '../../../contexts/FormLoadingContext';
 

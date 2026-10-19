@@ -10,8 +10,8 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { CustomFloatingInput, CustomFloatingMinIOUpload } from '../../../components/common/CustomFloatingFields';
-import { CustomStreamingUpload } from '../../../components/common/CustomStreamingUpload';
+import { CustomFloatingInput, CustomFloatingMinIOUpload } from '../../../components/common/FloatingFields';
+import { CustomStreamingUpload } from '../../../components/common/StreamingUpload';
 import TarangButton from '../../../components/common/TarangButton';
 import { useProfile } from '../../../hooks/useProfile';
 import { useAccessibility } from '../../../contexts/AccessibilityContext';
@@ -25,7 +25,7 @@ import QuizOutlinedIcon from '@mui/icons-material/QuizOutlined';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { CustomAccordion, CustomAccordionSummary, CustomAccordionDetails } from '../../../components/common/CustomAccordion';
+import { CustomAccordion, CustomAccordionSummary, CustomAccordionDetails } from '../../../components/common/Accordion';
 
 const contentTypes = [
   { value: 'video', labelEn: 'Video Lecture', labelHi: 'वीडियो', icon: <OndemandVideoIcon fontSize="small" /> },

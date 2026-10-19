@@ -1,5 +1,5 @@
-import EventsGridPage from "../../features/events/EventsGridPage";
+import EventsPage from "../../features/events/EventsPage";
 
-export default function EventsPage() {
-  return <EventsGridPage />;
+export default function EventsRoute() {
+  return <EventsPage />;
 }

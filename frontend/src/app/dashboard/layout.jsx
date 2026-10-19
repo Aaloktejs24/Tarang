@@ -14,7 +14,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import InstituteSkeleton from "../../features/institute/InstituteSkeleton";
 import ExploreLoading from "./explore/loading";
 import FeedSkeleton from "../../features/feed/FeedSkeleton";
-import ProfileSkeleton from "../../features/profile/ProfileSkeleton";
+import UserProfileSkeleton from "../../features/profile/UserProfileSkeleton";
 import InstituteProfileSkeleton from "../../features/profile/InstituteProfileSkeleton";
 
 import { usePathname } from "next/navigation";

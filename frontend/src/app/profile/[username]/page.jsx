@@ -18,7 +18,7 @@ import FacebookIcon from "@mui/icons-material/Facebook";
 import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import BusinessCenterOutlinedIcon from "@mui/icons-material/BusinessCenterOutlined";
 import PublicProfileSkeleton from "../../../features/profile/PublicProfileSkeleton";
-import ProfileLayout from "../../../components/profile/ProfileLayout";
+import ProfileLayout from "../../../features/profile/components/ProfileLayout";
 import { useToast } from "../../../contexts/ToastContext";
 
 export default function PublicProfile() {

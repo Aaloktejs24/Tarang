@@ -6,11 +6,9 @@ import { usePathname } from 'next/navigation';
 import Link from "next/link";
 import "../../styles/navbar.css";
 import Sidebar from "../sidebar/Sidebar.jsx";
-import Qlinks from "../ui/Qlinks.jsx";
-import logo from "../../assets/logo.svg";
-import indiaFlag from "../../assets/Flag_of_India.svg";
-import gazeteer from "../../data/formated/gazeteer.json";
-import AccessibleBadges from "../ui/Notification.jsx";
+import QuickLinks from "../ui/QuickLinks.jsx";
+import gazetteer from "../../data/formatted/gazetteer.json";
+import NotificationBadge from "../ui/NotificationBadge.jsx";
 import { logoutUser } from "../../features/auth/authService";
 import LogoutIcon from "@mui/icons-material/Logout";
 import {
@@ -30,7 +28,7 @@ import { apiClient } from "../../lib/apiClient";
 import { getUserApplications } from "../../features/admission/admissionService";
 import { useAccessibility } from "../../contexts/AccessibilityContext";
 import { getNoNamePlaceholder, capitalizeFirstLetter } from "../../utils/stringUtils";
-import navTranslations from "../../data/landing_navbar.json";
+import navTranslations from "../../data/landingNavbar.json";
 
 // ---------------------------------------------------------------------------
 // Landing variant — center nav links + right login button
@@ -178,12 +176,12 @@ function DashboardContent({ onSidebarOpen, language }) {
   const country =
     locationParts.length > 1 ? locationParts[locationParts.length - 1] : "भारत";
 
-  const countryData = gazeteer.Countries.find(
+  const countryData = gazetteer.Countries.find(
     (c) =>
       c.name.toLowerCase() === country.toLowerCase() ||
       (country === "भारत" && c.code === "IN")
   );
-  const flagUrl = countryData ? countryData.flagUrl : indiaFlag.src;
+  const flagUrl = countryData?.flagUrl || gazetteer.Countries.find((c) => c.code === "IN")?.flagUrl || "https://flagcdn.com/in.svg";
 
   // School info block
   const schoolBlock = (() => {
@@ -502,11 +500,11 @@ function DashboardContent({ onSidebarOpen, language }) {
         </div>
 
         <div className="notification">
-          <AccessibleBadges count={notificationCount} />
+          <NotificationBadge count={notificationCount} />
         </div>
 
         <div>
-          <Qlinks />
+          <QuickLinks />
         </div>
       </div>
     </>
@@ -571,7 +569,7 @@ export default function Navbar({ variant = "dashboard", onLoginClick, title, onL
             onClick={() => (!isLanding && !isAdmin) && router.push("/dashboard/home")}
             style={{ cursor: (isLanding || isAdmin) ? "default" : "pointer", display: "flex", alignItems: "center", gap: "12px" }}
           >
-            <img src={logo.src} alt="Tarang" style={{ height: 'var(--box-height)' }} />
+            <img src="/logo.svg" alt="Tarang" style={{ height: 'var(--box-height)' }} />
             <span style={{ color: "var(--color-slate-900)", fontSize: "2rem", fontWeight: "var(--font-bold)" }}>
               Tarang
             </span>

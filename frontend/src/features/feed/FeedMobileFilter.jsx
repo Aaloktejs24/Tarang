@@ -5,7 +5,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import CloseIcon from '@mui/icons-material/Close';
 import { usePathname, useSearchParams } from "next/navigation";
 import { useAppRouter } from "../../hooks/useAppRouter";
-import CustomCheckbox from "../../components/common/CustomCheckbox";
+import CustomCheckbox from "../../components/common/Checkbox";
 
 const checkboxStyles = {
   color: "var(--color-slate-500)",

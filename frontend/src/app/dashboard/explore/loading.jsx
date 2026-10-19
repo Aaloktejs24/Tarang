@@ -4,7 +4,7 @@ import { Box, Container, TextField, InputAdornment } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ExploreListSkeleton from '../../../features/institute/ExploreListSkeleton';
 import { useAccessibility } from '../../../contexts/AccessibilityContext';
-import CentralDropdown from '../../../components/common/CentralDropdown';
+import CentralDropdown from '../../../components/common/SelectDropdown';
 import { useBreadcrumbs } from '../../../contexts/BreadcrumbContext';
 import { useAppRouter as useRouter } from '../../../hooks/useAppRouter';
 

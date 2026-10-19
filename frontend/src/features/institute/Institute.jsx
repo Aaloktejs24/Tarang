@@ -16,7 +16,7 @@ import EmptyState from '../../components/ui/EmptyState';
 import HubIcon from '@mui/icons-material/Hub';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
-import PremiumCard from '../../components/ui/PremiumCard';
+import PremiumCard from '../../components/ui/GlassCard';
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
 import PaymentOutlinedIcon from '@mui/icons-material/PaymentOutlined';
 import DirectionsBusOutlinedIcon from "@mui/icons-material/DirectionsBusOutlined";
@@ -31,7 +31,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { useSearchParams, usePathname } from 'next/navigation';
 
-import InstituteUpdateModal from "../profile/components/InstituteUpdateModal";
+import InstituteProfileUpdateModal from "../profile/components/InstituteProfileUpdateModal";
 
 import { useAppRouter as useRouter } from '../../hooks/useAppRouter';
 import { useProfile } from "../../hooks/useProfile";
@@ -39,7 +39,7 @@ import { useAccessibility } from '../../contexts/AccessibilityContext';
 
 import { DASHBOARD_PAGE_WRAPPER_SX, DASHBOARD_CONTAINER_SX } from '../../constants/layout';
 import { useTranslation } from "../../hooks/useTranslation";
-import UniversalHero from '../../components/hero/UniversalHero';
+import UniversalHero from '../../components/hero/HeroBanner';
 import { formatBreadcrumbName } from "../../utils/stringUtils";
 import { getHeroPropsFromProfile } from '../../utils/heroUtils';
 import { useBreadcrumbs } from "../../contexts/BreadcrumbContext";
@@ -571,7 +571,7 @@ export default function InstitutePage() {
       </Container>
 
       {isInstituteModalOpen && profile && (
-        <InstituteUpdateModal
+        <InstituteProfileUpdateModal
           profile={profile}
           onClose={() => setInstituteModalOpen(false)}
           onSuccess={refreshProfile}

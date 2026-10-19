@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import { CustomTooltip } from './CustomTooltip';
+import { CustomTooltip } from './Tooltip';
 
 export const FieldCommentTooltip = ({ comment }) => {
   if (!comment) return null;
