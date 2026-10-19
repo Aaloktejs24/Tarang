@@ -33,6 +33,8 @@ type Account struct {
 	PasswordHash    string     `db:"password_hash" json:"-"`
 	EmailVerifiedAt *time.Time `db:"email_verified_at" json:"email_verified_at,omitempty"`
 	PhoneVerifiedAt *time.Time `db:"phone_verified_at" json:"phone_verified_at,omitempty"`
+	TOTPSecret      *string    `db:"totp_secret" json:"-"`
+	MFAPreference   string     `db:"mfa_preference" json:"mfa_preference"`
 	Disabled        bool       `db:"disabled" json:"disabled"`
 	CreatedAt       time.Time  `db:"created_at" json:"created_at"`
 	UpdatedAt       time.Time  `db:"updated_at" json:"updated_at"`
@@ -43,6 +45,7 @@ type RegistrationSession struct {
 	Email         string    `db:"email" json:"email"`
 	Phone         *string   `db:"phone" json:"phone,omitempty"`
 	OTPHash       *string   `db:"otp_hash" json:"-"`
+	TOTPSecret    *string   `db:"totp_secret" json:"-"`
 	EmailVerified bool      `db:"email_verified" json:"email_verified"`
 	ExpiresAt     time.Time `db:"expires_at" json:"expires_at"`
 	CreatedAt     time.Time `db:"created_at" json:"created_at"`
@@ -59,7 +62,7 @@ type LoginSession struct {
 }
 
 type AdminToken struct {
-	ID        int       `db:"id" json:"id"`
+	ID        uuid.UUID `db:"id" json:"id"`
 	Token     string    `db:"token" json:"token"`
 	Role      string    `db:"role" json:"role"`
 	CreatedAt time.Time `db:"created_at" json:"created_at"`

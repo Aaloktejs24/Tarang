@@ -7,10 +7,16 @@ export const getToken = () => {
 
 export const setToken = (token) => {
   _accessToken = token;
+  if (typeof window !== "undefined") {
+    localStorage.setItem("is_logged_in", "true");
+  }
 };
 
 export const removeToken = () => {
   _accessToken = null;
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("is_logged_in");
+  }
 };
 
 export const getTempToken = () => {

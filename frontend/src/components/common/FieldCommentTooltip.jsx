@@ -14,9 +14,9 @@ export const FieldCommentTooltip = ({ comment }) => {
           position: 'absolute',
           top: '-10px',
           right: '10px',
-          bgcolor: '#ffc107',
-          color: '#000000',
-          borderRadius: '50%',
+          bgcolor: 'var(--color-warning)',
+          color: 'var(--color-slate-900)',
+          borderRadius: 'var(--radius-full)',
           width: '24px',
           height: '24px',
           display: 'flex',
@@ -24,10 +24,10 @@ export const FieldCommentTooltip = ({ comment }) => {
           justifyContent: 'center',
           
           cursor: 'help',
-          zIndex: 10
+          zIndex: 'var(--z-sticky)'
         }}
       >
-        <ChatBubbleOutlineIcon sx={{ fontSize: '14px' }} />
+        <ChatBubbleOutlineIcon sx={{ fontSize: 'var(--font-sm)' }} />
       </Box>
     </AmberTooltip>
   );

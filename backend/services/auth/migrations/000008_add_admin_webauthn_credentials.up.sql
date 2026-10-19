@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS admin_webauthn_credentials (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     role VARCHAR(50) NOT NULL, -- 'admin' or 'super_admin'
     identifier VARCHAR(255) NOT NULL, -- The user id / email
     credential_id BYTEA NOT NULL UNIQUE,

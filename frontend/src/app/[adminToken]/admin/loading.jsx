@@ -2,38 +2,61 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
-import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
 
 export default function AdminLoading() {
   return (
-    <Box sx={{ p: 4, width: '100%', bgcolor: '#f8fafc', minHeight: '100vh' }}>
-      {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
-        <Box>
-          <Skeleton variant="text" width={200} height={40} />
-          <Skeleton variant="text" width={300} height={20} />
+    <Box
+      sx={{
+        minHeight: 'var(--size-screen-h)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: `
+          radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.45) 0, transparent 50%), 
+          radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.3) 0, transparent 50%), 
+          radial-gradient(at 80% 90%, rgba(40, 167, 69, 0.2) 0, transparent 50%),
+          radial-gradient(at 20% 80%, rgba(0, 86, 179, 0.15) 0, transparent 50%),
+          #eef2f6
+        ` }}
+    >
+      <Paper
+        elevation={0}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          width: { xs: 'var(--size-screen-w)', sm: '500px' },
+          minHeight: { xs: 'var(--size-screen-h)', sm: 'auto' },
+          px: { xs: 3, sm: 6 },
+          py: { xs: 6, sm: 6 },
+          border: 'none',
+          bgcolor: 'var(--color-white)',
+          borderRadius: { sm: 'var(--radius-xl)' }
+        }}
+      >
+        {/* Header Skeleton */}
+        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Skeleton variant="circular" width={48} height={48} />
+            <Skeleton variant="text" width={100} height={40} />
+          </Box>
         </Box>
-        <Skeleton variant="rectangular" width={120} height={40} sx={{ borderRadius: 1 }} />
-      </Box>
 
-      {/* Stat Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {[1, 2, 3, 4].map((item) => (
-          <Grid key={item} size={{xs: 12, sm: 6, md: 3}}>
-            <Box sx={{ p: 3, bgcolor: '#fff', borderRadius: 2, border: '1px solid #e2e8f0' }}>
-              <Skeleton variant="circular" width={48} height={48} sx={{ mb: 2 }} />
-              <Skeleton variant="text" width="60%" height={24} />
-              <Skeleton variant="text" width="40%" height={32} sx={{ mt: 1 }} />
-            </Box>
-          </Grid>
-        ))}
-      </Grid>
+        {/* Form Fields Skeleton */}
+        <Box sx={{ mb: 3 }}>
+          <Skeleton variant="text" width={120} height={20} sx={{ mb: 1 }} />
+          <Skeleton variant="rectangular" width="100%" height={48} sx={{ borderRadius: 'var(--radius-md)' }} />
+        </Box>
 
-      {/* Main Table Area */}
-      <Box sx={{ p: 3, bgcolor: '#fff', borderRadius: 2, border: '1px solid #e2e8f0' }}>
-        <Skeleton variant="rectangular" width="100%" height={60} sx={{ mb: 2, borderRadius: 1 }} />
-        <Skeleton variant="rectangular" width="100%" height={400} sx={{ borderRadius: 1 }} />
-      </Box>
+        <Box sx={{ mb: 4 }}>
+          <Skeleton variant="text" width={80} height={20} sx={{ mb: 1 }} />
+          <Skeleton variant="rectangular" width="100%" height={48} sx={{ borderRadius: 'var(--radius-md)' }} />
+        </Box>
+
+        {/* Button Skeleton */}
+        <Skeleton variant="rectangular" width="100%" height={48} sx={{ borderRadius: 'var(--radius-md)', mt: 1 }} />
+      </Paper>
     </Box>
   );
 }

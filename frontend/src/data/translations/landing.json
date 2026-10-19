@@ -1221,38 +1221,6 @@
       "hi": "सहायता चाहिए? कृपया संपर्क फ़ॉर्म पूरा करें",
       "sa": "सहायतायाः आवश्यकता अस्ति ? कृपया The Contact Form पूर्ण करें"
     },
-    "form": {
-      "website": {
-        "en": "Website URL",
-        "hi": "वेबसाइट URL",
-        "sa": "वेबसाइट् URL"
-      },
-      "name": {
-        "en": "Your Name",
-        "hi": "आपका नाम",
-        "sa": "तव नाम"
-      },
-      "email": {
-        "en": "Email Address",
-        "hi": "ईमेल एड्रेस",
-        "sa": "ईमेल पता"
-      },
-      "phone": {
-        "en": "Phone Number",
-        "hi": "फ़ोन नंबर",
-        "sa": "फ़ोन नम्बर"
-      },
-      "message": {
-        "en": "Message",
-        "hi": "संदेश",
-        "sa": "सन्देशः"
-      },
-      "submit": {
-        "en": "Send Message",
-        "hi": "संदेश भेजें",
-        "sa": "सन्देशं प्रेषयतु"
-      }
-    },
     "info": {
       "office": {
         "en": "Office Address",

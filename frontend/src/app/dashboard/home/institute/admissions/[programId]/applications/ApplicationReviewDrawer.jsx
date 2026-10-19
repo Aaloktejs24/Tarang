@@ -1,7 +1,9 @@
 "use client";
 import React from 'react';
-import { Box, Typography, Button, Container, Paper, CircularProgress, Chip, Divider, Grid, TextField, Tooltip, IconButton, Checkbox, Popover, Snackbar, Alert } from '@mui/material';
-import { useParams, useRouter } from 'next/navigation';
+import { Box, Typography, Button, Container, Paper, CircularProgress, Chip, Divider, Grid, TextField, Tooltip, IconButton, Popover, Snackbar, Alert } from '@mui/material';
+import { useParams } from 'next/navigation';
+
+import { useAppRouter as useRouter } from '../../../../../../../hooks/useAppRouter';
 import { useProfile } from '../../../../../../../hooks/useProfile';
 import { useBreadcrumbs } from '../../../../../../../contexts/BreadcrumbContext';
 import { formatBreadcrumbName } from '../../../../../../../utils/stringUtils';
@@ -15,6 +17,7 @@ import AttachFileIcon from '@mui/icons-material/AttachFile';
 import CloseIcon from '@mui/icons-material/Close';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CustomFloatingInput } from '../../../../../../../components/common/CustomFloatingFields';
+import CustomCheckbox from '../../../../../../../components/common/CustomCheckbox';
 
 export default function ApplicationReviewDrawer({ open, onClose, programId, appId }) {
   const router = useRouter();
@@ -69,7 +72,7 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
     });
   };
 
-  const rawInstituteName = profile ? (profile.full_name || profile.institution_name || profile.username) : 'Institute';
+  const rawInstituteName = profile ? (profile.institution_name || profile.full_name || profile.username) : 'Institute';
   const breadcrumbInstituteName = formatBreadcrumbName(rawInstituteName);
 
   React.useEffect(() => {
@@ -294,18 +297,18 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
       <Grid {...colProps}>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}>
           <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography variant="caption" sx={{ color: '#64748b', display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{label}</Typography>
-            <Typography variant="body2" sx={{ fontWeight: 600, color: '#0f172a', wordBreak: 'break-word' }}>{value}</Typography>
+            <Typography variant="caption" sx={{ color: 'var(--color-slate-500)', display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{label}</Typography>
+            <Typography variant="body2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-900)', wordBreak: 'break-word' }}>{value}</Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
             <Tooltip title="View Proof">
               <IconButton size="small" sx={{ p: 0.5 }}>
-                <AttachFileIcon sx={{ fontSize: 16, color: '#94a3b8' }} />
+                <AttachFileIcon sx={{ fontSize: 16, color: 'var(--color-slate-500)' }} />
               </IconButton>
             </Tooltip>
             {isSelectionMode && (
-              <Checkbox 
-                size="small" 
+              <CustomCheckbox 
+                size={16} 
                 sx={{ p: 0.5 }} 
                 checked={!!selectedFields[id]}
                 onChange={() => handleToggleField(id)}
@@ -328,15 +331,14 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
           sx={{
             position: "fixed",
             inset: 0,
-            zIndex: 1200,
+            zIndex: 'var(--z-fixed)',
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             backgroundColor: "rgba(0, 86, 179, 0.1)",
             backdropFilter: "blur(15px)",
             p: { xs: 0, sm: 2 },
-            overflow: "auto",
-          }}
+            overflow: "auto" }}
         >
           <Paper
             onClick={(e) => e.stopPropagation()}
@@ -349,8 +351,8 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
             sx={{
               display: "flex",
               flexDirection: "column",
-              width: { xs: "100%", sm: "1000px" },
-              minHeight: { xs: "100%", sm: "auto" },
+              width: { xs: "var(--size-full)", sm: "1000px" },
+              minHeight: { xs: "var(--size-full)", sm: "auto" },
               borderRadius: { xs: 0, sm: "28px" },
               background: `
                 radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.18) 0, transparent 50%), 
@@ -359,8 +361,7 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
                 radial-gradient(at 20% 100%, rgba(0, 86, 179, 0.1) 0, transparent 50%),
                 #ffffff
               `,
-              border: '1px solid rgba(255, 255, 255, 0.8)',
-              boxShadow: "0 10px 40px rgba(0,0,0,0.1)",
+              border: 'var(--border-thin) solid rgba(255, 255, 255, 0.8)',
               overflowY: "hidden",
               maxHeight: "92vh",
               position: "relative"
@@ -377,13 +378,13 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
               </Box>
             ) : (
               <>
-                <Box sx={{ pt: { xs: 5, sm: 6 }, px: { xs: 3, sm: 8 }, pb: 2, borderBottom: '1px solid rgba(226, 232, 240, 0.6)' }}>
+                <Box sx={{ pt: { xs: 5, sm: 6 }, px: { xs: 3, sm: 8 }, pb: 2, borderBottom: 'var(--border-thin) solid rgba(226, 232, 240, 0.6)' }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <Box>
-                      <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a', mb: 1 }}>
+                      <Typography variant="h5" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', mb: 1 }}>
                         Review Submission
                       </Typography>
-                      <Typography variant="body1" sx={{ color: '#475569' }}>
+                      <Typography variant="body1" sx={{ color: 'var(--color-slate-500)' }}>
                         Applicant: <strong>{application.user_id}</strong>
                       </Typography>
                     </Box>
@@ -392,7 +393,7 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
 
                 <Box sx={{ flex: 1, overflowY: 'auto', px: { xs: 3, sm: 8 }, pt: 2, pb: 2 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#1e293b' }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)' }}>
                       Current Step: {stageName}
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -403,7 +404,7 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
                             color="primary"
                             size="small"
                             onClick={(e) => setCommentAnchorEl(e.currentTarget)}
-                            sx={{ textTransform: 'none', borderRadius: '8px', height: '36px', boxShadow: 'none' }}
+                            sx={{ textTransform: 'none', height: '36px', }}
                           >
                             Comment
                           </Button>
@@ -413,18 +414,16 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
                             onClose={() => setCommentAnchorEl(null)}
                             anchorOrigin={{
                               vertical: 'bottom',
-                              horizontal: 'right',
-                            }}
+                              horizontal: 'right' }}
                             transformOrigin={{
                               vertical: 'top',
-                              horizontal: 'right',
-                            }}
+                              horizontal: 'right' }}
                             PaperProps={{
-                              sx: { width: 300, maxHeight: 400, mt: 1, borderRadius: '12px', display: 'flex', flexDirection: 'column' }
+                              sx: { width: 300, maxHeight: 400, mt: 1, borderRadius: 'var(--radius-lg)', display: 'flex', flexDirection: 'column' }
                             }}
                           >
-                            <Box sx={{ p: 2, pb: 1.5, borderBottom: '1px solid #e2e8f0', flexShrink: 0 }}>
-                              <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>Comments</Typography>
+                            <Box sx={{ p: 2, pb: 1.5, borderBottom: 'var(--border-thin) solid #e2e8f0', flexShrink: 0 }}>
+                              <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-bold)' }}>Comments</Typography>
                             </Box>
                             <Box sx={{ p: 2, overflowY: 'auto', flex: 1 }}>
                               {Object.keys(selectedFields).filter(id => selectedFields[id]).length === 0 ? (
@@ -464,7 +463,7 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
                         variant="outlined" 
                         size="small" 
                         onClick={() => setIsSelectionMode(!isSelectionMode)}
-                        sx={{ textTransform: 'none', borderRadius: '8px', height: '36px' }}
+                        sx={{ textTransform: 'none', height: '36px' }}
                       >
                         {isSelectionMode ? 'Cancel Selection' : 'Select Fields'}
                       </Button>
@@ -472,14 +471,14 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
                   </Box>
 
           {submittedData.basic_details && (
-            <Box sx={{ bgcolor: 'rgba(255,255,255,0.5)', p: 3, borderRadius: '12px', border: '1px solid #e2e8f0', mb: 3, maxHeight: '55vh', overflowY: 'auto' }}>
+            <Box sx={{ bgcolor: 'rgba(255,255,255,0.5)', p: 3, borderRadius: 'var(--radius-lg)', border: 'var(--border-thin) solid #e2e8f0', mb: 3, maxHeight: '55vh', overflowY: 'auto' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#475569' }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-500)' }}>
                   Applicant Basic Details
                 </Typography>
                 {isSelectionMode && (
-                  <Checkbox 
-                    size="small" 
+                  <CustomCheckbox 
+                    size={16} 
                     sx={{ p: 0.5 }} 
                     checked={isGroupSelected(groups.basicDetailsAll)}
                     indeterminate={isGroupIndeterminate(groups.basicDetailsAll)}
@@ -489,10 +488,11 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
               </Box>
               {/* Personal Information */}
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5, mt: 1 }}>
-                <Typography variant="body2" sx={{ fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '0.75rem' }}>Personal Information</Typography>
-                {isSelectionMode && (
-                  <Checkbox size="small" sx={{ p: 0.5 }} checked={isGroupSelected(groups.personal)} indeterminate={isGroupIndeterminate(groups.personal)} onChange={(e) => handleToggleGroup(groups.personal, e.target.checked)} />
-                )}
+                <Typography variant="body2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-700)', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: 'var(--font-xs)' }}>Personal Information</Typography>
+                {isSelectionMode && (                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <CustomCheckbox size={16} sx={{ p: 0.5 }} checked={isGroupSelected(groups.personal)} indeterminate={isGroupIndeterminate(groups.personal)} onChange={(e) => handleToggleGroup(groups.personal, e.target.checked)} />
+                  <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)' }}>व्यक्तिगत जानकारी (Personal Information)</Typography>
+                </Box>)}
               </Box>
               <Grid container spacing={2} sx={{ mb: 3 }}>
                 {[
@@ -515,18 +515,20 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
 
               {/* Parents & Guardian Details */}
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                <Typography variant="body2" sx={{ fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '0.75rem' }}>Parents & Guardian Details</Typography>
-                {isSelectionMode && (
-                  <Checkbox size="small" sx={{ p: 0.5 }} checked={isGroupSelected(groups.parents)} indeterminate={isGroupIndeterminate(groups.parents)} onChange={(e) => handleToggleGroup(groups.parents, e.target.checked)} />
-                )}
+                <Typography variant="body2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-700)', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: 'var(--font-xs)' }}>Parents & Guardian Details</Typography>
+                {isSelectionMode && (                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <CustomCheckbox size={16} sx={{ p: 0.5 }} checked={isGroupSelected(groups.parents)} indeterminate={isGroupIndeterminate(groups.parents)} onChange={(e) => handleToggleGroup(groups.parents, e.target.checked)} />
+                  <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)' }}>अभिभावक/माता-पिता का विवरण (Parents/Guardian Details)</Typography>
+                </Box>)}
               </Box>
               
               <Box sx={{ mb: 2 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed #e2e8f0', pb: 0.5, mb: 1 }}>
-                  <Typography variant="caption" sx={{ fontWeight: 600, color: '#1e293b', display: 'block' }}>Father&apos;s Details</Typography>
-                  {isSelectionMode && (
-                    <Checkbox size="small" sx={{ p: 0.5 }} checked={isGroupSelected(groups.father)} indeterminate={isGroupIndeterminate(groups.father)} onChange={(e) => handleToggleGroup(groups.father, e.target.checked)} />
-                  )}
+                  <Typography variant="caption" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-900)', display: 'block' }}>Father&apos;s Details</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                    <CustomCheckbox size={16} sx={{ p: 0.5 }} checked={isGroupSelected(groups.father)} indeterminate={isGroupIndeterminate(groups.father)} onChange={(e) => handleToggleGroup(groups.father, e.target.checked)} />
+                    <Typography variant="body2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)' }}>पिता (Father)</Typography>
+                  </Box>
                 </Box>
                 <Grid container spacing={2}>
                   {[
@@ -541,10 +543,11 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
 
               <Box sx={{ mb: 2 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed #e2e8f0', pb: 0.5, mb: 1 }}>
-                  <Typography variant="caption" sx={{ fontWeight: 600, color: '#1e293b', display: 'block' }}>Mother&apos;s Details</Typography>
-                  {isSelectionMode && (
-                    <Checkbox size="small" sx={{ p: 0.5 }} checked={isGroupSelected(groups.mother)} indeterminate={isGroupIndeterminate(groups.mother)} onChange={(e) => handleToggleGroup(groups.mother, e.target.checked)} />
-                  )}
+                  <Typography variant="caption" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-900)', display: 'block' }}>Mother&apos;s Details</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                    <CustomCheckbox size={16} sx={{ p: 0.5 }} checked={isGroupSelected(groups.mother)} indeterminate={isGroupIndeterminate(groups.mother)} onChange={(e) => handleToggleGroup(groups.mother, e.target.checked)} />
+                    <Typography variant="body2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)' }}>माता (Mother)</Typography>
+                  </Box>
                 </Box>
                 <Grid container spacing={2}>
                   {[
@@ -560,10 +563,11 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
               {submittedData.basic_details.guardianName && (
                 <Box sx={{ mb: 3 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed #e2e8f0', pb: 0.5, mb: 1 }}>
-                    <Typography variant="caption" sx={{ fontWeight: 600, color: '#1e293b', display: 'block' }}>Guardian&apos;s Details</Typography>
-                    {isSelectionMode && (
-                      <Checkbox size="small" sx={{ p: 0.5 }} checked={isGroupSelected(groups.guardian)} indeterminate={isGroupIndeterminate(groups.guardian)} onChange={(e) => handleToggleGroup(groups.guardian, e.target.checked)} />
-                    )}
+                    <Typography variant="caption" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-900)', display: 'block' }}>Guardian&apos;s Details</Typography>
+                    {isSelectionMode && (                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                      <CustomCheckbox size={16} sx={{ p: 0.5 }} checked={isGroupSelected(groups.guardian)} indeterminate={isGroupIndeterminate(groups.guardian)} onChange={(e) => handleToggleGroup(groups.guardian, e.target.checked)} />
+                      <Typography variant="body2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)' }}>स्थानीय अभिभावक (Local Guardian)</Typography>
+                    </Box>)}
                   </Box>
                   <Grid container spacing={2}>
                     {[
@@ -581,10 +585,11 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
 
               {/* Other Info & Addresses */}
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                <Typography variant="body2" sx={{ fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '0.75rem' }}>Other Info & Addresses</Typography>
-                {isSelectionMode && (
-                  <Checkbox size="small" sx={{ p: 0.5 }} checked={isGroupSelected(groups.otherInfo)} indeterminate={isGroupIndeterminate(groups.otherInfo)} onChange={(e) => handleToggleGroup(groups.otherInfo, e.target.checked)} />
-                )}
+                <Typography variant="body2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-700)', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: 'var(--font-xs)' }}>Other Info & Addresses</Typography>
+                {isSelectionMode && (                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <CustomCheckbox size={16} sx={{ p: 0.5 }} checked={isGroupSelected(groups.otherInfo)} indeterminate={isGroupIndeterminate(groups.otherInfo)} onChange={(e) => handleToggleGroup(groups.otherInfo, e.target.checked)} />
+                  <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)' }}>अन्य जानकारी (Other Information)</Typography>
+                </Box>)}
               </Box>
               <Grid container spacing={2} sx={{ mb: 2 }}>
                 {[
@@ -612,27 +617,28 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
                 <>
                   <Divider sx={{ mb: 2, mt: 2, borderColor: 'rgba(226, 232, 240, 0.6)' }} />
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '0.75rem' }}>Academic Records</Typography>
-                    {isSelectionMode && (
-                      <Checkbox size="small" sx={{ p: 0.5 }} checked={isGroupSelected(groups.academic)} indeterminate={isGroupIndeterminate(groups.academic)} onChange={(e) => handleToggleGroup(groups.academic, e.target.checked)} />
-                    )}
+                    <Typography variant="body2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-700)', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: 'var(--font-xs)' }}>Academic Records</Typography>
+                    {isSelectionMode && (                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                      <CustomCheckbox size={16} sx={{ p: 0.5 }} checked={isGroupSelected(groups.academic)} indeterminate={isGroupIndeterminate(groups.academic)} onChange={(e) => handleToggleGroup(groups.academic, e.target.checked)} />
+                      <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)' }}>शैक्षणिक रिकॉर्ड (Academic Records)</Typography>
+                    </Box>)}
                   </Box>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 2 }}>
                     {submittedData.basic_details.academicRecords.map((rec, idx) => (
-                      <Box key={idx} sx={{ p: 2, bgcolor: 'rgba(255,255,255,0.7)', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Box key={idx} sx={{ p: 2, bgcolor: 'rgba(255,255,255,0.7)', border: 'var(--border-thin) solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Box>
-                          <Typography variant="body2" sx={{ fontWeight: 700, color: '#0f172a' }}>{rec.qualification || 'N/A'}</Typography>
-                          <Typography variant="caption" sx={{ color: '#475569' }}>
+                          <Typography variant="body2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)' }}>{rec.qualification || 'N/A'}</Typography>
+                          <Typography variant="caption" sx={{ color: 'var(--color-slate-500)' }}>
                             Passing Year: {rec.passingYear || 'N/A'} | Percentage/CGPA: {rec.percentageCgpa || 'N/A'}
                           </Typography>
                         </Box>
                         <Box sx={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                           <Tooltip title="View Proof">
                             <IconButton size="small" sx={{ p: 0.5 }}>
-                              <AttachFileIcon sx={{ fontSize: 16, color: '#94a3b8' }} />
+                              <AttachFileIcon sx={{ fontSize: 16, color: 'var(--color-slate-500)' }} />
                             </IconButton>
                           </Tooltip>
-                          {isSelectionMode && <Checkbox size="small" sx={{ p: 0.5 }} checked={!!selectedFields[`academic_${idx}`]} onChange={() => handleToggleField(`academic_${idx}`)} />}
+                          {isSelectionMode && <CustomCheckbox size={16} sx={{ p: 0.5 }} checked={!!selectedFields[`academic_${idx}`]} onChange={() => handleToggleField(`academic_${idx}`)} />}
                         </Box>
                       </Box>
                     ))}
@@ -644,27 +650,28 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
                 <>
                   <Divider sx={{ mb: 2, mt: 2, borderColor: 'rgba(226, 232, 240, 0.6)' }} />
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '0.75rem' }}>Siblings Details</Typography>
-                    {isSelectionMode && (
-                      <Checkbox size="small" sx={{ p: 0.5 }} checked={isGroupSelected(groups.siblings)} indeterminate={isGroupIndeterminate(groups.siblings)} onChange={(e) => handleToggleGroup(groups.siblings, e.target.checked)} />
-                    )}
+                    <Typography variant="body2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-700)', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: 'var(--font-xs)' }}>Siblings Details</Typography>
+                    {isSelectionMode && (                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                      <CustomCheckbox size={16} sx={{ p: 0.5 }} checked={isGroupSelected(groups.siblings)} indeterminate={isGroupIndeterminate(groups.siblings)} onChange={(e) => handleToggleGroup(groups.siblings, e.target.checked)} />
+                      <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)' }}>भाई-बहन का विवरण (Siblings Details)</Typography>
+                    </Box>)}
                   </Box>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 2 }}>
                     {submittedData.basic_details.siblings.map((sib, idx) => (
-                      <Box key={idx} sx={{ p: 2, bgcolor: 'rgba(255,255,255,0.7)', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Box key={idx} sx={{ p: 2, bgcolor: 'rgba(255,255,255,0.7)', border: 'var(--border-thin) solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Box>
-                          <Typography variant="body2" sx={{ fontWeight: 700, color: '#0f172a' }}>{sib.name} ({sib.relation})</Typography>
-                          <Typography variant="caption" sx={{ color: '#475569' }}>
+                          <Typography variant="body2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)' }}>{sib.name} ({sib.relation})</Typography>
+                          <Typography variant="caption" sx={{ color: 'var(--color-slate-500)' }}>
                             Age: {sib.age} | Institute: {sib.institute || 'N/A'} | Income: {sib.income || 'N/A'}
                           </Typography>
                         </Box>
                         <Box sx={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                           <Tooltip title="View Proof">
                             <IconButton size="small" sx={{ p: 0.5 }}>
-                              <AttachFileIcon sx={{ fontSize: 16, color: '#94a3b8' }} />
+                              <AttachFileIcon sx={{ fontSize: 16, color: 'var(--color-slate-500)' }} />
                             </IconButton>
                           </Tooltip>
-                          {isSelectionMode && <Checkbox size="small" sx={{ p: 0.5 }} checked={!!selectedFields[`sibling_${idx}`]} onChange={() => handleToggleField(`sibling_${idx}`)} />}
+                          {isSelectionMode && <CustomCheckbox size={16} sx={{ p: 0.5 }} checked={!!selectedFields[`sibling_${idx}`]} onChange={() => handleToggleField(`sibling_${idx}`)} />}
                         </Box>
                       </Box>
                     ))}
@@ -676,27 +683,28 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
                 <>
                   <Divider sx={{ mb: 2, mt: 2, borderColor: 'rgba(226, 232, 240, 0.6)' }} />
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '0.75rem' }}>Criminal Records</Typography>
-                    {isSelectionMode && (
-                      <Checkbox size="small" sx={{ p: 0.5 }} checked={isGroupSelected(groups.criminal)} indeterminate={isGroupIndeterminate(groups.criminal)} onChange={(e) => handleToggleGroup(groups.criminal, e.target.checked)} />
-                    )}
+                    <Typography variant="body2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-700)', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: 'var(--font-xs)' }}>Criminal Records</Typography>
+                    {isSelectionMode && (                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                      <CustomCheckbox size={16} sx={{ p: 0.5 }} checked={isGroupSelected(groups.criminal)} indeterminate={isGroupIndeterminate(groups.criminal)} onChange={(e) => handleToggleGroup(groups.criminal, e.target.checked)} />
+                      <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)' }}>आपराधिक रिकॉर्ड (Criminal Records)</Typography>
+                    </Box>)}
                   </Box>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 2 }}>
                     {submittedData.basic_details.criminalRecords.map((rec, idx) => (
-                      <Box key={idx} sx={{ p: 2, bgcolor: 'rgba(255,255,255,0.7)', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Box key={idx} sx={{ p: 2, bgcolor: 'rgba(255,255,255,0.7)', border: 'var(--border-thin) solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Box>
-                          <Typography variant="body2" sx={{ fontWeight: 700, color: '#0f172a' }}>{rec.offenseType || 'N/A'}</Typography>
-                          <Typography variant="caption" sx={{ color: '#475569' }}>
+                          <Typography variant="body2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)' }}>{rec.offenseType || 'N/A'}</Typography>
+                          <Typography variant="caption" sx={{ color: 'var(--color-slate-500)' }}>
                             Status: {rec.status || 'N/A'} | Year: {rec.year || 'N/A'}
                           </Typography>
                         </Box>
                         <Box sx={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                           <Tooltip title="View Proof">
                             <IconButton size="small" sx={{ p: 0.5 }}>
-                              <AttachFileIcon sx={{ fontSize: 16, color: '#94a3b8' }} />
+                              <AttachFileIcon sx={{ fontSize: 16, color: 'var(--color-slate-500)' }} />
                             </IconButton>
                           </Tooltip>
-                          {isSelectionMode && <Checkbox size="small" sx={{ p: 0.5 }} checked={!!selectedFields[`criminal_${idx}`]} onChange={() => handleToggleField(`criminal_${idx}`)} />}
+                          {isSelectionMode && <CustomCheckbox size={16} sx={{ p: 0.5 }} checked={!!selectedFields[`criminal_${idx}`]} onChange={() => handleToggleField(`criminal_${idx}`)} />}
                         </Box>
                       </Box>
                     ))}
@@ -707,13 +715,13 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
           )}
           </Box>
 
-          <Box sx={{ borderTop: '1px solid rgba(226, 232, 240, 0.6)', px: { xs: 3, sm: 8 }, pt: 2, pb: { xs: 4, sm: 6 } }}>
+          <Box sx={{ borderTop: 'var(--border-thin) solid rgba(226, 232, 240, 0.6)', px: { xs: 3, sm: 8 }, pt: 2, pb: { xs: 4, sm: 6 } }}>
                 <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between', alignItems: 'center' }}>
                   <Button
                 variant="outlined"
                 color="inherit"
                 onClick={onClose}
-                sx={{ textTransform: 'none', fontWeight: 600, color: '#475569', borderColor: '#cbd5e1' }}
+                sx={{ textTransform: 'none', fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-500)', borderColor: 'var(--color-slate-200)' }}
               >
                 Cancel
               </Button>
@@ -725,7 +733,7 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
                     color="error"
                     onClick={handleDecline}
                     disabled={processing}
-                    sx={{ textTransform: 'none', fontWeight: 600 }}
+                    sx={{ textTransform: 'none', fontWeight: 'var(--font-semibold)' }}
                   >
                     Decline
                   </Button>
@@ -735,7 +743,7 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
                     size="large"
                     onClick={handleApprove}
                     disabled={processing}
-                    sx={{ borderRadius: '8px', textTransform: 'none', fontWeight: 600, px: 4, boxShadow: 'none' }}
+                    sx={{ textTransform: 'none', fontWeight: 'var(--font-semibold)', px: 4, }}
                   >
                     Approve
                   </Button>
@@ -743,13 +751,29 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
               )}
               {isSelectionMode && (
                 <Box sx={{ display: 'flex', gap: 2 }}>
+                  <CustomCheckbox 
+                    size={16}
+                    checked={isAllSelected}
+                    indeterminate={isAnySelected && !isAllSelected}
+                    onChange={(e) => {
+                      const allFieldIds = [
+                        ...groups.personal, ...groups.parents, ...groups.father, ...groups.mother, ...groups.guardian, ...groups.otherInfo,
+                        ...application.academic_records.map((_, i) => `academic_${i}`),
+                        ...application.siblings.map((_, i) => `sibling_${i}`),
+                        ...application.criminal_records.map((_, i) => `criminal_${i}`),
+                        ...application.document_submissions.map(d => `doc_${d.id}`)
+                      ];
+                      handleToggleGroup(allFieldIds, e.target.checked);
+                    }}
+                    sx={{ p: 0 }}
+                  />
                   <Button
                     variant="contained"
                     color="warning"
                     size="large"
                     onClick={handleRequestUpdate}
                     disabled={processing || Object.keys(selectedFields).filter(id => selectedFields[id]).length === 0 || !Object.keys(selectedFields).some(id => selectedFields[id] && fieldComments[id]?.trim())}
-                    sx={{ borderRadius: '8px', textTransform: 'none', fontWeight: 600, px: 4, boxShadow: 'none' }}
+                    sx={{ textTransform: 'none', fontWeight: 'var(--font-semibold)', px: 4, }}
                   >
                     Request Update
                   </Button>
@@ -763,7 +787,7 @@ export default function ApplicationReviewDrawer({ open, onClose, programId, appI
       </Box>
       )}
       <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: 'var(--size-full)' }}>
           {snackbar.message}
         </Alert>
       </Snackbar>

@@ -52,7 +52,7 @@ func SendMSG91(phone, otp string) error {
 	if err != nil {
 		return fmt.Errorf("MSG91 API request failed: %w", err)
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 
 	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
 		bodyBytes, _ := io.ReadAll(res.Body)

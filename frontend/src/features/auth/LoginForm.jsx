@@ -1,16 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Box, Paper, Typography, Button, IconButton } from "@mui/material";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { useAppRouter } from '../../hooks/useAppRouter';
+import { Box, Paper, Typography, Button, IconButton, CircularProgress, Snackbar, Alert } from "@mui/material";
+import { createTheme, ThemeProvider, useTheme } from "@mui/material/styles";
 import { motion, AnimatePresence } from "framer-motion";
-
-const theme = createTheme({
-  typography: {
-    fontFamily: "'Rozha One', serif",
-  },
-});
+import BackdropBlur from "../../components/common/BackdropBlur";
+import { cleanupLegacyAuthStorage } from "../../utils/storageUtils";
 import {
   loginUser,
   onRegisterStart,
@@ -23,7 +19,7 @@ import {
   resetPassword,
   resendOtp
 } from "./authService";
-import { translateError } from "./utils/authErrors";
+import { translateAuthError, AUTH_ERRORS } from "../../constants/errors";
 import {
   setAuthFlowInProgress,
   setToken,
@@ -43,12 +39,20 @@ import ForgotStep1 from "./components/ForgotStep1";
 import ForgotStep2 from "./components/ForgotStep2";
 import ForgotStep3 from "./components/ForgotStep3";
 import CloseIcon from '@mui/icons-material/Close';
-import Loader from "../../components/common/Loader";
 import { AuthContext } from "../../contexts/AuthContext";
 import { getMaskedEmail } from "../../utils/maskUtils";
 
 export default function LoginForm({ onClose }) {
-  const router = useRouter();
+  const router = useAppRouter();
+  const globalTheme = useTheme();
+
+  const mergedTheme = React.useMemo(() => createTheme({
+    ...globalTheme,
+    typography: {
+      ...globalTheme.typography,
+    },
+  }), [globalTheme]);
+
   const { checkAuth } = React.useContext(AuthContext);
 
   const [mode, setMode] = useState("login");
@@ -76,90 +80,28 @@ export default function LoginForm({ onClose }) {
     setFormData((prev) => ({ ...prev, ...newData }));
   };
 
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  // Restore state from sessionStorage on mount
-  React.useEffect(() => {
-    if (isHydrated) return;
-
-    const storedMode = sessionStorage.getItem("auth_mode");
-    const storedStep = sessionStorage.getItem("auth_step");
-    const storedData = sessionStorage.getItem("auth_formData");
-    const storedMasked = sessionStorage.getItem("auth_maskedEmail");
-
-    if (storedMode === "register") {
-      cleanupAuthContext();
-      setMode("login");
-      setStep(1);
-    } else {
-      if (storedMode) setMode(storedMode);
-      if (storedStep) setStep(parseInt(storedStep, 10));
-      if (storedMasked) setMaskedEmail(getMaskedEmail(storedMasked));
-
-      if (storedData) {
-        try {
-          const parsed = JSON.parse(storedData);
-          setFormData(prev => ({ ...prev, ...parsed }));
-        } catch (e) {
-          console.error("Failed to parse stored auth data", e);
-        }
-      }
-    }
-
-    setIsHydrated(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const cleanupAuthContext = () => {
-    sessionStorage.removeItem("auth_mode");
-    sessionStorage.removeItem("auth_step");
-    sessionStorage.removeItem("auth_formData");
-    sessionStorage.removeItem("auth_maskedEmail");
     setAuthFlowInProgress(false);
   };
 
-  // Persist state to sessionStorage on changes
+  const [lastTarget, setLastTarget] = useState("");
+  const [lastPurpose, setLastPurpose] = useState("");
+
+  // Clean up any legacy orphaned storage keys to keep the user's browser clean
   React.useEffect(() => {
-    if (!isHydrated) return;
-
-    sessionStorage.setItem("auth_mode", mode);
-    sessionStorage.setItem("auth_step", step.toString());
-     
-    const { password, confirmPassword, ...filteredData } = formData;
-    sessionStorage.setItem("auth_formData", JSON.stringify(filteredData));
-    if (maskedEmail) {
-      sessionStorage.setItem("auth_maskedEmail", maskedEmail);
-    } else {
-      sessionStorage.removeItem("auth_maskedEmail");
-    }
-
-    // If we transition back to step 1 of login, clear the flow flag
-    if (mode === "login" && step === 1) {
-      setAuthFlowInProgress(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, step, formData, maskedEmail]);
-
-  // Effect to manage OTP resend cooldown and restore masked email
-  React.useEffect(() => {
-    const checkCooldown = () => {
-      const lastOtpTime = localStorage.getItem("lastOtpTime");
-
-      if (lastOtpTime) {
-        const elapsed = Math.floor((Date.now() - parseInt(lastOtpTime)) / 1000);
-        if (elapsed < 30) {
-          setResendTimer(30 - elapsed);
-        } else {
-          setResendTimer(0);
-          localStorage.removeItem("lastOtpTime");
-        }
-      }
-    };
-
-    checkCooldown();
-    const interval = setInterval(checkCooldown, 1000);
-    return () => clearInterval(interval);
+    cleanupLegacyAuthStorage();
   }, []);
+
+  // Countdown timer for OTP resend
+  React.useEffect(() => {
+    let interval;
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [resendTimer]);
 
   // Effect to clear alerts when step changes
   // Effect to clear alerts when step changes
@@ -168,7 +110,7 @@ export default function LoginForm({ onClose }) {
     if (step === 1) {
       setSuccess("");
     }
-   
+
   }, [step]);
 
   // Handle mode transitions and aggressive cleanup ONLY on fresh starts
@@ -211,12 +153,10 @@ export default function LoginForm({ onClose }) {
   }, [mode, step]);
 
   const triggerOtpCooldown = (target, purpose, masked) => {
-    localStorage.setItem("lastOtpTime", Date.now().toString());
-    if (target) localStorage.setItem("lastOtpTarget", target);
-    if (purpose) localStorage.setItem("lastOtpPurpose", purpose);
+    if (target) setLastTarget(target);
+    if (purpose) setLastPurpose(purpose);
     if (masked) {
       const properlyMasked = getMaskedEmail(masked);
-      localStorage.setItem("lastMaskedEmail", properlyMasked);
       setMaskedEmail(properlyMasked);
     }
     setResendTimer(30);
@@ -246,8 +186,6 @@ export default function LoginForm({ onClose }) {
   };
 
   const handleFinalLogin = async (identifier, password) => {
-    const lastTarget = localStorage.getItem("lastOtpTarget");
-    const lastPurpose = localStorage.getItem("lastPurpose");
     const sessionId = formData.sessionId;
 
     if (resendTimer > 0 && lastTarget === identifier && lastPurpose === "login" && sessionId) {
@@ -275,14 +213,14 @@ export default function LoginForm({ onClose }) {
       if (data.requires_setup) {
         // Bypass mandatory setup - go to dashboard if token exists
         if (data.access_token) {
-           persistRememberMe(identifier);
-           router.push("/dashboard/home/institute");
-           return;
+          persistRememberMe(identifier);
+          router.push("/dashboard/home/institute");
+          return;
         }
         // If no full token, the backend might still return requires_setup but we handle it as success
         // since we enabled 2FA setup bypass.
         if (data.session_id && !data.access_token) {
-            // This case shouldn't happen with our backend changes to requiresSetup = false
+          // This case shouldn't happen with our backend changes to requiresSetup = false
         }
       }
 
@@ -293,7 +231,7 @@ export default function LoginForm({ onClose }) {
         router.push("/dashboard/home/institute");
       }
     } catch (err) {
-      setError(translateError(err.response?.data?.error || err.message || "लॉगिन विफल रहा"));
+      setError(translateAuthError(err.response?.data?.error || err.message || AUTH_ERRORS.GENERIC.LOGIN_FAILED));
     } finally {
       setIsLoading(false);
     }
@@ -319,16 +257,13 @@ export default function LoginForm({ onClose }) {
         router.push("/dashboard/home/institute");
       }
     } catch (err) {
-      setError(translateError(err.response?.data?.error || err.message || String(err)));
+      setError(translateAuthError(err.response?.data?.error || err.message || String(err)));
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleRegisterStart = async (email, phone) => {
-    const lastTarget = localStorage.getItem("lastOtpTarget");
-    const lastPurpose = localStorage.getItem("lastOtpPurpose");
-
     if (resendTimer > 0 && lastTarget === email && lastPurpose === "register" && formData.sessionId) {
       setStep(2);
       setSuccess("OTP सफलतापूर्वक भेजा गया!");
@@ -352,7 +287,7 @@ export default function LoginForm({ onClose }) {
     } catch (err) {
       console.error("Registration start failed:", err);
       const backendError = err.response?.data?.error || err.message;
-      setError(translateError(backendError || "OTP भेजने में विफल"));
+      setError(translateAuthError(backendError || AUTH_ERRORS.GENERIC.OTP_SEND_FAILED));
     } finally {
       setIsLoading(false);
     }
@@ -363,16 +298,23 @@ export default function LoginForm({ onClose }) {
     setError("");
     try {
       if (!formData.sessionId) throw new Error("No session found");
-      await verifyRegistrationEmailOtp(formData.sessionId, formData.otp);
-      setStep(3); // Go to final details step
+
+      // If email OTP was already verified in a previous attempt, skip to final register
+      if (!formData.isEmailVerified) {
+        await verifyRegistrationEmailOtp(formData.sessionId, formData.otp);
+        updateFormData({ isEmailVerified: true });
+      }
+
+      // Immediately finalize registration with collected details
+      await handleFinalRegister();
     } catch (err) {
       const errMsg = err.response?.data?.error || "अमान्य या समाप्त OTP";
       if (errMsg.toLowerCase().includes("session expired") || errMsg.toLowerCase().includes("session not found")) {
-          setMode("login");
-          setStep(1);
-          setError("पंजीकरण सत्र समाप्त हो गया है। कृपया पुनः लॉगिन करें।");
+        setMode("login");
+        setStep(1);
+        setError(AUTH_ERRORS.GENERIC.SESSION_EXPIRED);
       } else {
-          setError(translateError(errMsg));
+        setError(translateAuthError(errMsg));
       }
     } finally {
       setIsLoading(false);
@@ -392,21 +334,24 @@ export default function LoginForm({ onClose }) {
       const password = String(formData.password || "");
       const fullName = String(formData.full_name || "");
       const role = String(formData.role || "");
+      const phone = formData.phone ? String((formData.countryCode || "+91") + formData.phone) : "";
+      const dob = String(formData.dob || "");
+      const gender = String(formData.gender || "");
 
-      const data = await completeRegistrationSession(formData.sessionId, username, password, fullName, role);
+      const data = await completeRegistrationSession(formData.sessionId, username, password, fullName, role, phone, dob, gender, formData.totpCode);
       setIsRegistered(true);
 
-      // Always show registration success message first
+      // Since TOTP is already verified and setup during completion, we just go to success step
       setStep(4);
       return data;
     } catch (err) {
       const errMsg = err.response?.data?.error || err.message || String(err);
       if (errMsg.toLowerCase().includes("session expired") || errMsg.toLowerCase().includes("session not found")) {
-          setMode("login");
-          setStep(1);
-          setError("पंजीकरण सत्र समाप्त हो गया है। कृपया पुनः लॉगिन करें।");
+        setMode("login");
+        setStep(1);
+        setError(AUTH_ERRORS.GENERIC.SESSION_EXPIRED);
       } else {
-          setError(translateError(errMsg));
+        setError(translateAuthError(errMsg));
       }
     } finally {
       setIsLoading(false);
@@ -422,9 +367,6 @@ export default function LoginForm({ onClose }) {
   };
 
   const handleStartRecovery = async (target) => {
-    const lastTarget = localStorage.getItem("lastOtpTarget");
-    const lastPurpose = localStorage.getItem("lastOtpPurpose");
-
     if (resendTimer > 0 && lastTarget === target && lastPurpose === "password_reset") {
       setFormData(prev => ({ ...prev, email: target, otp: "" }));
       setStep(2);
@@ -443,7 +385,7 @@ export default function LoginForm({ onClose }) {
       setSuccess("OTP सफलतापूर्वक भेजा गया!");
       triggerOtpCooldown(target, "password_reset", data.masked_email);
     } catch (err) {
-      setError(translateError(err.response?.data?.error || String(err)));
+      setError(translateAuthError(err.response?.data?.error || String(err)));
     } finally {
       setIsLoading(false);
     }
@@ -462,7 +404,7 @@ export default function LoginForm({ onClose }) {
       setMode("login");
       setStep(1);
     } catch (err) {
-      setError(translateError(err.response?.data?.error || String(err)));
+      setError(translateAuthError(err.response?.data?.error || String(err)));
     } finally {
       setIsLoading(false);
     }
@@ -492,7 +434,7 @@ export default function LoginForm({ onClose }) {
         triggerOtpCooldown(formData.email, purpose, data.masked_email);
       }
     } catch (err) {
-      setError(translateError(err.response?.data?.error || String(err)));
+      setError(translateAuthError(err.response?.data?.error || String(err)));
     } finally {
       setIsLoading(false);
     }
@@ -512,9 +454,9 @@ export default function LoginForm({ onClose }) {
     }
     if (mode === "register") {
       switch (step) {
-        case 1: return <RegisterEmailStep setStep={setStep} setMode={setMode} formData={formData} updateFormData={updateFormData} setError={setError} error={error} isLoading={isLoading} onRegisterStart={handleRegisterStart} success={success} setSuccess={setSuccess} />;
+        case 1: return <RegisterDetailsStep setStep={setStep} setMode={setMode} formData={formData} updateFormData={updateFormData} handleFinalRegister={handleFinalRegister} onRegisterStart={handleRegisterStart} isLoading={isLoading} error={error} setError={setError} success={success} setSuccess={setSuccess} />;
         case 2: return <RegisterOtpStep setStep={setStep} formData={formData} updateFormData={updateFormData} setError={setError} error={error} isLoading={isLoading} onResendOtp={handleResendOtp} onVerifyOtp={handleVerifyRegisterOtp} resendTimer={resendTimer} resetOtp={resetOtp} success={success} setSuccess={setSuccess} maskedEmail={maskedEmail || getMaskedEmail(formData?.email)} />;
-        case 3: return <RegisterDetailsStep setStep={setStep} formData={formData} updateFormData={updateFormData} handleFinalRegister={handleFinalRegister} isLoading={isLoading} error={error} />;
+        // case 3 removed as details are collected in step 1
         case 4: return <RegisterSuccessStep onProceedTo2fa={() => setStep(5)} onSkipToLogin={handleRegistrationComplete} />;
         case 5: return <Register2faStep setStep={setStep} setMode={setMode} onFinish={handleRegistrationComplete} handleFinalSubmit={handleFinalRegister} isLoading={isLoading} isRegistered={isRegistered} />;
         case 6: return <RegisterPhoneOtpStep setStep={setStep} setMode={setMode} formData={formData} isLoading={isLoading} setIsLoading={setIsLoading} setError={setError} setSuccess={setSuccess} isRegistered={isRegistered} />;
@@ -533,18 +475,10 @@ export default function LoginForm({ onClose }) {
   };
 
   const safeRenderStep = () => {
-    if (!isHydrated) {
-      return (
-        <Box sx={{ py: 12, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3 }}>
-          <Loader />
-          <Typography variant="body2" sx={{ color: "#64748b", fontWeight: 600, fontSize: "15px" }}>Loading your session...</Typography>
-        </Box>
-      );
-    }
     try {
       return renderStep() || (
         <Box sx={{ py: 4, textAlign: "center" }}>
-          <Typography variant="body2" sx={{ color: "#ef4444" }}>An error occurred rendering this step.</Typography>
+          <Typography variant="body2" sx={{ color: "var(--color-error)" }}>An error occurred rendering this step.</Typography>
           <Button onClick={() => { setStep(1); setMode("login"); }} sx={{ mt: 2 }}>Back to Login</Button>
         </Box>
       );
@@ -552,7 +486,7 @@ export default function LoginForm({ onClose }) {
       console.error("Render Step Error:", err);
       return (
         <Box sx={{ py: 4, textAlign: "center" }}>
-          <Typography variant="body2" sx={{ color: "#ef4444" }}>Something went wrong.</Typography>
+          <Typography variant="body2" sx={{ color: "var(--color-error)" }}>Something went wrong.</Typography>
           <Button onClick={() => window.location.reload()} sx={{ mt: 2 }}>Reload Page</Button>
         </Box>
       );
@@ -560,42 +494,9 @@ export default function LoginForm({ onClose }) {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <Box
-        sx={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 9999,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "rgba(0, 0, 0, 0.45)",
-          backdropFilter: "blur(30px)"
-        }}
-        onClick={onClose}
-      >
-        <AnimatePresence>
-          {isLoading && (
-            <Box
-              component={motion.div}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              sx={{
-                position: "fixed",
-                inset: 0,
-                zIndex: 9999,
-                backgroundColor: "rgba(0, 0, 0, 0.45)",
-                backdropFilter: "blur(12px)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Loader />
-            </Box>
-          )}
-        </AnimatePresence>
+    <ThemeProvider theme={mergedTheme}>
+      <BackdropBlur onClick={onClose} zIndex={9999}>
+
         <Paper
           onClick={(e) => e.stopPropagation()}
           elevation={0}
@@ -607,8 +508,9 @@ export default function LoginForm({ onClose }) {
             display: "flex",
             flexDirection: "column",
             justifyContent: "flex-start",
-            width: { xs: "100vw", sm: "560px" },
-            minHeight: { xs: "100vh", sm: "auto" },
+            width: { xs: "var(--size-screen-w)", sm: "640px" },
+            minHeight: { xs: "var(--size-screen-h)", sm: "auto" },
+            maxHeight: { xs: "100dvh", sm: "90vh" },
             borderRadius: { xs: 0, sm: "28px" },
             background: `
               radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.45) 0, transparent 50%), 
@@ -619,8 +521,7 @@ export default function LoginForm({ onClose }) {
             `,
             backdropFilter: "blur(28px) saturate(200%)",
             border: "none",
-            border: "1px solid #E2E8F0",
-            boxShadow: "none",
+            border: "none",
             position: "relative",
             zIndex: 1,
             overflowY: "auto",
@@ -629,27 +530,28 @@ export default function LoginForm({ onClose }) {
             py: { xs: 6, sm: 8 },
           }}
         >
-          <Box sx={{ mb: 3, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <Box sx={{ mb: 4, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <Box component="img" src="/logo.svg" alt="Tarang Logo" sx={{ width: 48, height: 48, objectFit: "contain" }} />
-              <Typography variant="h5" sx={{ fontWeight: 800, color: "#0f172a", letterSpacing: "-1px", fontSize: "26px" }}>Tarang</Typography>
+              <Typography variant="h5" sx={{ fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-1px", fontSize: "26px" }}>Tarang</Typography>
             </Box>
             <Box sx={{ display: { xs: "block", sm: "none" } }}>
               {onClose && (
-                <IconButton onClick={onClose} sx={{ color: "#64748b", bgcolor: "rgba(226, 232, 240, 0.5)", "&:hover": { bgcolor: "rgba(226, 232, 240, 0.8)" } }}>
+                <IconButton onClick={onClose} sx={{ color: "var(--color-slate-500)", bgcolor: "rgba(226, 232, 240, 0.5)", "&:hover": { bgcolor: "rgba(226, 232, 240, 0.8)" } }}>
                   <CloseIcon />
                 </IconButton>
               )}
             </Box>
           </Box>
 
-          <Box sx={{ width: "100%", flex: 1, position: "relative", "& .MuiTypography-root": { color: "#334155" }, "& .MuiTypography-body2": { color: "#64748b" }, "& span": { color: "#0056b3 !important" } }}>
-            <Box style={{ width: "100%", display: "flex", flexDirection: "column" }}>
+
+          <Box sx={{ width: "var(--size-full)", flex: 1, position: "relative", "& .MuiTypography-root": { color: "var(--color-slate-700)" }, "& .MuiTypography-body2": { color: "var(--color-slate-500)" }, "& span": { color: "#0056b3 !important" } }}>
+            <Box style={{ width: "var(--size-full)", display: "flex", flexDirection: "column" }}>
               {safeRenderStep()}
             </Box>
           </Box>
         </Paper>
-      </Box>
+      </BackdropBlur>
     </ThemeProvider>
   );
 }

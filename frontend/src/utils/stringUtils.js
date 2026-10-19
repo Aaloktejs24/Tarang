@@ -12,12 +12,22 @@
  */
 export const capitalizeFirstLetter = (str) => {
   if (!str || typeof str !== 'string') return "";
+
+  const minorWords = new Set(["of", "and", "the", "in", "on", "for", "to", "at", "by", "from", "with", "a", "an"]);
+
   return str.split(' ')
-    .map(word => {
+    .map((word, index) => {
       // If the word is entirely uppercase and has more than 1 character, assume it's an acronym and keep it as is.
       if (word === word.toUpperCase() && word.length > 1) {
         return word;
       }
+
+      const lowerWord = word.toLowerCase();
+      // Keep minor words lowercase unless it's the first word
+      if (index > 0 && minorWords.has(lowerWord)) {
+        return lowerWord;
+      }
+
       return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
     })
     .join(' ');
@@ -46,10 +56,10 @@ export const capitalizeAll = (str) => {
  */
 export const getAcronym = (str) => {
   if (!str || typeof str !== 'string') return "";
-  
+
   // Words to ignore while generating the acronym
   const stopWords = new Set(["of", "and", "the", "for", "in", "at", "to", "a", "an"]);
-  
+
   // Remove special characters like brackets and their contents (e.g., "(IIT)")
   const cleanedStr = str.replace(/\([^)]*\)/g, '');
 
@@ -81,6 +91,7 @@ export const getNoNamePlaceholder = (langCode) => {
   const translations = {
     en: "No Name",
     hi: "कोई नाम नहीं",
+    sa: "नाम नास्ति",
     bn: "কোন নাম নেই",
     te: "పేరు లేదు",
     mr: "नाव नाही",
@@ -95,4 +106,31 @@ export const getNoNamePlaceholder = (langCode) => {
     ar: "بلا اسم",
   };
   return translations[langCode] || "No Name";
+};
+
+/**
+ * Parses a dual-language name string separated by "/" (e.g., from DB).
+ * Format is typically "Hindi Name / English Name".
+ * 
+ * @param {string} str - The raw string from DB.
+ * @returns {object} { localName: string, englishName: string }
+ */
+export const parseBilingualName = (str) => {
+  if (!str || typeof str !== 'string') {
+    return { localName: '', englishName: '' };
+  }
+
+  const trimmed = str.trim();
+  const parts = trimmed.split(/\s*\/\s*/).map(part => part.trim()).filter(Boolean);
+  if (parts.length >= 2) {
+    return { localName: parts[0], englishName: parts.slice(1).join(' / ') };
+  }
+
+  // If only one part exists, determine if it's Hindi or English
+  const isDevanagari = /[\u0900-\u097F]/.test(trimmed);
+  if (isDevanagari) {
+    return { localName: trimmed, englishName: '' };
+  }
+
+  return { localName: '', englishName: trimmed };
 };

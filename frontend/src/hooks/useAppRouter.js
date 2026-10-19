@@ -1,16 +1,18 @@
 import { useRouter as useNextRouter } from 'next/navigation';
-import { useLoading } from '../contexts/LoadingContext';
+import { navProgressStart } from '../components/common/NavigationProgress';
 
 export function useAppRouter() {
   const router = useNextRouter();
 
   return {
     ...router,
-    push: (...args) => {
-      return router.push(...args);
+    push: (href, ...rest) => {
+      navProgressStart(href);
+      return router.push(href, ...rest);
     },
-    replace: (...args) => {
-      return router.replace(...args);
+    replace: (href, ...rest) => {
+      navProgressStart(href);
+      return router.replace(href, ...rest);
     }
   };
 }

@@ -28,7 +28,7 @@ func worker(id int, msgs <-chan amqp091.Delivery, ch *amqp091.Channel, mtx *sync
 		if err != nil {
 			log.Println("invalid message")
 			mtx.Lock()
-			msg.Nack(false, false)
+			_ = msg.Nack(false, false)
 			mtx.Unlock()
 			continue
 		}
@@ -93,7 +93,7 @@ func worker(id int, msgs <-chan amqp091.Delivery, ch *amqp091.Channel, mtx *sync
 			}
 
 			mtx.Lock()
-			msg.Ack(false)
+			_ = msg.Ack(false)
 			mtx.Unlock()
 			continue
 		}
@@ -101,7 +101,7 @@ func worker(id int, msgs <-chan amqp091.Delivery, ch *amqp091.Channel, mtx *sync
 		log.Println("OTP sent successfully")
 
 		mtx.Lock()
-		msg.Ack(false)
+		_ = msg.Ack(false)
 		mtx.Unlock()
 	}
 }
@@ -125,7 +125,7 @@ func main() {
 	if err != nil {
 		log.Printf("failed to init tracer: %v", err)
 	} else {
-		defer shutdown(ctx)
+		defer func() { _ = shutdown(ctx) }()
 	}
 
 	conn, ch, err := queue.ConnectRabbitMQ(cfg.RabbitURL)
@@ -133,8 +133,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	defer conn.Close()
-	defer ch.Close()
+	defer func() { _ = conn.Close() }()
+	defer func() { _ = ch.Close() }()
 
 	msgs, err := ch.Consume(
 		"otp_queue",

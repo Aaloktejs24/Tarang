@@ -61,7 +61,7 @@ func main() {
 	if err != nil {
 		logger.Log.Fatal("failed to init tracer", zap.Error(err))
 	}
-	defer shutdown(ctx)
+	defer func() { _ = shutdown(ctx) }()
 
 	//---------------------------------------------------
 	// 3️⃣ Postgres
@@ -86,7 +86,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("redis connection failed: %v", err)
 	}
-	defer redisClient.Close()
+	defer func() { _ = redisClient.Close() }()
 
 	//---------------------------------------------------
 	// 5️⃣ RabbitMQ
@@ -96,8 +96,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("rabbitmq connection failed: %v", err)
 	}
-	defer conn.Close()
-	defer ch.Close()
+	defer func() { _ = conn.Close() }()
+	defer func() { _ = ch.Close() }()
 
 	publisher := queue.NewPublisher(ch)
 
@@ -131,7 +131,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer userClient.Close()
+	defer func() { _ = userClient.Close() }()
 
 	//---------------------------------------------------
 	// 8️⃣ Service

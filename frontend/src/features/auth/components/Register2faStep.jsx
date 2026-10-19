@@ -1,4 +1,4 @@
-import { Box, Typography, Button, TextField, IconButton } from "@mui/material";
+import { Box, Typography, TextField, IconButton } from "@mui/material";
 import SmartphoneIcon from "@mui/icons-material/Smartphone";
 import EmailIcon from "@mui/icons-material/Email";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -8,8 +8,8 @@ import { QRCodeSVG } from "qrcode.react";
 import { updateMfaPreference, setupTotp, verifyTotp } from "../authService";
 import { getTempToken } from "../../../lib/auth";
 import OtpInput from "./OtpInput";
-import { translateError } from "../utils/authErrors";
-import Loader from "../../../components/common/Loader";
+import { translateAuthError, AUTH_ERRORS } from "../../../constants/errors";
+import TarangButton from "../../../components/common/TarangButton";
 
 export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading, isRegistered, setStep, setMode }) {
     const [step2fa, setStep2fa] = useState("choice"); // "choice", "authenticator_setup"
@@ -34,7 +34,7 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
             setTotpData(data);
             setStep2fa("authenticator_setup");
         } catch (err) {
-            setError(translateError(err.response?.data?.error) || "2FA सेटअप शुरू करने में विफल");
+            setError(translateAuthError(err.response?.data?.error) || AUTH_ERRORS.GENERIC.TFA_SETUP_FAILED);
         } finally {
             setIsVerifying(false);
         }
@@ -57,7 +57,7 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                 onFinish();
             }
         } catch (err) {
-            setError(translateError(err.response?.data?.error) || "ईमेल OTP सक्षम करने में विफल");
+            setError(translateAuthError(err.response?.data?.error) || AUTH_ERRORS.GENERIC.EMAIL_OTP_ENABLE_FAILED);
         } finally {
             setIsVerifying(false);
         }
@@ -71,7 +71,7 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
             await verifyTotp(verificationCode, tempToken);
             onFinish();
         } catch (err) {
-            setError(translateError(err.response?.data?.error) || "अमान्य वेरिफिकेशन कोड");
+            setError(translateAuthError(err.response?.data?.error) || AUTH_ERRORS.GENERIC.INVALID_VERIFICATION_CODE);
         } finally {
             setIsVerifying(false);
         }
@@ -92,7 +92,7 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                 onFinish();
             }
         } catch (err) {
-            setError(translateError(err.response?.data?.error) || "रजिस्ट्रेशन पूरा करने में विफल");
+            setError(translateAuthError(err.response?.data?.error) || AUTH_ERRORS.GENERIC.REGISTRATION_FAILED);
         } finally {
             setIsVerifying(false);
         }
@@ -100,12 +100,12 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
 
     if (step2fa === "authenticator_setup") {
         return (
-            <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 2, alignItems: "center" }}>
-                <Box sx={{ textAlign: "center", mb: 0.5 }}>
-                    <Typography variant="h5" sx={{ fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", fontSize: "28px" }}>
+            <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 3, alignItems: "center" }}>
+                <Box sx={{ textAlign: "center" }}>
+                    <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)' }}>
                         ऑथेंटिकेटर ऐप सेटअप करें
                     </Typography>
-                    <Typography variant="body2" sx={{ color: "#64748b", fontSize: "15px", lineHeight: 1.5 }}>
+                    <Typography variant="body2" sx={{ color: "var(--color-slate-500)", fontSize: 'var(--font-base)', lineHeight: 1.5 }}>
                         अपने ऑथेंटिकेटर ऐप से QR कोड स्कैन करें।
                     </Typography>
                 </Box>
@@ -116,15 +116,15 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                     flexDirection: { xs: "column", sm: "row" },
                     alignItems: { xs: "center", sm: "flex-start" },
                     gap: 2,
-                    width: "100%",
+                    width: "var(--size-full)",
                     mb: 0.5
                 }}>
                     {totpData?.url && (
                         <Box sx={{
                             p: 1.5,
                             bgcolor: "white",
-                            borderRadius: "8px",
-                            border: "1px solid #e2e8f0",
+                            borderRadius: 'var(--radius-md)',
+                            border: "var(--border-thin) solid #e2e8f0",
                             flexShrink: 0,
                             display: "flex",
                             alignItems: "center",
@@ -137,9 +137,9 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                     {totpData?.secret && (
                         <Box sx={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", minWidth: 0 }}>
                             <Typography variant="caption" sx={{
-                                color: "#94a3b8",
+                                color: "var(--color-slate-500)",
                                 mb: 0.75,
-                                fontWeight: 700,
+                                fontWeight: 'var(--font-bold)',
                                 textTransform: "uppercase",
                                 letterSpacing: "0.5px",
                                 fontSize: "10px",
@@ -148,10 +148,10 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                                 मैन्युअल एंट्री की (Key)
                             </Typography>
                             <Box sx={{
-                                bgcolor: "#f8fafc",
+                                bgcolor: "var(--color-slate-50)",
                                 px: 1.5,
                                 py: 1.25,
-                                borderRadius: "8px",
+                                borderRadius: 'var(--radius-md)',
                                 border: "1px dashed #cbd5e1",
                                 position: "relative",
                                 pr: 5
@@ -159,9 +159,9 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                                 <Typography sx={{
                                     fontWeight: 800,
                                     letterSpacing: "1px",
-                                    color: "#28a745",
+                                    color: "var(--color-success)",
                                     fontFamily: "'JetBrains Mono', monospace",
-                                    fontSize: "13px",
+                                    fontSize: 'var(--font-sm)',
                                     wordBreak: "break-all",
                                     lineHeight: 1.6
                                 }}>
@@ -180,22 +180,22 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                                         right: 4,
                                         top: "50%",
                                         
-                                        color: copied ? "#28a745" : "#94a3b8",
+                                        color: copied ? "var(--color-success)" : "var(--color-slate-500)",
                                         transition: "color 0.2s"
                                     }}
                                 >
                                     {copied ? <CheckIcon sx={{ fontSize: 20 }} /> : <ContentCopyIcon sx={{ fontSize: 20 }} />}
                                 </IconButton>
                             </Box>
-                            <Typography variant="caption" sx={{ color: "#94a3b8", mt: 0.75, fontSize: "11px", lineHeight: 1.4 }}>
+                            <Typography variant="caption" sx={{ color: "var(--color-slate-500)", mt: 0.75, fontSize: 'var(--font-xs)', lineHeight: 1.4 }}>
                                 अगर आप QR कोड स्कैन नहीं कर पा रहे हैं तो इसका उपयोग करें।
                             </Typography>
                         </Box>
                     )}
                 </Box>
 
-                <Box sx={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px", width: "100%", textAlign: "left" }}>
+                <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)', width: "var(--size-full)", textAlign: "left" }}>
                         6-अंकों का वेरिफिकेशन कोड
                     </Typography>
                     <OtpInput
@@ -207,53 +207,40 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                 </Box>
 
                 {error && (
-                    <Typography variant="body2" sx={{ color: "#ef4444", fontSize: "14px", fontWeight: 500 }}>
+                    <Typography variant="body2" sx={{ color: "var(--color-error)", fontSize: 'var(--font-sm)', fontWeight: 'var(--font-medium)' }}>
                         {error}
                     </Typography>
                 )}
 
-                <Button
+                <TarangButton
                     fullWidth
-                    variant="contained" disableElevation
+                    loading={isVerifying}
                     disabled={isVerifying || verificationCode.length !== 6}
                     onClick={handleVerifyTotp}
-                    sx={{
-                        height: "48px",
-                        borderRadius: "8px",
-                        textTransform: "none",
-                        fontSize: "16px",
-                        fontWeight: 700,
-                        background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)",
-                        transition: "all 0.2s ease-in-out",
-                        "&:hover": {
-                            background: "linear-gradient(135deg, #004494 0%, #218838 100%)",
-                            },
-                        
-                        "&.Mui-disabled": { background: "#e2e8f0", color: "#94a3b8" }
-                    }}
+                    sx={{ height: 'var(--box-height)' }}
                 >
-                    {isVerifying ? <Loader mini /> : "वेरीफाई करें और सक्षम करें"}
-                </Button>
+                    {"वेरीफाई करें और सक्षम करें"}
+                </TarangButton>
 
-                <Button
+                <TarangButton
                     variant="text"
                     fullWidth
                     onClick={() => { setStep2fa("choice"); setTotpData(null); }}
-                    sx={{ textTransform: "none", color: "#64748b", fontWeight: 600, fontSize: "14px", mt: 1 }}
+                    sx={{ color: 'var(--color-slate-500)', mt: 1 }}
                 >
                     विकल्पों पर वापस जाएं
-                </Button>
+                </TarangButton>
             </Box>
         );
     }
 
     return (
-        <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 2 }}>
-            <Box sx={{ mb: 1 }}>
-                <Typography variant="h5" sx={{ fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", fontSize: "28px" }}>
+        <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 3 }}>
+            <Box>
+                <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)' }}>
                     अकाउंट सुरक्षित करें
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#64748b", fontSize: "15px", lineHeight: 1.5 }}>
+                <Typography variant="body2" sx={{ color: "var(--color-slate-500)", fontSize: 'var(--font-base)', lineHeight: 1.5 }}>
                     टू-फैक्टर ऑथेंटिकेशन सुरक्षा की एक अतिरिक्त परत जोड़ता है।
                 </Typography>
             </Box>
@@ -265,30 +252,30 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                         display: "flex",
                         alignItems: "center",
                         p: 1.5,
-                        borderRadius: "8px",
-                        border: "1px solid #e2e8f0",
-                        backgroundColor: "#f8fafc",
+                        borderRadius: 'var(--radius-md)',
+                        border: "var(--border-thin) solid #e2e8f0",
+                        backgroundColor: "var(--color-slate-50)",
                         cursor: isVerifying ? "default" : "pointer",
                         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                         opacity: isVerifying ? 0.7 : 1,
                         position: "relative",
                         "&:hover": {
-                            borderColor: isVerifying ? "#e2e8f0" : "#cbd5e1",
-                            background: isVerifying ? "#f8fafc" : "#fff",
+                            borderColor: isVerifying ? "var(--color-slate-200)" : "var(--color-slate-200)",
+                            background: isVerifying ? "var(--color-slate-50)" : "var(--color-white)",
                             
                         }
                     }}
                 >
-                    <Box sx={{ p: 1, borderRadius: "8px", bgcolor: "rgba(40, 167, 69, 0.1)", color: "#28a745", mr: 1.5 }}>
+                    <Box sx={{ p: 1, borderRadius: 'var(--radius-md)', bgcolor: "rgba(40, 167, 69, 0.1)", color: "var(--color-success)", mr: 1.5 }}>
                         <SmartphoneIcon sx={{ fontSize: 20 }} />
                     </Box>
                     <Box sx={{ flexGrow: 1 }}>
-                        <Typography sx={{ fontWeight: 700, color: "#0f172a", fontSize: "15px" }}>ऑथेंटिकेटर ऐप</Typography>
-                        <Typography sx={{ color: "#64748b", fontSize: "12px" }}>गूगल ऑथेंटिकेटर या इसके जैसा कुछ उपयोग करें</Typography>
+                        <Typography sx={{ fontWeight: 'var(--font-bold)', color: "var(--color-slate-900)", fontSize: 'var(--font-base)' }}>ऑथेंटिकेटर ऐप</Typography>
+                        <Typography sx={{ color: "var(--color-slate-500)", fontSize: 'var(--font-xs)' }}>गूगल ऑथेंटिकेटर या इसके जैसा कुछ उपयोग करें</Typography>
                     </Box>
                     {isVerifying && !totpData && (
                         <Box sx={{ position: "absolute", right: 16 }}>
-                            <Loader mini />
+                            null
                         </Box>
                     )}
                 </Box>
@@ -299,72 +286,62 @@ export default function Register2faStep({ onFinish, handleFinalSubmit, isLoading
                         display: "flex",
                         alignItems: "center",
                         p: 1.5,
-                        borderRadius: "8px",
-                        border: "1px solid #e2e8f0",
-                        backgroundColor: "#f8fafc",
+                        borderRadius: 'var(--radius-md)',
+                        border: "var(--border-thin) solid #e2e8f0",
+                        backgroundColor: "var(--color-slate-50)",
                         cursor: isVerifying ? "default" : "pointer",
                         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                         opacity: isVerifying ? 0.7 : 1,
                         position: "relative",
                         "&:hover": {
-                            borderColor: isVerifying ? "#e2e8f0" : "#cbd5e1",
-                            background: isVerifying ? "#f8fafc" : "#fff",
+                            borderColor: isVerifying ? "var(--color-slate-200)" : "var(--color-slate-200)",
+                            background: isVerifying ? "var(--color-slate-50)" : "var(--color-white)",
                             
                         }
                     }}
                 >
-                    <Box sx={{ p: 1, borderRadius: "8px", bgcolor: "rgba(40, 167, 69, 0.1)", color: "#28a745", mr: 1.5 }}>
+                    <Box sx={{ p: 1, borderRadius: 'var(--radius-md)', bgcolor: "rgba(40, 167, 69, 0.1)", color: "var(--color-success)", mr: 1.5 }}>
                         <EmailIcon sx={{ fontSize: 20 }} />
                     </Box>
                     <Box sx={{ flexGrow: 1 }}>
-                        <Typography sx={{ fontWeight: 700, color: "#0f172a", fontSize: "15px" }}>ईमेल OTP</Typography>
-                        <Typography sx={{ color: "#64748b", fontSize: "12px" }}>ईमेल के माध्यम से कोड प्राप्त करें</Typography>
+                        <Typography sx={{ fontWeight: 'var(--font-bold)', color: "var(--color-slate-900)", fontSize: 'var(--font-base)' }}>ईमेल एप्रकू</Typography>
+                        <Typography sx={{ color: "var(--color-slate-500)", fontSize: 'var(--font-xs)' }}>ईमेल के माध्यम से कोड प्राप्त करें</Typography>
                     </Box>
                     {isVerifying && (
                         <Box sx={{ position: "absolute", right: 16 }}>
-                            <Loader mini />
+                            null
                         </Box>
                     )}
                 </Box>
             </Box>
 
             {error && (
-                <Typography variant="body2" sx={{ color: "#ef4444", fontSize: "14px", textAlign: "center", fontWeight: 500 }}>
+                <Typography variant="body2" sx={{ color: "var(--color-error)", fontSize: 'var(--font-sm)', textAlign: "center", fontWeight: 'var(--font-medium)' }}>
                     {error}
                 </Typography>
             )}
 
-            <Button
+            <TarangButton
                 fullWidth
                 variant="text"
+                loading={isVerifying}
                 disabled={isVerifying || isLoading}
                 onClick={handleSkip}
-                sx={{
-                    height: "44px",
-                    borderRadius: "8px",
-                    textTransform: "none",
-                    fontWeight: 600,
-                    fontSize: "14.5px",
-                    color: "#64748b",
-                    "&:hover": { bgcolor: "rgba(0,0,0,0.02)" }
-                }}
+                sx={{ height: 'var(--box-height)', color: 'var(--color-slate-500)' }}
             >
                 अभी के लिए सुरक्षा सेटअप छोड़ें
-            </Button>
+            </TarangButton>
 
             {setStep && (
-                <Button
+                <TarangButton
                     variant="text"
                     fullWidth
                     disabled={isVerifying}
-                    onClick={() => {
-                        setMode("login");
-                        setStep(1);
-                    }}
-                    sx={{ textTransform: "none", color: "#64748b", fontWeight: 600, fontSize: "14.5px", mt: 1, height: "44px" }}
+                    onClick={() => { setMode("login"); setStep(1); }}
+                    sx={{ color: 'var(--color-slate-500)', mt: 1, height: 'var(--box-height)' }}
                 >
                     {"← लॉगिन पर वापस जाएं"}
-                </Button>
+                </TarangButton>
             )}
         </Box>
     );

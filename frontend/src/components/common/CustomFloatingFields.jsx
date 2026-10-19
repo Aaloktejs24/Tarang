@@ -1,8 +1,11 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Tooltip } from '@mui/material';
 import { FieldContext } from '../../contexts/FieldContext';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { FieldCommentTooltip } from './FieldCommentTooltip';
+import CentralDropdown from './CentralDropdown';
+import { DropdownListPopup } from './DropdownListPopup';
 
 import gazeteer from '../../data/formated/gazeteer.json';
 import { useAccessibility } from '../../contexts/AccessibilityContext';
@@ -29,7 +32,7 @@ const withFieldState = (WrappedComponent) => React.forwardRef(function WithField
     <Box
       sx={{
         position: 'relative',
-        width: '100%',
+        width: 'var(--size-full)',
         '& .comment-icon': { opacity: 0, transition: 'opacity 0.2s', pointerEvents: 'none' },
         '&:hover .comment-icon': { opacity: 1, pointerEvents: 'auto' }
       }}
@@ -40,32 +43,37 @@ const withFieldState = (WrappedComponent) => React.forwardRef(function WithField
   );
 });
 
-const BaseCustomFloatingInput = React.forwardRef(({ label, value, onChange, onClick, type = 'text', disabled = false, error = false, updateRequested = false, helperText = '', multiline = false, rows = 1, InputProps, inputProps, inputRef, ownerState, sx, className, ...rest }, ref) => {
+const BaseCustomFloatingInput = React.forwardRef(({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, value, onChange, onClick, type = 'text', disabled = false, error = false, updateRequested = false, helperText = '', multiline = false, rows = 1, InputProps, inputProps, inputRef, ownerState, sx, className, ...rest }, ref) => {
   const [focused, setFocused] = React.useState(false);
   const [hovered, setHovered] = React.useState(false);
   const [legendWidth, setLegendWidth] = React.useState(0);
+  const [notchL, setNotchL] = React.useState(11);
+  const [notchT, setNotchT] = React.useState(7);
   const legendRef = React.useRef(null);
+  const fieldsetRef = React.useRef(null);
   const hasPlaceholder = Boolean(inputProps?.placeholder || rest.placeholder);
   const isFloating = focused || (value !== undefined && value !== null && value.toString().length > 0) || type === 'date' || type === 'datetime-local' || type === 'time' || hasPlaceholder;
 
   const InputComponent = multiline ? 'textarea' : 'input';
 
   React.useLayoutEffect(() => {
-    if (legendRef.current) {
-      const span = legendRef.current.querySelector('span');
-      if (span) setLegendWidth(span.scrollWidth);
+    if (legendRef.current && fieldsetRef.current) {
+      const bw = parseFloat(getComputedStyle(fieldsetRef.current).borderLeftWidth) || 1;
+      const pl = parseFloat(getComputedStyle(fieldsetRef.current).paddingLeft) || 12;
+      setNotchL(pl - bw);
+      setNotchT(Math.ceil(legendRef.current.offsetHeight / 2));
+      setLegendWidth(legendRef.current.scrollWidth);
     }
   }, [label]);
 
-  let borderColor = '#cbd5e1'; // Slate 300 — theme border token
-  if (error) borderColor = '#d32f2f';
-  else if (updateRequested) borderColor = '#ffc107';
-  else if (focused) borderColor = '#0056b3';
-  else if (hovered) borderColor = '#94a3b8';
+  let borderColor = 'rgba(30, 79, 163, 0.2)';
+  if (error) borderColor = 'var(--color-error)';
+  else if (updateRequested) borderColor = 'var(--color-warning)';
+  else if (focused) borderColor = 'var(--color-primary)';
+  else if (hovered) borderColor = 'rgba(30, 79, 163, 0.4)';
 
-  // Use legend's actual offsetWidth — this IS the border notch width, so bg cut = border cut exactly
-  const nL = 11; // fieldset padding (12px) - fill offset (1px)
-  const nT = 7;
+  const nL = notchL;
+  const nT = notchT;
   const nR = nL + legendWidth;
   const clipPath = isFloating && legendWidth > 0
     ? `polygon(0px 0px, ${nL}px 0px, ${nL}px ${nT}px, ${nR}px ${nT}px, ${nR}px 0px, 100% 0px, 100% 100%, 0px 100%)`
@@ -74,7 +82,11 @@ const BaseCustomFloatingInput = React.forwardRef(({ label, value, onChange, onCl
   return (
     <Box
       ref={ref}
-      sx={{ position: 'relative', width: '100%', mb: helperText ? 2.5 : 0, ...sx }}
+      sx={{
+        position: 'relative', width: 'var(--size-full)', ...sx, '--bw': focused ? focusedBorderWidth : defaultBorderWidth,
+        '& input[type=number]::-webkit-inner-spin-button, & input[type=number]::-webkit-outer-spin-button': { WebkitAppearance: 'none', margin: 0 },
+        '& input[type=number]': { MozAppearance: 'textfield' }
+      }}
       className={className}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -82,13 +94,15 @@ const BaseCustomFloatingInput = React.forwardRef(({ label, value, onChange, onCl
     >
       <Box
         ref={InputProps?.ref}
-        sx={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center' }}
+        sx={{ position: 'relative', width: 'var(--size-full)', display: 'flex', alignItems: 'center' }}
       >
         {/* White fill with clip-path notch at exactly label width */}
         <Box sx={{
-          position: 'absolute', top: 0, left: '1px', right: '1px', bottom: '1px',
-          backgroundColor: disabled ? '#f1f5f9' : 'var(--floating-bg, #ffffff)',
-          borderRadius: '7px', zIndex: 0,
+          position: 'absolute', top: (focused ? focusedBorderWidth : defaultBorderWidth), left: (focused ? focusedBorderWidth : defaultBorderWidth), right: (focused ? focusedBorderWidth : defaultBorderWidth), bottom: (focused ? focusedBorderWidth : defaultBorderWidth),
+          backgroundColor: disabled ? 'rgba(241, 245, 249, 0.5)' : 'rgba(255, 255, 255, 0.3)',
+          backdropFilter: 'blur(30px)',
+          WebkitBackdropFilter: 'blur(30px)',
+          borderRadius: 'var(--radius-md)', zIndex: 0,
           clipPath: clipPath,
           transition: 'clip-path 0.05s ease-in-out',
         }} />
@@ -107,31 +121,37 @@ const BaseCustomFloatingInput = React.forwardRef(({ label, value, onChange, onCl
           {...rest}
           placeholder={isFloating ? (inputProps?.placeholder || rest.placeholder || '') : ''}
           style={{
-            width: '100%',
+            width: 'var(--size-full)',
             paddingTop: '12px', paddingBottom: '12px',
             paddingLeft: '14px', paddingRight: InputProps?.endAdornment ? '48px' : '14px',
-            fontSize: '15px',
+            fontSize: 'var(--font-base)',
             backgroundColor: 'transparent', border: 'none', outline: 'none',
-            boxSizing: 'border-box', fontFamily: 'inherit', color: '#0f172a',
+            boxSizing: 'border-box', fontFamily: 'inherit', color: 'var(--color-slate-900)',
             position: 'relative', zIndex: 2, resize: multiline ? 'vertical' : 'none',
-            cursor: disabled ? 'default' : (onClick ? 'pointer' : 'text'), borderRadius: '8px',
-            height: multiline ? 'auto' : '45px',
+            cursor: disabled ? 'default' : (onClick ? 'pointer' : 'text'), borderRadius: 'var(--radius-md)',
+            height: multiline ? 'auto' : 'var(--box-height)',
             ...(inputProps?.style || {})
           }}
         />
 
-        {InputProps?.endAdornment && (
-          <Box sx={{ position: 'absolute', right: '10px', zIndex: 3, display: 'flex' }}>
-            {InputProps.endAdornment}
-          </Box>
-        )}
+        <Box sx={{ position: 'absolute', right: '10px', zIndex: 3, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          {error && typeof helperText === 'string' && helperText.length > 0 && (
+            <Tooltip title={helperText} placement="top" arrow PopperProps={{ sx: { zIndex: 9999 } }}>
+              <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', pointerEvents: 'auto' }}>
+                <ErrorOutlineIcon sx={{ color: 'var(--color-error)', fontSize: 20 }} />
+              </Box>
+            </Tooltip>
+          )}
+          {InputProps?.endAdornment}
+        </Box>
 
         <fieldset
+          ref={fieldsetRef}
           style={{
             position: 'absolute', top: '-5px', left: 0, right: 0, bottom: 0,
             margin: 0, padding: '0 12px', pointerEvents: 'none',
-            borderRadius: '8px', borderStyle: 'solid',
-            borderWidth: focused ? '1.5px' : '1px',
+            borderRadius: 'var(--radius-md)', borderStyle: 'solid',
+            borderWidth: (focused ? focusedBorderWidth : defaultBorderWidth),
             borderColor: borderColor,
             background: 'none',
             transition: 'border-color 0.2s, border-width 0.2s',
@@ -143,7 +163,7 @@ const BaseCustomFloatingInput = React.forwardRef(({ label, value, onChange, onCl
             style={{
               width: 'auto', maxWidth: isFloating ? '100%' : '0.01px',
               padding: 0, margin: 0, float: 'none', display: 'block',
-              height: '11px', fontSize: '12px', visibility: 'hidden',
+              height: '11px', fontSize: 'var(--font-xs)', opacity: 0,
               whiteSpace: 'nowrap', overflow: 'hidden',
               transition: 'max-width 50ms cubic-bezier(0.0, 0, 0.2, 1) 0ms',
             }}
@@ -156,10 +176,10 @@ const BaseCustomFloatingInput = React.forwardRef(({ label, value, onChange, onCl
       <label
         style={{
           position: 'absolute', left: '12px',
-          top: isFloating ? '-7px' : (multiline ? '12px' : '22.5px'),
+          top: isFloating ? '-7px' : (multiline ? '12px' : '50%'),
           transform: isFloating ? 'translateY(0)' : (multiline ? 'translateY(0)' : 'translateY(-50%)'),
           fontSize: isFloating ? '12px' : '15px',
-          color: error ? '#d32f2f' : focused ? '#0056b3' : disabled ? '#94a3b8' : '#64748b',
+          color: error ? 'var(--color-error)' : focused ? 'var(--color-primary)' : disabled ? 'var(--color-slate-500)' : 'var(--color-slate-500)',
           backgroundColor: 'transparent', padding: '0 4px',
           transition: 'all 0.2s ease-in-out', pointerEvents: 'none', zIndex: 3,
           lineHeight: '14px',
@@ -168,21 +188,19 @@ const BaseCustomFloatingInput = React.forwardRef(({ label, value, onChange, onCl
         {label}
       </label>
 
-      {error && helperText && (
-        <Typography sx={{ position: 'absolute', bottom: '-20px', left: '14px', color: '#d32f2f', fontSize: '0.75rem' }}>
-          {helperText}
-        </Typography>
-      )}
     </Box>
   );
 });
 
-const BaseCustomFloatingPhoneInput = ({ label, countryCode, onCountryCodeChange, value, onChange, error = false, disabled = false, updateRequested = false, helperText = '', endAdornment }) => {
+const BaseCustomFloatingPhoneInput = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, countryCode, onCountryCodeChange, value, onChange, error = false, disabled = false, updateRequested = false, helperText = '', endAdornment }) => {
   const [focused, setFocused] = React.useState(false);
   const [hovered, setHovered] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
   const [legendWidth, setLegendWidth] = React.useState(0);
+  const [notchL, setNotchL] = React.useState(11);
+  const [notchT, setNotchT] = React.useState(7);
   const legendRef = React.useRef(null);
+  const fieldsetRef = React.useRef(null);
   const containerRef = React.useRef(null);
 
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -197,9 +215,12 @@ const BaseCustomFloatingPhoneInput = ({ label, countryCode, onCountryCodeChange,
   }, [userLocation]);
 
   React.useLayoutEffect(() => {
-    if (legendRef.current) {
-      const span = legendRef.current.querySelector('span');
-      if (span) setLegendWidth(span.scrollWidth);
+    if (legendRef.current && fieldsetRef.current) {
+      const bw = parseFloat(getComputedStyle(fieldsetRef.current).borderLeftWidth) || 1;
+      const pl = parseFloat(getComputedStyle(fieldsetRef.current).paddingLeft) || 12;
+      setNotchL(pl - bw);
+      setNotchT(Math.ceil(legendRef.current.offsetHeight / 2));
+      setLegendWidth(legendRef.current.scrollWidth);
     }
   }, [label]);
 
@@ -215,14 +236,14 @@ const BaseCustomFloatingPhoneInput = ({ label, countryCode, onCountryCodeChange,
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  let borderColor = '#cbd5e1'; // Slate 300 — theme border token
-  if (error) borderColor = '#d32f2f';
-  else if (updateRequested) borderColor = '#ffc107';
-  else if (focused || isOpen) borderColor = '#0056b3';
-  else if (hovered) borderColor = '#94a3b8';
+  let borderColor = 'rgba(30, 79, 163, 0.2)';
+  if (error) borderColor = 'var(--color-error)';
+  else if (updateRequested) borderColor = 'var(--color-warning)';
+  else if (focused || isOpen) borderColor = 'var(--color-primary)';
+  else if (hovered) borderColor = 'rgba(30, 79, 163, 0.4)';
 
-  const nL = 11;
-  const nT = 7;
+  const nL = notchL;
+  const nT = notchT;
   const nR = nL + legendWidth;
   const clipPath = isFloating && legendWidth > 0
     ? `polygon(0px 0px, ${nL}px 0px, ${nL}px ${nT}px, ${nR}px ${nT}px, ${nR}px 0px, 100% 0px, 100% 100%, 0px 100%)`
@@ -239,20 +260,23 @@ const BaseCustomFloatingPhoneInput = ({ label, countryCode, onCountryCodeChange,
   return (
     <Box
       ref={containerRef}
-      sx={{ position: 'relative', width: '100%', mb: helperText ? 2.5 : 0 }}
+      sx={{ position: 'relative', width: 'var(--size-full)', '--bw': focused ? focusedBorderWidth : defaultBorderWidth }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <Box sx={{ position: 'relative', width: '100%' }}>
+      <Box sx={{ position: 'relative', width: 'var(--size-full)', '--bw': focused ? focusedBorderWidth : defaultBorderWidth }}>
         <Box sx={{
-          position: 'absolute', top: 0, left: '1px', right: '1px', bottom: '1px',
-          backgroundColor: disabled ? '#f1f5f9' : 'var(--floating-bg, #ffffff)',
-          borderRadius: '7px', zIndex: 0,
+          position: 'absolute', top: (focused ? focusedBorderWidth : defaultBorderWidth), left: (focused ? focusedBorderWidth : defaultBorderWidth), right: (focused ? focusedBorderWidth : defaultBorderWidth), bottom: (focused ? focusedBorderWidth : defaultBorderWidth),
+          backgroundColor: disabled ? 'rgba(241, 245, 249, 0.5)' : 'rgba(255, 255, 255, 0.3)',
+          backdropFilter: 'blur(30px)',
+          WebkitBackdropFilter: 'blur(30px)',
+          borderRadius: 'var(--radius-md)', zIndex: 0,
           clipPath: clipPath,
           transition: 'clip-path 0.05s ease-in-out',
         }} />
 
-        <Box sx={{ display: 'flex', width: '100%', position: 'relative', zIndex: 2 }}>
+
+        <Box sx={{ display: 'flex', width: 'var(--size-full)', position: 'relative', zIndex: 2, height: 'var(--box-height)', alignItems: 'center' }}>
           <Box
             onClick={() => {
               if (!disabled) {
@@ -261,29 +285,37 @@ const BaseCustomFloatingPhoneInput = ({ label, countryCode, onCountryCodeChange,
               }
             }}
             style={{
-              width: '95px', padding: '12px 0 12px 14px', fontSize: '15px',
-              backgroundColor: 'transparent', border: 'none', outline: 'none',
-              boxSizing: 'border-box', fontFamily: 'inherit', color: '#0f172a',
-              cursor: disabled ? 'default' : 'pointer', borderRadius: '8px 0 0 8px',
-              display: 'flex', alignItems: 'center', gap: '8px'
+              padding: '0 12px 0 14px',
+              height: '100%',
+              fontSize: 'var(--font-base)',
+              backgroundColor: 'transparent',
+              border: 'none',
+              outline: 'none',
+              color: 'var(--color-slate-900)',
+              cursor: disabled ? 'default' : 'pointer',
+              borderRadius: '8px 0 0 8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px'
             }}
           >
-            {selectedCountryObj && <img src={selectedCountryObj.flagUrl} alt="" style={{ width: '20px', height: 'auto' }} />}
-            <span style={{ fontWeight: 600 }}>{countryCode || '+91'}</span>
-          </Box>
-
-          <Box sx={{
-            position: 'absolute', left: '75px', top: '12px', pointerEvents: 'none',
-            color: (focused || isOpen) ? '#0056b3' : '#64748b', zIndex: 3,
-            transform: isOpen ? 'rotate(180deg)' : 'none',
-            transition: 'transform 0.2s ease, color 0.2s ease'
-          }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            {selectedCountryObj && <img src={selectedCountryObj.flagUrl} alt="" style={{ width: '20px', height: 'auto', flexShrink: 0 }} />}
+            <div style={{ whiteSpace: 'nowrap', color: 'var(--color-slate-900)' }}>{countryCode || '+91'}</div>
+            <svg
+              style={{
+                transform: isOpen ? 'rotate(180deg)' : 'none',
+                transition: 'transform 0.2s ease, color 0.2s ease',
+                color: (focused || isOpen) ? 'var(--color-primary)' : 'var(--color-slate-500)',
+                flexShrink: 0
+              }}
+              width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+            >
               <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
           </Box>
 
-          <Box sx={{ width: '1px', bgcolor: '#e2e8f0', my: 1.5 }} />
+          <Box sx={{ width: '1px', height: '50%', bgcolor: 'rgba(30, 79, 163, 0.3)' }} />
 
           <input
             type="tel"
@@ -293,26 +325,41 @@ const BaseCustomFloatingPhoneInput = ({ label, countryCode, onCountryCodeChange,
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
             style={{
-              flex: 1, padding: '12px 14px', fontSize: '15px',
-              backgroundColor: 'transparent', border: 'none', outline: 'none',
-              boxSizing: 'border-box', fontFamily: 'inherit', color: '#0f172a',
-              cursor: disabled ? 'default' : 'text', borderRadius: '0 8px 8px 0',
+              flex: 1,
+              padding: '0 14px 0 12px',
+              height: '100%',
+              fontSize: 'var(--font-base)',
+              backgroundColor: 'transparent',
+              border: 'none',
+              outline: 'none',
+              boxSizing: 'border-box',
+              fontFamily: 'inherit',
+              color: 'var(--color-slate-900)',
+              cursor: disabled ? 'default' : 'text',
+              borderRadius: '0 8px 8px 0',
               paddingRight: endAdornment ? '80px' : '14px',
+              minWidth: 0
             }}
           />
 
-          {endAdornment && (
-            <Box sx={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', zIndex: 3, display: 'flex' }}>
-              {endAdornment}
-            </Box>
-          )}
+          <Box sx={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', zIndex: 3, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            {error && typeof helperText === 'string' && helperText.length > 0 && (
+              <Tooltip title={helperText} placement="top" arrow PopperProps={{ sx: { zIndex: 9999 } }}>
+                <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', pointerEvents: 'auto' }}>
+                  <ErrorOutlineIcon sx={{ color: 'var(--color-error)', fontSize: 20 }} />
+                </Box>
+              </Tooltip>
+            )}
+            {endAdornment}
+          </Box>
         </Box>
 
         <fieldset
+          ref={fieldsetRef}
           style={{
             position: 'absolute', top: '-5px', left: 0, right: 0, bottom: 0,
             margin: 0, padding: '0 12px', pointerEvents: 'none',
-            borderRadius: '8px', borderStyle: 'solid',
+            borderRadius: 'var(--radius-md)', borderStyle: 'solid',
             borderWidth: (focused || isOpen) ? '1.5px' : '1px',
             borderColor: borderColor,
             background: 'none',
@@ -325,7 +372,7 @@ const BaseCustomFloatingPhoneInput = ({ label, countryCode, onCountryCodeChange,
             style={{
               width: 'auto', maxWidth: isFloating ? '100%' : '0.01px',
               padding: 0, margin: 0, float: 'none', display: 'block',
-              height: '11px', fontSize: '12px', visibility: 'hidden',
+              height: '11px', fontSize: 'var(--font-xs)', opacity: 0,
               whiteSpace: 'nowrap', overflow: 'hidden',
               transition: 'max-width 50ms cubic-bezier(0.0, 0, 0.2, 1) 0ms',
             }}
@@ -338,10 +385,10 @@ const BaseCustomFloatingPhoneInput = ({ label, countryCode, onCountryCodeChange,
       <label
         style={{
           position: 'absolute', left: isFloating ? '12px' : '110px',
-          top: isFloating ? '-7px' : '22.5px',
+          top: isFloating ? '-7px' : '50%',
           transform: isFloating ? 'translateY(0)' : 'translateY(-50%)',
           fontSize: isFloating ? '12px' : '15px',
-          color: error ? '#d32f2f' : (focused || isOpen) ? '#0056b3' : disabled ? '#94a3b8' : '#64748b',
+          color: error ? 'var(--color-error)' : (focused || isOpen) ? 'var(--color-primary)' : disabled ? 'var(--color-slate-500)' : 'var(--color-slate-500)',
           backgroundColor: 'transparent', padding: '0 4px',
           transition: 'all 0.2s ease-in-out', pointerEvents: 'none', zIndex: 3,
           lineHeight: '14px',
@@ -350,329 +397,34 @@ const BaseCustomFloatingPhoneInput = ({ label, countryCode, onCountryCodeChange,
         {label}
       </label>
 
-      {/* Custom Dropdown Menu for Country Code */}
-      {isOpen && (
-        <Box sx={{
-          position: 'absolute', top: '100%', left: 0, width: '260px', mt: '8px',
-          bgcolor: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)',
-          borderRadius: '16px',
-          border: '1px solid #cbd5e1',
-          boxShadow: 'none',
-          zIndex: 9999, maxHeight: '300px', overflowY: 'auto', py: 1,
-          display: 'flex', flexDirection: 'column'
-        }}>
-          <Box sx={{ px: 2, py: 1.5, position: 'sticky', top: 0, bgcolor: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(10px)', zIndex: 2, borderBottom: '1px solid #cbd5e1' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: '#f1f5f9', borderRadius: '8px', px: 1.5, py: 1 }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <input
-                autoFocus
-                type="text"
-                placeholder="Search country..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onClick={(e) => e.stopPropagation()}
-                style={{
-                  border: 'none', background: 'transparent', outline: 'none',
-                  width: '100%', marginLeft: '8px', fontSize: '14px',
-                  color: '#0f172a', fontFamily: 'inherit'
-                }}
-              />
-            </Box>
-          </Box>
-          <Box sx={{ flex: 1, overflowY: 'auto', pt: 1 }}>
-            {countryOptions.length === 0 ? (
-              <Box sx={{ px: 2, py: 1.5, color: '#94a3b8', fontSize: '14px' }}>No results found</Box>
-            ) : (
-              countryOptions.map((opt, i) => {
-                const isSelected = (countryCode || '+91') === opt.phoneCode;
-                return (
-                  <Box
-                    key={i}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onCountryCodeChange({ target: { value: opt.phoneCode } });
-                      setIsOpen(false);
-                      setFocused(false);
-                      setSearchQuery('');
-                    }}
-                    sx={{
-                      boxSizing: 'border-box',
-                      borderRadius: '6px',
-                      margin: '2px 8px',
-                      width: 'calc(100% - 16px)',
-                      minHeight: '38px',
-                      padding: '8px 12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      cursor: 'pointer',
-                      bgcolor: isSelected ? '#f1f5f9' : 'transparent',
-                      color: isSelected ? '#0056b3' : '#334155',
-                      fontWeight: isSelected ? 500 : 400,
-                      fontSize: '14px',
-                      lineHeight: 1.25,
-                      transition: 'background-color 0.2s ease, color 0.2s ease',
-                      '&:hover': { bgcolor: '#f1f5f9', color: '#0056b3' },
-                      '&:active': { bgcolor: '#e2e8f0' }
-                    }}
-                  >
-                    <img src={opt.flagUrl} alt="" style={{ width: '20px', height: 'auto', objectFit: 'cover' }} />
-                    <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{opt.name}</span>
-                    <span style={{ fontWeight: 500, color: isSelected ? '#0056b3' : '#64748b' }}>{opt.phoneCode}</span>
-                  </Box>
-                );
-              })
-            )}
-          </Box>
-        </Box>
-      )}
+      <DropdownListPopup
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        options={countryOptions.map(opt => ({
+          ...opt,
+          value: opt.phoneCode,
+          label: opt.name,
+          renderLabel: (o) => (
+            <>
+              <div style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--color-slate-900)' }}>{o.label}</div>
+              <div style={{ fontWeight: '500', color: 'var(--color-slate-500)' }}>{o.phoneCode}</div>
+            </>
+          )
+        }))}
+        value={countryCode || '+91'}
+        onChange={onCountryCodeChange}
+        searchable={true}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+      />
 
-      {error && helperText && (
-        <Typography sx={{ position: 'absolute', bottom: '-20px', left: '14px', color: '#d32f2f', fontSize: '0.75rem' }}>
-          {helperText}
-        </Typography>
-      )}
     </Box>
   );
 };
 
-const BaseCustomFloatingSelect = ({ label, value, onChange, options = [], error = false, disabled = false, updateRequested = false, searchable = undefined, sx }) => {
-  const [focused, setFocused] = React.useState(false);
-  const [hovered, setHovered] = React.useState(false);
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [legendWidth, setLegendWidth] = React.useState(0);
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const legendRef = React.useRef(null);
-  const containerRef = React.useRef(null);
+const BaseCustomFloatingSelect = CentralDropdown;
 
-  // Auto-enable search if there are more than 10 options, unless explicitly set
-  const isSearchable = searchable !== undefined ? searchable : options.length > 10;
-
-  const isFloating = focused || isOpen || (value !== undefined && value !== null && value.toString().length > 0);
-
-  React.useLayoutEffect(() => {
-    if (legendRef.current) {
-      const span = legendRef.current.querySelector('span');
-      if (span) setLegendWidth(span.scrollWidth);
-    }
-  }, [label]);
-
-  React.useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
-        setIsOpen(false);
-        setFocused(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  let borderColor = '#cbd5e1'; // Slate 300 — theme border token
-  if (error) borderColor = '#d32f2f';
-  else if (updateRequested) borderColor = '#ffc107';
-  else if (focused || isOpen) borderColor = '#0056b3';
-  else if (hovered) borderColor = '#94a3b8';
-
-  const nL = 11;
-  const nT = 7;
-  const nR = nL + legendWidth;
-  const clipPath = isFloating && legendWidth > 0
-    ? `polygon(0px 0px, ${nL}px 0px, ${nL}px ${nT}px, ${nR}px ${nT}px, ${nR}px 0px, 100% 0px, 100% 100%, 0px 100%)`
-    : undefined;
-
-  const selectedOption = options.find(opt => opt.value === value);
-
-  const filteredOptions = React.useMemo(() => {
-    if (!isSearchable || !searchQuery) return options;
-    const q = searchQuery.toLowerCase();
-    return options.filter(opt => {
-      const searchableStr = opt.searchStr ? opt.searchStr : opt.label.toLowerCase();
-      return searchableStr.includes(q);
-    });
-  }, [options, isSearchable, searchQuery]);
-
-  return (
-    <Box
-      ref={containerRef}
-      sx={{ position: 'relative', width: '100%', ...sx }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <Box
-        sx={{ position: 'relative', width: '100%', cursor: disabled ? 'default' : 'pointer' }}
-        onClick={() => {
-          if (!disabled) {
-            setIsOpen(!isOpen);
-            setFocused(true);
-          }
-        }}
-      >
-        {/* White fill with clip-path notch at exactly label width */}
-        <Box sx={{
-          position: 'absolute', top: 0, left: '1px', right: '1px', bottom: '1px',
-          backgroundColor: disabled ? '#f1f5f9' : 'var(--floating-bg, #ffffff)',
-          borderRadius: '7px', zIndex: 0,
-          clipPath: clipPath,
-          transition: 'clip-path 0.05s ease-in-out',
-        }} />
-
-        <Box
-          style={{
-            width: '100%', padding: '0 14px', fontSize: '15px',
-            backgroundColor: 'transparent', border: 'none', outline: 'none',
-            boxSizing: 'border-box', fontFamily: 'inherit', color: '#0f172a',
-            position: 'relative', zIndex: 2, height: '45px',
-            display: 'flex', alignItems: 'center', gap: '8px'
-          }}
-        >
-          {selectedOption && selectedOption.flagUrl && (
-            <img src={selectedOption.flagUrl} alt="" style={{ width: '20px', height: '15px', objectFit: 'cover' }} />
-          )}
-          {selectedOption ? selectedOption.label : ''}
-        </Box>
-
-        <fieldset
-          style={{
-            position: 'absolute', top: '-5px', left: 0, right: 0, bottom: 0,
-            margin: 0, padding: '0 12px', pointerEvents: 'none',
-            borderRadius: '8px', borderStyle: 'solid',
-            borderWidth: (focused || isOpen) ? '1.5px' : '1px',
-            borderColor: borderColor,
-            background: 'none',
-            transition: 'border-color 0.2s, border-width 0.2s',
-            zIndex: 1, boxSizing: 'border-box',
-          }}
-        >
-          <legend
-            ref={legendRef}
-            style={{
-              width: 'auto', maxWidth: isFloating ? '100%' : '0.01px',
-              padding: 0, margin: 0, float: 'none', display: 'block',
-              height: '11px', fontSize: '12px', visibility: 'hidden',
-              whiteSpace: 'nowrap', overflow: 'hidden',
-              transition: 'max-width 50ms cubic-bezier(0.0, 0, 0.2, 1) 0ms',
-            }}
-          >
-            <span style={{ padding: '0 4px', display: 'inline-block' }}>{label}</span>
-          </legend>
-        </fieldset>
-      </Box>
-
-      <label
-        style={{
-          position: 'absolute', left: '12px',
-          top: isFloating ? '-7px' : '22.5px',
-          transform: isFloating ? 'translateY(0)' : 'translateY(-50%)',
-          fontSize: isFloating ? '12px' : '15px',
-          color: error ? '#d32f2f' : (focused || isOpen) ? '#0056b3' : disabled ? '#94a3b8' : '#64748b',
-          backgroundColor: 'transparent', padding: '0 4px',
-          transition: 'all 0.2s ease-in-out', pointerEvents: 'none', zIndex: 3,
-          lineHeight: '14px',
-        }}
-      >
-        {label}
-      </label>
-
-      <Box sx={{
-        position: 'absolute', right: '14px', top: '12px',
-        pointerEvents: 'none',
-        color: (focused || isOpen) ? '#0056b3' : '#64748b',
-        zIndex: 4,
-        transform: isOpen ? 'rotate(180deg)' : 'none',
-        transition: 'transform 0.2s ease, color 0.2s ease'
-      }}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
-      </Box>
-
-      {/* Custom Dropdown Menu aligned with global theme */}
-      {isOpen && (
-        <Box sx={{
-          position: 'absolute', top: '100%', left: 0, right: 0, mt: '8px',
-          bgcolor: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)',
-          borderRadius: '16px',
-          border: '1px solid #cbd5e1',
-          boxShadow: 'none',
-          zIndex: 9999, display: 'flex', flexDirection: 'column',
-          overflow: 'hidden'
-        }}>
-          {isSearchable && (
-            <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid #cbd5e1' }} onClick={(e) => e.stopPropagation()}>
-              <Box sx={{
-                display: 'flex', alignItems: 'center', bgcolor: '#f1f5f9',
-                borderRadius: '8px', px: 1.5, py: 1
-              }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input
-                  autoFocus
-                  type="text"
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{
-                    border: 'none', background: 'transparent', outline: 'none',
-                    width: '100%', marginLeft: '8px', fontSize: '14px',
-                    color: '#0f172a', fontFamily: 'inherit'
-                  }}
-                />
-              </Box>
-            </Box>
-          )}
-
-          <Box sx={{ maxHeight: '250px', overflowY: 'auto', py: 1 }}>
-            {filteredOptions.length === 0 ? (
-              <Box sx={{ px: 2, py: 1.5, color: '#94a3b8', fontSize: '15px' }}>No options found</Box>
-            ) : (
-              filteredOptions.map((opt, i) => {
-                const isSelected = value === opt.value;
-                return (
-                  <Box
-                    key={i}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onChange({ target: { value: opt.value } });
-                      setIsOpen(false);
-                      setFocused(false);
-                      setSearchQuery('');
-                    }}
-                    sx={{
-                      boxSizing: 'border-box',
-                      borderRadius: '6px',
-                      margin: '2px 8px',
-                      width: 'calc(100% - 16px)',
-                      minHeight: '38px',
-                      padding: '8px 12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      cursor: 'pointer',
-                      bgcolor: isSelected ? '#f1f5f9' : 'transparent',
-                      color: isSelected ? '#0056b3' : '#334155',
-                      fontWeight: isSelected ? 500 : 400,
-                      fontSize: '14px',
-                      lineHeight: 1.25,
-                      transition: 'background-color 0.2s ease, color 0.2s ease',
-                      '&:hover': { bgcolor: '#f1f5f9', color: '#0056b3' },
-                      '&:active': { bgcolor: '#e2e8f0' }
-                    }}
-                  >
-                    {opt.flagUrl && (
-                      <img src={opt.flagUrl} alt="" style={{ width: '20px', height: '15px', objectFit: 'cover', marginRight: '8px' }} />
-                    )}
-                    {opt.label}
-                  </Box>
-                );
-              })
-            )}
-          </Box>
-        </Box>
-      )}
-    </Box>
-  );
-};
-
-const BaseCustomFloatingDatePicker = ({ label, value, onChange, error, helperText, disabled, updateRequested = false, disableFuture = false }) => {
+const BaseCustomFloatingDatePicker = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, value, onChange, error, helperText, disabled, updateRequested = false, disableFuture = false }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [showMonthSelect, setShowMonthSelect] = React.useState(false);
   const [showYearSelect, setShowYearSelect] = React.useState(false);
@@ -737,7 +489,7 @@ const BaseCustomFloatingDatePicker = ({ label, value, onChange, error, helperTex
   const yearsArray = Array.from({ length: maxYearNum - (currentYearNum - 100) + 1 }, (_, i) => (currentYearNum - 100) + i).reverse();
 
   return (
-    <Box ref={containerRef} sx={{ position: 'relative', width: '100%' }}>
+    <Box ref={containerRef} sx={{ position: 'relative', width: 'var(--size-full)', '--bw': isOpen ? focusedBorderWidth : defaultBorderWidth }}>
       <BaseCustomFloatingInput
         label={label}
         value={displayValue}
@@ -749,7 +501,7 @@ const BaseCustomFloatingDatePicker = ({ label, value, onChange, error, helperTex
         inputProps={{ readOnly: true, style: { cursor: disabled ? 'default' : 'pointer' } }}
         InputProps={{
           endAdornment: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#0056b3' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--color-primary)' }}>
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
               <line x1="16" y1="2" x2="16" y2="6"></line>
               <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -761,37 +513,36 @@ const BaseCustomFloatingDatePicker = ({ label, value, onChange, error, helperTex
 
       {isOpen && (
         <Box sx={{
-          position: 'absolute', top: '100%', left: 0, mt: '8px', zIndex: 9999,
-          bgcolor: '#ffffff', borderRadius: '12px', p: '28px',
-          boxShadow: 'none',
-          border: '1px solid #cbd5e1', width: '300px',
+          position: 'absolute', top: 'var(--size-full)', left: 0, mt: '8px', zIndex: 'var(--z-modal)',
+          bgcolor: 'var(--color-white)', borderRadius: 'var(--radius-lg)', p: '28px',
+          border: 'var(--border-thin) solid #cbd5e1', width: '300px',
         }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, position: 'relative' }}>
               <Box
                 onClick={(e) => { e.stopPropagation(); setShowMonthSelect(!showMonthSelect); setShowYearSelect(false); }}
-                sx={{ cursor: 'pointer', p: 0.5, borderRadius: 1, '&:hover': { bgcolor: '#f1f5f9' }, fontSize: '16px', fontWeight: 600, color: '#0f172a' }}
+                sx={{ cursor: 'pointer', p: 0.5, borderRadius: 1, '&:hover': { bgcolor: 'var(--color-slate-50)' }, fontSize: 'var(--font-base)', fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-900)' }}
               >
                 {monthNames[month]}
               </Box>
               <Box
                 onClick={(e) => { e.stopPropagation(); setShowYearSelect(!showYearSelect); setShowMonthSelect(false); }}
-                sx={{ cursor: 'pointer', p: 0.5, borderRadius: 1, '&:hover': { bgcolor: '#f1f5f9' }, fontSize: '16px', fontWeight: 600, color: '#0f172a' }}
+                sx={{ cursor: 'pointer', p: 0.5, borderRadius: 1, '&:hover': { bgcolor: 'var(--color-slate-50)' }, fontSize: 'var(--font-base)', fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-900)' }}
               >
                 {year}
               </Box>
-              <svg onClick={(e) => { e.stopPropagation(); setShowYearSelect(!showYearSelect); setShowMonthSelect(false); }} width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0056b3" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '2px', cursor: 'pointer' }}>
+              <svg onClick={(e) => { e.stopPropagation(); setShowYearSelect(!showYearSelect); setShowMonthSelect(false); }} width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '2px', cursor: 'pointer' }}>
                 <polyline points="6 9 12 15 18 9"></polyline>
               </svg>
 
               {/* Month Dropdown */}
               {showMonthSelect && (
                 <Box sx={{
-                  position: 'absolute', top: '100%', left: 0, mt: '2px',
+                  position: 'absolute', top: 'var(--size-full)', left: 0, mt: '2px',
                   width: '130px', maxHeight: '220px', overflowY: 'auto',
                   bgcolor: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)',
-                  borderRadius: '12px', border: '1px solid #cbd5e1', boxShadow: 'none',
-                  zIndex: 10001, py: '4px'
+                  borderRadius: 'var(--radius-lg)', border: 'var(--border-thin) solid #cbd5e1',
+                  zIndex: 'var(--z-popover)', py: '4px'
                 }}>
                   {monthNames.map((m, i) => {
                     const isDisabledMonth = disableFuture && year === currentYearNum && i > new Date().getMonth();
@@ -807,7 +558,7 @@ const BaseCustomFloatingDatePicker = ({ label, value, onChange, error, helperTex
                         }}
                         sx={{
                           boxSizing: 'border-box',
-                          borderRadius: '8px',
+                          borderRadius: 'var(--radius-md)',
                           margin: '2px 6px',
                           width: 'calc(100% - 12px)',
                           padding: '8px 12px',
@@ -816,14 +567,14 @@ const BaseCustomFloatingDatePicker = ({ label, value, onChange, error, helperTex
                           justifyContent: 'center',
                           cursor: isDisabledMonth ? 'not-allowed' : 'pointer',
                           opacity: isDisabledMonth ? 0.4 : 1,
-                          bgcolor: isSelected ? '#eff6ff' : 'transparent',
-                          color: isSelected ? '#0056b3' : '#334155',
+                          bgcolor: isSelected ? 'var(--color-slate-50)' : 'transparent',
+                          color: isSelected ? 'var(--color-primary)' : 'var(--color-slate-700)',
                           fontWeight: isSelected ? 600 : 400,
-                          fontSize: '14px',
+                          fontSize: 'var(--font-sm)',
                           transition: 'all 0.15s ease',
                           '&:hover': {
-                            bgcolor: isDisabledMonth ? 'transparent' : '#f8fafc',
-                            color: isDisabledMonth ? 'inherit' : '#0f172a'
+                            bgcolor: isDisabledMonth ? 'transparent' : 'var(--color-slate-50)',
+                            color: isDisabledMonth ? 'inherit' : 'var(--color-slate-900)'
                           },
                         }}
                       >
@@ -837,11 +588,11 @@ const BaseCustomFloatingDatePicker = ({ label, value, onChange, error, helperTex
               {/* Year Dropdown */}
               {showYearSelect && (
                 <Box sx={{
-                  position: 'absolute', top: '100%', left: '40%', mt: '2px',
+                  position: 'absolute', top: 'var(--size-full)', left: '40%', mt: '2px',
                   width: '100px', maxHeight: '220px', overflowY: 'auto',
                   bgcolor: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)',
-                  borderRadius: '12px', border: '1px solid #cbd5e1', boxShadow: 'none',
-                  zIndex: 10001, py: '4px'
+                  borderRadius: 'var(--radius-lg)', border: 'var(--border-thin) solid #cbd5e1',
+                  zIndex: 'var(--z-popover)', py: '4px'
                 }}>
                   {yearsArray.map(y => {
                     const isSelected = year === y;
@@ -856,7 +607,7 @@ const BaseCustomFloatingDatePicker = ({ label, value, onChange, error, helperTex
                         }}
                         sx={{
                           boxSizing: 'border-box',
-                          borderRadius: '8px',
+                          borderRadius: 'var(--radius-md)',
                           margin: '2px 6px',
                           width: 'calc(100% - 12px)',
                           padding: '8px 12px',
@@ -864,14 +615,14 @@ const BaseCustomFloatingDatePicker = ({ label, value, onChange, error, helperTex
                           alignItems: 'center',
                           justifyContent: 'center',
                           cursor: 'pointer',
-                          bgcolor: isSelected ? '#eff6ff' : 'transparent',
-                          color: isSelected ? '#0056b3' : '#334155',
+                          bgcolor: isSelected ? 'var(--color-slate-50)' : 'transparent',
+                          color: isSelected ? 'var(--color-primary)' : 'var(--color-slate-700)',
                           fontWeight: isSelected ? 600 : 400,
-                          fontSize: '14px',
+                          fontSize: 'var(--font-sm)',
                           transition: 'all 0.15s ease',
                           '&:hover': {
-                            bgcolor: '#f8fafc',
-                            color: '#0f172a'
+                            bgcolor: 'var(--color-slate-50)',
+                            color: 'var(--color-slate-900)'
                           },
                         }}
                       >
@@ -883,10 +634,10 @@ const BaseCustomFloatingDatePicker = ({ label, value, onChange, error, helperTex
               )}
             </Box>
             <Box sx={{ display: 'flex', gap: 1.5 }}>
-              <Box onClick={handlePrevMonth} sx={{ cursor: 'pointer', color: '#0056b3', display: 'flex', p: 0.5 }}>
+              <Box onClick={handlePrevMonth} sx={{ cursor: 'pointer', color: 'var(--color-primary)', display: 'flex', p: 0.5 }}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
               </Box>
-              <Box onClick={handleNextMonth} sx={{ cursor: (disableFuture && new Date(year, month + 1, 1) > new Date()) ? 'not-allowed' : 'pointer', opacity: (disableFuture && new Date(year, month + 1, 1) > new Date()) ? 0.3 : 1, color: '#0056b3', display: 'flex', p: 0.5 }}>
+              <Box onClick={handleNextMonth} sx={{ cursor: (disableFuture && new Date(year, month + 1, 1) > new Date()) ? 'not-allowed' : 'pointer', opacity: (disableFuture && new Date(year, month + 1, 1) > new Date()) ? 0.3 : 1, color: 'var(--color-primary)', display: 'flex', p: 0.5 }}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
               </Box>
             </Box>
@@ -894,7 +645,7 @@ const BaseCustomFloatingDatePicker = ({ label, value, onChange, error, helperTex
 
           <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', mb: 1.5, textAlign: 'center' }}>
             {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
-              <Box key={i} sx={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>{d}</Box>
+              <Box key={i} sx={{ fontSize: 'var(--font-sm)', color: 'var(--color-slate-500)', fontWeight: 'var(--font-medium)' }}>{d}</Box>
             ))}
           </Box>
 
@@ -913,14 +664,14 @@ const BaseCustomFloatingDatePicker = ({ label, value, onChange, error, helperTex
                   sx={{
                     width: '32px', height: '32px', mx: 'auto',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '15px', fontWeight: (isSelected || isToday) ? 700 : 500,
-                    color: isSelected ? '#0f172a' : isToday ? '#0056b3' : '#0f172a',
-                    bgcolor: isSelected ? '#f0f9ff' : 'transparent',
-                    border: isSelected ? '1px solid #0056b3' : isToday ? '1px dashed #94a3b8' : '1px solid transparent',
-                    borderRadius: '50%',
+                    fontSize: 'var(--font-base)', fontWeight: (isSelected || isToday) ? 700 : 500,
+                    color: isSelected ? 'var(--color-slate-900)' : isToday ? 'var(--color-primary)' : 'var(--color-slate-900)',
+                    bgcolor: isSelected ? 'var(--color-slate-50)' : 'transparent',
+                    border: isSelected ? 'var(--border-thin) solid #0056b3' : isToday ? '1px dashed #94a3b8' : 'var(--border-thin) solid transparent',
+                    borderRadius: 'var(--radius-full)',
                     cursor: 'pointer',
                     '&:hover': {
-                      bgcolor: isSelected ? '#f0f9ff' : '#f1f5f9'
+                      bgcolor: isSelected ? 'var(--color-slate-50)' : 'var(--color-slate-50)'
                     }
                   }}
                 >
@@ -935,17 +686,8 @@ const BaseCustomFloatingDatePicker = ({ label, value, onChange, error, helperTex
   );
 };
 
-const BaseCustomFloatingCountrySelect = ({ label, value, onChange, error, helperText, disabled, updateRequested = false }) => {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [focused, setFocused] = React.useState(false);
-  const [hovered, setHovered] = React.useState(false);
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [legendWidth, setLegendWidth] = React.useState(0);
-  const legendRef = React.useRef(null);
-  const containerRef = React.useRef(null);
+const BaseCustomFloatingCountrySelect = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, value, onChange, error, helperText, disabled, updateRequested = false }) => {
   const { userLocation } = useAccessibility();
-
-  const isFloating = focused || isOpen || (value !== undefined && value !== null && value.toString().length > 0);
 
   const sortedCountries = React.useMemo(() => {
     const lat = userLocation?.lat || 20.5937;
@@ -953,236 +695,62 @@ const BaseCustomFloatingCountrySelect = ({ label, value, onChange, error, helper
     return sortLocationsByDistance(gazeteer.Countries, lat, lon, 'countries');
   }, [userLocation]);
 
-  React.useLayoutEffect(() => {
-    if (legendRef.current) {
-      const span = legendRef.current.querySelector('span');
-      if (span) setLegendWidth(span.scrollWidth);
-    }
-  }, [label, isFloating]);
-
-  React.useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
-        setIsOpen(false);
-        setFocused(false);
-        setSearchQuery('');
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  let borderColor = '#cbd5e1'; // Slate 300 — theme border token
-  if (error) borderColor = '#d32f2f';
-  else if (updateRequested) borderColor = '#ffc107';
-  else if (focused || isOpen) borderColor = '#0056b3';
-  else if (hovered) borderColor = '#94a3b8';
-
-  const nL = 11;
-  const nT = 7;
-  const nR = nL + legendWidth;
-  const clipPath = isFloating && legendWidth > 0
-    ? `polygon(0px 0px, ${nL}px 0px, ${nL}px ${nT}px, ${nR}px ${nT}px, ${nR}px 0px, 100% 0px, 100% 100%, 0px 100%)`
-    : undefined;
-
-  const filteredCountries = sortedCountries.filter(c =>
-    (c.nationality || c.name).toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (c.phoneCode && c.phoneCode.includes(searchQuery))
-  );
-
-  // When value is provided (like "Indian"), match it against nationality or name.
-  const selectedCountryObj = gazeteer.Countries.find(c => (c.nationality || c.name) === value || c.name === value);
+  const options = React.useMemo(() => {
+    return sortedCountries.map(c => ({
+      value: c.nationality || c.name,
+      label: c.nationality || c.name,
+      flagUrl: c.flagUrl,
+      searchStr: (c.nationality || c.name).toLowerCase() + ' ' + c.name.toLowerCase() + ' ' + (c.phoneCode || '')
+    }));
+  }, [sortedCountries]);
 
   return (
-    <Box
-      ref={containerRef}
-      sx={{ position: 'relative', width: '100%', mb: helperText ? 2.5 : 0 }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onClick={() => {
-        if (!disabled) {
-          setIsOpen(!isOpen);
-          setFocused(true);
-        }
-      }}
-    >
-      <Box sx={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center' }}>
-        <Box sx={{
-          position: 'absolute', top: 0, left: '1px', right: '1px', bottom: '1px',
-          backgroundColor: disabled ? '#f1f5f9' : 'var(--floating-bg, #ffffff)',
-          borderRadius: '7px', zIndex: 0,
-          clipPath: clipPath,
-          transition: 'clip-path 0.05s ease-in-out',
-        }} />
-
-        <Box sx={{
-          width: '100%', padding: '0 48px 0 14px', fontSize: '15px',
-          backgroundColor: 'transparent', border: 'none', outline: 'none',
-          boxSizing: 'border-box', fontFamily: 'inherit', color: '#0f172a',
-          position: 'relative', zIndex: 2, cursor: disabled ? 'default' : 'pointer',
-          borderRadius: '8px', height: '45px', display: 'flex', alignItems: 'center', gap: '10px'
-        }}>
-          {selectedCountryObj && <img src={selectedCountryObj.flagUrl} alt="" style={{ width: '20px', height: 'auto' }} />}
-          {value || ''}
-        </Box>
-
-        <fieldset
-          style={{
-            position: 'absolute', top: '-5px', left: 0, right: 0, bottom: 0,
-            margin: 0, padding: '0 12px', pointerEvents: 'none',
-            borderRadius: '8px', borderStyle: 'solid',
-            borderWidth: (focused || isOpen) ? '1.5px' : '1px',
-            borderColor: borderColor,
-            background: 'none',
-            transition: 'border-color 0.2s, border-width 0.2s',
-            zIndex: 1, boxSizing: 'border-box',
-          }}
-        >
-          <legend
-            ref={legendRef}
-            style={{
-              float: 'unset', width: 'auto', overflow: 'hidden', display: 'block',
-              padding: 0, height: '11px', fontSize: '12px', visibility: 'hidden',
-              maxWidth: isFloating ? '100%' : '0.01px', whiteSpace: 'nowrap',
-              transition: 'max-width 50ms cubic-bezier(0.0, 0, 0.2, 1) 0ms',
-            }}
-          >
-            <span style={{ paddingLeft: '5px', paddingRight: '5px', display: 'inline-block', opacity: 0, visibility: 'visible' }}>
-              {label}
-            </span>
-          </legend>
-        </fieldset>
-
-        <label
-          style={{
-            position: 'absolute', left: '12px',
-            top: isFloating ? '-7px' : '22.5px',
-            transform: isFloating ? 'translateY(0)' : 'translateY(-50%)',
-            fontSize: isFloating ? '12px' : '15px',
-            color: error ? '#d32f2f' : (focused || isOpen) ? '#0056b3' : disabled ? '#94a3b8' : '#64748b',
-            backgroundColor: 'transparent', padding: '0 4px',
-            transition: 'all 0.2s ease-in-out', pointerEvents: 'none', zIndex: 3,
-            lineHeight: '14px',
-          }}
-        >
-          {label}
-        </label>
-
-        <Box sx={{
-          position: 'absolute', right: '14px', top: '12px',
-          pointerEvents: 'none',
-          color: (focused || isOpen) ? '#0056b3' : '#64748b',
-          zIndex: 4,
-          transform: isOpen ? 'rotate(180deg)' : 'none',
-          transition: 'transform 0.2s ease, color 0.2s ease'
-        }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </Box>
-      </Box>
-
-      {error && helperText && (
-        <Typography sx={{ color: '#d32f2f', fontSize: '12px', mt: '4px', ml: '14px' }}>
-          {helperText}
-        </Typography>
-      )}
-
-      {isOpen && (
-        <Box sx={{
-          position: 'absolute', top: '100%', left: 0, right: 0, mt: '8px',
-          bgcolor: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)',
-          borderRadius: '16px', border: '1px solid #cbd5e1',
-          boxShadow: 'none',
-          zIndex: 9999, display: 'flex', flexDirection: 'column',
-          overflow: 'hidden'
-        }}>
-          <Box sx={{ p: 2, borderBottom: '1px solid #cbd5e1' }}>
-            <Box sx={{
-              display: 'flex', alignItems: 'center', bgcolor: '#f1f5f9',
-              borderRadius: '8px', px: 1.5, py: 1
-            }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <input
-                autoFocus
-                type="text"
-                placeholder="Search nationality..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{
-                  border: 'none', background: 'transparent', outline: 'none',
-                  width: '100%', marginLeft: '8px', fontSize: '14px',
-                  color: '#0f172a', fontFamily: 'inherit'
-                }}
-              />
-            </Box>
-          </Box>
-          <Box sx={{ maxHeight: '250px', overflowY: 'auto', py: 1 }}>
-            {filteredCountries.length === 0 ? (
-              <Box sx={{ px: 2, py: 1.5, color: '#94a3b8', fontSize: '15px' }}>No countries found</Box>
-            ) : (
-              filteredCountries.map((c, i) => {
-                const natValue = c.nationality || c.name;
-                const isSelected = value === natValue;
-                return (
-                  <Box
-                    key={c.code || i}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onChange({ target: { value: natValue } });
-                      setIsOpen(false);
-                      setFocused(false);
-                      setSearchQuery('');
-                    }}
-                    sx={{
-                      display: 'flex', alignItems: 'center', gap: 2,
-                      px: 2, py: 0.75, cursor: 'pointer',
-                      bgcolor: isSelected ? '#f1f5f9' : 'transparent',
-                      '&:hover': { bgcolor: '#f8fafc' },
-                      transition: 'background-color 0.2s ease',
-                      mx: 1, borderRadius: '8px', mb: 0
-                    }}
-                  >
-                    <img src={c.flagUrl} alt={c.name} style={{ width: '20px', height: 'auto', boxShadow: 'none' }} />
-                    <Typography sx={{ fontSize: '14px', color: isSelected ? '#0056b3' : '#334155', fontWeight: isSelected ? 500 : 400 }}>
-                      {natValue}
-                    </Typography>
-                  </Box>
-                );
-              })
-            )}
-          </Box>
-        </Box>
-      )}
-    </Box>
+    <CentralDropdown
+      defaultBorderWidth={defaultBorderWidth}
+      focusedBorderWidth={focusedBorderWidth}
+      label={label}
+      value={value}
+      onChange={onChange}
+      options={options}
+      error={error}
+      helperText={helperText}
+      disabled={disabled}
+      updateRequested={updateRequested}
+      searchable={true}
+    />
   );
 };
 
-const BaseCustomFloatingFileInput = React.forwardRef(({ label, error = false, helperText = '', disabled = false, updateRequested = false, onChange, ...rest }, ref) => {
+const BaseCustomFloatingFileInput = React.forwardRef(({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, error = false, helperText = '', disabled = false, updateRequested = false, onChange, ...rest }, ref) => {
   const [focused, setFocused] = React.useState(false);
   const [hovered, setHovered] = React.useState(false);
   const [legendWidth, setLegendWidth] = React.useState(0);
+  const [notchL, setNotchL] = React.useState(11);
+  const [notchT, setNotchT] = React.useState(7);
   const legendRef = React.useRef(null);
+  const fieldsetRef = React.useRef(null);
 
   // File input always has content ("Choose File")
   const isFloating = true;
 
   React.useLayoutEffect(() => {
-    if (legendRef.current) {
-      const span = legendRef.current.querySelector('span');
-      if (span) setLegendWidth(span.scrollWidth);
+    if (legendRef.current && fieldsetRef.current) {
+      const bw = parseFloat(getComputedStyle(fieldsetRef.current).borderLeftWidth) || 1;
+      const pl = parseFloat(getComputedStyle(fieldsetRef.current).paddingLeft) || 12;
+      setNotchL(pl - bw);
+      setNotchT(Math.ceil(legendRef.current.offsetHeight / 2));
+      setLegendWidth(legendRef.current.scrollWidth);
     }
   }, [label]);
 
-  let borderColor = '#cbd5e1'; // Slate 300 — theme border token
-  if (error) borderColor = '#d32f2f';
-  else if (updateRequested) borderColor = '#ffc107';
-  else if (focused) borderColor = '#0056b3';
-  else if (hovered) borderColor = '#94a3b8';
+  let borderColor = 'rgba(30, 79, 163, 0.2)';
+  if (error) borderColor = 'var(--color-error)';
+  else if (updateRequested) borderColor = 'var(--color-warning)';
+  else if (focused) borderColor = 'var(--color-primary)';
+  else if (hovered) borderColor = 'rgba(30, 79, 163, 0.4)';
 
-  const nL = 11;
-  const nT = 7;
+  const nL = notchL;
+  const nT = notchT;
   const nR = nL + legendWidth;
   const clipPath = isFloating && legendWidth > 0
     ? `polygon(0px 0px, ${nL}px 0px, ${nL}px ${nT}px, ${nR}px ${nT}px, ${nR}px 0px, 100% 0px, 100% 100%, 0px 100%)`
@@ -1191,15 +759,17 @@ const BaseCustomFloatingFileInput = React.forwardRef(({ label, error = false, he
   return (
     <Box
       ref={ref}
-      sx={{ position: 'relative', width: '100%', mb: helperText ? 2.5 : 0 }}
+      sx={{ position: 'relative', width: 'var(--size-full)', '--bw': focused ? focusedBorderWidth : defaultBorderWidth }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <Box sx={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center' }}>
+      <Box sx={{ position: 'relative', width: 'var(--size-full)', display: 'flex', alignItems: 'center' }}>
         <Box sx={{
-          position: 'absolute', top: 0, left: '1px', right: '1px', bottom: '1px',
-          backgroundColor: disabled ? '#f1f5f9' : 'var(--floating-bg, #ffffff)',
-          borderRadius: '7px', zIndex: 0,
+          position: 'absolute', top: (focused ? focusedBorderWidth : defaultBorderWidth), left: (focused ? focusedBorderWidth : defaultBorderWidth), right: (focused ? focusedBorderWidth : defaultBorderWidth), bottom: (focused ? focusedBorderWidth : defaultBorderWidth),
+          backgroundColor: disabled ? 'rgba(241, 245, 249, 0.5)' : 'rgba(255, 255, 255, 0.3)',
+          backdropFilter: 'blur(30px)',
+          WebkitBackdropFilter: 'blur(30px)',
+          borderRadius: 'var(--radius-md)', zIndex: 0,
           clipPath: clipPath,
         }} />
 
@@ -1211,15 +781,15 @@ const BaseCustomFloatingFileInput = React.forwardRef(({ label, error = false, he
           onBlur={() => setFocused(false)}
           {...rest}
           style={{
-            width: '100%',
+            width: 'var(--size-full)',
             paddingTop: '10px', paddingBottom: '10px',
             paddingLeft: '14px', paddingRight: '14px',
-            fontSize: '14px',
+            fontSize: 'var(--font-sm)',
             backgroundColor: 'transparent', border: 'none', outline: 'none',
-            boxSizing: 'border-box', fontFamily: 'inherit', color: '#0f172a',
+            boxSizing: 'border-box', fontFamily: 'inherit', color: 'var(--color-slate-900)',
             position: 'relative', zIndex: 2,
-            cursor: disabled ? 'default' : 'pointer', borderRadius: '8px',
-            height: '45px',
+            cursor: disabled ? 'default' : 'pointer', borderRadius: 'var(--radius-md)',
+            height: 'var(--box-height)',
             ...(rest.style || {})
           }}
         />
@@ -1227,7 +797,7 @@ const BaseCustomFloatingFileInput = React.forwardRef(({ label, error = false, he
         {/* Inject CSS for file-selector-button just for this component instance */}
         <style>{`
           input[type=file]::file-selector-button {
-            border: 1px solid #cbd5e1;
+            border: var(--border-thin) solid #cbd5e1;
             padding: 4px 10px;
             border-radius: 6px;
             background-color: #f8fafc;
@@ -1235,20 +805,21 @@ const BaseCustomFloatingFileInput = React.forwardRef(({ label, error = false, he
             cursor: ${disabled ? 'default' : 'pointer'};
             margin-right: 12px;
             font-size: 12px;
-            font-weight: 500;
-            transition: all 0.2s ease;
+            font-weight: var(--font-medium);
+            transition: var(--transition-base);
           }
           input[type=file]::file-selector-button:hover {
-            background-color: ${disabled ? '#f8fafc' : '#f1f5f9'};
+            background-color: ${disabled ? 'var(--color-slate-50)' : 'var(--color-slate-50)'};
           }
         `}</style>
 
         <fieldset
+          ref={fieldsetRef}
           style={{
             position: 'absolute', top: '-5px', left: 0, right: 0, bottom: 0,
             margin: 0, padding: '0 12px', pointerEvents: 'none',
-            borderRadius: '8px', borderStyle: 'solid',
-            borderWidth: focused ? '1.5px' : '1px',
+            borderRadius: 'var(--radius-md)', borderStyle: 'solid',
+            borderWidth: (focused ? focusedBorderWidth : defaultBorderWidth),
             borderColor: borderColor,
             background: 'none',
             transition: 'border-color 0.2s, border-width 0.2s',
@@ -1260,7 +831,7 @@ const BaseCustomFloatingFileInput = React.forwardRef(({ label, error = false, he
             style={{
               width: 'auto', maxWidth: isFloating ? '100%' : '0.01px',
               padding: 0, margin: 0, float: 'none', display: 'block',
-              height: '11px', fontSize: '12px', visibility: 'hidden',
+              height: '11px', fontSize: 'var(--font-xs)', opacity: 0,
               whiteSpace: 'nowrap', overflow: 'hidden',
               transition: 'max-width 50ms cubic-bezier(0.0, 0, 0.2, 1) 0ms',
             }}
@@ -1273,10 +844,10 @@ const BaseCustomFloatingFileInput = React.forwardRef(({ label, error = false, he
       <label
         style={{
           position: 'absolute', left: '12px',
-          top: isFloating ? '-7px' : '22.5px',
+          top: isFloating ? '-7px' : '50%',
           transform: isFloating ? 'translateY(0)' : 'translateY(-50%)',
           fontSize: isFloating ? '12px' : '15px',
-          color: error ? '#d32f2f' : focused ? '#0056b3' : disabled ? '#94a3b8' : '#64748b',
+          color: error ? 'var(--color-error)' : focused ? 'var(--color-primary)' : disabled ? 'var(--color-slate-500)' : 'var(--color-slate-500)',
           backgroundColor: 'transparent', padding: '0 4px',
           transition: 'all 0.2s ease-in-out', pointerEvents: 'none', zIndex: 3,
           lineHeight: '14px',
@@ -1286,228 +857,51 @@ const BaseCustomFloatingFileInput = React.forwardRef(({ label, error = false, he
       </label>
 
       {helperText && (
-        <Typography sx={{ position: 'absolute', bottom: '-20px', left: '14px', fontSize: '11px', color: error ? '#d32f2f' : '#64748b' }}>
-          {helperText}
-        </Typography>
+        <Tooltip title={helperText} placement="top" arrow PopperProps={{ sx: { zIndex: 9999 } }}>
+          <Box component="span" sx={{
+            position: 'absolute',
+            right: '12px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            cursor: 'pointer',
+            pointerEvents: 'auto',
+            zIndex: 3
+          }}>
+            <ErrorOutlineIcon sx={{ fontSize: '18px', color: error ? 'var(--color-error)' : 'var(--color-slate-400)' }} />
+          </Box>
+        </Tooltip>
       )}
     </Box>
   );
 });
 
-export const CustomFloatingSearchableSelect = ({ label, value, onChange, options = [], error, helperText, disabled }) => {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [focused, setFocused] = React.useState(false);
-  const [hovered, setHovered] = React.useState(false);
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [legendWidth, setLegendWidth] = React.useState(0);
-  const legendRef = React.useRef(null);
-  const containerRef = React.useRef(null);
-
-  const isFloating = focused || isOpen || (value !== undefined && value !== null && value.toString().length > 0);
-
-  React.useLayoutEffect(() => {
-    if (legendRef.current) {
-      const span = legendRef.current.querySelector('span');
-      if (span) setLegendWidth(span.scrollWidth);
-    }
-  }, [label, isFloating]);
-
-  React.useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
-        setIsOpen(false);
-        setFocused(false);
-        setSearchQuery('');
+export const CustomFloatingSearchableSelect = ({ defaultBorderWidth = '1px', focusedBorderWidth = '1px', label, value, onChange, options = [], error, helperText, disabled, freeSolo = false, multiple = false }) => {
+  const formattedOptions = React.useMemo(() => {
+    return options.map(opt => {
+      if (typeof opt === 'string') {
+        return { value: opt, label: opt };
       }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  let borderColor = '#cbd5e1'; // Slate 300 — theme border token
-  if (error) borderColor = '#d32f2f';
-  else if (focused || isOpen) borderColor = '#0056b3';
-  else if (hovered) borderColor = '#94a3b8';
-
-  const nL = 11;
-  const nT = 7;
-  const nR = nL + legendWidth;
-  const clipPath = isFloating && legendWidth > 0
-    ? `polygon(0px 0px, ${nL}px 0px, ${nL}px ${nT}px, ${nR}px ${nT}px, ${nR}px 0px, 100% 0px, 100% 100%, 0px 100%)`
-    : undefined;
-
-  const filteredOptions = options.filter(opt => {
-    if (!searchQuery) return true;
-    const q = searchQuery.toLowerCase();
-    // Use searchStr (code + nativeName + script) if available, else fall back to label
-    const searchable = typeof opt === 'string' ? opt.toLowerCase() : (opt.searchStr || opt.label.toLowerCase());
-    return searchable.includes(q);
-  });
+      return opt;
+    });
+  }, [options]);
 
   return (
-    <Box
-      ref={containerRef}
-      sx={{ position: 'relative', width: '100%', mb: helperText ? 2.5 : 0 }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onClick={() => {
-        if (!disabled) {
-          setIsOpen(!isOpen);
-          setFocused(true);
-        }
-      }}
-    >
-      <Box sx={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center' }}>
-        <Box sx={{
-          position: 'absolute', top: 0, left: '1px', right: '1px', bottom: '1px',
-          backgroundColor: disabled ? '#f1f5f9' : 'var(--floating-bg, #ffffff)',
-          borderRadius: '7px', zIndex: 0,
-          clipPath: clipPath,
-          transition: 'clip-path 0.05s ease-in-out',
-        }} />
-
-        <Box sx={{
-          width: '100%', padding: '0 48px 0 14px', fontSize: '15px',
-          backgroundColor: 'transparent', border: 'none', outline: 'none',
-          boxSizing: 'border-box', fontFamily: 'inherit', color: '#0f172a',
-          position: 'relative', zIndex: 2, cursor: disabled ? 'default' : 'pointer',
-          borderRadius: '8px', height: '45px', display: 'flex', alignItems: 'center', gap: '10px'
-        }}>
-          {(() => {
-            const selectedOpt = options.find(opt => (typeof opt === 'string' ? opt : opt.value) === value);
-            return selectedOpt ? (typeof selectedOpt === 'string' ? selectedOpt : selectedOpt.label) : (value || '');
-          })()}
-        </Box>
-
-        <fieldset
-          style={{
-            position: 'absolute', top: '-5px', left: 0, right: 0, bottom: 0,
-            margin: 0, padding: '0 12px', pointerEvents: 'none',
-            borderRadius: '8px', borderStyle: 'solid',
-            borderWidth: (focused || isOpen) ? '1.5px' : '1px',
-            borderColor: borderColor,
-            background: 'none',
-            transition: 'border-color 0.2s, border-width 0.2s',
-            zIndex: 1, boxSizing: 'border-box',
-          }}
-        >
-          <legend
-            ref={legendRef}
-            style={{
-              float: 'unset', width: 'auto', overflow: 'hidden', display: 'block',
-              padding: 0, height: '11px', fontSize: '12px', visibility: 'hidden',
-              maxWidth: isFloating ? '100%' : '0.01px', whiteSpace: 'nowrap',
-              transition: 'max-width 50ms cubic-bezier(0.0, 0, 0.2, 1) 0ms',
-            }}
-          >
-            <span style={{ paddingLeft: '5px', paddingRight: '5px', display: 'inline-block', opacity: 0, visibility: 'visible' }}>
-              {label}
-            </span>
-          </legend>
-        </fieldset>
-
-        <label
-          style={{
-            position: 'absolute', left: '12px',
-            top: isFloating ? '-7px' : '22.5px',
-            transform: isFloating ? 'translateY(0)' : 'translateY(-50%)',
-            fontSize: isFloating ? '12px' : '15px',
-            color: error ? '#d32f2f' : (focused || isOpen) ? '#0056b3' : disabled ? '#94a3b8' : '#64748b',
-            backgroundColor: 'transparent', padding: '0 4px',
-            transition: 'all 0.2s ease-in-out', pointerEvents: 'none', zIndex: 3,
-            lineHeight: '14px',
-          }}
-        >
-          {label}
-        </label>
-
-        <Box sx={{
-          position: 'absolute', right: '14px', top: '12px',
-          pointerEvents: 'none',
-          color: (focused || isOpen) ? '#0056b3' : '#64748b',
-          zIndex: 4,
-          transform: isOpen ? 'rotate(180deg)' : 'none',
-          transition: 'transform 0.2s ease, color 0.2s ease'
-        }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </Box>
-      </Box>
-
-      {error && helperText && (
-        <Typography sx={{ color: '#d32f2f', fontSize: '12px', mt: '4px', ml: '14px' }}>
-          {helperText}
-        </Typography>
-      )}
-
-      {isOpen && (
-        <Box sx={{
-          position: 'absolute', top: '100%', left: 0, right: 0, mt: '8px',
-          bgcolor: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)',
-          borderRadius: '16px', border: '1px solid #cbd5e1',
-          boxShadow: 'none',
-          zIndex: 9999, display: 'flex', flexDirection: 'column',
-          overflow: 'hidden'
-        }}>
-          <Box sx={{ p: 2, borderBottom: '1px solid #cbd5e1' }}>
-            <Box sx={{
-              display: 'flex', alignItems: 'center', bgcolor: '#f1f5f9',
-              borderRadius: '8px', px: 1.5, py: 1
-            }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <input
-                autoFocus
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{
-                  border: 'none', background: 'transparent', outline: 'none',
-                  width: '100%', marginLeft: '8px', fontSize: '14px',
-                  color: '#0f172a', fontFamily: 'inherit'
-                }}
-              />
-            </Box>
-          </Box>
-          <Box sx={{ maxHeight: '250px', overflowY: 'auto', py: 1 }}>
-            {filteredOptions.length === 0 ? (
-              <Box sx={{ px: 2, py: 1.5, color: '#94a3b8', fontSize: '15px' }}>No options found</Box>
-            ) : (
-              filteredOptions.map((opt, i) => {
-                const optValue = typeof opt === 'string' ? opt : opt.value;
-                const optLabel = typeof opt === 'string' ? opt : opt.label;
-                const isSelected = value === optValue;
-                return (
-                  <Box
-                    key={i}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onChange({ target: { value: optValue } });
-                      setIsOpen(false);
-                      setFocused(false);
-                      setSearchQuery('');
-                    }}
-                    sx={{
-                      display: 'flex', alignItems: 'center', gap: 2,
-                      px: 2, py: 0.75, cursor: 'pointer',
-                      bgcolor: isSelected ? '#f1f5f9' : 'transparent',
-                      '&:hover': { bgcolor: '#f8fafc' },
-                      transition: 'background-color 0.2s ease',
-                      mx: 1, borderRadius: '8px', mb: 0
-                    }}
-                  >
-                    <Typography sx={{ fontSize: '14px', color: isSelected ? '#0056b3' : '#334155', fontWeight: isSelected ? 500 : 400 }}>
-                      {optLabel}
-                    </Typography>
-                  </Box>
-                );
-              })
-            )}
-          </Box>
-        </Box>
-      )}
-    </Box>
+    <CentralDropdown
+      defaultBorderWidth={defaultBorderWidth}
+      focusedBorderWidth={focusedBorderWidth}
+      label={label}
+      value={value}
+      onChange={onChange}
+      options={formattedOptions}
+      error={error}
+      helperText={helperText}
+      disabled={disabled}
+      searchable={true}
+      freeSolo={freeSolo}
+      multiple={multiple}
+    />
   );
 };
 

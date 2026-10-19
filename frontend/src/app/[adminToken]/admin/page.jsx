@@ -1,7 +1,6 @@
 "use client";
-
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Container, TextField, Button, Paper, Alert, InputAdornment, IconButton, Stepper, Step, StepLabel } from '@mui/material';
+import { Box, Typography, Container, TextField, Button, Paper, Alert, InputAdornment, IconButton, Stepper, Step, StepLabel, CircularProgress } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import LockIcon from '@mui/icons-material/Lock';
 import EmailIcon from '@mui/icons-material/Email';
@@ -11,14 +10,15 @@ import CheckIcon from '@mui/icons-material/Check';
 import { QRCodeSVG } from 'qrcode.react';
 import BiometricStep from '../../../features/auth/components/BiometricStep';
 import OtpInput from '../../../features/auth/components/OtpInput';
-import { useParams, useRouter } from 'next/navigation';
-import { useLoading } from '../../../contexts/LoadingContext';
+import { useParams } from 'next/navigation';
+
+import { useAppRouter as useRouter } from '../../../hooks/useAppRouter';
 
 const theme = createTheme({
   typography: {
-    fontFamily: "'Rozha One', serif",
-  },
-});
+    } });
+
+import AdminLoading from './loading';
 
 export default function AdminLanding() {
   const params = useParams();
@@ -32,6 +32,8 @@ export default function AdminLanding() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
+
+
   // States: 'login' | 'setup_totp' | 'setup_bio' | 'verify_otp' | 'verify_bio'
   const [flowState, setFlowState] = useState('login'); 
   const [tempToken, setTempToken] = useState(null); 
@@ -158,11 +160,13 @@ export default function AdminLanding() {
     }
   };
 
+
+
   return (
     <ThemeProvider theme={theme}>
       <Box
         sx={{
-          minHeight: '100vh',
+          minHeight: 'var(--size-screen-h)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -172,8 +176,7 @@ export default function AdminLanding() {
             radial-gradient(at 80% 90%, rgba(40, 167, 69, 0.2) 0, transparent 50%),
             radial-gradient(at 20% 80%, rgba(0, 86, 179, 0.15) 0, transparent 50%),
             #eef2f6
-          `,
-        }}
+          ` }}
       >
         <Paper
           elevation={0}
@@ -181,21 +184,16 @@ export default function AdminLanding() {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-start',
-            width: { xs: '100vw', sm: '500px' },
-            minHeight: { xs: '100vh', sm: 'auto' },
-            borderRadius: { xs: 0, sm: '28px' },
-            background: 'rgba(255, 255, 255, 0.85)',
-            backdropFilter: 'blur(28px) saturate(200%)',
-            boxShadow: { sm: '0 24px 64px rgba(0,0,0,0.12)' },
+            width: { xs: 'var(--size-screen-w)', sm: '500px' },
+            minHeight: { xs: 'var(--size-screen-h)', sm: 'auto' },
             px: { xs: 3, sm: 6 },
             py: { xs: 6, sm: 6 },
-            border: 'none',
-          }}
+            border: 'none' }}
         >
           <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Box component="img" src="/logo.svg" alt="Tarang Logo" sx={{ width: 48, height: 48, objectFit: 'contain' }} />
-              <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a', letterSpacing: '-1px', fontSize: '26px' }}>
+              <Typography variant="h5" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', letterSpacing: '-1px', fontSize: '26px' }}>
                 Tarang
               </Typography>
             </Box>
@@ -207,7 +205,7 @@ export default function AdminLanding() {
           {flowState === 'login' && (
             <form onSubmit={handleLogin}>
               <Box sx={{ mb: 3 }}>
-                <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px" }}>
+                <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
                   Email or Username
                 </Typography>
                 <TextField
@@ -220,28 +218,18 @@ export default function AdminLanding() {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <Box sx={{ mr: 1, color: "#94a3b8", display: "flex", alignItems: "center" }}>
+                        <Box sx={{ mr: 1, color: "var(--color-slate-500)", display: "flex", alignItems: "center" }}>
                           <EmailIcon sx={{ fontSize: 20 }} />
                         </Box>
                       </InputAdornment>
-                    ),
-                  }}
+                    ) }}
                   sx={{
-                    "& .MuiOutlinedInput-root": {
-                      backgroundColor: "#f8fafc",
-                      borderRadius: "8px",
-                      transition: "all 0.2s ease-in-out",
-                      "& fieldset": { borderColor: "#e2e8f0" },
-                      "&:hover fieldset": { borderColor: "#cbd5e1" },
-                      "&.Mui-focused fieldset": { borderColor: "#0056b3", borderWidth: "1.5px" },
-                    },
-                    "& .MuiOutlinedInput-input": { padding: "12px 14px", fontSize: "15px" },
-                  }}
+                    "& .MuiOutlinedInput-input": { padding: "12px 14px", fontSize: 'var(--font-base)' } }}
                 />
               </Box>
 
               <Box sx={{ mb: 4 }}>
-                <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px" }}>
+                <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
                   Password
                 </Typography>
                 <TextField
@@ -255,23 +243,13 @@ export default function AdminLanding() {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <Box sx={{ mr: 1, color: "#94a3b8", display: "flex", alignItems: "center" }}>
+                        <Box sx={{ mr: 1, color: "var(--color-slate-500)", display: "flex", alignItems: "center" }}>
                           <LockIcon sx={{ fontSize: 20 }} />
                         </Box>
                       </InputAdornment>
-                    ),
-                  }}
+                    ) }}
                   sx={{
-                    "& .MuiOutlinedInput-root": {
-                      backgroundColor: "#f8fafc",
-                      borderRadius: "8px",
-                      transition: "all 0.2s ease-in-out",
-                      "& fieldset": { borderColor: "#e2e8f0" },
-                      "&:hover fieldset": { borderColor: "#cbd5e1" },
-                      "&.Mui-focused fieldset": { borderColor: "#0056b3", borderWidth: "1.5px" },
-                    },
-                    "& .MuiOutlinedInput-input": { padding: "12px 14px", fontSize: "15px" },
-                  }}
+                    "& .MuiOutlinedInput-input": { padding: "12px 14px", fontSize: 'var(--font-base)' } }}
                 />
               </Box>
 
@@ -279,7 +257,7 @@ export default function AdminLanding() {
                 {/* Message Area with Fixed Height */}
                 {error && (
                     <Box sx={{ height: "24px", display: "flex", alignItems: "center", justifyContent: "center", mb: 1 }}>
-                        <Typography variant="body2" sx={{ color: "#ef4444 !important", fontSize: "13px", fontWeight: 600 }}>
+                        <Typography variant="body2" sx={{ color: "#ef4444 !important", fontSize: 'var(--font-sm)', fontWeight: 'var(--font-semibold)' }}>
                             {error}
                         </Typography>
                     </Box>
@@ -293,20 +271,19 @@ export default function AdminLanding() {
                 disableElevation
                 disabled={loading}
                 sx={{ 
-                  height: "48px",
-                  borderRadius: "8px",
+                  height: 'var(--box-height)',
+                  borderRadius: 'var(--radius-md)',
                   textTransform: "none",
-                  fontSize: "16px",
-                  fontWeight: 700,
+                  fontSize: 'var(--font-base)',
+                  fontWeight: 'var(--font-bold)',
                   background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)",
                   transition: "all 0.2s ease-in-out",
                   "&:hover": {
-                    background: "linear-gradient(135deg, #004494 0%, #218838 100%)",
-                  },
-                  "&.Mui-disabled": { background: "#e2e8f0", color: "#94a3b8" }
+                    background: "linear-gradient(135deg, #004494 0%, #218838 100%)" },
+                  "&.Mui-disabled": { background: "var(--color-slate-200)", color: "var(--color-slate-500)" }
                 }}
               >
-                {loading ? "Loading..." : 'Log In'}
+                {loading ? <CircularProgress size={24} color="inherit" /> : 'Log In'}
               </Button>
               </Box>
             </form>
@@ -314,10 +291,10 @@ export default function AdminLanding() {
 
           {flowState === 'setup_totp' && (
             <form onSubmit={handleVerifyOtpSetup}>
-              <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px', fontSize: '28px', mb: 2 }}>
+              <Typography variant="h5" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', letterSpacing: '-0.5px', fontSize: 'var(--font-2xl)', mb: 2 }}>
                 Step 1: Setup Authenticator
               </Typography>
-              <Typography variant="body2" sx={{ color: '#64748b', mb: 3, fontSize: '15px', lineHeight: 1.5 }}>
+              <Typography variant="body2" sx={{ color: 'var(--color-slate-500)', mb: 3, fontSize: 'var(--font-base)', lineHeight: 1.5 }}>
                 Please scan the QR code using an Authenticator app (like Microsoft Authenticator), or enter the key manually.
               </Typography>
               
@@ -326,15 +303,15 @@ export default function AdminLanding() {
                   flexDirection: { xs: "column", sm: "row" },
                   alignItems: { xs: "center", sm: "stretch" },
                   gap: 2,
-                  width: "100%",
+                  width: "var(--size-full)",
                   mb: 4
               }}>
                   {totpUrl ? (
                       <Box sx={{
                           p: 1.5,
                           bgcolor: "white",
-                          borderRadius: "8px",
-                          border: "1px solid #e2e8f0",
+                          borderRadius: 'var(--radius-md)',
+                          border: "var(--border-thin) solid #e2e8f0",
                           flexShrink: 0,
                           display: "flex",
                           alignItems: "center",
@@ -342,13 +319,13 @@ export default function AdminLanding() {
                       }}>
                           <QRCodeSVG value={totpUrl} size={130} />
                       </Box>
-                  ) : <Box sx={{ p: 4, display: 'flex', justifyContent: 'center', width: "100%" }}></Box>}
+                  ) : <Box sx={{ p: 4, display: 'flex', justifyContent: 'center', width: "var(--size-full)" }}></Box>}
 
                   {totpSecret && (
-                      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", minWidth: 0, width: "100%", py: 0.5 }}>
+                      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", minWidth: 0, width: "var(--size-full)", py: 0.5 }}>
                           <Typography variant="caption" sx={{
-                              color: "#94a3b8",
-                              fontWeight: 700,
+                              color: "var(--color-slate-500)",
+                              fontWeight: 'var(--font-bold)',
                               textTransform: "uppercase",
                               letterSpacing: "0.5px",
                               fontSize: "10px",
@@ -357,10 +334,10 @@ export default function AdminLanding() {
                               Manual Entry Key
                           </Typography>
                           <Box sx={{
-                              bgcolor: "#f8fafc",
+                              bgcolor: "var(--color-slate-50)",
                               px: 1.5,
                               py: 1.5,
-                              borderRadius: "8px",
+                              borderRadius: 'var(--radius-md)',
                               border: "1px dashed #cbd5e1",
                               position: "relative",
                               pr: 5,
@@ -372,9 +349,9 @@ export default function AdminLanding() {
                               <Typography sx={{
                                   fontWeight: 800,
                                   letterSpacing: "1px",
-                                  color: "#28a745",
+                                  color: "var(--color-success)",
                                   fontFamily: "'JetBrains Mono', monospace",
-                                  fontSize: "14px",
+                                  fontSize: 'var(--font-sm)',
                                   wordBreak: "break-all",
                                   lineHeight: 1.5
                               }}>
@@ -393,14 +370,14 @@ export default function AdminLanding() {
                                       right: 4,
                                       top: "50%",
                                       transform: "translateY(-50%)",
-                                      color: copied ? "#28a745" : "#94a3b8",
+                                      color: copied ? "var(--color-success)" : "var(--color-slate-500)",
                                       transition: "color 0.2s"
                                   }}
                               >
                                   {copied ? <CheckIcon sx={{ fontSize: 20 }} /> : <ContentCopyIcon sx={{ fontSize: 20 }} />}
                               </IconButton>
                           </Box>
-                          <Typography variant="caption" sx={{ color: "#94a3b8", mt: 0.75, fontSize: "11px", lineHeight: 1.4 }}>
+                          <Typography variant="caption" sx={{ color: "var(--color-slate-500)", mt: 0.75, fontSize: 'var(--font-xs)', lineHeight: 1.4 }}>
                               Use this if you cannot scan the QR code.
                           </Typography>
                       </Box>
@@ -408,7 +385,7 @@ export default function AdminLanding() {
               </Box>
 
               <Box sx={{ mb: 4 }}>
-                <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px" }}>
+                <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
                   Enter the 6-digit code to confirm
                 </Typography>
                 <OtpInput
@@ -425,28 +402,27 @@ export default function AdminLanding() {
                 disableElevation
                 disabled={loading || otp.length !== 6}
                 sx={{ 
-                  height: "48px",
-                  borderRadius: "8px",
-                  fontWeight: 700,
+                  height: 'var(--box-height)',
+                  borderRadius: 'var(--radius-md)',
+                  fontWeight: 'var(--font-bold)',
                   background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)",
-                  color: "#ffffff",
+                  color: "var(--color-white)",
                   textTransform: "none",
-                  fontSize: "16px",
+                  fontSize: 'var(--font-base)',
                   transition: "all 0.2s ease-in-out",
                   "&:hover": {
-                    background: "linear-gradient(135deg, #004494 0%, #218838 100%)",
-                  },
-                  "&.Mui-disabled": { background: "#e2e8f0", color: "#94a3b8", WebkitTextFillColor: "#94a3b8" }
+                    background: "linear-gradient(135deg, #004494 0%, #218838 100%)" },
+                  "&.Mui-disabled": { background: "var(--color-slate-200)", color: "var(--color-slate-500)", WebkitTextFillColor: "var(--color-slate-500)" }
                 }}
               >
-                {loading ? "Loading..." : 'Verify & Continue'}
+                {loading ? <CircularProgress size={24} color="inherit" /> : 'Verify & Continue'}
               </Button>
             </form>
           )}
 
           {flowState === 'setup_bio' && (
             <Box>
-              <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px', fontSize: '28px', mb: 2, textAlign: 'center' }}>
+              <Typography variant="h5" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', letterSpacing: '-0.5px', fontSize: 'var(--font-2xl)', mb: 2, textAlign: 'center' }}>
                 Step 2: Setup Biometric
               </Typography>
               <BiometricStep 
@@ -461,10 +437,10 @@ export default function AdminLanding() {
 
           {flowState === 'verify_otp' && (
             <form onSubmit={handleVerifyOtpLogin}>
-              <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px', fontSize: '28px', mb: 2 }}>
+              <Typography variant="h5" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', letterSpacing: '-0.5px', fontSize: 'var(--font-2xl)', mb: 2 }}>
                 2-Step Verification
               </Typography>
-              <Typography variant="body2" sx={{ color: '#64748b', mb: 4, fontSize: '15px', lineHeight: 1.5 }}>
+              <Typography variant="body2" sx={{ color: 'var(--color-slate-500)', mb: 4, fontSize: 'var(--font-base)', lineHeight: 1.5 }}>
                 Please enter the 6-digit verification code from your authenticator app.
               </Typography>
               <Box sx={{ mb: 4 }}>
@@ -482,21 +458,20 @@ export default function AdminLanding() {
                 disableElevation
                 disabled={loading || otp.length !== 6}
                 sx={{ 
-                  height: "48px",
-                  borderRadius: "8px",
-                  fontWeight: 700,
+                  height: 'var(--box-height)',
+                  borderRadius: 'var(--radius-md)',
+                  fontWeight: 'var(--font-bold)',
                   background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)",
-                  color: "#ffffff",
+                  color: "var(--color-white)",
                   textTransform: "none",
-                  fontSize: "16px",
+                  fontSize: 'var(--font-base)',
                   transition: "all 0.2s ease-in-out",
                   "&:hover": {
-                    background: "linear-gradient(135deg, #004494 0%, #218838 100%)",
-                  },
-                  "&.Mui-disabled": { background: "#e2e8f0", color: "#94a3b8", WebkitTextFillColor: "#94a3b8" }
+                    background: "linear-gradient(135deg, #004494 0%, #218838 100%)" },
+                  "&.Mui-disabled": { background: "var(--color-slate-200)", color: "var(--color-slate-500)", WebkitTextFillColor: "var(--color-slate-500)" }
                 }}
               >
-                {loading ? "Loading..." : 'Verify Code'}
+                {loading ? <CircularProgress size={24} color="inherit" /> : 'Verify Code'}
               </Button>
             </form>
           )}

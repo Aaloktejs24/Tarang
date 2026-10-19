@@ -114,9 +114,9 @@
     "Certificate"
   ],
   "campusTypes": [
-    "Urban",
-    "Suburban",
-    "Rural"
+    "Residential",
+    "Day Scholar",
+    "Day Boarding"
   ],
   "centralUniversitiesList": [
     "Central University of Andhra Pradesh",

@@ -41,7 +41,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to connect to auth DB: %v", err)
 	}
-	defer authConn.Close(ctx)
+	defer func() { _ = authConn.Close(ctx) }()
 
 	var accountID string
 	err = authConn.QueryRow(ctx, `
@@ -60,7 +60,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to connect to user DB: %v", err)
 	}
-	defer userConn.Close(ctx)
+	defer func() { _ = userConn.Close(ctx) }()
 
 	_, err = userConn.Exec(ctx, `
 		INSERT INTO users (id, username, email, role)

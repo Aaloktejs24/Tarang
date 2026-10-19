@@ -2,7 +2,9 @@
 import React from 'react';
 import { Box, Typography, Button, Container, Paper, Avatar, Grid, Card, CardContent, Divider, Chip, CircularProgress, IconButton, TextField, MenuItem, FormControl, InputLabel, Select, Tooltip } from '@mui/material';
 import { alpha } from '@mui/material/styles';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
+
+import { useAppRouter as useRouter } from '../../../../../../../hooks/useAppRouter';
 import { apiClient } from '../../../../../../../lib/apiClient';
 import { useProfile } from '../../../../../../../hooks/useProfile';
 import { useAccessibility } from '../../../../../../../contexts/AccessibilityContext';
@@ -34,7 +36,7 @@ export default function ApplicationsManagementPage() {
   const [statusFilter, setStatusFilter] = React.useState('all');
   const cardsRef = React.useRef(null);
 
-  const rawInstituteName = profile ? (profile.full_name || profile.institution_name || profile.username) : 'Institute';
+  const rawInstituteName = profile ? (profile.institution_name || profile.full_name || profile.username) : 'Institute';
   const breadcrumbInstituteName = formatBreadcrumbName(rawInstituteName);
 
   useBreadcrumbs([
@@ -106,8 +108,7 @@ export default function ApplicationsManagementPage() {
         minHeight: "calc(100vh - 72px)",
         display: "flex",
         alignItems: "center",
-        justifyContent: "center",
-      }}>
+        justifyContent: "center" }}>
         {showEmptyState ? (
           <EmptyState
             title={language === 'en' ? 'No Applications Yet' : 'कोई आवेदन नहीं'}
@@ -115,21 +116,20 @@ export default function ApplicationsManagementPage() {
           />
         ) : (
           <Paper elevation={0} sx={{
-            borderRadius: "24px",
+            borderRadius: 'var(--radius-lg)',
             background: 'transparent',
             border: 'none',
-            boxShadow: 'none',
             display: 'flex',
             flexDirection: { xs: 'column', md: 'row' },
             alignItems: 'stretch',
-            width: '100%',
+            width: 'var(--size-full)',
             height: { xs: 'auto', md: '82vh' },
             maxHeight: { xs: 'none', md: '820px' },
             minHeight: { xs: 'auto', md: '600px' },
             overflow: 'hidden'
           }}>
             <Box sx={{
-              width: { xs: '100%', md: '350px' },
+              width: { xs: 'var(--size-full)', md: '350px' },
               flexShrink: 0,
               background: 'transparent',
               border: 'none',
@@ -147,7 +147,7 @@ export default function ApplicationsManagementPage() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   sx={{ mb: 3 }}
                   InputProps={{
-                    endAdornment: <SearchIcon sx={{ color: '#94a3b8', fontSize: '20px' }} />
+                    endAdornment: <SearchIcon sx={{ color: 'var(--color-slate-500)', fontSize: 'var(--font-lg)' }} />
                   }}
                 />
 
@@ -175,9 +175,8 @@ export default function ApplicationsManagementPage() {
               background: "rgba(255, 255, 255, 0.3)",
               backdropFilter: "blur(30px)",
               WebkitBackdropFilter: "blur(30px)",
-              border: "1px solid rgba(30, 79, 163, 0.2)",
-              borderRadius: '24px',
-              boxShadow: 'none',
+              border: "var(--border-thin) solid rgba(30, 79, 163, 0.2)",
+              borderRadius: 'var(--radius-lg)',
               m: { xs: 0, md: 1 },
               mr: { xs: 0, md: 2 },
               overflowY: 'auto'
@@ -221,28 +220,22 @@ export default function ApplicationsManagementPage() {
                       return (
                         <Grid key={app.id} size={{xs: 12, sm: 6, md: 6, lg: 4}}>
                           <Card sx={{
-                            borderRadius: '16px',
-                            background: 'rgba(255, 255, 255, 0.6)',
-                            backdropFilter: 'blur(20px)',
-                            border: '1px solid rgba(255, 255, 255, 0.4)',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                            transition: 'all 0.3s ease',
+                            transition: 'var(--transition-slow)',
                             '&:hover': {
                               transform: 'translateY(-4px)',
-                              boxShadow: '0 12px 24px rgba(0,0,0,0.1)'
                             }
                           }}>
                             <CardContent sx={{ p: 3 }}>
                               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                  <Avatar sx={{ width: 42, height: 42, bgcolor: '#0056b3', fontSize: '1.1rem', fontWeight: 600 }}>
+                                  <Avatar sx={{ width: 42, height: 42, bgcolor: 'var(--color-primary)', fontSize: 'var(--font-lg)', fontWeight: 'var(--font-semibold)' }}>
                                     {applicantName.substring(0, 2).toUpperCase()}
                                   </Avatar>
                                   <Box>
-                                    <Typography variant="body1" sx={{ fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '180px' }} title={applicantName}>
+                                    <Typography variant="body1" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '180px' }} title={applicantName}>
                                       {applicantName}
                                     </Typography>
-                                    <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, display: 'block' }}>
+                                    <Typography variant="caption" sx={{ color: 'var(--color-slate-500)', fontWeight: 'var(--font-semibold)', display: 'block' }}>
                                       ID: {app.id.substring(0, 8).toUpperCase()}
                                     </Typography>
                                   </Box>
@@ -251,7 +244,7 @@ export default function ApplicationsManagementPage() {
 
                               <Divider sx={{ my: 2, borderColor: 'rgba(0,0,0,0.05)' }} />
 
-                              <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', width: 'var(--size-full)' }}>
                                 {(() => {
                                   const rawStages = programInfo?.stages || app.program?.stages;
                                   let parsedStages = [];
@@ -266,7 +259,7 @@ export default function ApplicationsManagementPage() {
 
                                   const tooltipTitle = (
                                     <React.Fragment>
-                                      <Typography variant="body2" sx={{ fontWeight: 600 }}>Applied: {new Date(app.created_at).toLocaleDateString()}</Typography>
+                                      <Typography variant="body2" sx={{ fontWeight: 'var(--font-semibold)' }}>Applied: {new Date(app.created_at).toLocaleDateString()}</Typography>
                                       {app.status === 'approved' && <Typography variant="body2" sx={{ mt: 0.5 }}>Approved: {new Date(app.updated_at).toLocaleDateString()}</Typography>}
                                       {app.status === 'rejected' && <Typography variant="body2" sx={{ mt: 0.5 }}>Update Req: {new Date(app.updated_at).toLocaleDateString()}</Typography>}
                                       {app.status === 'enrolled' && <Typography variant="body2" sx={{ mt: 0.5 }}>Enrolled: {new Date(app.updated_at).toLocaleDateString()}</Typography>}
@@ -286,14 +279,14 @@ export default function ApplicationsManagementPage() {
                                           <Box sx={{
                                             width: 24,
                                             height: 24,
-                                            borderRadius: '50%',
+                                            borderRadius: 'var(--radius-full)',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
-                                            bgcolor: isPast || (isFinalDot && isCompleted) ? '#28a745' : isActive ? '#0056b3' : 'rgba(0,0,0,0.05)',
-                                            color: isPast || isActive || (isFinalDot && isCompleted) ? '#fff' : '#94a3b8',
+                                            bgcolor: isPast || (isFinalDot && isCompleted) ? 'var(--color-success)' : isActive ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)',
+                                            color: isPast || isActive || (isFinalDot && isCompleted) ? 'var(--color-white)' : 'var(--color-slate-500)',
                                             fontSize: isFinalDot ? '0.85rem' : '0.75rem',
-                                            fontWeight: 700,
+                                            fontWeight: 'var(--font-bold)',
                                             flexShrink: 0,
                                             cursor: 'pointer'
                                           }}>
@@ -304,7 +297,7 @@ export default function ApplicationsManagementPage() {
                                           <Box sx={{
                                             flexGrow: 1,
                                             height: 2,
-                                            bgcolor: isPast ? '#28a745' : 'rgba(0,0,0,0.05)',
+                                            bgcolor: isPast ? 'var(--color-success)' : 'rgba(0,0,0,0.05)',
                                             mx: 0.5,
                                             borderRadius: 1
                                           }} />
@@ -319,17 +312,17 @@ export default function ApplicationsManagementPage() {
                                 {basicDetails && (
                                   <Box sx={{ textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                                     {basicDetails.email && (
-                                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: '#475569' }}>
-                                        <EmailOutlinedIcon sx={{ fontSize: 16, color: '#94a3b8' }} />
-                                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'var(--color-slate-500)' }}>
+                                        <EmailOutlinedIcon sx={{ fontSize: 16, color: 'var(--color-slate-500)' }} />
+                                        <Typography variant="body2" sx={{ fontWeight: 'var(--font-medium)' }}>
                                           {basicDetails.email}
                                         </Typography>
                                       </Box>
                                     )}
                                     {basicDetails.phone && (
-                                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: '#475569' }}>
-                                        <LocalPhoneOutlinedIcon sx={{ fontSize: 16, color: '#94a3b8' }} />
-                                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'var(--color-slate-500)' }}>
+                                        <LocalPhoneOutlinedIcon sx={{ fontSize: 16, color: 'var(--color-slate-500)' }} />
+                                        <Typography variant="body2" sx={{ fontWeight: 'var(--font-medium)' }}>
                                           {basicDetails.phone}
                                         </Typography>
                                       </Box>
@@ -346,15 +339,14 @@ export default function ApplicationsManagementPage() {
                                 disableElevation
                                 startIcon={<VisibilityOutlinedIcon />}
                                 sx={{
-                                  borderRadius: '12px',
+                                  borderRadius: 'var(--radius-lg)',
                                   textTransform: 'none',
                                   py: 1,
                                   bgcolor: 'rgba(0, 86, 179, 0.08)',
-                                  color: '#0056b3',
-                                  fontWeight: 600,
+                                  color: 'var(--color-primary)',
+                                  fontWeight: 'var(--font-semibold)',
                                   '&:hover': {
-                                    bgcolor: 'rgba(0, 86, 179, 0.15)',
-                                  }
+                                    bgcolor: 'rgba(0, 86, 179, 0.15)' }
                                 }}
                                 onClick={() => {
                                   setSelectedAppId(app.id);

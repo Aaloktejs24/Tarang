@@ -5,7 +5,8 @@ import { FieldContext } from '../../../../../../contexts/FieldContext';
 import { apiClient } from '../../../../../../lib/apiClient';
 import { styled } from '@mui/material/styles';
 import { tooltipClasses } from '@mui/material/Tooltip';
-import { Box, Typography, Container, Paper, Button, Grid, Stepper, Step, StepLabel, Divider, Tooltip, Skeleton, Card, CardContent, TextField, MenuItem, Select, InputLabel, FormControl, FormControlLabel, Checkbox, IconButton, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, Backdrop, Alert } from '@mui/material';
+import { Box, Typography, Container, Paper, Button, Grid, Stepper, Step, StepLabel, Divider, Tooltip, Skeleton, Card, CardContent, TextField, MenuItem, Select, InputLabel, FormControl, IconButton, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, Backdrop, Alert } from '@mui/material';
+import CustomCheckbox from '../../../../../../components/common/CustomCheckbox';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useAppRouter as useRouter } from '../../../../../../hooks/useAppRouter';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
@@ -44,6 +45,7 @@ import {
 import EventOutlinedIcon from '@mui/icons-material/EventOutlined';
 import EventSeatOutlinedIcon from '@mui/icons-material/EventSeatOutlined';
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
+import ApplicationSkeleton from '../../../../../../features/admission/ApplicationSkeleton';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { FieldCommentTooltip } from '../../../../../../components/common/FieldCommentTooltip';
 import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
@@ -51,7 +53,6 @@ import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import { useBreadcrumbs } from "../../../../../../contexts/BreadcrumbContext";
 import { getApplicationHistory, updateApplicationProgress, getUserApplications, applyForProgram } from '../../../../../../features/admission/admissionService';
 import { useAutoSave } from '../../../../../../features/admission/useAutoSave';
-import Loader from '../../../../../../components/common/Loader';
 
 import { CustomTooltip } from '../../../../../../components/common/CustomTooltip';
 
@@ -82,7 +83,7 @@ export default function AdmissionProgramPage() {
 
 
   const [instituteProfile, setInstituteProfile] = useState(null);
-  const [, setLoadingInstitute] = useState(true);
+  const [loadingInstitute, setLoadingInstitute] = useState(true);
 
   const [programs, setPrograms] = useState([]);
   const [loadingPrograms, setLoadingPrograms] = useState(true);
@@ -209,13 +210,13 @@ export default function AdmissionProgramPage() {
         opacity: disabled ? 0.6 : 1,
         pointerEvents: disabled ? 'none' : 'auto',
         position: 'relative',
-        width: '100%',
-        height: '100%'
+        width: 'var(--size-full)',
+        height: 'var(--size-full)'
       }}>
         {children}
         {!disabled && comment && (
-          <Typography variant="caption" sx={{ color: '#d32f2f', mt: 0.5, display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 500 }}>
-            <InfoOutlinedIcon sx={{ fontSize: '14px' }} />
+          <Typography variant="caption" sx={{ color: 'var(--color-error)', mt: 0.5, display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 'var(--font-medium)' }}>
+            <InfoOutlinedIcon sx={{ fontSize: 'var(--font-sm)' }} />
             {comment}
           </Typography>
         )}
@@ -418,7 +419,7 @@ export default function AdmissionProgramPage() {
   }, [application?.status, fieldComments, currencySymbol]);
 
   // Auto-manage breadcrumbs lifecycle for this page
-  const rawInstituteName = instituteProfile?.full_name || instituteProfile?.institution_name || instituteProfile?.username || username;
+  const rawInstituteName = instituteProfile?.institution_name || instituteProfile?.full_name || instituteProfile?.username || username;
   const breadcrumbInstituteName = formatBreadcrumbName(rawInstituteName);
 
   useBreadcrumbs([
@@ -493,7 +494,7 @@ export default function AdmissionProgramPage() {
 
   React.useEffect(() => {
     const fetchAppIdIfMissing = async () => {
-      if (appId || !profile?.id || !programId) return;
+      if (appId || !profile?.id || !programId || !instituteProfile?.id) return;
       try {
         const res = await getUserApplications(profile.id);
         const apps = Array.isArray(res?.applications) ? res.applications : (Array.isArray(res) ? res : []);
@@ -503,7 +504,7 @@ export default function AdmissionProgramPage() {
           window.history.replaceState({}, '', `/dashboard/explore/${username}/admission/${programId}?appId=${existing.id}`);
         } else {
           // If no application exists, create one so auto-save works!
-          const createRes = await applyForProgram(programId, profile.id, username, { source: 'auto_create_on_form' });
+          const createRes = await applyForProgram(programId, profile.id, instituteProfile.id, { source: 'auto_create_on_form' });
           if (createRes && createRes.application && createRes.application.id) {
             setAppId(createRes.application.id);
             window.history.replaceState({}, '', `/dashboard/explore/${username}/admission/${programId}?appId=${createRes.application.id}`);
@@ -514,7 +515,7 @@ export default function AdmissionProgramPage() {
       }
     };
     fetchAppIdIfMissing();
-  }, [appId, profile?.id, programId, username]);
+  }, [appId, profile?.id, programId, username, instituteProfile?.id]);
 
   React.useEffect(() => {
     const fetchApp = async () => {
@@ -935,7 +936,7 @@ export default function AdmissionProgramPage() {
 
     return (
       <Box sx={{ mb: 4, opacity: disabled ? 0.6 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
-        <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#334155', mb: 2 }}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)', mb: 2 }}>
           {title}
         </Typography>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3 }}>
@@ -1008,18 +1009,18 @@ export default function AdmissionProgramPage() {
   };
 
   const renderBasicDetailsForm = () => (
-    <Box sx={{ width: '100%' }}>
-      <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a', mb: 4 }}>
+    <Box sx={{ width: 'var(--size-full)' }}>
+      <Typography variant="h6" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', mb: 4 }}>
         Basic Applicant Details
       </Typography>
 
       {/* Section: Personal Information */}
       {sf('full_name', 'email', 'phone', 'dob', 'gender', 'nationality', 'caste', 'subcaste', 'birth_religion', 'current_religion', 'race_ethnicity', 'language') && (
         <>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#475569', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-500)', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             Personal Information
           </Typography>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(12, 1fr)' }, gap: 3, mb: 4, width: '100%' }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(12, 1fr)' }, gap: 3, mb: 4, width: 'var(--size-full)' }}>
             {sf('full_name') && <Box sx={{ gridColumn: { md: 'span 6' } }}>
               <CustomFloatingInput
                 label="Full Name"
@@ -1036,14 +1037,14 @@ export default function AdmissionProgramPage() {
                 error={!!basicDetailsErrors.email}
                 InputProps={{
                   endAdornment: (isEmailVerified || !!profile?.email) ? (
-                    <Typography sx={{ color: '#16a34a', fontSize: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Typography sx={{ color: 'var(--color-success)', fontSize: 'var(--font-xs)', fontWeight: 'var(--font-bold)', display: 'flex', alignItems: 'center', gap: 0.5 }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Verified
                     </Typography>
                   ) : (
                     <Button
                       size="small"
                       onClick={() => { setOtpTarget('email'); setOtp(''); }}
-                      sx={{ minWidth: 'unset', px: 1.5, py: 0.5, fontSize: '12px', fontWeight: 600, borderRadius: '6px', color: '#0056b3', bgcolor: 'transparent', textTransform: 'none', '&:hover': { bgcolor: 'transparent' } }}
+                      sx={{ minWidth: 'unset', px: 1.5, py: 0.5, fontSize: 'var(--font-xs)', fontWeight: 'var(--font-semibold)', borderRadius: 'var(--radius-sm)', color: 'var(--color-primary)', bgcolor: 'transparent', textTransform: 'none', '&:hover': { bgcolor: 'transparent' } }}
                     >
                       Verify
                     </Button>
@@ -1052,12 +1053,12 @@ export default function AdmissionProgramPage() {
               />
               {otpTarget === 'email' && (
                 <Box sx={{
-                  position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 10,
+                  position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 'var(--z-sticky)',
                   p: 2.5, bgcolor: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)',
-                  border: '1px solid #cbd5e1', borderRadius: '16px',
+                  border: 'var(--border-thin) solid #cbd5e1', borderRadius: 'var(--radius-lg)',
                   display: 'flex', gap: 2, alignItems: 'flex-start', flexDirection: 'column'
                 }}>
-                  <Typography sx={{ fontSize: '12px', color: '#475569', fontWeight: 500 }}>
+                  <Typography sx={{ fontSize: 'var(--font-xs)', color: 'var(--color-slate-500)', fontWeight: 'var(--font-medium)' }}>
                     Enter OTP sent to <strong>{maskEmail(profile?.email)}</strong>
                   </Typography>
                   <CustomFloatingInput
@@ -1065,15 +1066,15 @@ export default function AdmissionProgramPage() {
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
                   />
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                    <Typography sx={{ fontSize: '12px', color: '#94a3b8' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: 'var(--size-full)' }}>
+                    <Typography sx={{ fontSize: 'var(--font-xs)', color: 'var(--color-slate-500)' }}>
                       {resendTimer > 0 ? (
-                        <>Resend in <strong style={{ color: '#64748b' }}>{resendTimer}s</strong></>
+                        <>Resend in <strong style={{ color: 'var(--color-slate-500)' }}>{resendTimer}s</strong></>
                       ) : (
                         <Button
                           size="small"
                           onClick={handleResendOtp}
-                          sx={{ px: 2, py: 0.5, borderRadius: '7px', color: '#0056b3', border: '1px solid #0056b3', textTransform: 'none', fontWeight: 600, fontSize: '12px', bgcolor: 'transparent', '&:hover': { bgcolor: 'rgba(0,86,179,0.07)' } }}
+                          sx={{ px: 2, py: 0.5, borderRadius: 'var(--radius-md)', color: 'var(--color-primary)', border: 'var(--border-thin) solid #0056b3', textTransform: 'none', fontWeight: 'var(--font-semibold)', fontSize: 'var(--font-xs)', bgcolor: 'transparent', '&:hover': { bgcolor: 'rgba(0,86,179,0.07)' } }}
                         >
                           Resend
                         </Button>
@@ -1082,12 +1083,12 @@ export default function AdmissionProgramPage() {
                     <Box sx={{ display: 'flex', gap: 1.5 }}>
                       <Button
                         onClick={() => { setOtpTarget(null); setOtp(''); }}
-                        sx={{ height: '38px', px: 2.5, borderRadius: '8px', color: '#64748b', border: '1px solid #cbd5e1', textTransform: 'none', fontWeight: 500, fontSize: '13px', bgcolor: 'transparent', '&:hover': { bgcolor: '#f8fafc', borderColor: '#94a3b8' } }}
+                        sx={{ height: '38px', px: 2.5, color: 'var(--color-slate-500)', border: 'var(--border-thin) solid #cbd5e1', textTransform: 'none', fontWeight: 'var(--font-medium)', fontSize: 'var(--font-sm)', bgcolor: 'transparent', '&:hover': { bgcolor: 'var(--color-slate-50)', borderColor: 'var(--color-slate-500)' } }}
                       >
                         Cancel
                       </Button>
                       <Button variant="contained" onClick={handleVerifyOtp} disableElevation
-                        sx={{ height: '38px', px: 3, borderRadius: '8px', bgcolor: '#0056b3', textTransform: 'none', fontWeight: 600, fontSize: '13px', '&:hover': { bgcolor: '#004085' } }}
+                        sx={{ height: '38px', px: 3, bgcolor: 'var(--color-primary)', textTransform: 'none', fontWeight: 'var(--font-semibold)', fontSize: 'var(--font-sm)', '&:hover': { bgcolor: 'var(--color-primary-hover)' } }}
                       >
                         Submit
                       </Button>
@@ -1106,14 +1107,14 @@ export default function AdmissionProgramPage() {
                 error={!!basicDetailsErrors.phone}
                 helperText={basicDetailsErrors.phone}
                 endAdornment={(isPhoneVerified || (!!profile?.phone_number && profile?.phone_number === basicDetails.phone)) ? (
-                  <Typography sx={{ color: '#16a34a', fontSize: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Typography sx={{ color: 'var(--color-success)', fontSize: 'var(--font-xs)', fontWeight: 'var(--font-bold)', display: 'flex', alignItems: 'center', gap: 0.5 }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Verified
                   </Typography>
                 ) : (((basicDetails.countryCode || '+91') === '+91' ? ((basicDetails.phone || '').replace(/\D/g, '').length === 10) : ((basicDetails.phone || '').replace(/\D/g, '').length >= 7)) ? (
                   <Button
                     size="small"
                     onClick={() => { setOtpTarget('phone'); setOtp(''); }}
-                    sx={{ minWidth: 'unset', px: 1.5, py: 0.5, fontSize: '12px', fontWeight: 600, borderRadius: '6px', color: '#0056b3', bgcolor: 'transparent', textTransform: 'none', '&:hover': { bgcolor: 'transparent' } }}
+                    sx={{ minWidth: 'unset', px: 1.5, py: 0.5, fontSize: 'var(--font-xs)', fontWeight: 'var(--font-semibold)', borderRadius: 'var(--radius-sm)', color: 'var(--color-primary)', bgcolor: 'transparent', textTransform: 'none', '&:hover': { bgcolor: 'transparent' } }}
                   >
                     Verify
                   </Button>
@@ -1121,12 +1122,12 @@ export default function AdmissionProgramPage() {
               />
               {otpTarget === 'phone' && (
                 <Box sx={{
-                  position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 10,
+                  position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 'var(--z-sticky)',
                   p: 2.5, bgcolor: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)',
-                  border: '1px solid #cbd5e1', borderRadius: '16px',
+                  border: 'var(--border-thin) solid #cbd5e1', borderRadius: 'var(--radius-lg)',
                   display: 'flex', gap: 2, alignItems: 'flex-start', flexDirection: 'column'
                 }}>
-                  <Typography sx={{ fontSize: '12px', color: '#475569', fontWeight: 500 }}>
+                  <Typography sx={{ fontSize: 'var(--font-xs)', color: 'var(--color-slate-500)', fontWeight: 'var(--font-medium)' }}>
                     Enter OTP sent to <strong>{basicDetails.countryCode || '+91'} {maskPhone(basicDetails.phone)}</strong>
                   </Typography>
                   <CustomFloatingInput
@@ -1134,15 +1135,15 @@ export default function AdmissionProgramPage() {
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
                   />
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                    <Typography sx={{ fontSize: '12px', color: '#94a3b8' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: 'var(--size-full)' }}>
+                    <Typography sx={{ fontSize: 'var(--font-xs)', color: 'var(--color-slate-500)' }}>
                       {resendTimer > 0 ? (
-                        <>Resend in <strong style={{ color: '#64748b' }}>{resendTimer}s</strong></>
+                        <>Resend in <strong style={{ color: 'var(--color-slate-500)' }}>{resendTimer}s</strong></>
                       ) : (
                         <Button
                           size="small"
                           onClick={handleResendOtp}
-                          sx={{ px: 2, py: 0.5, borderRadius: '7px', color: '#0056b3', border: '1px solid #0056b3', textTransform: 'none', fontWeight: 600, fontSize: '12px', bgcolor: 'transparent', '&:hover': { bgcolor: 'rgba(0,86,179,0.07)' } }}
+                          sx={{ px: 2, py: 0.5, borderRadius: 'var(--radius-md)', color: 'var(--color-primary)', border: 'var(--border-thin) solid #0056b3', textTransform: 'none', fontWeight: 'var(--font-semibold)', fontSize: 'var(--font-xs)', bgcolor: 'transparent', '&:hover': { bgcolor: 'rgba(0,86,179,0.07)' } }}
                         >
                           Resend
                         </Button>
@@ -1151,12 +1152,12 @@ export default function AdmissionProgramPage() {
                     <Box sx={{ display: 'flex', gap: 1.5 }}>
                       <Button
                         onClick={() => { setOtpTarget(null); setOtp(''); }}
-                        sx={{ height: '38px', px: 2.5, borderRadius: '8px', color: '#64748b', border: '1px solid #cbd5e1', textTransform: 'none', fontWeight: 500, fontSize: '13px', bgcolor: 'transparent', '&:hover': { bgcolor: '#f8fafc', borderColor: '#94a3b8' } }}
+                        sx={{ height: '38px', px: 2.5, color: 'var(--color-slate-500)', border: 'var(--border-thin) solid #cbd5e1', textTransform: 'none', fontWeight: 'var(--font-medium)', fontSize: 'var(--font-sm)', bgcolor: 'transparent', '&:hover': { bgcolor: 'var(--color-slate-50)', borderColor: 'var(--color-slate-500)' } }}
                       >
                         Cancel
                       </Button>
                       <Button variant="contained" onClick={handleVerifyOtp} disableElevation
-                        sx={{ height: '38px', px: 3, borderRadius: '8px', bgcolor: '#0056b3', textTransform: 'none', fontWeight: 600, fontSize: '13px', '&:hover': { bgcolor: '#004085' } }}
+                        sx={{ height: '38px', px: 3, bgcolor: 'var(--color-primary)', textTransform: 'none', fontWeight: 'var(--font-semibold)', fontSize: 'var(--font-sm)', '&:hover': { bgcolor: 'var(--color-primary-hover)' } }}
                       >
                         Submit
                       </Button>
@@ -1261,7 +1262,7 @@ export default function AdmissionProgramPage() {
 
           {/* Section: Identity & Basic Proofs */}
           {sf('full_name_proof', 'dob_proof', 'gender_proof', 'caste_proof', 'nationality_proof') && (
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4, width: '100%' }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4, width: 'var(--size-full)' }}>
               {sf('full_name_proof') && <Box sx={{ gridColumn: 'auto' }}>
                 <CustomFloatingFileInput
                   label="Full Name Proof"
@@ -1313,27 +1314,27 @@ export default function AdmissionProgramPage() {
       )}
 
       {/* Section: Academic Record — always shown when there are academic records configured */}
-      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#475569', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+      <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-500)', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
         Academic Record
       </Typography>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mb: 4 }}>
         {basicDetails.academicRecords.map((rec, index) => (
           <Box key={index} sx={{
             display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
-            gap: 3, p: 3, border: '1px solid #cbd5e1', borderRadius: '12px', position: 'relative',
-            bgcolor: '#f8fafc'
+            gap: 3, p: 3, border: 'var(--border-thin) solid #cbd5e1', borderRadius: 'var(--radius-lg)', position: 'relative',
+            bgcolor: 'var(--color-slate-50)'
           }}>
             {/* Only show delete button for user-added (non-config) records */}
             {!rec.isRequired && basicDetails.academicRecords.filter(r => !r.isRequired).length > 0 && (
               <IconButton
                 onClick={() => removeAcademicRecord(index)}
-                sx={{ position: 'absolute', top: 8, right: 8, color: '#ef4444' }}
+                sx={{ position: 'absolute', top: 8, right: 8, color: 'var(--color-error)' }}
                 size="small"
               >
                 <DeleteOutlineIcon fontSize="small" />
               </IconButton>
             )}
-            <Typography variant="subtitle2" sx={{ gridColumn: { sm: 'span 2' }, fontWeight: 600, color: '#334155' }}>
+            <Typography variant="subtitle2" sx={{ gridColumn: { sm: 'span 2' }, fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)' }}>
               Qualification {index + 1}
             </Typography>
 
@@ -1372,15 +1373,15 @@ export default function AdmissionProgramPage() {
             {rec.achievements && rec.achievements.length > 0 && (
               <Box sx={{ gridColumn: { xs: '1fr', sm: 'span 2' }, display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {rec.achievements.map((ach, achIndex) => (
-                  <Box key={achIndex} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 2, p: 2, border: '1px dashed #cbd5e1', borderRadius: '8px', position: 'relative', bgcolor: '#ffffff' }}>
+                  <Box key={achIndex} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 2, p: 2, border: '1px dashed #cbd5e1', position: 'relative', bgcolor: 'var(--color-white)' }}>
                     <IconButton
                       onClick={() => removeAchievement(index, achIndex)}
-                      sx={{ position: 'absolute', top: 4, right: 4, color: '#ef4444' }}
+                      sx={{ position: 'absolute', top: 4, right: 4, color: 'var(--color-error)' }}
                       size="small"
                     >
                       <DeleteOutlineIcon fontSize="small" />
                     </IconButton>
-                    <Typography variant="subtitle2" sx={{ gridColumn: { sm: 'span 2' }, fontWeight: 600, color: '#475569' }}>
+                    <Typography variant="subtitle2" sx={{ gridColumn: { sm: 'span 2' }, fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-500)' }}>
                       Achievement {achIndex + 1}
                     </Typography>
 
@@ -1423,7 +1424,7 @@ export default function AdmissionProgramPage() {
                 onClick={() => addAchievement(index)}
                 startIcon={<AddIcon />}
                 size="small"
-                sx={{ textTransform: 'none', borderRadius: '8px' }}
+                sx={{ textTransform: 'none' }}
               >
                 Add Achievement
               </Button>
@@ -1434,7 +1435,7 @@ export default function AdmissionProgramPage() {
           variant="outlined"
           onClick={addAcademicRecord}
           startIcon={<AddIcon />}
-          sx={{ alignSelf: 'flex-start', textTransform: 'none', borderRadius: '8px' }}
+          sx={{ alignSelf: 'flex-start', textTransform: 'none' }}
         >
           Add Qualification
         </Button>
@@ -1447,10 +1448,10 @@ export default function AdmissionProgramPage() {
       {/* Section: Family Details */}
       {sf('father_name', 'father_contact', 'mother_name', 'mother_contact', 'has_sibling') && (
         <>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#475569', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-500)', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             Family Details
           </Typography>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3, mb: 4, width: '100%' }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3, mb: 4, width: 'var(--size-full)' }}>
             {sf('father_name') && <CustomFloatingInput
               label="Father&apos;s Name"
               value={basicDetails.fatherName}
@@ -1561,19 +1562,19 @@ export default function AdmissionProgramPage() {
                 {basicDetails.siblings.map((sib, index) => (
                   <Box key={index} sx={{
                     display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' },
-                    gap: 3, p: 3, border: '1px solid #cbd5e1', borderRadius: '12px', position: 'relative',
-                    bgcolor: '#f8fafc'
+                    gap: 3, p: 3, border: 'var(--border-thin) solid #cbd5e1', borderRadius: 'var(--radius-lg)', position: 'relative',
+                    bgcolor: 'var(--color-slate-50)'
                   }}>
                     {basicDetails.siblings.length > 1 && (
                       <IconButton
                         onClick={() => removeSibling(index)}
-                        sx={{ position: 'absolute', top: 8, right: 8, color: '#ef4444' }}
+                        sx={{ position: 'absolute', top: 8, right: 8, color: 'var(--color-error)' }}
                         size="small"
                       >
                         <DeleteOutlineIcon fontSize="small" />
                       </IconButton>
                     )}
-                    <Typography variant="subtitle2" sx={{ gridColumn: { sm: 'span 3' }, fontWeight: 600, color: '#334155' }}>
+                    <Typography variant="subtitle2" sx={{ gridColumn: { sm: 'span 3' }, fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)' }}>
                       Sibling {index + 1}
                     </Typography>
 
@@ -1606,7 +1607,7 @@ export default function AdmissionProgramPage() {
                   variant="outlined"
                   onClick={addSibling}
                   startIcon={<AddIcon />}
-                  sx={{ alignSelf: 'flex-start', textTransform: 'none', borderRadius: '8px' }}
+                  sx={{ alignSelf: 'flex-start', textTransform: 'none' }}
                 >
                   Add Another Sibling
                 </Button>
@@ -1623,14 +1624,14 @@ export default function AdmissionProgramPage() {
       {/* Section: Family Income */}
       {sf('family_income', 'individual_family_details') && (
         <>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#475569', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-500)', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             Family Income & Details
           </Typography>
 
           {/* Individual Member Incomes */}
           {basicDetails.fatherName && (
             <Box sx={{ mb: 3 }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#334155', mb: 2 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)', mb: 2 }}>
                 Father&apos;s Details ({basicDetails.fatherName})
               </Typography>
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3 }}>
@@ -1667,7 +1668,7 @@ export default function AdmissionProgramPage() {
 
           {basicDetails.motherName && (
             <Box sx={{ mb: 3 }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#334155', mb: 2 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)', mb: 2 }}>
                 Mother&apos;s Details ({basicDetails.motherName})
               </Typography>
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3 }}>
@@ -1704,7 +1705,7 @@ export default function AdmissionProgramPage() {
 
           {basicDetails.guardianName && (
             <Box sx={{ mb: 3 }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#334155', mb: 2 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)', mb: 2 }}>
                 Guardian&apos;s Details ({basicDetails.guardianName})
               </Typography>
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3 }}>
@@ -1742,7 +1743,7 @@ export default function AdmissionProgramPage() {
           {basicDetails.hasSibling === 'Yes' && basicDetails.siblings.map((sib, index) => (
             sib.name && (
               <Box key={index} sx={{ mb: 3 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#334155', mb: 2 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)', mb: 2 }}>
                   Sibling {index + 1}&apos;s Details ({sib.name})
                 </Typography>
                 <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3 }}>
@@ -1778,10 +1779,10 @@ export default function AdmissionProgramPage() {
             )
           ))}
 
-          <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#334155', mb: 2, mt: 4 }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)', mb: 2, mt: 4 }}>
             Overall Family Income
           </Typography>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 3, mb: 4, width: '100%' }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 3, mb: 4, width: 'var(--size-full)' }}>
             <CustomFloatingInput
               label="Annual Family Income (Auto-calculated)"
               disabled={true}
@@ -1807,24 +1808,21 @@ export default function AdmissionProgramPage() {
       {/* Section: Contact Address */}
       {sf('perm_country', 'perm_state', 'perm_district', 'perm_area_type', 'perm_ward', 'perm_house', 'perm_landmark', 'perm_street', 'perm_pincode', 'perm_address', 'corr_country', 'corr_state', 'corr_district', 'corr_area_type', 'corr_ward', 'corr_house', 'corr_landmark', 'corr_street', 'corr_pincode', 'corr_address') && (
         <>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#475569', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-500)', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             Contact Address
           </Typography>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={basicDetails.sameAsPermanent}
-                onChange={(e) => {
-                  setBasicDetails(prev => ({ ...prev, sameAsPermanent: e.target.checked }));
-                  if (e.target.checked && basicDetailsErrors.correspondenceAddress) {
-                    setBasicDetailsErrors(prev => ({ ...prev, correspondenceAddress: undefined }));
-                  }
-                }}
-              />
-            }
-            label={<Typography variant="body2" sx={{ fontWeight: 500 }}>Correspondence Address is same as Permanent Address</Typography>}
-            sx={{ mb: 2, ml: 1 }}
-          />
+          <Box sx={{ mb: 2, ml: 1 }}>
+            <CustomCheckbox
+              checked={basicDetails.sameAsPermanent}
+              onChange={(e) => {
+                setBasicDetails(prev => ({ ...prev, sameAsPermanent: e.target.checked }));
+                if (e.target.checked && basicDetailsErrors.correspondenceAddress) {
+                  setBasicDetailsErrors(prev => ({ ...prev, correspondenceAddress: undefined }));
+                }
+              }}
+              label={<Typography variant="body2" sx={{ fontWeight: 'var(--font-medium)' }}>Correspondence Address is same as Permanent Address</Typography>}
+            />
+          </Box>
           {renderAddressBlock('permanentAddress', 'Permanent Address', false)}
           {renderAddressBlock('correspondenceAddress', 'Correspondence Address', basicDetails.sameAsPermanent)}
         </>
@@ -1836,7 +1834,7 @@ export default function AdmissionProgramPage() {
       {/* Section: Criminal and Character Record */}
       {sf('criminal_record') && (
         <>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#475569', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-500)', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             Criminal and Character Record
           </Typography>
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 3, mb: 3 }}>
@@ -1896,7 +1894,6 @@ export default function AdmissionProgramPage() {
                 startIcon={<AddIcon />}
                 sx={{
                   mt: 1,
-                  borderRadius: '8px',
                   textTransform: 'none'
                 }}
               >
@@ -1912,24 +1909,23 @@ export default function AdmissionProgramPage() {
         onClose={() => setIsDiscardDialogOpen(false)}
         PaperProps={{
           sx: {
-            borderRadius: '16px',
+            borderRadius: 'var(--radius-lg)',
             p: 1,
             maxWidth: 400,
             width: '90%',
             background: 'rgba(255, 255, 255, 0.98)',
             backdropFilter: 'blur(20px)',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
           }
         }}
         BackdropProps={{
           sx: { backdropFilter: 'blur(6px)', backgroundColor: 'rgba(15,23,42,0.4)' }
         }}
       >
-        <DialogTitle sx={{ pb: 1, pt: 2.5, px: 3, fontWeight: 800, color: '#0f172a', fontSize: '1.15rem', fontFamily: '"Inter", sans-serif' }}>
+        <DialogTitle sx={{ pb: 1, pt: 2.5, px: 3, fontWeight: 800, color: 'var(--color-slate-900)', fontSize: '1.15rem' }}>
           {language === 'en' ? 'Discard Application?' : 'एप्लीकेशन हटाएँ?'}
         </DialogTitle>
         <DialogContent sx={{ px: 3, pb: 1 }}>
-          <Typography sx={{ color: '#475569', fontSize: '0.95rem', lineHeight: 1.6, fontFamily: '"Inter", sans-serif' }}>
+          <Typography sx={{ color: 'var(--color-slate-500)', fontSize: 'var(--font-base)', lineHeight: 1.6 }}>
             {language === 'en'
               ? 'Are you sure you want to discard this application? This action cannot be undone.'
               : 'क्या आप वाकई इस एप्लीकेशन को हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।'}
@@ -1940,9 +1936,9 @@ export default function AdmissionProgramPage() {
             onClick={() => setIsDiscardDialogOpen(false)}
             variant="outlined"
             sx={{
-              borderRadius: '8px', fontWeight: 600, textTransform: 'none',
-              borderColor: '#e2e8f0', color: '#64748b', px: 2.5,
-              '&:hover': { borderColor: '#94a3b8', bgcolor: '#f8fafc' }
+              fontWeight: 'var(--font-semibold)', textTransform: 'none',
+              borderColor: 'var(--color-slate-200)', color: 'var(--color-slate-500)', px: 2.5,
+              '&:hover': { borderColor: 'var(--color-slate-500)', bgcolor: 'var(--color-slate-50)' }
             }}
           >
             {language === 'en' ? 'Cancel' : 'रद्द करें'}
@@ -1952,9 +1948,9 @@ export default function AdmissionProgramPage() {
             variant="contained"
             disableElevation
             sx={{
-              borderRadius: '8px', fontWeight: 700, textTransform: 'none',
-              bgcolor: '#ef4444', color: 'white', px: 2.5,
-              '&:hover': { bgcolor: '#dc2626' }
+              fontWeight: 'var(--font-bold)', textTransform: 'none',
+              bgcolor: 'var(--color-error)', color: 'white', px: 2.5,
+              '&:hover': { bgcolor: 'var(--color-error)' }
             }}
           >
             {language === 'en' ? 'Discard' : 'हटाएँ'}
@@ -2204,17 +2200,17 @@ export default function AdmissionProgramPage() {
     switch (stage.type) {
       case 'document':
         return (
-          <Box sx={{ pb: 1, width: '100%' }}>
+          <Box sx={{ pb: 1, width: 'var(--size-full)' }}>
             <FieldContext.Provider value={{ isRejected: application?.status === 'rejected', enabledLabels, commentsByLabel }}>
               {activeStep === 0 && renderBasicDetailsForm()}
             </FieldContext.Provider>
 
             {stage.requirements && stage.requirements.length > 0 && (
               <>
-                <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#1e293b', mb: 0.5 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)', mb: 0.5 }}>
                   Other Requirement Document
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#64748b', mb: 2, fontSize: '0.85rem' }}>
+                <Typography variant="body2" sx={{ color: 'var(--color-slate-500)', mb: 2, fontSize: 'var(--font-sm)' }}>
                   Please upload clear, scanned copies. Max size: 5MB.
                 </Typography>
               </>
@@ -2229,7 +2225,7 @@ export default function AdmissionProgramPage() {
                     <Grid size={{ xs: 12, sm: 6 }} key={index}>
                       <Box sx={{
                         position: 'relative',
-                        width: '100%',
+                        width: 'var(--size-full)',
                         '& .comment-icon': { opacity: 0, transition: 'opacity 0.2s', pointerEvents: 'none' },
                         '&:hover .comment-icon': { opacity: 1, pointerEvents: 'auto' }
                       }}>
@@ -2240,13 +2236,13 @@ export default function AdmissionProgramPage() {
                           sx={{
                             p: 2,
                             textAlign: 'center',
-                            borderRadius: '12px',
-                            border: isUploaded ? '2px solid #10b981' : comment ? '2px dashed #ffc107' : '2px dashed #cbd5e1',
-                            bgcolor: isUploaded ? '#ecfdf5' : '#f8fafc',
+                            borderRadius: 'var(--radius-lg)',
+                            border: isUploaded ? 'var(--border-thick) solid #10b981' : comment ? '2px dashed #f59e0b' : '2px dashed #cbd5e1',
+                            bgcolor: isUploaded ? 'var(--color-slate-50)' : 'var(--color-slate-50)',
                             cursor: 'pointer',
-                            transition: 'all 0.2s ease',
+                            transition: 'var(--transition-base)',
                             display: 'block',
-                            '&:hover': { borderColor: isUploaded ? '#10b981' : comment ? '#e0a800' : '#0056b3', bgcolor: isUploaded ? '#ecfdf5' : '#f1f5f9' }
+                            '&:hover': { borderColor: isUploaded ? 'var(--color-success)' : comment ? 'var(--color-warning)' : 'var(--color-primary)', bgcolor: isUploaded ? 'var(--color-slate-50)' : 'var(--color-slate-50)' }
                           }}
                         >
                           <input
@@ -2256,14 +2252,14 @@ export default function AdmissionProgramPage() {
                             onChange={(e) => handleFileUpload(e, req)}
                           />
                           {isUploading ? (
-                            <Box sx={{ mb: 1 }}><Loader mini size={28} /></Box>
+                            <Box sx={{ mb: 1 }}>null</Box>
                           ) : isUploaded ? (
-                            <CheckCircleOutlineIcon sx={{ fontSize: 28, color: '#10b981', mb: 0.5 }} />
+                            <CheckCircleOutlineIcon sx={{ fontSize: 28, color: 'var(--color-success)', mb: 0.5 }} />
                           ) : (
-                            <CloudUploadIcon sx={{ fontSize: 28, color: '#0056b3', mb: 0.5 }} />
+                            <CloudUploadIcon sx={{ fontSize: 28, color: 'var(--color-primary)', mb: 0.5 }} />
                           )}
-                          <Typography sx={{ fontWeight: 600, color: isUploaded ? '#047857' : '#0f172a', fontSize: '0.9rem', mb: 0.25 }}>{req}</Typography>
-                          <Typography variant="caption" sx={{ color: isUploaded ? '#10b981' : '#475569', fontSize: '0.75rem' }}>
+                          <Typography sx={{ fontWeight: 'var(--font-semibold)', color: isUploaded ? 'var(--color-success)' : 'var(--color-slate-900)', fontSize: 'var(--font-sm)', mb: 0.25 }}>{req}</Typography>
+                          <Typography variant="caption" sx={{ color: isUploaded ? 'var(--color-success)' : 'var(--color-slate-500)', fontSize: 'var(--font-xs)' }}>
                             {isUploaded ? 'Uploaded successfully' : 'Browse or drag & drop'}
                           </Typography>
                         </Paper>
@@ -2281,13 +2277,13 @@ export default function AdmissionProgramPage() {
         if (quizzes.length === 0) {
           return (
             <Box sx={{ textAlign: 'center', py: 1 }}>
-              <Box sx={{ width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0056b3', mx: 'auto', mb: 1.5 }}>
+              <Box sx={{ width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', mx: 'auto', mb: 1.5 }}>
                 <QuizOutlinedIcon sx={{ fontSize: 24 }} />
               </Box>
-              <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#1e293b', mb: 0.5 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)', mb: 0.5 }}>
                 No Quizzes Available
               </Typography>
-              <Typography variant="body2" sx={{ color: '#64748b', mb: 3, fontSize: '0.85rem' }}>
+              <Typography variant="body2" sx={{ color: 'var(--color-slate-500)', mb: 3, fontSize: 'var(--font-sm)' }}>
                 There are currently no entrance quizzes scheduled for this step.
               </Typography>
             </Box>
@@ -2295,32 +2291,31 @@ export default function AdmissionProgramPage() {
         }
 
         return (
-          <Box sx={{ py: 1, width: '100%' }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#1e293b', mb: 2 }}>
+          <Box sx={{ py: 1, width: 'var(--size-full)' }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)', mb: 2 }}>
               Available Quizzes ({quizzes.length})
             </Typography>
             <Grid container spacing={3}>
               {quizzes.map((quiz, idx) => (
-                <Grid key={idx} size={{xs: 12, sm: 6}}>
+                <Grid key={idx} size={{ xs: 12, sm: 6 }}>
                   <Card sx={{
-                    borderRadius: '12px',
-                    border: '1px solid #cbd5e1',
-                    boxShadow: 'none',
+                    borderRadius: 'var(--radius-lg)',
+                    border: 'var(--border-thin) solid #cbd5e1',
                     display: 'flex',
                     flexDirection: 'column',
-                    height: '100%',
+                    height: 'var(--size-full)',
                     bgcolor: 'rgba(255, 255, 255, 0.4)'
                   }}>
                     <CardContent sx={{ flexGrow: 1, p: 2.5, '&:last-child': { pb: 2.5 } }}>
                       <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2.5 }}>
-                        <Box sx={{ width: 42, height: 42, borderRadius: '8px', bgcolor: '#e0e7ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0056b3', mr: 2, flexShrink: 0 }}>
+                        <Box sx={{ width: 42, height: 42, bgcolor: '#e0e7ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', mr: 2, flexShrink: 0 }}>
                           <QuizOutlinedIcon sx={{ fontSize: 20 }} />
                         </Box>
                         <Box>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#1e293b', lineHeight: 1.3, mb: 0.5 }}>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)', lineHeight: 1.3, mb: 0.5 }}>
                             {quiz.name || "Entrance Quiz"}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: '#64748b', display: 'block' }}>
+                          <Typography variant="caption" sx={{ color: 'var(--color-slate-500)', display: 'block' }}>
                             Size: {quiz.size || "Unknown"} • Time: 45 mins
                           </Typography>
                         </Box>
@@ -2336,7 +2331,7 @@ export default function AdmissionProgramPage() {
                           border: 'none',
                           py: 1.2,
                           textTransform: 'none',
-                          fontWeight: 600
+                          fontWeight: 'var(--font-semibold)'
                         }}
                       >
                         Start Quiz Now
@@ -2353,20 +2348,20 @@ export default function AdmissionProgramPage() {
         return (
           <Box sx={{ py: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
-              <Box sx={{ width: 40, height: 40, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#db2777' }}>
+              <Box sx={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-error)' }}>
                 <VideoCameraFrontOutlinedIcon sx={{ fontSize: 20 }} />
               </Box>
               <Box>
-                <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#1e293b' }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)' }}>
                   Interview Schedule
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#64748b', fontSize: '0.85rem' }}>
+                <Typography variant="body2" sx={{ color: 'var(--color-slate-500)', fontSize: 'var(--font-sm)' }}>
                   Awaiting dates from the institute
                 </Typography>
               </Box>
             </Box>
             <Divider sx={{ my: 2 }} />
-            <Typography variant="body2" sx={{ color: '#475569', lineHeight: 1.5, fontSize: '0.85rem' }}>
+            <Typography variant="body2" sx={{ color: 'var(--color-slate-500)', lineHeight: 1.5, fontSize: 'var(--font-sm)' }}>
               Once you complete the previous steps, the institute will review your profile and assign you an interview slot. You will receive an email notification with the meeting link and passcode.
             </Typography>
           </Box>
@@ -2375,6 +2370,12 @@ export default function AdmissionProgramPage() {
         return null;
     }
   };
+
+  // If we are still fetching core data (like the institute or the programs list)
+  // or fetching the application itself, we show the skeleton layout to avoid flashing.
+  if (loadingInstitute || loadingPrograms || loadingApp) {
+    return <ApplicationSkeleton />;
+  }
 
   const showEmptyState = !loadingPrograms && programs.length === 0;
 
@@ -2393,21 +2394,20 @@ export default function AdmissionProgramPage() {
           alignItems: "center",
           justifyContent: "center",
         }}>
-          <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ width: 'var(--size-full)', display: 'flex', flexDirection: 'column' }}>
             {!selectedProgram ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
                 {loadingPrograms ? <Typography>Loading program...</Typography> : <Typography>Program not found</Typography>}
               </Box>
             ) : (
               <Paper elevation={0} sx={{
-                borderRadius: "24px",
+                borderRadius: 'var(--radius-lg)',
                 background: 'transparent',
                 border: 'none',
-                boxShadow: 'none',
                 display: 'flex',
                 flexDirection: { xs: 'column', md: 'row' },
                 alignItems: 'stretch',
-                width: '100%',
+                width: 'var(--size-full)',
                 height: { xs: 'auto', md: '82vh' },
                 maxHeight: { xs: 'none', md: '820px' },
                 minHeight: { xs: 'auto', md: '600px' },
@@ -2415,7 +2415,7 @@ export default function AdmissionProgramPage() {
               }}>
                 {/* Left Sidebar (Progress) */}
                 <Box sx={{
-                  width: { xs: '100%', md: '350px' },
+                  width: { xs: 'var(--size-full)', md: '350px' },
                   flexShrink: 0,
                   background: 'transparent',
                   border: 'none',
@@ -2424,18 +2424,18 @@ export default function AdmissionProgramPage() {
                   flexDirection: 'column',
                   overflowY: 'auto'
                 }}>
-                  <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a', mb: 0.5, letterSpacing: '-0.02em' }}>
+                  <Typography variant="h5" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', mb: 0.5, letterSpacing: '-0.02em' }}>
                     {selectedProgram.workflowTitle}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: '#64748b', mb: 5, fontSize: '0.9rem', lineHeight: 1.6 }}>
+                  <Typography variant="body2" sx={{ color: 'var(--color-slate-500)', mb: 5, fontSize: 'var(--font-sm)', lineHeight: 1.6 }}>
                     {selectedProgram.workflowDesc}
                   </Typography>
 
                   <Stepper activeStep={activeStep} orientation="vertical" sx={{
                     mb: 0,
-                    '.MuiStepConnector-line': { minHeight: '32px', borderLeftWidth: '2px', borderColor: '#e2e8f0' },
-                    '.MuiStepConnector-root.Mui-active .MuiStepConnector-line': { borderColor: '#0056b3' },
-                    '.MuiStepConnector-root.Mui-completed .MuiStepConnector-line': { borderColor: '#0056b3' }
+                    '.MuiStepConnector-line': { minHeight: '32px', borderLeftWidth: '2px', borderColor: 'var(--color-slate-200)' },
+                    '.MuiStepConnector-root.Mui-active .MuiStepConnector-line': { borderColor: 'var(--color-primary)' },
+                    '.MuiStepConnector-root.Mui-completed .MuiStepConnector-line': { borderColor: 'var(--color-primary)' }
                   }}>
                     {steps.map((label, index) => {
                       const stage = selectedProgram.stages[index];
@@ -2449,19 +2449,20 @@ export default function AdmissionProgramPage() {
                         <Step key={label}>
                           <StepLabel StepIconComponent={() => (
                             <Box sx={{
-                              width: 36, height: 36, borderRadius: '8px',
+                              width: 36, height: 36,
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              bgcolor: activeStep >= index ? '#0056b3' : '#f1f5f9',
-                              color: activeStep >= index ? '#ffffff' : '#94a3b8',
-                              transition: 'all 0.3s ease'
+                              borderRadius: 'var(--radius-full)',
+                              bgcolor: activeStep >= index ? 'var(--color-primary)' : 'var(--color-slate-50)',
+                              color: activeStep >= index ? 'var(--color-white)' : 'var(--color-slate-500)',
+                              transition: 'var(--transition-slow)'
                             }}>
                               {React.cloneElement(getIcon(), { sx: { fontSize: 20 } })}
                             </Box>
                           )}>
                             <Typography sx={{
                               fontWeight: activeStep === index ? 700 : 500,
-                              color: activeStep === index ? '#0f172a' : '#64748b',
-                              fontSize: '0.95rem',
+                              color: activeStep === index ? 'var(--color-slate-900)' : 'var(--color-slate-500)',
+                              fontSize: 'var(--font-base)',
                               letterSpacing: '-0.01em'
                             }}>
                               {typeof label === 'string' ? label.replace(/^Stage/i, 'Step') : label}
@@ -2475,8 +2476,8 @@ export default function AdmissionProgramPage() {
                   <Box sx={{ flexGrow: 1 }} />
 
                   {application?.status !== 'pending_review' && application?.status !== 'pending_final_review' && (
-                    <Box sx={{ mt: 5, display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
-                      <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
+                    <Box sx={{ mt: 5, display: 'flex', flexDirection: 'column', gap: 2, width: 'var(--size-full)' }}>
+                      <Box sx={{ display: 'flex', gap: 2, width: 'var(--size-full)' }}>
                         <Button
                           variant="outlined"
                           size="large"
@@ -2485,11 +2486,11 @@ export default function AdmissionProgramPage() {
                           onClick={handleBack}
                           sx={{
                             borderColor: 'rgba(30, 41, 59, 0.2)',
-                            color: '#334155',
+                            color: 'var(--color-slate-700)',
                             py: 1.2,
                             textTransform: 'none',
-                            fontWeight: 600,
-                            borderRadius: '12px',
+                            fontWeight: 'var(--font-semibold)',
+                            borderRadius: 'var(--radius-lg)',
                             '&:hover': {
                               borderColor: 'rgba(30, 41, 59, 0.5)',
                               bgcolor: 'rgba(30, 41, 59, 0.04)'
@@ -2513,11 +2514,11 @@ export default function AdmissionProgramPage() {
                               border: 'none',
                               py: 1.2,
                               textTransform: 'none',
-                              fontWeight: 600,
-                              borderRadius: '12px'
+                              fontWeight: 'var(--font-semibold)',
+                              borderRadius: 'var(--radius-lg)'
                             }}
                           >
-                            {savingProgress ? <Loader size={20} color="#fff" /> :
+                            {savingProgress ? <CircularProgress size={24} color="inherit" /> :
                               (['pending_final_review', 'approved', 'enrolled'].includes(application?.status) ? 'Next' :
                                 (activeStep === steps.length - 1 ? 'Finish' : 'Submit'))}
                           </Button>
@@ -2534,8 +2535,8 @@ export default function AdmissionProgramPage() {
                           sx={{
                             py: 1.2,
                             textTransform: 'none',
-                            fontWeight: 600,
-                            borderRadius: '12px'
+                            fontWeight: 'var(--font-semibold)',
+                            borderRadius: 'var(--radius-lg)'
                           }}
                         >
                           Discard
@@ -2557,39 +2558,44 @@ export default function AdmissionProgramPage() {
                   background: "rgba(255, 255, 255, 0.3)",
                   backdropFilter: "blur(30px)",
                   WebkitBackdropFilter: "blur(30px)",
-                  border: "1px solid rgba(30, 79, 163, 0.2)",
-                  borderRadius: '24px',
-                  boxShadow: 'none',
+                  border: "none",
+                  borderRadius: 'var(--radius-lg)',
                   m: { xs: 0, md: 1 }, // Small margin so it floats slightly like Google Drive
                   mr: { xs: 0, md: 2 },
                   position: 'relative' // Added for absolute positioning of save indicator
                 }}>
                   {/* Auto-Save Indicator - Standard Top Right Placement */}
                   {appId && activeStep !== steps.length && (
-                    <Box sx={{ position: 'absolute', top: { xs: 16, md: 24 }, right: { xs: 16, md: 32 }, display: 'flex', alignItems: 'center', zIndex: 10 }}>
-                      {(autoSaveStatus === 'saving' || autoSaveStatus === 'waiting') && (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 0.75, borderRadius: '20px', bgcolor: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(10px)', border: '1px solid rgba(0,0,0,0.05)' }}>
-                          <CircularProgress size={14} sx={{ color: '#64748b' }} />
-                          <Typography variant="caption" sx={{ color: '#475569', fontWeight: 600 }}>Saving...</Typography>
+                    <Box sx={{ position: 'absolute', top: { xs: 16, md: 24 }, right: { xs: 16, md: 32 }, display: 'flex', alignItems: 'center', zIndex: 'var(--z-sticky)' }}>
+                      {autoSaveStatus === 'waiting' && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 0.75, borderRadius: 'var(--radius-lg)', bgcolor: 'rgba(245,158,11,0.1)', backdropFilter: 'blur(10px)', border: 'var(--border-thin) solid rgba(245,158,11,0.2)' }}>
+                          <Box sx={{ width: 8, height: 8, borderRadius: 'var(--radius-full)', bgcolor: 'var(--color-warning)' }} />
+                          <Typography variant="caption" sx={{ color: 'var(--color-error)', fontWeight: 'var(--font-semibold)' }}>Unsaved changes</Typography>
+                        </Box>
+                      )}
+                      {autoSaveStatus === 'saving' && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 0.75, borderRadius: 'var(--radius-lg)', bgcolor: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(10px)', border: 'var(--border-thin) solid rgba(0,0,0,0.05)' }}>
+                          <CircularProgress size={14} sx={{ color: 'var(--color-slate-500)' }} />
+                          <Typography variant="caption" sx={{ color: 'var(--color-slate-500)', fontWeight: 'var(--font-semibold)' }}>Saving...</Typography>
                         </Box>
                       )}
                       {autoSaveStatus === 'saved' && (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 0.75, borderRadius: '20px', bgcolor: 'rgba(16, 185, 129, 0.1)', backdropFilter: 'blur(10px)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                          <CloudUploadIcon sx={{ fontSize: 16, color: '#059669' }} />
-                          <Typography variant="caption" sx={{ color: '#059669', fontWeight: 600 }}>Saved to Drafts</Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 0.75, borderRadius: 'var(--radius-lg)', bgcolor: 'rgba(16, 185, 129, 0.1)', backdropFilter: 'blur(10px)', border: 'var(--border-thin) solid rgba(16, 185, 129, 0.2)' }}>
+                          <CloudUploadIcon sx={{ fontSize: 16, color: 'var(--color-success)' }} />
+                          <Typography variant="caption" sx={{ color: 'var(--color-success)', fontWeight: 'var(--font-semibold)' }}>Saved to Drafts</Typography>
                         </Box>
                       )}
                     </Box>
                   )}
 
-                  <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'hidden' }}>
+                  <Box sx={{ width: 'var(--size-full)', display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'hidden' }}>
                     {activeStep === steps.length ? (
                       <Box sx={{ textAlign: 'center', py: 5, flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                        <CheckCircleOutlineIcon sx={{ fontSize: 80, color: '#10b981', mb: 2 }} />
-                        <Typography variant="h4" sx={{ fontWeight: 800, color: '#0f172a', mb: 1, letterSpacing: '-0.02em' }}>
+                        <CheckCircleOutlineIcon sx={{ fontSize: 80, color: 'var(--color-success)', mb: 2 }} />
+                        <Typography variant="h4" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', mb: 1, letterSpacing: '-0.02em' }}>
                           Process Completed
                         </Typography>
-                        <Typography variant="body1" sx={{ color: '#475569', mb: 5, maxWidth: '400px', lineHeight: 1.6 }}>
+                        <Typography variant="body1" sx={{ color: 'var(--color-slate-500)', mb: 5, maxWidth: '400px', lineHeight: 1.6 }}>
                           You have successfully completed all the required steps for this admission process. The institute will review your profile.
                         </Typography>
                         <Button
@@ -2601,7 +2607,7 @@ export default function AdmissionProgramPage() {
                             color: '#ffffff !important',
                             px: 4, py: 1.5,
                             textTransform: 'none',
-                            fontWeight: 600,
+                            fontWeight: 'var(--font-semibold)',
                             transition: 'all 0.2s'
                           }}
                         >
@@ -2617,10 +2623,10 @@ export default function AdmissionProgramPage() {
                               background: 'rgba(245, 158, 11, 0.05)',
                               backdropFilter: 'blur(10px)',
                               WebkitBackdropFilter: 'blur(10px)',
-                              borderRadius: '16px',
-                              border: '1px solid rgba(245, 158, 11, 0.3)'
+                              borderRadius: 'var(--radius-lg)',
+                              border: 'var(--border-thin) solid rgba(245, 158, 11, 0.3)'
                             }}>
-                              <Typography sx={{ color: '#b45309', fontWeight: 600 }}>
+                              <Typography sx={{ color: 'var(--color-error)', fontWeight: 'var(--font-semibold)' }}>
                                 The institute has requested updates to your application. Please review the highlighted fields, make the necessary changes, and re-submit.
                               </Typography>
                             </Box>
@@ -2632,22 +2638,22 @@ export default function AdmissionProgramPage() {
                               background: 'rgba(16, 185, 129, 0.05)',
                               backdropFilter: 'blur(10px)',
                               WebkitBackdropFilter: 'blur(10px)',
-                              borderRadius: '16px',
-                              border: '1px solid rgba(16, 185, 129, 0.2)',
+                              borderRadius: 'var(--radius-lg)',
+                              border: 'var(--border-thin) solid rgba(16, 185, 129, 0.2)',
                               display: 'flex', alignItems: 'center', gap: 2.5, flexWrap: 'wrap'
                             }}>
                               <Box sx={{
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                color: '#059669',
+                                color: 'var(--color-success)',
                                 flexShrink: 0
                               }}>
                                 <CheckCircleOutlineIcon sx={{ fontSize: 28 }} />
                               </Box>
                               <Box sx={{ flexGrow: 1 }}>
-                                <Typography sx={{ color: '#064e3b', fontWeight: 700, fontSize: '1rem', mb: 0.5 }}>
+                                <Typography sx={{ color: 'var(--color-slate-900)', fontWeight: 'var(--font-bold)', fontSize: 'var(--font-base)', mb: 0.5 }}>
                                   {application?.status === 'pending_final_review' ? 'Application Submitted!' : (application?.status === 'approved' ? 'Application Approved!' : 'Application Enrolled!')}
                                 </Typography>
-                                <Typography variant="body2" sx={{ color: '#047857', opacity: 0.9 }}>
+                                <Typography variant="body2" sx={{ color: 'var(--color-success)', opacity: 0.9 }}>
                                   {application?.status === 'pending_final_review' ? 'Your application has been successfully submitted and is under review.' : 'You can track further updates from your dashboard.'}
                                 </Typography>
                               </Box>
@@ -2659,7 +2665,7 @@ export default function AdmissionProgramPage() {
                               border: 'none', margin: 0, padding: 0,
                               opacity: ['pending_final_review', 'approved', 'enrolled'].includes(application?.status) ? 0.6 : 1,
                               pointerEvents: ['pending_final_review', 'approved', 'enrolled'].includes(application?.status) ? 'none' : 'auto',
-                              '--floating-bg': ['pending_final_review', 'approved', 'enrolled'].includes(application?.status) ? '#f1f5f9' : '#ffffff'
+                              '--floating-bg': ['pending_final_review', 'approved', 'enrolled'].includes(application?.status) ? 'var(--color-slate-50)' : 'var(--color-white)'
                             }}
                           >
                             {renderStageContent(selectedProgram.stages[activeStep])}
@@ -2674,7 +2680,7 @@ export default function AdmissionProgramPage() {
           </Box>
         </Container>
         <Backdrop
-          sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1, flexDirection: 'column', gap: 2 }}
+          sx={{ color: 'var(--color-white)', zIndex: (theme) => theme.zIndex.drawer + 1, flexDirection: 'column', gap: 2 }}
           open={savingProgress}
         >
           <CircularProgress color="inherit" />

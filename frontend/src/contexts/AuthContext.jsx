@@ -11,8 +11,19 @@ export const AuthContext = createContext({
 });
 
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    if (typeof window !== "undefined") {
+      return !!getToken();
+    }
+    return false;
+  });
+  const [isLoading, setIsLoading] = useState(() => {
+    if (typeof window !== "undefined") {
+      // If we have a token, we don't need to show a loading state immediately
+      return !getToken();
+    }
+    return true;
+  });
 
   const checkAuth = async () => {
     let token = getToken();

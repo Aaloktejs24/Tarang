@@ -35,10 +35,14 @@ func (h *AuthHandler) RegisterRoutes(r chi.Router) {
 	r.Post("/registration-sessions", h.registerStart)
 	r.Post("/registration-sessions/{id}/send-email-otp", h.sendRegistrationEmailOtp)
 	r.Post("/registration-sessions/{id}/verify-email-otp", h.verifyRegistrationEmailOtp)
+	r.Post("/registration-sessions/{id}/totp-setup", h.registrationTotpSetup)
 	r.Post("/registration-sessions/{id}/complete", h.completeRegistrationSession)
 
 	r.Get("/check-username", h.checkUsername)
 	r.Get("/check-username/{username}", h.checkUsername)
+
+	r.Get("/check-email", h.checkEmail)
+	r.Get("/check-email/{email}", h.checkEmail)
 
 	r.Post("/login", h.login)
 	r.Post("/refresh", h.refresh)
@@ -142,6 +146,25 @@ func (h *AuthHandler) verifyRegistrationEmailOtp(w http.ResponseWriter, r *http.
 
 	respondJSON(w, http.StatusOK, map[string]string{"message": "Email verified successfully"})
 }
+func (h *AuthHandler) registrationTotpSetup(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	sessionID, err := uuid.Parse(idStr)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "invalid session id")
+		return
+	}
+
+	secret, url, err := h.svc.SetupRegistrationTOTP(r.Context(), sessionID)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondJSON(w, http.StatusOK, map[string]string{
+		"secret": secret,
+		"url":    url,
+	})
+}
 
 func (h *AuthHandler) completeRegistrationSession(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
@@ -156,6 +179,10 @@ func (h *AuthHandler) completeRegistrationSession(w http.ResponseWriter, r *http
 		Password string `json:"password"`
 		FullName string `json:"full_name"`
 		Role     string `json:"role"`
+		Phone    string `json:"phone"`
+		Dob      string `json:"dob"`
+		Gender   string `json:"gender"`
+		TotpCode string `json:"totp_code"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 		respondError(w, http.StatusBadRequest, "invalid payload")
@@ -180,7 +207,7 @@ func (h *AuthHandler) completeRegistrationSession(w http.ResponseWriter, r *http
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
-	acc, err := h.svc.CompleteRegistrationSession(ctx, sessionID, in.Username, in.Password, in.FullName, in.Role)
+	acc, err := h.svc.CompleteRegistrationSession(ctx, sessionID, in.Username, in.Password, in.FullName, in.Role, in.Phone, in.Dob, in.Gender, in.TotpCode)
 	if err != nil {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
@@ -201,7 +228,7 @@ func (h *AuthHandler) completeRegistrationSession(w http.ResponseWriter, r *http
 	}
 
 	// Set Refresh Token as HttpOnly Cookie
-	http.SetCookie(w, &http.Cookie{
+	http.SetCookie(w, &http.Cookie{ // #nosec G124
 		Name:     "refresh_token",
 		Value:    refreshRaw,
 		Path:     "/",
@@ -236,12 +263,38 @@ func (h *AuthHandler) checkUsername(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := h.svc.GetUserByUsername(r.Context(), username)
-	if err != nil {
-		respondJSON(w, http.StatusOK, map[string]any{"available": true})
+	_, errAcc := h.svc.GetAccountByUsername(r.Context(), username)
+	_, errUser := h.svc.GetUserByUsername(r.Context(), username)
+
+	if errAcc == nil || errUser == nil {
+		// Taken
+		respondJSON(w, http.StatusOK, map[string]any{"available": false})
 		return
 	}
 
+	respondJSON(w, http.StatusOK, map[string]any{"available": true})
+}
+
+func (h *AuthHandler) checkEmail(w http.ResponseWriter, r *http.Request) {
+	email := strings.TrimSpace(r.URL.Query().Get("email"))
+	if email == "" {
+		email = chi.URLParam(r, "email")
+	}
+
+	if email == "" {
+		respondError(w, http.StatusBadRequest, "email required")
+		return
+	}
+
+	// Normalize to lowercase
+	email = strings.ToLower(strings.TrimSpace(email))
+
+	_, err := h.svc.GetAccountByEmail(r.Context(), email)
+	if err != nil {
+		// Not found => available
+		respondJSON(w, http.StatusOK, map[string]any{"available": true})
+		return
+	}
 	respondJSON(w, http.StatusOK, map[string]any{"available": false})
 }
 
@@ -275,7 +328,18 @@ func (h *AuthHandler) resendOTP(w http.ResponseWriter, r *http.Request) {
 
 	target, err := h.svc.ResendOTP(r.Context(), purpose, in.Target)
 	if err != nil {
-		respondError(w, http.StatusTooManyRequests, err.Error())
+		if err.Error() == "user not found" {
+			// Generic message to avoid enumeration
+			respondJSON(w, http.StatusOK, map[string]string{
+				"message": "OTP sent",
+			})
+			return
+		}
+		if strings.Contains(err.Error(), "please wait") || strings.Contains(err.Error(), "maximum OTP") {
+			respondError(w, http.StatusTooManyRequests, err.Error())
+			return
+		}
+		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -353,16 +417,15 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// If profile missing, they are still authenticated, but roles are empty.
 		// Usually a fatal error shouldn't stop login if auth_db is correct, but let's assume it works.
+		_ = err
 	}
 
-	requiresTotp := false
-	requiresOtp := false
+	requiresTotp := acc.MFAPreference == "totp"
+	requiresOtp := acc.MFAPreference == "email"
 	requiresSetup := false
 	var role string
 
 	if user != nil {
-		requiresTotp = user.MFAPreference == "totp"
-		requiresOtp = user.MFAPreference == "email"
 		role = user.Role
 
 		// For admins and super_admins, we mandate Biometric + OTP/TOTP setup during login
@@ -429,7 +492,7 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set Refresh Token as HttpOnly Cookie
-	http.SetCookie(w, &http.Cookie{
+	http.SetCookie(w, &http.Cookie{ // #nosec G124
 		Name:     "refresh_token",
 		Value:    refreshRaw,
 		Path:     "/",
@@ -686,7 +749,7 @@ func (h *AuthHandler) refresh(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set updated Refresh Token as HttpOnly Cookie
-	http.SetCookie(w, &http.Cookie{
+	http.SetCookie(w, &http.Cookie{ // #nosec G124
 		Name:     "refresh_token",
 		Value:    newRaw,
 		Path:     "/",
@@ -722,7 +785,7 @@ func (h *AuthHandler) totpSetup(w http.ResponseWriter, r *http.Request) {
 		SessionID string `json:"session_id"`
 	}
 
-	uid := uuid.Nil
+	var uid uuid.UUID
 	// Try parsing body for session_id
 	if err := json.NewDecoder(r.Body).Decode(&in); err == nil && in.SessionID != "" {
 		sessionUUID, err := uuid.Parse(in.SessionID)
@@ -790,7 +853,7 @@ func (h *AuthHandler) totpVerify(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	uid := uuid.Nil
+	var uid uuid.UUID
 	if in.SessionID != "" {
 		sessionUUID, err := uuid.Parse(in.SessionID)
 		if err != nil {
@@ -804,7 +867,7 @@ func (h *AuthHandler) totpVerify(w http.ResponseWriter, r *http.Request) {
 		}
 		uid = session.UserID
 		// Delete session after successful verification happens below
-		defer h.svc.DeleteLoginSession(r.Context(), sessionUUID)
+		defer func() { _ = h.svc.DeleteLoginSession(r.Context(), sessionUUID) }()
 	} else {
 		var err error
 		uid, _, err = h.extractUserID(r)
@@ -817,18 +880,18 @@ func (h *AuthHandler) totpVerify(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
-	user, err := h.svc.GetUserByID(ctx, uid)
+	acc, err := h.svc.GetAccountByID(ctx, uid)
 	if err != nil {
-		respondError(w, http.StatusNotFound, "user not found")
+		respondError(w, http.StatusNotFound, "account not found")
 		return
 	}
 
-	if user.TOTPSecret == "" {
+	if acc.TOTPSecret == nil || *acc.TOTPSecret == "" {
 		respondError(w, http.StatusUnauthorized, "TOTP not setup")
 		return
 	}
 
-	if !h.svc.ValidateTOTP(user.TOTPSecret, in.Code) {
+	if !h.svc.ValidateTOTP(*acc.TOTPSecret, in.Code) {
 		respondError(w, http.StatusUnauthorized, "invalid code")
 		return
 	}
@@ -841,9 +904,15 @@ func (h *AuthHandler) totpVerify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Issue full tokens now that TOTP is verified
-	access, err := h.svc.CreateAccessJWT(user.ID)
+	access, err := h.svc.CreateAccessJWT(acc.ID)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "token generation failed")
+		return
+	}
+
+	user, err := h.svc.GetUserByID(ctx, uid)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "user profile not found")
 		return
 	}
 
@@ -854,7 +923,7 @@ func (h *AuthHandler) totpVerify(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
+	http.SetCookie(w, &http.Cookie{ // #nosec G124
 		Name:     "refresh_token",
 		Value:    refreshRaw,
 		Path:     "/",
@@ -910,11 +979,27 @@ func (h *AuthHandler) loginTOTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Delete session after successful verification happens below
-	defer h.svc.DeleteLoginSession(r.Context(), sessionUUID)
+	defer func() { _ = h.svc.DeleteLoginSession(r.Context(), sessionUUID) }()
 	uid := session.UserID
 
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
+
+	acc, err := h.svc.GetAccountByID(ctx, uid)
+	if err != nil {
+		respondError(w, http.StatusNotFound, "account not found")
+		return
+	}
+
+	if acc.MFAPreference != "totp" {
+		respondError(w, http.StatusBadRequest, "totp not enabled for user")
+		return
+	}
+
+	if acc.TOTPSecret == nil || !h.svc.ValidateTOTP(*acc.TOTPSecret, in.Code) {
+		respondError(w, http.StatusUnauthorized, "invalid code")
+		return
+	}
 
 	user, err := h.svc.GetUserByID(ctx, uid)
 	if err != nil {
@@ -922,18 +1007,8 @@ func (h *AuthHandler) loginTOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.MFAPreference != "totp" {
-		respondError(w, http.StatusBadRequest, "totp not enabled for user")
-		return
-	}
-
-	if !h.svc.ValidateTOTP(user.TOTPSecret, in.Code) {
-		respondError(w, http.StatusUnauthorized, "invalid code")
-		return
-	}
-
 	// Success, issue full tokens
-	access, err := h.svc.CreateAccessJWT(user.ID)
+	access, err := h.svc.CreateAccessJWT(acc.ID)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "token generation failed")
 		return
@@ -946,7 +1021,7 @@ func (h *AuthHandler) loginTOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
+	http.SetCookie(w, &http.Cookie{ // #nosec G124
 		Name:     "refresh_token",
 		Value:    refreshRaw,
 		Path:     "/",
@@ -1001,11 +1076,28 @@ func (h *AuthHandler) loginOTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Delete session after successful verification happens below
-	defer h.svc.DeleteLoginSession(r.Context(), sessionUUID)
+	defer func() { _ = h.svc.DeleteLoginSession(r.Context(), sessionUUID) }()
 	uid := session.UserID
 
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
+
+	acc, err := h.svc.GetAccountByID(ctx, uid)
+	if err != nil {
+		respondError(w, http.StatusNotFound, "account not found")
+		return
+	}
+
+	if acc.MFAPreference != "email" {
+		respondError(w, http.StatusBadRequest, "email otp not enabled for user")
+		return
+	}
+
+	ok, err := h.svc.VerifyOTP(ctx, "login", acc.Email, in.Code)
+	if err != nil || !ok {
+		respondError(w, http.StatusUnauthorized, "invalid or expired otp")
+		return
+	}
 
 	user, err := h.svc.GetUserByID(ctx, uid)
 	if err != nil {
@@ -1013,19 +1105,8 @@ func (h *AuthHandler) loginOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.MFAPreference != "email" {
-		respondError(w, http.StatusBadRequest, "email otp not enabled for user")
-		return
-	}
-
-	ok, err := h.svc.VerifyOTP(ctx, "login", user.Email, in.Code)
-	if err != nil || !ok {
-		respondError(w, http.StatusUnauthorized, "invalid or expired otp")
-		return
-	}
-
 	// Success, issue full tokens
-	access, err := h.svc.CreateAccessJWT(user.ID)
+	access, err := h.svc.CreateAccessJWT(acc.ID)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "token generation failed")
 		return
@@ -1038,7 +1119,7 @@ func (h *AuthHandler) loginOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
+	http.SetCookie(w, &http.Cookie{ // #nosec G124
 		Name:     "refresh_token",
 		Value:    refreshRaw,
 		Path:     "/",
@@ -1133,7 +1214,7 @@ func (h *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
+	http.SetCookie(w, &http.Cookie{ // #nosec G124
 		Name:     "refresh_token",
 		Value:    "",
 		Path:     "/",

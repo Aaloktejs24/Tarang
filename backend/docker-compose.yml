@@ -51,9 +51,11 @@ services:
       - JWT_SECRET
       - ALE_MASTER_KEY
       - OTEL_EXPORTER_OTLP_ENDPOINT
-      - AWS_REGION
-      - AWS_ACCESS_KEY_ID
-      - AWS_SECRET_ACCESS_KEY
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY
+      - MINIO_SECRET_KEY
+      - MINIO_USE_SSL=false
+      - MINIO_PUBLIC_URL=http://localhost:9000
       - SANDBOX_API_KEY
       - SANDBOX_API_SECRET
       - DIGILOCKER_REDIRECT_URL
@@ -83,9 +85,11 @@ services:
       - SANDBOX_API_KEY
       - SANDBOX_API_SECRET
       - DIGILOCKER_REDIRECT_URL
-      - AWS_ACCESS_KEY_ID
-      - AWS_SECRET_ACCESS_KEY
-      - AWS_REGION
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY
+      - MINIO_SECRET_KEY
+      - MINIO_USE_SSL=false
+      - MINIO_PUBLIC_URL=http://localhost:9000
     ports:
       - "8080:8080"
     depends_on:
@@ -147,5 +151,95 @@ services:
     ports:
       - "9090:9090"
 
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  minio-create-bucket:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio:9000 $${MINIO_ACCESS_KEY:-minioadmin} $${MINIO_SECRET_KEY:-minioadmin};
+      /usr/bin/mc mb myminio/tarang-user-service --ignore-existing;
+      /usr/bin/mc anonymous set public myminio/tarang-user-service;
+      /usr/bin/mc mb myminio/tarang-media-raw --ignore-existing;
+      /usr/bin/mc mb myminio/tarang-media-processed --ignore-existing;
+      /usr/bin/mc anonymous set public myminio/tarang-media-processed;
+      /usr/bin/mc mb myminio/tarang-docs-raw --ignore-existing;
+      /usr/bin/mc mb myminio/tarang-docs-processed --ignore-existing;
+      /usr/bin/mc anonymous set public myminio/tarang-docs-processed;
+      exit 0;
+      "
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
+
+  streaming-api:
+    build:
+      context: .
+      dockerfile: services/streaming-api/Dockerfile
+    environment:
+      - STREAMING_DATABASE_URL=postgresql://tarang:password@postgres:5432/tarang_auth?sslmode=disable
+      - RABBIT_URL=amqp://guest:guest@rabbitmq:5672/
+      - PORT=8083
+    ports:
+      - "8083:8083"
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  streaming-worker:
+    build:
+      context: .
+      dockerfile: services/streaming-worker/Dockerfile
+    environment:
+      - STREAMING_DATABASE_URL=postgresql://tarang:password@postgres:5432/tarang_auth?sslmode=disable
+      - RABBIT_URL=amqp://guest:guest@rabbitmq:5672/
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  viewer-api:
+    build:
+      context: .
+      dockerfile: services/viewer-api/Dockerfile
+    environment:
+      - VIEWER_DATABASE_URL=postgresql://tarang:password@postgres:5432/tarang_auth?sslmode=disable
+      - RABBIT_URL=amqp://guest:guest@rabbitmq:5672/
+      - PORT=8084
+    ports:
+      - "8084:8084"
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  viewer-worker:
+    build:
+      context: .
+      dockerfile: services/viewer-worker/Dockerfile
+    environment:
+      - VIEWER_DATABASE_URL=postgresql://tarang:password@postgres:5432/tarang_auth?sslmode=disable
+      - RABBIT_URL=amqp://guest:guest@rabbitmq:5672/
+    depends_on:
+      - postgres
+      - rabbitmq
+
 volumes:
   pgdata:
+  minio_data:

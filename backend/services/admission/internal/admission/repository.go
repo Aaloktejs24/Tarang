@@ -41,7 +41,7 @@ func (r *repository) CreateProgram(ctx context.Context, prog *admissionpb.Progra
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	query := `
 		INSERT INTO admission_programs (
@@ -103,7 +103,7 @@ func (r *repository) UpdateProgram(ctx context.Context, prog *admissionpb.Progra
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	query := `
 		UPDATE admission_programs SET
@@ -215,7 +215,7 @@ func (r *repository) GetProgramsByInstitute(ctx context.Context, instituteID str
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var programs []*admissionpb.Program
 	for rows.Next() {
@@ -268,7 +268,7 @@ func (r *repository) getStagesForProgram(ctx context.Context, programID string) 
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var stages []*admissionpb.Stage
 	for rows.Next() {
@@ -292,19 +292,19 @@ func (r *repository) getStagesForProgram(ctx context.Context, programID string) 
 		}
 		
 		if len(reqBytes) > 0 {
-			json.Unmarshal(reqBytes, &stage.Requirements)
+			_ = json.Unmarshal(reqBytes, &stage.Requirements)
 		}
 		
 		if len(quizBytes) > 0 {
-			json.Unmarshal(quizBytes, &stage.QuizAttachments)
+			_ = json.Unmarshal(quizBytes, &stage.QuizAttachments)
 		}
 
 		if len(sfBytes) > 0 {
-			json.Unmarshal(sfBytes, &stage.SelectedFields)
+			_ = json.Unmarshal(sfBytes, &stage.SelectedFields)
 		}
 
 		if len(arcBytes) > 0 {
-			json.Unmarshal(arcBytes, &stage.AcademicRecordsConfig)
+			_ = json.Unmarshal(arcBytes, &stage.AcademicRecordsConfig)
 		}
 
 		if pAmt > 0 || pCurr != "" {
@@ -331,7 +331,7 @@ func (r *repository) DeleteProgram(ctx context.Context, id string) error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	// Delete stages first (if not cascading)
 	_, err = tx.ExecContext(ctx, "DELETE FROM admission_stages WHERE program_id = $1", id)
@@ -388,7 +388,7 @@ func (r *repository) GetDrafts(ctx context.Context, instituteID string) ([]*admi
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var drafts []*admissionpb.Draft
 	for rows.Next() {
@@ -420,7 +420,7 @@ func (r *repository) ApplyForProgram(ctx context.Context, app *admissionpb.Appli
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	// 1. Create a fresh Application with a sequence-generated ID
 	// Due to the partial unique index, this will fail if the user already has an active application.
@@ -458,7 +458,7 @@ func (r *repository) UpdateApplicationProgress(ctx context.Context, appID string
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	// 1. Update the Application state
 	appQuery := `
@@ -542,7 +542,7 @@ func (r *repository) GetApplicationHistory(ctx context.Context, applicationID st
 	if err != nil {
 		return nil, nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var transactions []*admissionpb.Transaction
 	for rows.Next() {
@@ -569,7 +569,7 @@ func (r *repository) GetUserApplications(ctx context.Context, userID string) ([]
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var apps []*admissionpb.Application
 	for rows.Next() {
@@ -600,7 +600,7 @@ func (r *repository) GetInstituteApplications(ctx context.Context, instituteID s
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var apps []*admissionpb.Application
 	for rows.Next() {

@@ -1,5 +1,5 @@
-import CourseBuilder from "../../../../../../features/lms/CourseBuilder";
+import CourseEditor from "../../../../../../features/lms/CourseEditor";
 
 export default function CourseCreatePage() {
-  return <CourseBuilder />;
+  return <CourseEditor />;
 }

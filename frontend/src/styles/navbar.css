@@ -21,7 +21,7 @@ nav.nav {
   left: 0;
   margin: 0 !important;
   z-index: 1000;
-  width: 100%;
+  width: var(--size-full);
   
   /* Medium Glassy Tarang Gradient */
   background: linear-gradient(135deg, rgba(0, 86, 179, 0.15) 0%, rgba(40, 167, 69, 0.15) 100%);
@@ -30,31 +30,31 @@ nav.nav {
   -webkit-backdrop-filter: blur(16px);
   color: #0056b3;
   
-  border-bottom: 1px solid #E2E8F0;
-  border-bottom: 2px solid transparent;
+  border-bottom: var(--border-thin) solid #E2E8F0;
+  border-bottom: var(--border-thick) solid transparent;
   border-image: linear-gradient(90deg, #0056b3 0%, #28a745 50%, #ffc107 100%) 1;
 }
 
 .search_bar {
   display: flex;
   align-items: center;
-  border: 1px solid rgba(0, 86, 179, 0.3);
+  border: var(--border-thin) solid rgba(0, 86, 179, 0.3);
   border-radius: 24px;
   background-color: transparent;
   padding: 0 16px;
   width: 32vw;
   height: 44px;
-  transition: all 0.2s ease;
+  transition: var(--transition-base);
 }
 
 .search_bar:focus-within {
-  border: 1px solid #0056b3;
+  border: var(--border-thin) solid #0056b3;
   background-color: transparent;
 }
 
 .search_input {
-  width: 100%;
-  height: 100%;
+  width: var(--size-full);
+  height: var(--size-full);
   border: none;
   padding: 0;
   font-size: 15px;
@@ -67,7 +67,7 @@ nav.nav {
 }
 .search_input::placeholder {
   color: #94a3b8;
-  font-weight: 500;
+  font-weight: var(--font-medium);
 }
 
 .logo img {
@@ -110,7 +110,7 @@ nav.nav {
   align-items: center;
   gap: 10px;
   padding: 0px 15px;
-  transition: all 0.3s;
+  transition: var(--transition-slow);
   height: 64px;
 }
 
@@ -135,7 +135,7 @@ nav.nav {
 
 .country_icon img {
   height: 20px;
-  border: #28a745 2px solid;
+  border: #28a745 var(--border-thick) solid;
   padding: 1px;
   background-color: #f9f9f9;
 }
@@ -151,7 +151,7 @@ nav.nav {
 .language_name,
 .region {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: var(--font-semibold);
   font-family: rozhaOne-Regular;
 }
 
@@ -159,7 +159,7 @@ nav.nav {
 .script_name,
 .country_name {
   font-size: 12px;
-  font-weight: 500;
+  font-weight: var(--font-medium);
   color: #28a745;
 }
 

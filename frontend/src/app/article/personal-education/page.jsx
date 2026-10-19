@@ -3,26 +3,28 @@
 import React, { useState } from "react";
 import { Box, Container, Typography, Paper } from "@mui/material";
 import { useTranslation } from "../../../hooks/useTranslation";
-import LandingNavbar from "../../../components/navbar/LandingNavbar";
+import Navbar from "../../../components/navbar/Navbar";
 import LandingFooter from "../../../components/footer/LandingFooter";
 import LoginForm from "../../../features/auth/LoginForm";
 import { AnimatePresence } from "framer-motion";
+import { useBgPreloader } from "../../../hooks/useBgPreloader";
 
 export default function ArticlePage() {
   const { t } = useTranslation();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  useBgPreloader('https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=2000');
 
   return (
-    <Box sx={{ bgcolor: "#ffffff", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      <LandingNavbar onLoginClick={() => setIsLoginOpen(true)} />
+    <Box sx={{ bgcolor: "var(--color-white)", minHeight: "var(--size-screen-h)", display: "flex", flexDirection: "column" }}>
+      <Navbar variant="landing" onLoginClick={() => setIsLoginOpen(true)} />
 
       {/* ─── HEADER BANNER ────────────────────────────────────────────────── */}
       <Box
         sx={{
-          width: "100%",
+          width: "var(--size-full)",
           height: { xs: "300px", md: "400px" },
           position: "relative",
-          bgcolor: "#0056b3",
+          bgcolor: "var(--color-primary)",
           backgroundImage: `url('https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=2000')`, // Education/book theme
           backgroundBlendMode: "multiply",
           backgroundSize: "cover",
@@ -37,10 +39,9 @@ export default function ArticlePage() {
           <Typography
             variant="h1"
             sx={{
-              color: "#ffffff",
+              color: "var(--color-white)",
               fontSize: { xs: "2.5rem", md: "4rem" },
               fontWeight: 800,
-              fontFamily: "'Rozha One', serif",
               letterSpacing: "-1px",
               mb: 2,
             }}
@@ -48,9 +49,9 @@ export default function ArticlePage() {
             {t("articlePage.heroTitle")}
           </Typography>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1 }}>
-            <Typography sx={{ color: "#ffffff", fontWeight: 600 }}>{t("articlePage.breadcrumbHome")}</Typography>
+            <Typography sx={{ color: "var(--color-white)", fontWeight: 'var(--font-semibold)' }}>{t("articlePage.breadcrumbHome")}</Typography>
             <Typography sx={{ color: "rgba(255,255,255,0.6)" }}>/</Typography>
-            <Typography sx={{ color: "#28a745", fontWeight: 600 }}>{t("articlePage.breadcrumbTitle")}</Typography>
+            <Typography sx={{ color: "var(--color-success)", fontWeight: 'var(--font-semibold)' }}>{t("articlePage.breadcrumbTitle")}</Typography>
           </Box>
         </Box>
       </Box>
@@ -58,33 +59,33 @@ export default function ArticlePage() {
       {/* ─── MAIN CONTENT ─────────────────────────────────────────────────── */}
       <Box sx={{ flexGrow: 1, py: { xs: 8, md: 10 } }}>
         <Container maxWidth="md">
-          <Paper elevation={0} sx={{ p: { xs: 4, md: 8 }, borderRadius: "24px", border: "1px solid rgba(0,0,0,0.05)" }}>
+          <Paper elevation={0} sx={{ p: { xs: 4, md: 8 }, borderRadius: 'var(--radius-lg)', border: "var(--border-thin) solid rgba(0,0,0,0.05)" }}>
             
-            <Typography variant="h4" sx={{ fontWeight: 800, color: "#1e293b", mb: 3 }}>
+            <Typography variant="h4" sx={{ fontWeight: 800, color: "var(--color-slate-900)", mb: 3 }}>
               {t("articlePage.section1Title")}
             </Typography>
-            <Typography sx={{ color: "#1e293b", fontSize: "1.05rem", lineHeight: 1.7, fontWeight: 500, letterSpacing: "0.3px", mb: 3 }}>
+            <Typography sx={{ color: "var(--color-slate-900)", fontSize: 'var(--font-base)', lineHeight: 1.7, fontWeight: 'var(--font-medium)', letterSpacing: "0.3px", mb: 3 }}>
               {t("articlePage.section1Text1")}
             </Typography>
-            <Typography sx={{ color: "#1e293b", fontSize: "1.05rem", lineHeight: 1.7, fontWeight: 500, letterSpacing: "0.3px", mb: 6 }}>
+            <Typography sx={{ color: "var(--color-slate-900)", fontSize: 'var(--font-base)', lineHeight: 1.7, fontWeight: 'var(--font-medium)', letterSpacing: "0.3px", mb: 6 }}>
               {t("articlePage.section1Text2")}
             </Typography>
 
             <Box sx={{ height: "1px", bgcolor: "rgba(0,0,0,0.1)", my: 6 }} />
 
-            <Typography variant="h4" sx={{ fontWeight: 800, color: "#1e293b", mb: 3 }}>
+            <Typography variant="h4" sx={{ fontWeight: 800, color: "var(--color-slate-900)", mb: 3 }}>
               {t("articlePage.section2Title")}
             </Typography>
-            <Typography sx={{ color: "#1e293b", fontSize: "1.05rem", lineHeight: 1.7, fontWeight: 500, letterSpacing: "0.3px", mb: 6 }}>
+            <Typography sx={{ color: "var(--color-slate-900)", fontSize: 'var(--font-base)', lineHeight: 1.7, fontWeight: 'var(--font-medium)', letterSpacing: "0.3px", mb: 6 }}>
               {t("articlePage.section2Text")}
             </Typography>
 
             <Box sx={{ height: "1px", bgcolor: "rgba(0,0,0,0.1)", my: 6 }} />
 
-            <Typography variant="h4" sx={{ fontWeight: 800, color: "#1e293b", mb: 3 }}>
+            <Typography variant="h4" sx={{ fontWeight: 800, color: "var(--color-slate-900)", mb: 3 }}>
               {t("articlePage.section3Title")}
             </Typography>
-            <Typography sx={{ color: "#1e293b", fontSize: "1.05rem", lineHeight: 1.7, fontWeight: 500, letterSpacing: "0.3px", mb: 2 }}>
+            <Typography sx={{ color: "var(--color-slate-900)", fontSize: 'var(--font-base)', lineHeight: 1.7, fontWeight: 'var(--font-medium)', letterSpacing: "0.3px", mb: 2 }}>
               {t("articlePage.section3Text")}
             </Typography>
 

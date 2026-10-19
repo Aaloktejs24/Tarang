@@ -20,13 +20,13 @@ export default function AccessibleBadges({ count = 0, onClick }) {
         badgeContent={count}
         sx={{
           "& .MuiBadge-badge": {
-            backgroundColor: "#28a745",
+            backgroundColor: "var(--color-success)",
             color: "white",
           },
         }}
       >
         <div className="notification_icon">
-          <NotificationsIcon sx={{ color: "#0056b3", fontSize: 30 }} />
+          <NotificationsIcon sx={{ color: "var(--color-primary)", fontSize: 30 }} />
         </div>
       </Badge>
     </IconButton>

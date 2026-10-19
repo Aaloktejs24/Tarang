@@ -81,6 +81,7 @@ export function useAutoSave({ appId, activeStep, basicDetails, uploadedDocs, pro
     }
 
     if (['pending_final_review', 'approved', 'enrolled'].includes(applicationStatus)) {
+      setAutoSaveStatus('idle');
       return;
     }
 

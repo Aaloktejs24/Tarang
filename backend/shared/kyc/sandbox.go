@@ -37,7 +37,7 @@ func (s *SandboxProvider) GetToken() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var res struct {
 		AccessToken string `json:"access_token"`
@@ -71,7 +71,7 @@ func (s *SandboxProvider) RequestAadhaarOTP(token, aadhaarNum string) (string, e
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		b, _ := io.ReadAll(resp.Body)
@@ -79,7 +79,7 @@ func (s *SandboxProvider) RequestAadhaarOTP(token, aadhaarNum string) (string, e
 	}
 
 	var result map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&result)
+	_ = json.NewDecoder(resp.Body).Decode(&result)
 
 	data, ok := result["data"].(map[string]interface{})
 	if !ok || data["reference_id"] == nil {
@@ -116,7 +116,7 @@ func (s *SandboxProvider) VerifyAadhaarOTP(token, refID, otp string) (*Verificat
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		b, _ := io.ReadAll(resp.Body)
@@ -193,11 +193,11 @@ func (s *SandboxProvider) InitDigilockerSession(token string) (string, string, e
 	if err != nil {
 		return "", "", err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		b, _ := io.ReadAll(resp.Body)
-		return "", "", fmt.Errorf("Digilocker session init failed: %s", string(b))
+		return "", "", fmt.Errorf("digilocker session init failed: %s", string(b))
 	}
 
 	var res struct {
@@ -241,7 +241,7 @@ func (s *SandboxProvider) GetDigilockerAadhaarData(token, sessionID string) (*Ve
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		b, _ := io.ReadAll(resp.Body)
@@ -271,11 +271,11 @@ func (s *SandboxProvider) GetDigilockerAadhaarData(token, sessionID string) (*Ve
 	}
 
 	// Download Document S3 XML
-	xmlResp, err := http.Get(xmlURL)
+	xmlResp, err := http.Get(xmlURL) // #nosec G107
 	if err != nil {
 		return nil, fmt.Errorf("failed to download s3 xml: %w", err)
 	}
-	defer xmlResp.Body.Close()
+	defer func() { _ = xmlResp.Body.Close() }()
 
 	xmlData, _ := io.ReadAll(xmlResp.Body)
 

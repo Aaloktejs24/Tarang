@@ -1,18 +1,13 @@
-import { Box, Typography, Button, TextField } from "@mui/material";
+import { Box, Typography, TextField } from "@mui/material";
+import { CustomFloatingInput } from "../../../components/common/CustomFloatingFields";
 import { useState } from "react";
 import { confirmPhoneVerification } from "../authService";
-import { translateError } from "../utils/authErrors";
-import Loader from "../../../components/common/Loader";
+import { translateAuthError, AUTH_ERRORS } from "../../../constants/errors";
+import TarangButton from "../../../components/common/TarangButton";
 
 const fieldSx = {
     "& .MuiOutlinedInput-root": {
-        backgroundColor: "#f8fafc",
-        borderRadius: "8px",
-        transition: "all 0.2s ease",
-        "& fieldset": { borderColor: "#e2e8f0" },
-        "&:hover fieldset": { borderColor: "#cbd5e1" },
-        "&.Mui-focused fieldset": { borderColor: "#0056b3", borderWidth: "1.5px" },
-        "& input": { color: "#0f172a", fontSize: "15px", letterSpacing: "5px", textAlign: "center", fontWeight: "bold" },
+        "& input": { color: "var(--color-slate-900)", fontSize: 'var(--font-base)', letterSpacing: "5px", textAlign: "center", fontWeight: "var(--font-bold)" },
     },
     "& .MuiOutlinedInput-input": { padding: "12px 14px" },
 };
@@ -29,7 +24,7 @@ export default function RegisterPhoneOtpStep({ setStep, formData, isLoading, set
             
             setStep(4);
         } catch (err) {
-            setError(translateError(err.response?.data?.error) || "अमान्य OTP");
+            setError(translateAuthError(err.response?.data?.error) || AUTH_ERRORS.GENERIC.INVALID_OTP);
         } finally {
             setIsLoading(false);
         }
@@ -40,63 +35,45 @@ export default function RegisterPhoneOtpStep({ setStep, formData, isLoading, set
     };
 
     return (
-        <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 2 }}>
+        <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 2 }}>
             <Box>
-                <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", fontSize: "28px" }}>
+                <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)' }}>
                     फ़ोन वेरीफाई करें
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#64748b", mb: 3, fontSize: "15px", lineHeight: 1.5 }}>
-                    हमने <span style={{ color: "#0f172a", fontWeight: 700 }}>{formData.phone}</span> पर एक वेरिफिकेशन कोड भेजा है
+                <Typography variant="body2" sx={{ color: "var(--color-slate-500)", mb: 3, fontSize: 'var(--font-base)', lineHeight: 1.5 }}>
+                    हमने <span style={{ color: "var(--color-slate-900)", fontWeight: 'var(--font-bold)' }}>{formData.phone}</span> पर एक वेरिफिकेशन कोड भेजा है
                 </Typography>
             </Box>
 
             <Box>
-                <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px" }}>
-                    वेरिफिकेशन कोड
-                </Typography>
-                <TextField
-                    fullWidth
+                <CustomFloatingInput
+                    label="वेरिफिकेशन कोड"
+                    
                     value={localOtp}
                     onChange={(e) => setLocalOtp(e.target.value)}
-                    placeholder="000000"
-                    sx={fieldSx}
+                    
                 />
             </Box>
 
-            <Button
+            <TarangButton
                 fullWidth
-                variant="contained" disableElevation
+                loading={isLoading}
                 disabled={isLoading || localOtp.length < 6}
                 onClick={handleVerify}
-                sx={{
-                    height: "48px",
-                    mt: 1,
-                    borderRadius: "8px",
-                    textTransform: "none",
-                    fontSize: "16px",
-                    fontWeight: 700,
-                    background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)",
-                    transition: "all 0.2s ease-in-out",
-                    "&:hover": {
-                        background: "linear-gradient(135deg, #004494 0%, #218838 100%)",
-                        
-                    },
-                    
-                    "&.Mui-disabled": { background: "#e2e8f0", color: "#94a3b8" },
-                }}
+                sx={{ height: 'var(--box-height)', mt: 1 }}
             >
-                {isLoading ? <Loader mini /> : "फ़ोन वेरीफाई करें"}
-            </Button>
+                {"फ़ोन वेरीफाई करें"}
+            </TarangButton>
 
             <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
-                <Button
+                <TarangButton
                     variant="text"
                     disabled={isLoading}
                     onClick={handleSkip}
-                    sx={{ textTransform: "none", color: "#64748b", fontWeight: 600, fontSize: "14.5px", height: "44px" }}
+                    sx={{ color: 'var(--color-slate-500)', height: 'var(--box-height)' }}
                 >
                     अभी के लिए छोड़ें
-                </Button>
+                </TarangButton>
             </Box>
         </Box>
     );

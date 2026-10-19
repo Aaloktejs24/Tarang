@@ -1,13 +1,13 @@
 "use client";
 
 import { useContext, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useAppRouter } from './/useAppRouter';
 import { AuthContext } from "../contexts/AuthContext";
 import { getAuthFlowInProgress } from "../lib/auth";
 
 export const useAuth = (requireAuth = true) => {
   const { isAuthenticated, isLoading, checkAuth } = useContext(AuthContext);
-  const router = useRouter();
+  const router = useAppRouter();
 
   useEffect(() => {
     if (isLoading) return;

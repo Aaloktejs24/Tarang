@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"log"
 
 	"backend/proto/userpb"
 	"backend/services/user/internal/user"
@@ -10,7 +9,6 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/google/uuid"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 type Server struct {
@@ -25,15 +23,9 @@ func NewServer(s *user.Service) *Server {
 }
 
 func mapToResponse(u *user.User) *userpb.UserResponse {
-	totpSecret := ""
-	if u.TOTPSecret != nil {
-		totpSecret = *u.TOTPSecret
-	}
+	
 
-	phone := ""
-	if u.Phone != nil {
-		phone = *u.Phone
-	}
+	
 
 	fullName := ""
 	if u.FullName != nil {
@@ -47,7 +39,7 @@ func mapToResponse(u *user.User) *userpb.UserResponse {
 
 	dob := ""
 	if u.DOB != nil {
-		dob = *u.DOB
+		dob = u.DOB.Format("2006-01-02")
 	}
 
 	gender := ""
@@ -84,13 +76,8 @@ func mapToResponse(u *user.User) *userpb.UserResponse {
 
 	return &userpb.UserResponse{
 		Id:            u.ID.String(),
-		Email:         u.Email,
 		Username:      u.Username,
-		Phone:         phone,
-		PhoneVerified: u.PhoneVerifiedAt != nil,
 		KycVerified:   u.KycVerifiedAt != nil,
-		MfaPreference: u.MFAPreference,
-		TotpSecret:    totpSecret,
 		Role:          u.Role,
 		FullName:      fullName,
 		Dob:           dob,
@@ -106,156 +93,17 @@ func mapToResponse(u *user.User) *userpb.UserResponse {
 		Location:      location,
 		Languages:     u.Languages,
 		Demographic:   demographic,
-		InstituteProfile: mapInstituteProfileToProto(u.InstituteProfile),
-	}
+			}
 }
 
-func mapInstituteProfileToProto(p *user.InstituteProfile) *userpb.InstituteProfile {
-	if p == nil {
-		return nil
-	}
-	strVal := func(s *string) string { if s == nil { return "" }; return *s }
-	intVal := func(i *int32) int32 { if i == nil { return 0 }; return *i }
 
-	return &userpb.InstituteProfile{
-		InstituteType:             strVal(p.InstituteType),
-		EstablishedYear:           intVal(p.EstablishedYear),
-		RegistrationNumber:        strVal(p.RegistrationNumber),
-		PrimaryContactName:        strVal(p.PrimaryContactName),
-		PrimaryContactDesignation: strVal(p.PrimaryContactDesignation),
-		OfficialPhone:             strVal(p.OfficialPhone),
-		OfficialEmail:             strVal(p.OfficialEmail),
-		WebsiteUrl:                strVal(p.WebsiteURL),
-		AlternateContact:          strVal(p.AlternateContact),
-		CoursesOffered:            string(p.CoursesOffered),
-		EducationLevels:           string(p.EducationLevels),
-		StudentCount:              intVal(p.StudentCount),
-		FacultyCount:              intVal(p.FacultyCount),
-		CampusType:                strVal(p.CampusType),
-		OperatingHours:            strVal(p.OperatingHours),
-		AccreditationDocs:         string(p.AccreditationDocs),
-		LicenseCertificateUrl:     strVal(p.LicenseCertificateURL),
-		TaxId:                     strVal(p.TaxID),
-		Certifications:            string(p.Certifications),
-		BankAccountName:           strVal(p.BankAccountName),
-		BankAccountNumber:         strVal(p.BankAccountNumber),
-		BankIfsc:                  strVal(p.BankIFSC),
-		BillingAddress:            strVal(p.BillingAddress),
-		ShortDescription:          strVal(p.ShortDescription),
-		Facilities:                string(p.Facilities),
-		SocialLinks:               string(p.SocialLinks),
-		AuthorizedSignatoryName:   strVal(p.AuthorizedSignatoryName),
-	}
-}
-
-func mapInstituteProfileToModel(p *userpb.InstituteProfile) *user.InstituteProfile {
-	if p == nil {
-		return nil
-	}
-	strPtr := func(s string) *string { if s == "" { return nil }; return &s }
-	intPtr := func(i int32) *int32 { if i == 0 { return nil }; return &i }
-
-	return &user.InstituteProfile{
-		InstituteType:             strPtr(p.InstituteType),
-		EstablishedYear:           intPtr(p.EstablishedYear),
-		RegistrationNumber:        strPtr(p.RegistrationNumber),
-		PrimaryContactName:        strPtr(p.PrimaryContactName),
-		PrimaryContactDesignation: strPtr(p.PrimaryContactDesignation),
-		OfficialPhone:             strPtr(p.OfficialPhone),
-		OfficialEmail:             strPtr(p.OfficialEmail),
-		WebsiteURL:                strPtr(p.WebsiteUrl),
-		AlternateContact:          strPtr(p.AlternateContact),
-		CoursesOffered:            []byte(p.CoursesOffered),
-		EducationLevels:           []byte(p.EducationLevels),
-		StudentCount:              intPtr(p.StudentCount),
-		FacultyCount:              intPtr(p.FacultyCount),
-		CampusType:                strPtr(p.CampusType),
-		OperatingHours:            strPtr(p.OperatingHours),
-		AccreditationDocs:         []byte(p.AccreditationDocs),
-		LicenseCertificateURL:     strPtr(p.LicenseCertificateUrl),
-		TaxID:                     strPtr(p.TaxId),
-		Certifications:            []byte(p.Certifications),
-		BankAccountName:           strPtr(p.BankAccountName),
-		BankAccountNumber:         strPtr(p.BankAccountNumber),
-		BankIFSC:                  strPtr(p.BankIfsc),
-		BillingAddress:            strPtr(p.BillingAddress),
-		ShortDescription:          strPtr(p.ShortDescription),
-		Facilities:                []byte(p.Facilities),
-		SocialLinks:               []byte(p.SocialLinks),
-		AuthorizedSignatoryName:   strPtr(p.AuthorizedSignatoryName),
-	}
-}
-
-/////////////////////////////////////////////////////
-//// ExistsByEmail
-/////////////////////////////////////////////////////
-
-func (s *Server) ExistsByEmail(ctx context.Context, req *userpb.EmailRequest) (*userpb.ExistsResponse, error) {
-
-	exists, err := s.service.ExistsByEmail(ctx, req.Email)
-	if err != nil {
-		return nil, err
-	}
-
-	return &userpb.ExistsResponse{
-		Exists: exists,
-	}, nil
-}
-
-/////////////////////////////////////////////////////
-//// GetByEmail
-/////////////////////////////////////////////////////
-
-func (s *Server) GetByEmail(ctx context.Context, req *userpb.EmailRequest) (*userpb.UserResponse, error) {
-
-	u, err := s.service.GetByEmail(ctx, req.Email)
-	if err != nil {
-		return nil, err
-	}
-
-	return mapToResponse(u), nil
-}
-
-/////////////////////////////////////////////////////
-//// GetByUsername
-/////////////////////////////////////////////////////
-
-func (s *Server) GetByUsername(ctx context.Context, req *userpb.UsernameRequest) (*userpb.UserResponse, error) {
-
-	u, err := s.service.GetUserByEmailOrUsername(ctx, req.Username)
-	if err != nil {
-		return nil, err
-	}
-
-	return mapToResponse(u), nil
-}
-
-/////////////////////////////////////////////////////
-//// GetByPhone
-/////////////////////////////////////////////////////
-
-func (s *Server) GetByPhone(ctx context.Context, req *userpb.PhoneRequest) (*userpb.UserResponse, error) {
-
-	u, err := s.service.GetUserByEmailOrPhone(ctx, req.Phone)
-	if err != nil {
-		return nil, err
-	}
-
-	return mapToResponse(u), nil
-}
 
 /////////////////////////////////////////////////////
 //// CreateUser
 /////////////////////////////////////////////////////
 
 func (s *Server) CreateUser(ctx context.Context, req *userpb.CreateUserRequest) (*userpb.UserResponse, error) {
-	jsonBytes, _ := protojson.Marshal(req)
-	log.Printf("[gRPC] CreateUser - INCOMING JSON: %s", string(jsonBytes))
-
-	if req.Id == "" {
-		log.Printf("[gRPC] ERROR: Received empty ID in CreateUser")
-	}
-	u, err := s.service.Create(ctx, req.Id, req.Email, req.Username, req.FullName, req.Role)
+	u, err := s.service.Create(ctx, req.Id, req.Username, req.FullName, req.Role, req.Phone, req.Dob, req.Gender)
 	if err != nil {
 		return nil, err
 	}
@@ -265,43 +113,10 @@ func (s *Server) CreateUser(ctx context.Context, req *userpb.CreateUserRequest) 
 
 
 
+
 // SetTOTPSecret
-func (s *Server) SetTOTPSecret(
-	ctx context.Context,
-	req *userpb.TOTPSecretRequest,
-) (*emptypb.Empty, error) {
-
-	id, err := uuid.Parse(req.UserId)
-	if err != nil {
-		return nil, err
-	}
-
-	err = s.service.SetTOTPSecret(ctx, id, req.Secret)
-	if err != nil {
-		return nil, err
-	}
-
-	return &emptypb.Empty{}, nil
-}
 
 // UpdateMFAPreference
-func (s *Server) UpdateMFAPreference(
-	ctx context.Context,
-	req *userpb.MFAPreferenceRequest,
-) (*emptypb.Empty, error) {
-
-	id, err := uuid.Parse(req.UserId)
-	if err != nil {
-		return nil, err
-	}
-
-	err = s.service.UpdateMFAPreference(ctx, id, req.Preference)
-	if err != nil {
-		return nil, err
-	}
-
-	return &emptypb.Empty{}, nil
-}
 
 /////////////////////////////////////////////////////
 //// GetByID
@@ -323,17 +138,7 @@ func (s *Server) GetByID(ctx context.Context, req *userpb.UserIDRequest) (*userp
 }
 
 /////////////////////////////////////////////////////
-//// VerifyPhone
-/////////////////////////////////////////////////////
 
-func (s *Server) VerifyPhone(ctx context.Context, req *userpb.UserIDRequest) (*emptypb.Empty, error) {
-	err := s.service.VerifyPhone(ctx, req.UserId)
-	if err != nil {
-		return nil, err
-	}
-
-	return &emptypb.Empty{}, nil
-}
 
 // MarkKYCVerified updates the KYC status of the user
 func (s *Server) MarkKYCVerified(ctx context.Context, req *userpb.MarkKYCVerifiedRequest) (*emptypb.Empty, error) {
@@ -395,7 +200,7 @@ func (s *Server) UpdateProfile(ctx context.Context, req *userpb.UpdateProfileReq
 		return nil, err
 	}
 
-	if err := s.service.UpdateProfile(ctx, uid, req.FullName, "", "", req.Bio, req.SocialLinks, req.Skills, req.Recognitions, req.Location, req.Languages, req.Demographic, req.InstitutionName, mapInstituteProfileToModel(req.InstituteProfile)); err != nil {
+	if err := s.service.UpdateProfile(ctx, uid, req.FullName, "", "", req.Bio, req.SocialLinks, req.Skills, req.Recognitions, req.Location, req.Languages, req.Demographic, req.InstitutionName, nil); err != nil {
 		return nil, err
 	}
 
@@ -404,4 +209,71 @@ func (s *Server) UpdateProfile(ctx context.Context, req *userpb.UpdateProfileReq
 	}
 
 	return &emptypb.Empty{}, nil
+}
+
+func (s *Server) CreateInstitute(ctx context.Context, req *userpb.CreateInstituteRequest) (*userpb.InstituteResponse, error) {
+	ownerID, err := uuid.Parse(req.OwnerUserId)
+	if err != nil {
+		return nil, err
+	}
+
+	i, err := s.service.CreateInstitute(ctx, req.Name, req.GetInstituteType(), int(req.EstablishedYear), ownerID)
+	if err != nil {
+		return nil, err
+	}
+
+	estYear := int32(0)
+	if i.EstablishedYear != nil {
+		estYear = int32(*i.EstablishedYear)
+	}
+
+	return &userpb.InstituteResponse{
+		Institute: &userpb.Institute{
+			Id: i.ID.String(),
+			Name: i.Name,
+			InstituteType: ptrToString(i.InstituteType),
+			EstablishedYear: estYear,
+			RegistrationNumber: ptrToString(i.RegistrationNumber),
+			WebsiteUrl: ptrToString(i.WebsiteURL),
+			TaxId: ptrToString(i.TaxID),
+			ShortDescription: ptrToString(i.ShortDescription),
+		},
+	}, nil
+}
+
+func (s *Server) GetInstitute(ctx context.Context, req *userpb.InstituteIDRequest) (*userpb.InstituteResponse, error) {
+	id, err := uuid.Parse(req.InstituteId)
+	if err != nil {
+		return nil, err
+	}
+
+	i, err := s.service.GetInstitute(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	estYear := int32(0)
+	if i.EstablishedYear != nil {
+		estYear = int32(*i.EstablishedYear)
+	}
+
+	return &userpb.InstituteResponse{
+		Institute: &userpb.Institute{
+			Id: i.ID.String(),
+			Name: i.Name,
+			InstituteType: ptrToString(i.InstituteType),
+			EstablishedYear: estYear,
+			RegistrationNumber: ptrToString(i.RegistrationNumber),
+			WebsiteUrl: ptrToString(i.WebsiteURL),
+			TaxId: ptrToString(i.TaxID),
+			ShortDescription: ptrToString(i.ShortDescription),
+		},
+	}, nil
+}
+
+func ptrToString(p *string) string {
+	if p == nil {
+		return ""
+	}
+	return *p
 }

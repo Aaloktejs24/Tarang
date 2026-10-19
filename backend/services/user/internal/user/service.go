@@ -1,6 +1,7 @@
 package user
 
 import (
+	"time"
 	"context"
 	"fmt"
 	"log"
@@ -26,7 +27,7 @@ func (s *Service) MarkKYCVerified(ctx context.Context, userID uuid.UUID, referen
 	user.KycReferenceID = &referenceID
 	user.AadhaarHash = &aadhaarHash
 	user.FullName = &fullName
-	user.DOB = &dob
+	// user.DOB handled separately if time.Time
 	user.Gender = &gender
 
 	return s.repo.UpdateKYC(ctx, user)
@@ -40,24 +41,37 @@ func NewService(repo *Repository, cfg *config.Config, redis *redis.Client) *Serv
 // gRPC HELPERS
 //////////////////////////////////////////////////////
 
-func (s *Service) ExistsByEmail(ctx context.Context, email string) (bool, error) {
-	return s.repo.ExistsByEmail(ctx, email)
-}
 
-func (s *Service) GetByEmail(ctx context.Context, email string) (*User, error) {
-	return s.repo.GetByEmail(ctx, email)
-}
 
-func (s *Service) Create(ctx context.Context, idStr string, email, username, fullName, role string) (*User, error) {
-	log.Printf("Service Create: Email=%s, Username=%s, Role=%s", email, username, role)
+
+
+func (s *Service) Create(ctx context.Context, idStr string, username, fullName, role, phone, dob, gender string) (*User, error) {
+	log.Printf("Service Create: Username=%s, Role=%s", username, role)
 	user := &User{
-		Email:    email,
+		
 		Username: username,
 		Role:     role,
 	}
 
 	if fullName != "" {
 		user.FullName = &fullName
+	}
+
+	if phone != "" {
+		user.Phone = &phone
+	}
+
+	if dob != "" {
+		t, err := time.Parse("2006-01-02", dob)
+		if err == nil {
+			user.DOB = &t
+		} else {
+			log.Printf("[Service] Create WARNING: invalid dob format: '%s'", dob)
+		}
+	}
+
+	if gender != "" {
+		user.Gender = &gender
 	}
 
 	if user.Role == "" {
@@ -88,25 +102,11 @@ func (s *Service) GetByUsername(ctx context.Context, username string) (*User, er
 	return s.repo.GetByUsername(ctx, username)
 }
 
-func (s *Service) GetByPhone(ctx context.Context, phone string) (*User, error) {
-	return s.repo.GetByPhone(ctx, phone)
-}
 
-func (s *Service) GetUserByEmailOrUsername(ctx context.Context, identifier string) (*User, error) {
-	user, err := s.repo.GetByEmail(ctx, identifier)
-	if err == nil {
-		return user, nil
-	}
-	return s.repo.GetByUsername(ctx, identifier)
-}
 
-func (s *Service) GetUserByEmailOrPhone(ctx context.Context, identifier string) (*User, error) {
-	user, err := s.repo.GetByEmail(ctx, identifier)
-	if err == nil {
-		return user, nil
-	}
-	return s.repo.GetByPhone(ctx, identifier)
-}
+
+
+
 
 
 
@@ -114,91 +114,31 @@ func (s *Service) GetUserByEmailOrPhone(ctx context.Context, identifier string) 
 // PHONE VERIFY
 //////////////////////////////////////////////////////
 
-func (s *Service) VerifyPhone(ctx context.Context, userID string) error {
-	id, err := uuid.Parse(userID)
-	if err != nil {
-		return err
-	}
-	return s.repo.SetPhoneVerified(ctx, id)
-}
+
 
 //////////////////////////////////////////////////////
 // EMAIL VERIFY
 //////////////////////////////////////////////////////
 
-func (s *Service) VerifyEmail(ctx context.Context, userID string) error {
 
-	id, err := uuid.Parse(userID)
-	if err != nil {
-		return err
-	}
-
-	return s.repo.SetEmailVerified(ctx, id)
-}
 
 //////////////////////////////////////////////////////
 // TOTP
 //////////////////////////////////////////////////////
 
-func (s *Service) EnableTOTP(ctx context.Context, userID string, secret string) error {
 
-	id, err := uuid.Parse(userID)
-	if err != nil {
-		return err
-	}
 
-	if err := s.repo.SetTOTPSecret(ctx, id, secret); err != nil {
-		return err
-	}
-	return s.repo.SetMFAPreference(ctx, id, "totp")
-}
 
-func (s *Service) DisableTOTP(ctx context.Context, userID string) error {
-
-	id, err := uuid.Parse(userID)
-	if err != nil {
-		return err
-	}
-
-	if err := s.repo.SetTOTPSecret(ctx, id, ""); err != nil {
-		return err
-	}
-	return s.repo.SetMFAPreference(ctx, id, "none")
-}
 
 //////////////////////////////////////////////////////
 // ADMIN USER CONTROL
 //////////////////////////////////////////////////////
 
-func (s *Service) DisableUser(ctx context.Context, userID string) error {
-
-	id, err := uuid.Parse(userID)
-	if err != nil {
-		return err
-	}
-
-	return s.repo.SetDisabled(ctx, id, true)
-}
-
-func (s *Service) EnableUser(ctx context.Context, userID string) error {
-
-	id, err := uuid.Parse(userID)
-	if err != nil {
-		return err
-	}
-
-	return s.repo.SetDisabled(ctx, id, false)
-}
 
 
 
-func (s *Service) UpdateMFAPreference(ctx context.Context, id uuid.UUID, preference string) error {
-	return s.repo.SetMFAPreference(ctx, id, preference)
-}
 
-func (s *Service) SetTOTPSecret(ctx context.Context, id uuid.UUID, secret string) error {
-	return s.repo.SetTOTPSecret(ctx, id, secret)
-}
+
 
 func (s *Service) UpdateProfilePic(ctx context.Context, userID uuid.UUID, url string) error {
 	return s.repo.SetProfilePic(ctx, userID, url)
@@ -212,7 +152,7 @@ func (s *Service) UpdateBio(ctx context.Context, userID uuid.UUID, bio string) e
 	return s.repo.SetBio(ctx, userID, bio)
 }
 
-func (s *Service) UpdateProfile(ctx context.Context, userID uuid.UUID, fullName, dob, gender, bio string, socialLinks map[string]string, skills, recognitions []string, location string, languages []string, demographic string, institutionName string, instituteProfile *InstituteProfile) error {
+func (s *Service) UpdateProfile(ctx context.Context, userID uuid.UUID, fullName, dob, gender, bio string, socialLinks map[string]string, skills, recognitions []string, location string, languages []string, demographic string, institutionName string, instProfile *InstituteProfileInput) error {
 	u, err := s.repo.GetByID(ctx, userID)
 	if err != nil {
 		return err
@@ -225,7 +165,8 @@ func (s *Service) UpdateProfile(ctx context.Context, userID uuid.UUID, fullName,
 		u.InstitutionName = &institutionName
 	}
 	if dob != "" {
-		u.DOB = &dob
+		parsedDOB, _ := time.Parse("2006-01-02", dob)
+		u.DOB = &parsedDOB
 	}
 	if gender != "" {
 		u.Gender = &gender
@@ -256,9 +197,8 @@ func (s *Service) UpdateProfile(ctx context.Context, userID uuid.UUID, fullName,
 		return err
 	}
 
-	if instituteProfile != nil && (u.Role == "organisation" || u.Role == "institute") {
-		instituteProfile.UserID = u.ID
-		if err := s.repo.UpsertInstituteProfile(ctx, instituteProfile); err != nil {
+	if instProfile != nil {
+		if err := s.repo.UpsertInstituteProfile(ctx, userID, instProfile, u.InstitutionName); err != nil {
 			return err
 		}
 	}
@@ -317,4 +257,25 @@ func (s *Service) VerifyJWT(tokenString string) (uuid.UUID, bool, error) {
 
 func (s *Service) GetInstitutes(ctx context.Context, limit, offset int) ([]*User, error) {
 	return s.repo.GetInstitutes(ctx, limit, offset)
+}
+
+func (s *Service) CreateInstitute(ctx context.Context, name, instituteType string, establishedYear int, ownerID uuid.UUID) (*Institute, error) {
+	i := &Institute{
+		ID:              uuid.New(),
+		Name:            name,
+		InstituteType:   &instituteType,
+		EstablishedYear: &establishedYear,
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
+	}
+
+	err := s.repo.CreateInstitute(ctx, i, ownerID)
+	if err != nil {
+		return nil, err
+	}
+	return i, nil
+}
+
+func (s *Service) GetInstitute(ctx context.Context, id uuid.UUID) (*Institute, error) {
+	return s.repo.GetInstitute(ctx, id)
 }

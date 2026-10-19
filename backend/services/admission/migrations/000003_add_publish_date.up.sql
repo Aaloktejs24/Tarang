@@ -1,1 +1,1 @@
-ALTER TABLE admission_programs ADD COLUMN publish_date VARCHAR(255);
+ALTER TABLE admission_programs ADD COLUMN publish_date TIMESTAMPTZ;

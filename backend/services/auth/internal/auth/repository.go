@@ -80,9 +80,9 @@ func (r *Repository) CreateRegistrationSession(ctx context.Context, session *Reg
 func (r *Repository) GetRegistrationSessionByID(ctx context.Context, id uuid.UUID) (*RegistrationSession, error) {
 	var s RegistrationSession
 	err := r.db.QueryRow(ctx, `
-		SELECT id, email, phone, otp_hash, email_verified, expires_at, created_at
+		SELECT id, email, phone, otp_hash, totp_secret, email_verified, expires_at, created_at
 		FROM registration_sessions WHERE id=$1
-	`, id).Scan(&s.ID, &s.Email, &s.Phone, &s.OTPHash, &s.EmailVerified, &s.ExpiresAt, &s.CreatedAt)
+	`, id).Scan(&s.ID, &s.Email, &s.Phone, &s.OTPHash, &s.TOTPSecret, &s.EmailVerified, &s.ExpiresAt, &s.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -96,6 +96,11 @@ func (r *Repository) UpdateRegistrationSessionOTP(ctx context.Context, id uuid.U
 
 func (r *Repository) SetRegistrationSessionEmailVerified(ctx context.Context, id uuid.UUID) error {
 	_, err := r.db.Exec(ctx, `UPDATE registration_sessions SET email_verified=true WHERE id=$1`, id)
+	return err
+}
+
+func (r *Repository) SetRegistrationSessionTOTPSecret(ctx context.Context, id uuid.UUID, secret string) error {
+	_, err := r.db.Exec(ctx, `UPDATE registration_sessions SET totp_secret=$1 WHERE id=$2`, secret, id)
 	return err
 }
 
@@ -139,18 +144,18 @@ func (r *Repository) DeleteLoginSession(ctx context.Context, id uuid.UUID) error
 
 func (r *Repository) CreateAccount(ctx context.Context, a *Account) error {
 	row := r.db.QueryRow(ctx, `
-		INSERT INTO accounts (username, email, phone, password_hash, email_verified_at)
-		VALUES ($1, $2, $3, $4, $5) RETURNING id, created_at, updated_at
-	`, a.Username, a.Email, a.Phone, a.PasswordHash, a.EmailVerifiedAt)
+		INSERT INTO accounts (username, email, phone, password_hash, email_verified_at, totp_secret, mfa_preference)
+		VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, created_at, updated_at
+	`, a.Username, a.Email, a.Phone, a.PasswordHash, a.EmailVerifiedAt, a.TOTPSecret, a.MFAPreference)
 	return row.Scan(&a.ID, &a.CreatedAt, &a.UpdatedAt)
 }
 
 func (r *Repository) GetAccountByEmail(ctx context.Context, email string) (*Account, error) {
 	var a Account
 	err := r.db.QueryRow(ctx, `
-		SELECT id, username, email, phone, password_hash, email_verified_at, phone_verified_at, disabled, created_at, updated_at
+		SELECT id, username, email, phone, password_hash, email_verified_at, phone_verified_at, totp_secret, mfa_preference, disabled, created_at, updated_at
 		FROM accounts WHERE email=$1
-	`, email).Scan(&a.ID, &a.Username, &a.Email, &a.Phone, &a.PasswordHash, &a.EmailVerifiedAt, &a.PhoneVerifiedAt, &a.Disabled, &a.CreatedAt, &a.UpdatedAt)
+	`, email).Scan(&a.ID, &a.Username, &a.Email, &a.Phone, &a.PasswordHash, &a.EmailVerifiedAt, &a.PhoneVerifiedAt, &a.TOTPSecret, &a.MFAPreference, &a.Disabled, &a.CreatedAt, &a.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -160,9 +165,9 @@ func (r *Repository) GetAccountByEmail(ctx context.Context, email string) (*Acco
 func (r *Repository) GetAccountByUsername(ctx context.Context, username string) (*Account, error) {
 	var a Account
 	err := r.db.QueryRow(ctx, `
-		SELECT id, username, email, phone, password_hash, email_verified_at, phone_verified_at, disabled, created_at, updated_at
+		SELECT id, username, email, phone, password_hash, email_verified_at, phone_verified_at, totp_secret, mfa_preference, disabled, created_at, updated_at
 		FROM accounts WHERE username=$1
-	`, username).Scan(&a.ID, &a.Username, &a.Email, &a.Phone, &a.PasswordHash, &a.EmailVerifiedAt, &a.PhoneVerifiedAt, &a.Disabled, &a.CreatedAt, &a.UpdatedAt)
+	`, username).Scan(&a.ID, &a.Username, &a.Email, &a.Phone, &a.PasswordHash, &a.EmailVerifiedAt, &a.PhoneVerifiedAt, &a.TOTPSecret, &a.MFAPreference, &a.Disabled, &a.CreatedAt, &a.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -172,9 +177,9 @@ func (r *Repository) GetAccountByUsername(ctx context.Context, username string) 
 func (r *Repository) GetAccountByID(ctx context.Context, id uuid.UUID) (*Account, error) {
 	var a Account
 	err := r.db.QueryRow(ctx, `
-		SELECT id, username, email, phone, password_hash, email_verified_at, phone_verified_at, disabled, created_at, updated_at
+		SELECT id, username, email, phone, password_hash, email_verified_at, phone_verified_at, totp_secret, mfa_preference, disabled, created_at, updated_at
 		FROM accounts WHERE id=$1
-	`, id).Scan(&a.ID, &a.Username, &a.Email, &a.Phone, &a.PasswordHash, &a.EmailVerifiedAt, &a.PhoneVerifiedAt, &a.Disabled, &a.CreatedAt, &a.UpdatedAt)
+	`, id).Scan(&a.ID, &a.Username, &a.Email, &a.Phone, &a.PasswordHash, &a.EmailVerifiedAt, &a.PhoneVerifiedAt, &a.TOTPSecret, &a.MFAPreference, &a.Disabled, &a.CreatedAt, &a.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -230,7 +235,7 @@ func (r *Repository) GetAdminTokenByValue(ctx context.Context, token string) (*A
 // ---------------------------------------------------------
 
 type AdminWebAuthnCredential struct {
-	ID              int
+	ID              uuid.UUID
 	Role            string
 	Identifier      string
 	CredentialID    []byte
@@ -269,6 +274,7 @@ func (r *Repository) GetAdminWebAuthnCredentials(ctx context.Context, role, iden
 		if err := rows.Scan(&c.ID, &c.Role, &c.Identifier, &c.CredentialID, &c.PublicKey, &c.AttestationType, &sc, &c.AAGUID, &c.BackupEligible, &c.BackupState, &c.CreatedAt); err != nil {
 			return nil, err
 		}
+		// #nosec G115
 		c.SignCount = uint32(sc)
 		creds = append(creds, c)
 	}
@@ -279,5 +285,37 @@ func (r *Repository) UpdateAdminWebAuthnCredentialSignCount(ctx context.Context,
 	_, err := r.db.Exec(ctx, `
 		UPDATE admin_webauthn_credentials SET sign_count = $1 WHERE credential_id = $2
 	`, signCount, credentialID)
+	return err
+}
+
+func (r *Repository) GetAccountByPhone(ctx context.Context, phone string) (*Account, error) {
+	var a Account
+	err := r.db.QueryRow(ctx, `
+		SELECT id, username, email, phone, password_hash, email_verified_at, phone_verified_at, totp_secret, mfa_preference, disabled, created_at, updated_at
+		FROM accounts WHERE phone=$1
+	`, phone).Scan(&a.ID, &a.Username, &a.Email, &a.Phone, &a.PasswordHash, &a.EmailVerifiedAt, &a.PhoneVerifiedAt, &a.TOTPSecret, &a.MFAPreference, &a.Disabled, &a.CreatedAt, &a.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+	return &a, nil
+}
+
+func (r *Repository) SetPhoneVerified(ctx context.Context, id uuid.UUID) error {
+	_, err := r.db.Exec(ctx, `UPDATE accounts SET phone_verified_at = now() WHERE id=$1`, id)
+	return err
+}
+
+func (r *Repository) SetEmailVerified(ctx context.Context, id uuid.UUID) error {
+	_, err := r.db.Exec(ctx, `UPDATE accounts SET email_verified_at = now() WHERE id=$1`, id)
+	return err
+}
+
+func (r *Repository) SetAccountTOTPSecret(ctx context.Context, id uuid.UUID, secret string) error {
+	_, err := r.db.Exec(ctx, `UPDATE accounts SET totp_secret=$1 WHERE id=$2`, secret, id)
+	return err
+}
+
+func (r *Repository) UpdateAccountMFAPreference(ctx context.Context, id uuid.UUID, preference string) error {
+	_, err := r.db.Exec(ctx, `UPDATE accounts SET mfa_preference=$1 WHERE id=$2`, preference, id)
 	return err
 }

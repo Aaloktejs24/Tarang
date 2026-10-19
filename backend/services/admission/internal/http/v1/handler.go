@@ -60,7 +60,7 @@ func (h *AdmissionHandler) CreateProgram(w http.ResponseWriter, r *http.Request)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
+	_ = json.NewEncoder(w).Encode(res)
 }
 
 func (h *AdmissionHandler) UpdateProgram(w http.ResponseWriter, r *http.Request) {
@@ -81,7 +81,7 @@ func (h *AdmissionHandler) UpdateProgram(w http.ResponseWriter, r *http.Request)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
+	_ = json.NewEncoder(w).Encode(res)
 }
 
 func (h *AdmissionHandler) GetProgramsByInstitute(w http.ResponseWriter, r *http.Request) {
@@ -95,7 +95,7 @@ func (h *AdmissionHandler) GetProgramsByInstitute(w http.ResponseWriter, r *http
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
+	_ = json.NewEncoder(w).Encode(res)
 }
 
 func (h *AdmissionHandler) GetProgramByID(w http.ResponseWriter, r *http.Request) {
@@ -109,7 +109,7 @@ func (h *AdmissionHandler) GetProgramByID(w http.ResponseWriter, r *http.Request
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
+	_ = json.NewEncoder(w).Encode(res)
 }
 
 func (h *AdmissionHandler) DeleteProgram(w http.ResponseWriter, r *http.Request) {
@@ -143,7 +143,7 @@ func (h *AdmissionHandler) SaveDraft(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
+	_ = json.NewEncoder(w).Encode(res)
 }
 
 func (h *AdmissionHandler) GetDrafts(w http.ResponseWriter, r *http.Request) {
@@ -163,7 +163,7 @@ func (h *AdmissionHandler) GetDrafts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
+	_ = json.NewEncoder(w).Encode(res)
 }
 
 func (h *AdmissionHandler) DeleteDraft(w http.ResponseWriter, r *http.Request) {
@@ -202,7 +202,7 @@ func (h *AdmissionHandler) ApplyForProgram(w http.ResponseWriter, r *http.Reques
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
+	_ = json.NewEncoder(w).Encode(res)
 }
 
 func (h *AdmissionHandler) UpdateApplicationProgress(w http.ResponseWriter, r *http.Request) {
@@ -222,7 +222,7 @@ func (h *AdmissionHandler) UpdateApplicationProgress(w http.ResponseWriter, r *h
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
+	_ = json.NewEncoder(w).Encode(res)
 }
 
 func (h *AdmissionHandler) GetApplicationHistory(w http.ResponseWriter, r *http.Request) {
@@ -235,7 +235,7 @@ func (h *AdmissionHandler) GetApplicationHistory(w http.ResponseWriter, r *http.
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
+	_ = json.NewEncoder(w).Encode(res)
 }
 
 func (h *AdmissionHandler) GetUserApplications(w http.ResponseWriter, r *http.Request) {
@@ -248,7 +248,7 @@ func (h *AdmissionHandler) GetUserApplications(w http.ResponseWriter, r *http.Re
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
+	_ = json.NewEncoder(w).Encode(res)
 }
 
 func (h *AdmissionHandler) GetInstituteApplications(w http.ResponseWriter, r *http.Request) {
@@ -261,5 +261,5 @@ func (h *AdmissionHandler) GetInstituteApplications(w http.ResponseWriter, r *ht
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
+	_ = json.NewEncoder(w).Encode(res)
 }

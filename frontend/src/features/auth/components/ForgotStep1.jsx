@@ -1,119 +1,91 @@
-import { Box, Typography, TextField, Button, InputAdornment } from "@mui/material";
+import { Box, Typography }
+    from "@mui/material";
+import { CustomFloatingInput } from "../../../components/common/CustomFloatingFields";
+import { TextField, InputAdornment } from "@mui/material";
 import EmailIcon from "@mui/icons-material/Email";
-import { motion as Motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import Loader from "../../../components/common/Loader";
+import { validateEmail, validateUsername } from "../../../utils/validationUtils";
+import TarangButton from "../../../components/common/TarangButton";
+import AuthMessage from "./AuthMessage";
 
 export default function ForgotStep1({ setMode, onStartRecovery, isLoading, error, setError, success }) {
     const [target, setTarget] = useState("");
+    const [fieldError, setFieldError] = useState("");
 
     return (
-        <Box sx={{ width: "100%", display: "flex", flexDirection: "column" }}>
-            <Box sx={{ mb: 4 }}>
-                <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", fontSize: "28px" }}>
+        <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 3 }}>
+            <Box>
+                <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)' }}>
                     पासवर्ड भूल गए?
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#64748b", fontSize: "15px", lineHeight: 1.5 }}>
-                    पंजीकृत ईमेल दर्ज करें। OTP भेजा जाएगा।
+                <Typography variant="body2" sx={{ color: "var(--color-slate-500)", fontSize: 'var(--font-base)', lineHeight: 1.5 }}>
+                    पंजीकृत ईमेल दर्ज करें। एप्रकू भेजा जाएगा।
                 </Typography>
-            </Box>
-
-            <Box sx={{ mb: 1 }}>
-                <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px" }}>
-                    ईमेल पता
-                </Typography>
-                <Box sx={{ display: "flex", gap: 1.5, alignItems: "flex-start" }}>
-                    <TextField
-                        fullWidth
-                        value={target}
-                        onChange={(e) => {
-                            setTarget(e.target.value);
-                            if (error) setError("");
-                        }}
-                        placeholder="name@example.com"
-                        size="medium"
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <Box sx={{ mr: 1, color: "#94a3b8", display: "flex", alignItems: "center" }}>
-                                        <EmailIcon sx={{ fontSize: 20 }} />
-                                    </Box>
-                                </InputAdornment>
-                            ),
-                        }}
-                        sx={{
-                            "& .MuiOutlinedInput-root": {
-                                backgroundColor: "#f8fafc",
-                                borderRadius: "8px",
-                                transition: "all 0.2s ease-in-out",
-                                "& fieldset": { borderColor: "#e2e8f0" },
-                                "&:hover fieldset": { borderColor: "#cbd5e1" },
-                                "&.Mui-focused fieldset": { borderColor: "#0056b3", borderWidth: "1.5px" },
-                                "& input": { color: "#0f172a" }
-                            },
-                            "& .MuiOutlinedInput-input": { padding: "12px 14px", fontSize: "15px" },
-                        }}
-                    />
-                    <Button
-                        variant="contained" disableElevation
-                        disabled={isLoading || !target}
-                        onClick={() => onStartRecovery(target)}
-                        sx={{
-                            height: "48px",
-                            px: 3,
-                            borderRadius: "8px",
-                            textTransform: "none",
-                            fontSize: "16px",
-                            fontWeight: 700,
-                            whiteSpace: "nowrap",
-                            background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)",
-                            transition: "all 0.2s ease-in-out",
-                            "&:hover": {
-                                background: "linear-gradient(135deg, #004494 0%, #218838 100%)",
-                                },
-                            
-                            "&.Mui-disabled": { background: "#e2e8f0", color: "#94a3b8" }
-                        }}
-                    >
-                        {isLoading ? <Loader mini /> : "OTP भेजें"}
-                    </Button>
-                </Box>
-            </Box>
-
-            <Box sx={{ minHeight: "24px", display: "flex", alignItems: "center", mt: 0.5 }}>
                 <AnimatePresence mode="wait">
-                    {error && (
-                        <Motion.div
-                            key="error"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
+                    {(error || success) && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                            animate={{ opacity: 1, height: "auto", marginTop: 12 }}
+                            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                            style={{ overflow: "hidden", textAlign: "center" }}
                         >
-                            <Typography variant="body2" sx={{ color: "#ef4444 !important", fontSize: "13.5px", fontWeight: 600 }}>
-                                {error}
-                            </Typography>
-                        </Motion.div>
-                    )}
-                    {!error && success && (
-                        <Motion.div
-                            key="success"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                        >
-                            <Typography variant="body2" sx={{ color: "#28a745", fontSize: "13.5px", fontWeight: 600 }}>
-                                {success}
-                            </Typography>
-                        </Motion.div>
+                            {error ? (
+                                <AuthMessage type="error" message={error} />
+                            ) : (
+                                <AuthMessage type="success" message={success} />
+                            )}
+                        </motion.div>
                     )}
                 </AnimatePresence>
             </Box>
 
-            <Typography variant="body2" sx={{ textAlign: "center", color: "#64748b", mt: 1 }}>
+            <Box sx={{ mb: 1 }}>
+                <Box sx={{ display: "flex", gap: 1.5, alignItems: "flex-start" }}>
+                    <CustomFloatingInput
+                        label="ईमेल पता"
+
+                        value={target}
+                        onChange={(e) => {
+                            setTarget(e.target.value);
+                            if (error) setError("");
+                            if (fieldError) setFieldError("");
+                        }}
+                        error={!!fieldError}
+                        helperText={fieldError}
+
+                        InputProps={{
+
+                        }}
+                        sx={{
+                            "& .MuiOutlinedInput-root": {
+                                "& input": { color: "var(--color-slate-900)" }
+                            },
+                            "& .MuiOutlinedInput-input": { padding: "12px 14px", fontSize: 'var(--font-base)' },
+                        }}
+                    />
+                    <TarangButton
+                        loading={isLoading}
+                        disabled={isLoading || !target}
+                        onClick={() => {
+                            const err = validateEmail(target);
+                            if (err) { setFieldError(err); return; }
+                            onStartRecovery(target);
+                        }}
+                        sx={{ height: 'var(--box-height)', px: 3, whiteSpace: 'nowrap' }}
+                    >
+                        {"एप्रकू भेजें"}
+                    </TarangButton>
+                </Box>
+            </Box>
+
+
+
+            <Typography variant="body2" sx={{ textAlign: "center", color: "var(--color-slate-500)", mt: 1 }}>
                 क्या आपको अपना पासवर्ड याद है?{" "}
                 <Box
                     component="span"
-                    sx={{ color: "#0056b3", fontWeight: 600, cursor: "pointer", ml: 0.5, "&:hover": { textDecoration: "none" } }}
+                    sx={{ color: "var(--color-primary)", fontWeight: 'var(--font-semibold)', cursor: "pointer", ml: 0.5, "&:hover": { textDecoration: "none" } }}
                     onClick={() => { setMode("login"); setError(""); }}
                 >
                     लॉगिन पर वापस जाएं

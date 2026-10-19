@@ -22,50 +22,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type EmailRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *EmailRequest) Reset() {
-	*x = EmailRequest{}
-	mi := &file_proto_userpb_user_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *EmailRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*EmailRequest) ProtoMessage() {}
-
-func (x *EmailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_userpb_user_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use EmailRequest.ProtoReflect.Descriptor instead.
-func (*EmailRequest) Descriptor() ([]byte, []int) {
-	return file_proto_userpb_user_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *EmailRequest) GetEmail() string {
-	if x != nil {
-		return x.Email
-	}
-	return ""
-}
-
 type UserIDRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -75,7 +31,7 @@ type UserIDRequest struct {
 
 func (x *UserIDRequest) Reset() {
 	*x = UserIDRequest{}
-	mi := &file_proto_userpb_user_proto_msgTypes[1]
+	mi := &file_proto_userpb_user_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -87,7 +43,7 @@ func (x *UserIDRequest) String() string {
 func (*UserIDRequest) ProtoMessage() {}
 
 func (x *UserIDRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_userpb_user_proto_msgTypes[1]
+	mi := &file_proto_userpb_user_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -100,7 +56,7 @@ func (x *UserIDRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserIDRequest.ProtoReflect.Descriptor instead.
 func (*UserIDRequest) Descriptor() ([]byte, []int) {
-	return file_proto_userpb_user_proto_rawDescGZIP(), []int{1}
+	return file_proto_userpb_user_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *UserIDRequest) GetUserId() string {
@@ -119,7 +75,7 @@ type UsernameRequest struct {
 
 func (x *UsernameRequest) Reset() {
 	*x = UsernameRequest{}
-	mi := &file_proto_userpb_user_proto_msgTypes[2]
+	mi := &file_proto_userpb_user_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -131,7 +87,7 @@ func (x *UsernameRequest) String() string {
 func (*UsernameRequest) ProtoMessage() {}
 
 func (x *UsernameRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_userpb_user_proto_msgTypes[2]
+	mi := &file_proto_userpb_user_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -144,7 +100,7 @@ func (x *UsernameRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UsernameRequest.ProtoReflect.Descriptor instead.
 func (*UsernameRequest) Descriptor() ([]byte, []int) {
-	return file_proto_userpb_user_proto_rawDescGZIP(), []int{2}
+	return file_proto_userpb_user_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *UsernameRequest) GetUsername() string {
@@ -154,65 +110,24 @@ func (x *UsernameRequest) GetUsername() string {
 	return ""
 }
 
-type PhoneRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Phone         string                 `protobuf:"bytes,1,opt,name=phone,proto3" json:"phone,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PhoneRequest) Reset() {
-	*x = PhoneRequest{}
-	mi := &file_proto_userpb_user_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PhoneRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PhoneRequest) ProtoMessage() {}
-
-func (x *PhoneRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_userpb_user_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PhoneRequest.ProtoReflect.Descriptor instead.
-func (*PhoneRequest) Descriptor() ([]byte, []int) {
-	return file_proto_userpb_user_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *PhoneRequest) GetPhone() string {
-	if x != nil {
-		return x.Phone
-	}
-	return ""
-}
-
 type CreateUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
-	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
-	Phone         string                 `protobuf:"bytes,3,opt,name=phone,proto3" json:"phone,omitempty"`
-	Id            string                 `protobuf:"bytes,4,opt,name=id,proto3" json:"id,omitempty"`
-	FullName      string                 `protobuf:"bytes,5,opt,name=full_name,json=fullName,proto3" json:"full_name,omitempty"`
-	Role          string                 `protobuf:"bytes,6,opt,name=role,proto3" json:"role,omitempty"`
+	Username      string                 `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	FullName      string                 `protobuf:"bytes,3,opt,name=full_name,json=fullName,proto3" json:"full_name,omitempty"`
+	Role          string                 `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"`
+	InstituteName string                 `protobuf:"bytes,5,opt,name=institute_name,json=instituteName,proto3" json:"institute_name,omitempty"`
+	InstituteType string                 `protobuf:"bytes,6,opt,name=institute_type,json=instituteType,proto3" json:"institute_type,omitempty"`
+	Phone         string                 `protobuf:"bytes,7,opt,name=phone,proto3" json:"phone,omitempty"`
+	Dob           string                 `protobuf:"bytes,8,opt,name=dob,proto3" json:"dob,omitempty"`
+	Gender        string                 `protobuf:"bytes,9,opt,name=gender,proto3" json:"gender,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateUserRequest) Reset() {
 	*x = CreateUserRequest{}
-	mi := &file_proto_userpb_user_proto_msgTypes[4]
+	mi := &file_proto_userpb_user_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -224,7 +139,7 @@ func (x *CreateUserRequest) String() string {
 func (*CreateUserRequest) ProtoMessage() {}
 
 func (x *CreateUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_userpb_user_proto_msgTypes[4]
+	mi := &file_proto_userpb_user_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -237,26 +152,12 @@ func (x *CreateUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateUserRequest.ProtoReflect.Descriptor instead.
 func (*CreateUserRequest) Descriptor() ([]byte, []int) {
-	return file_proto_userpb_user_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *CreateUserRequest) GetEmail() string {
-	if x != nil {
-		return x.Email
-	}
-	return ""
+	return file_proto_userpb_user_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *CreateUserRequest) GetUsername() string {
 	if x != nil {
 		return x.Username
-	}
-	return ""
-}
-
-func (x *CreateUserRequest) GetPhone() string {
-	if x != nil {
-		return x.Phone
 	}
 	return ""
 }
@@ -282,64 +183,39 @@ func (x *CreateUserRequest) GetRole() string {
 	return ""
 }
 
-type SetTOTPRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Secret        string                 `protobuf:"bytes,2,opt,name=secret,proto3" json:"secret,omitempty"`
-	Enabled       bool                   `protobuf:"varint,3,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SetTOTPRequest) Reset() {
-	*x = SetTOTPRequest{}
-	mi := &file_proto_userpb_user_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SetTOTPRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SetTOTPRequest) ProtoMessage() {}
-
-func (x *SetTOTPRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_userpb_user_proto_msgTypes[5]
+func (x *CreateUserRequest) GetInstituteName() string {
 	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SetTOTPRequest.ProtoReflect.Descriptor instead.
-func (*SetTOTPRequest) Descriptor() ([]byte, []int) {
-	return file_proto_userpb_user_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *SetTOTPRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
+		return x.InstituteName
 	}
 	return ""
 }
 
-func (x *SetTOTPRequest) GetSecret() string {
+func (x *CreateUserRequest) GetInstituteType() string {
 	if x != nil {
-		return x.Secret
+		return x.InstituteType
 	}
 	return ""
 }
 
-func (x *SetTOTPRequest) GetEnabled() bool {
+func (x *CreateUserRequest) GetPhone() string {
 	if x != nil {
-		return x.Enabled
+		return x.Phone
 	}
-	return false
+	return ""
+}
+
+func (x *CreateUserRequest) GetDob() string {
+	if x != nil {
+		return x.Dob
+	}
+	return ""
+}
+
+func (x *CreateUserRequest) GetGender() string {
+	if x != nil {
+		return x.Gender
+	}
+	return ""
 }
 
 type MarkKYCVerifiedRequest struct {
@@ -356,7 +232,7 @@ type MarkKYCVerifiedRequest struct {
 
 func (x *MarkKYCVerifiedRequest) Reset() {
 	*x = MarkKYCVerifiedRequest{}
-	mi := &file_proto_userpb_user_proto_msgTypes[6]
+	mi := &file_proto_userpb_user_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -368,7 +244,7 @@ func (x *MarkKYCVerifiedRequest) String() string {
 func (*MarkKYCVerifiedRequest) ProtoMessage() {}
 
 func (x *MarkKYCVerifiedRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_userpb_user_proto_msgTypes[6]
+	mi := &file_proto_userpb_user_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -381,7 +257,7 @@ func (x *MarkKYCVerifiedRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MarkKYCVerifiedRequest.ProtoReflect.Descriptor instead.
 func (*MarkKYCVerifiedRequest) Descriptor() ([]byte, []int) {
-	return file_proto_userpb_user_proto_rawDescGZIP(), []int{6}
+	return file_proto_userpb_user_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *MarkKYCVerifiedRequest) GetUserId() string {
@@ -426,110 +302,6 @@ func (x *MarkKYCVerifiedRequest) GetGender() string {
 	return ""
 }
 
-type MFAPreferenceRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Preference    string                 `protobuf:"bytes,2,opt,name=preference,proto3" json:"preference,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *MFAPreferenceRequest) Reset() {
-	*x = MFAPreferenceRequest{}
-	mi := &file_proto_userpb_user_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *MFAPreferenceRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*MFAPreferenceRequest) ProtoMessage() {}
-
-func (x *MFAPreferenceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_userpb_user_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use MFAPreferenceRequest.ProtoReflect.Descriptor instead.
-func (*MFAPreferenceRequest) Descriptor() ([]byte, []int) {
-	return file_proto_userpb_user_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *MFAPreferenceRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *MFAPreferenceRequest) GetPreference() string {
-	if x != nil {
-		return x.Preference
-	}
-	return ""
-}
-
-type TOTPSecretRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Secret        string                 `protobuf:"bytes,2,opt,name=secret,proto3" json:"secret,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *TOTPSecretRequest) Reset() {
-	*x = TOTPSecretRequest{}
-	mi := &file_proto_userpb_user_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TOTPSecretRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TOTPSecretRequest) ProtoMessage() {}
-
-func (x *TOTPSecretRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_userpb_user_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use TOTPSecretRequest.ProtoReflect.Descriptor instead.
-func (*TOTPSecretRequest) Descriptor() ([]byte, []int) {
-	return file_proto_userpb_user_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *TOTPSecretRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *TOTPSecretRequest) GetSecret() string {
-	if x != nil {
-		return x.Secret
-	}
-	return ""
-}
-
 type UpdateImageRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -540,7 +312,7 @@ type UpdateImageRequest struct {
 
 func (x *UpdateImageRequest) Reset() {
 	*x = UpdateImageRequest{}
-	mi := &file_proto_userpb_user_proto_msgTypes[9]
+	mi := &file_proto_userpb_user_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -552,7 +324,7 @@ func (x *UpdateImageRequest) String() string {
 func (*UpdateImageRequest) ProtoMessage() {}
 
 func (x *UpdateImageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_userpb_user_proto_msgTypes[9]
+	mi := &file_proto_userpb_user_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -565,7 +337,7 @@ func (x *UpdateImageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateImageRequest.ProtoReflect.Descriptor instead.
 func (*UpdateImageRequest) Descriptor() ([]byte, []int) {
-	return file_proto_userpb_user_proto_rawDescGZIP(), []int{9}
+	return file_proto_userpb_user_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *UpdateImageRequest) GetUserId() string {
@@ -592,7 +364,7 @@ type UpdateBioRequest struct {
 
 func (x *UpdateBioRequest) Reset() {
 	*x = UpdateBioRequest{}
-	mi := &file_proto_userpb_user_proto_msgTypes[10]
+	mi := &file_proto_userpb_user_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -604,7 +376,7 @@ func (x *UpdateBioRequest) String() string {
 func (*UpdateBioRequest) ProtoMessage() {}
 
 func (x *UpdateBioRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_userpb_user_proto_msgTypes[10]
+	mi := &file_proto_userpb_user_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -617,7 +389,7 @@ func (x *UpdateBioRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateBioRequest.ProtoReflect.Descriptor instead.
 func (*UpdateBioRequest) Descriptor() ([]byte, []int) {
-	return file_proto_userpb_user_proto_rawDescGZIP(), []int{10}
+	return file_proto_userpb_user_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *UpdateBioRequest) GetUserId() string {
@@ -635,25 +407,24 @@ func (x *UpdateBioRequest) GetBio() string {
 }
 
 type UpdateProfileRequest struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	UserId           string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	SocialLinks      map[string]string      `protobuf:"bytes,2,rep,name=social_links,json=socialLinks,proto3" json:"social_links,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Skills           []string               `protobuf:"bytes,3,rep,name=skills,proto3" json:"skills,omitempty"`
-	Recognitions     []string               `protobuf:"bytes,4,rep,name=recognitions,proto3" json:"recognitions,omitempty"`
-	InstitutionName  string                 `protobuf:"bytes,5,opt,name=institution_name,json=institutionName,proto3" json:"institution_name,omitempty"`
-	FullName         string                 `protobuf:"bytes,6,opt,name=full_name,json=fullName,proto3" json:"full_name,omitempty"`
-	Bio              string                 `protobuf:"bytes,7,opt,name=bio,proto3" json:"bio,omitempty"`
-	Location         string                 `protobuf:"bytes,8,opt,name=location,proto3" json:"location,omitempty"`
-	Languages        []string               `protobuf:"bytes,9,rep,name=languages,proto3" json:"languages,omitempty"`
-	Demographic      string                 `protobuf:"bytes,10,opt,name=demographic,proto3" json:"demographic,omitempty"`
-	InstituteProfile *InstituteProfile      `protobuf:"bytes,11,opt,name=institute_profile,json=instituteProfile,proto3" json:"institute_profile,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	UserId          string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	SocialLinks     map[string]string      `protobuf:"bytes,2,rep,name=social_links,json=socialLinks,proto3" json:"social_links,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Skills          []string               `protobuf:"bytes,3,rep,name=skills,proto3" json:"skills,omitempty"`
+	Recognitions    []string               `protobuf:"bytes,4,rep,name=recognitions,proto3" json:"recognitions,omitempty"`
+	InstitutionName string                 `protobuf:"bytes,5,opt,name=institution_name,json=institutionName,proto3" json:"institution_name,omitempty"`
+	FullName        string                 `protobuf:"bytes,6,opt,name=full_name,json=fullName,proto3" json:"full_name,omitempty"`
+	Bio             string                 `protobuf:"bytes,7,opt,name=bio,proto3" json:"bio,omitempty"`
+	Location        string                 `protobuf:"bytes,8,opt,name=location,proto3" json:"location,omitempty"`
+	Languages       []string               `protobuf:"bytes,9,rep,name=languages,proto3" json:"languages,omitempty"`
+	Demographic     string                 `protobuf:"bytes,10,opt,name=demographic,proto3" json:"demographic,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *UpdateProfileRequest) Reset() {
 	*x = UpdateProfileRequest{}
-	mi := &file_proto_userpb_user_proto_msgTypes[11]
+	mi := &file_proto_userpb_user_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -665,7 +436,7 @@ func (x *UpdateProfileRequest) String() string {
 func (*UpdateProfileRequest) ProtoMessage() {}
 
 func (x *UpdateProfileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_userpb_user_proto_msgTypes[11]
+	mi := &file_proto_userpb_user_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -678,7 +449,7 @@ func (x *UpdateProfileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateProfileRequest.ProtoReflect.Descriptor instead.
 func (*UpdateProfileRequest) Descriptor() ([]byte, []int) {
-	return file_proto_userpb_user_proto_rawDescGZIP(), []int{11}
+	return file_proto_userpb_user_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UpdateProfileRequest) GetUserId() string {
@@ -751,63 +522,35 @@ func (x *UpdateProfileRequest) GetDemographic() string {
 	return ""
 }
 
-func (x *UpdateProfileRequest) GetInstituteProfile() *InstituteProfile {
-	if x != nil {
-		return x.InstituteProfile
-	}
-	return nil
+type Institute struct {
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	Id                 string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name               string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	InstituteType      string                 `protobuf:"bytes,3,opt,name=institute_type,json=instituteType,proto3" json:"institute_type,omitempty"`
+	EstablishedYear    int32                  `protobuf:"varint,4,opt,name=established_year,json=establishedYear,proto3" json:"established_year,omitempty"`
+	RegistrationNumber string                 `protobuf:"bytes,5,opt,name=registration_number,json=registrationNumber,proto3" json:"registration_number,omitempty"`
+	WebsiteUrl         string                 `protobuf:"bytes,6,opt,name=website_url,json=websiteUrl,proto3" json:"website_url,omitempty"`
+	TaxId              string                 `protobuf:"bytes,7,opt,name=tax_id,json=taxId,proto3" json:"tax_id,omitempty"`
+	ShortDescription   string                 `protobuf:"bytes,8,opt,name=short_description,json=shortDescription,proto3" json:"short_description,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
-type InstituteProfile struct {
-	state                     protoimpl.MessageState `protogen:"open.v1"`
-	InstituteType             string                 `protobuf:"bytes,1,opt,name=institute_type,json=instituteType,proto3" json:"institute_type,omitempty"`
-	EstablishedYear           int32                  `protobuf:"varint,2,opt,name=established_year,json=establishedYear,proto3" json:"established_year,omitempty"`
-	RegistrationNumber        string                 `protobuf:"bytes,3,opt,name=registration_number,json=registrationNumber,proto3" json:"registration_number,omitempty"`
-	PrimaryContactName        string                 `protobuf:"bytes,4,opt,name=primary_contact_name,json=primaryContactName,proto3" json:"primary_contact_name,omitempty"`
-	PrimaryContactDesignation string                 `protobuf:"bytes,5,opt,name=primary_contact_designation,json=primaryContactDesignation,proto3" json:"primary_contact_designation,omitempty"`
-	OfficialPhone             string                 `protobuf:"bytes,6,opt,name=official_phone,json=officialPhone,proto3" json:"official_phone,omitempty"`
-	OfficialEmail             string                 `protobuf:"bytes,7,opt,name=official_email,json=officialEmail,proto3" json:"official_email,omitempty"`
-	WebsiteUrl                string                 `protobuf:"bytes,8,opt,name=website_url,json=websiteUrl,proto3" json:"website_url,omitempty"`
-	AlternateContact          string                 `protobuf:"bytes,9,opt,name=alternate_contact,json=alternateContact,proto3" json:"alternate_contact,omitempty"`
-	CoursesOffered            string                 `protobuf:"bytes,10,opt,name=courses_offered,json=coursesOffered,proto3" json:"courses_offered,omitempty"`
-	EducationLevels           string                 `protobuf:"bytes,11,opt,name=education_levels,json=educationLevels,proto3" json:"education_levels,omitempty"`
-	StudentCount              int32                  `protobuf:"varint,12,opt,name=student_count,json=studentCount,proto3" json:"student_count,omitempty"`
-	FacultyCount              int32                  `protobuf:"varint,13,opt,name=faculty_count,json=facultyCount,proto3" json:"faculty_count,omitempty"`
-	CampusType                string                 `protobuf:"bytes,14,opt,name=campus_type,json=campusType,proto3" json:"campus_type,omitempty"`
-	OperatingHours            string                 `protobuf:"bytes,15,opt,name=operating_hours,json=operatingHours,proto3" json:"operating_hours,omitempty"`
-	AccreditationDocs         string                 `protobuf:"bytes,16,opt,name=accreditation_docs,json=accreditationDocs,proto3" json:"accreditation_docs,omitempty"`
-	LicenseCertificateUrl     string                 `protobuf:"bytes,17,opt,name=license_certificate_url,json=licenseCertificateUrl,proto3" json:"license_certificate_url,omitempty"`
-	TaxId                     string                 `protobuf:"bytes,18,opt,name=tax_id,json=taxId,proto3" json:"tax_id,omitempty"`
-	Certifications            string                 `protobuf:"bytes,19,opt,name=certifications,proto3" json:"certifications,omitempty"`
-	BankAccountName           string                 `protobuf:"bytes,20,opt,name=bank_account_name,json=bankAccountName,proto3" json:"bank_account_name,omitempty"`
-	BankAccountNumber         string                 `protobuf:"bytes,21,opt,name=bank_account_number,json=bankAccountNumber,proto3" json:"bank_account_number,omitempty"`
-	BankIfsc                  string                 `protobuf:"bytes,22,opt,name=bank_ifsc,json=bankIfsc,proto3" json:"bank_ifsc,omitempty"`
-	BillingAddress            string                 `protobuf:"bytes,23,opt,name=billing_address,json=billingAddress,proto3" json:"billing_address,omitempty"`
-	ShortDescription          string                 `protobuf:"bytes,24,opt,name=short_description,json=shortDescription,proto3" json:"short_description,omitempty"`
-	Facilities                string                 `protobuf:"bytes,25,opt,name=facilities,proto3" json:"facilities,omitempty"`
-	SocialLinks               string                 `protobuf:"bytes,26,opt,name=social_links,json=socialLinks,proto3" json:"social_links,omitempty"`
-	TermsAcceptedAt           string                 `protobuf:"bytes,27,opt,name=terms_accepted_at,json=termsAcceptedAt,proto3" json:"terms_accepted_at,omitempty"`
-	PrivacyAcceptedAt         string                 `protobuf:"bytes,28,opt,name=privacy_accepted_at,json=privacyAcceptedAt,proto3" json:"privacy_accepted_at,omitempty"`
-	AuthorizedSignatoryName   string                 `protobuf:"bytes,29,opt,name=authorized_signatory_name,json=authorizedSignatoryName,proto3" json:"authorized_signatory_name,omitempty"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
-}
-
-func (x *InstituteProfile) Reset() {
-	*x = InstituteProfile{}
-	mi := &file_proto_userpb_user_proto_msgTypes[12]
+func (x *Institute) Reset() {
+	*x = Institute{}
+	mi := &file_proto_userpb_user_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *InstituteProfile) String() string {
+func (x *Institute) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*InstituteProfile) ProtoMessage() {}
+func (*Institute) ProtoMessage() {}
 
-func (x *InstituteProfile) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_userpb_user_proto_msgTypes[12]
+func (x *Institute) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_userpb_user_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -818,236 +561,92 @@ func (x *InstituteProfile) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use InstituteProfile.ProtoReflect.Descriptor instead.
-func (*InstituteProfile) Descriptor() ([]byte, []int) {
-	return file_proto_userpb_user_proto_rawDescGZIP(), []int{12}
+// Deprecated: Use Institute.ProtoReflect.Descriptor instead.
+func (*Institute) Descriptor() ([]byte, []int) {
+	return file_proto_userpb_user_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *InstituteProfile) GetInstituteType() string {
+func (x *Institute) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Institute) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Institute) GetInstituteType() string {
 	if x != nil {
 		return x.InstituteType
 	}
 	return ""
 }
 
-func (x *InstituteProfile) GetEstablishedYear() int32 {
+func (x *Institute) GetEstablishedYear() int32 {
 	if x != nil {
 		return x.EstablishedYear
 	}
 	return 0
 }
 
-func (x *InstituteProfile) GetRegistrationNumber() string {
+func (x *Institute) GetRegistrationNumber() string {
 	if x != nil {
 		return x.RegistrationNumber
 	}
 	return ""
 }
 
-func (x *InstituteProfile) GetPrimaryContactName() string {
-	if x != nil {
-		return x.PrimaryContactName
-	}
-	return ""
-}
-
-func (x *InstituteProfile) GetPrimaryContactDesignation() string {
-	if x != nil {
-		return x.PrimaryContactDesignation
-	}
-	return ""
-}
-
-func (x *InstituteProfile) GetOfficialPhone() string {
-	if x != nil {
-		return x.OfficialPhone
-	}
-	return ""
-}
-
-func (x *InstituteProfile) GetOfficialEmail() string {
-	if x != nil {
-		return x.OfficialEmail
-	}
-	return ""
-}
-
-func (x *InstituteProfile) GetWebsiteUrl() string {
+func (x *Institute) GetWebsiteUrl() string {
 	if x != nil {
 		return x.WebsiteUrl
 	}
 	return ""
 }
 
-func (x *InstituteProfile) GetAlternateContact() string {
-	if x != nil {
-		return x.AlternateContact
-	}
-	return ""
-}
-
-func (x *InstituteProfile) GetCoursesOffered() string {
-	if x != nil {
-		return x.CoursesOffered
-	}
-	return ""
-}
-
-func (x *InstituteProfile) GetEducationLevels() string {
-	if x != nil {
-		return x.EducationLevels
-	}
-	return ""
-}
-
-func (x *InstituteProfile) GetStudentCount() int32 {
-	if x != nil {
-		return x.StudentCount
-	}
-	return 0
-}
-
-func (x *InstituteProfile) GetFacultyCount() int32 {
-	if x != nil {
-		return x.FacultyCount
-	}
-	return 0
-}
-
-func (x *InstituteProfile) GetCampusType() string {
-	if x != nil {
-		return x.CampusType
-	}
-	return ""
-}
-
-func (x *InstituteProfile) GetOperatingHours() string {
-	if x != nil {
-		return x.OperatingHours
-	}
-	return ""
-}
-
-func (x *InstituteProfile) GetAccreditationDocs() string {
-	if x != nil {
-		return x.AccreditationDocs
-	}
-	return ""
-}
-
-func (x *InstituteProfile) GetLicenseCertificateUrl() string {
-	if x != nil {
-		return x.LicenseCertificateUrl
-	}
-	return ""
-}
-
-func (x *InstituteProfile) GetTaxId() string {
+func (x *Institute) GetTaxId() string {
 	if x != nil {
 		return x.TaxId
 	}
 	return ""
 }
 
-func (x *InstituteProfile) GetCertifications() string {
-	if x != nil {
-		return x.Certifications
-	}
-	return ""
-}
-
-func (x *InstituteProfile) GetBankAccountName() string {
-	if x != nil {
-		return x.BankAccountName
-	}
-	return ""
-}
-
-func (x *InstituteProfile) GetBankAccountNumber() string {
-	if x != nil {
-		return x.BankAccountNumber
-	}
-	return ""
-}
-
-func (x *InstituteProfile) GetBankIfsc() string {
-	if x != nil {
-		return x.BankIfsc
-	}
-	return ""
-}
-
-func (x *InstituteProfile) GetBillingAddress() string {
-	if x != nil {
-		return x.BillingAddress
-	}
-	return ""
-}
-
-func (x *InstituteProfile) GetShortDescription() string {
+func (x *Institute) GetShortDescription() string {
 	if x != nil {
 		return x.ShortDescription
 	}
 	return ""
 }
 
-func (x *InstituteProfile) GetFacilities() string {
-	if x != nil {
-		return x.Facilities
-	}
-	return ""
+type CreateInstituteRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	OwnerUserId     string                 `protobuf:"bytes,1,opt,name=owner_user_id,json=ownerUserId,proto3" json:"owner_user_id,omitempty"`
+	Name            string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	InstituteType   string                 `protobuf:"bytes,3,opt,name=institute_type,json=instituteType,proto3" json:"institute_type,omitempty"`
+	EstablishedYear int32                  `protobuf:"varint,4,opt,name=established_year,json=establishedYear,proto3" json:"established_year,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
-func (x *InstituteProfile) GetSocialLinks() string {
-	if x != nil {
-		return x.SocialLinks
-	}
-	return ""
-}
-
-func (x *InstituteProfile) GetTermsAcceptedAt() string {
-	if x != nil {
-		return x.TermsAcceptedAt
-	}
-	return ""
-}
-
-func (x *InstituteProfile) GetPrivacyAcceptedAt() string {
-	if x != nil {
-		return x.PrivacyAcceptedAt
-	}
-	return ""
-}
-
-func (x *InstituteProfile) GetAuthorizedSignatoryName() string {
-	if x != nil {
-		return x.AuthorizedSignatoryName
-	}
-	return ""
-}
-
-type ExistsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Exists        bool                   `protobuf:"varint,1,opt,name=exists,proto3" json:"exists,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ExistsResponse) Reset() {
-	*x = ExistsResponse{}
-	mi := &file_proto_userpb_user_proto_msgTypes[13]
+func (x *CreateInstituteRequest) Reset() {
+	*x = CreateInstituteRequest{}
+	mi := &file_proto_userpb_user_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ExistsResponse) String() string {
+func (x *CreateInstituteRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ExistsResponse) ProtoMessage() {}
+func (*CreateInstituteRequest) ProtoMessage() {}
 
-func (x *ExistsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_userpb_user_proto_msgTypes[13]
+func (x *CreateInstituteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_userpb_user_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1058,51 +657,110 @@ func (x *ExistsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ExistsResponse.ProtoReflect.Descriptor instead.
-func (*ExistsResponse) Descriptor() ([]byte, []int) {
-	return file_proto_userpb_user_proto_rawDescGZIP(), []int{13}
+// Deprecated: Use CreateInstituteRequest.ProtoReflect.Descriptor instead.
+func (*CreateInstituteRequest) Descriptor() ([]byte, []int) {
+	return file_proto_userpb_user_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *ExistsResponse) GetExists() bool {
+func (x *CreateInstituteRequest) GetOwnerUserId() string {
 	if x != nil {
-		return x.Exists
+		return x.OwnerUserId
 	}
-	return false
+	return ""
+}
+
+func (x *CreateInstituteRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateInstituteRequest) GetInstituteType() string {
+	if x != nil {
+		return x.InstituteType
+	}
+	return ""
+}
+
+func (x *CreateInstituteRequest) GetEstablishedYear() int32 {
+	if x != nil {
+		return x.EstablishedYear
+	}
+	return 0
+}
+
+type InstituteResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Institute     *Institute             `protobuf:"bytes,1,opt,name=institute,proto3" json:"institute,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InstituteResponse) Reset() {
+	*x = InstituteResponse{}
+	mi := &file_proto_userpb_user_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InstituteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InstituteResponse) ProtoMessage() {}
+
+func (x *InstituteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_userpb_user_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InstituteResponse.ProtoReflect.Descriptor instead.
+func (*InstituteResponse) Descriptor() ([]byte, []int) {
+	return file_proto_userpb_user_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *InstituteResponse) GetInstitute() *Institute {
+	if x != nil {
+		return x.Institute
+	}
+	return nil
 }
 
 type UserResponse struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
 	Id                 string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Email              string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
-	MfaPreference      string                 `protobuf:"bytes,3,opt,name=mfa_preference,json=mfaPreference,proto3" json:"mfa_preference,omitempty"`
-	TotpSecret         string                 `protobuf:"bytes,4,opt,name=totp_secret,json=totpSecret,proto3" json:"totp_secret,omitempty"`
-	Username           string                 `protobuf:"bytes,5,opt,name=username,proto3" json:"username,omitempty"`
-	Phone              string                 `protobuf:"bytes,6,opt,name=phone,proto3" json:"phone,omitempty"`
-	PhoneVerified      bool                   `protobuf:"varint,7,opt,name=phone_verified,json=phoneVerified,proto3" json:"phone_verified,omitempty"`
-	KycVerified        bool                   `protobuf:"varint,8,opt,name=kyc_verified,json=kycVerified,proto3" json:"kyc_verified,omitempty"`
-	Role               string                 `protobuf:"bytes,9,opt,name=role,proto3" json:"role,omitempty"`
-	FullName           string                 `protobuf:"bytes,10,opt,name=full_name,json=fullName,proto3" json:"full_name,omitempty"`
-	Dob                string                 `protobuf:"bytes,11,opt,name=dob,proto3" json:"dob,omitempty"`
-	Gender             string                 `protobuf:"bytes,12,opt,name=gender,proto3" json:"gender,omitempty"`
-	ProfilePicUrl      string                 `protobuf:"bytes,13,opt,name=profile_pic_url,json=profilePicUrl,proto3" json:"profile_pic_url,omitempty"`
-	BannerUrl          string                 `protobuf:"bytes,14,opt,name=banner_url,json=bannerUrl,proto3" json:"banner_url,omitempty"`
-	Bio                string                 `protobuf:"bytes,15,opt,name=bio,proto3" json:"bio,omitempty"`
-	SocialLinks        map[string]string      `protobuf:"bytes,16,rep,name=social_links,json=socialLinks,proto3" json:"social_links,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Skills             []string               `protobuf:"bytes,17,rep,name=skills,proto3" json:"skills,omitempty"`
-	Recognitions       []string               `protobuf:"bytes,18,rep,name=recognitions,proto3" json:"recognitions,omitempty"`
-	InstitutionName    string                 `protobuf:"bytes,19,opt,name=institution_name,json=institutionName,proto3" json:"institution_name,omitempty"`
-	IsProfileCompleted bool                   `protobuf:"varint,20,opt,name=is_profile_completed,json=isProfileCompleted,proto3" json:"is_profile_completed,omitempty"`
-	Location           string                 `protobuf:"bytes,21,opt,name=location,proto3" json:"location,omitempty"`
-	Languages          []string               `protobuf:"bytes,22,rep,name=languages,proto3" json:"languages,omitempty"`
-	Demographic        string                 `protobuf:"bytes,23,opt,name=demographic,proto3" json:"demographic,omitempty"`
-	InstituteProfile   *InstituteProfile      `protobuf:"bytes,24,opt,name=institute_profile,json=instituteProfile,proto3" json:"institute_profile,omitempty"`
+	Username           string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	KycVerified        bool                   `protobuf:"varint,3,opt,name=kyc_verified,json=kycVerified,proto3" json:"kyc_verified,omitempty"`
+	Role               string                 `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"`
+	FullName           string                 `protobuf:"bytes,5,opt,name=full_name,json=fullName,proto3" json:"full_name,omitempty"`
+	Dob                string                 `protobuf:"bytes,6,opt,name=dob,proto3" json:"dob,omitempty"`
+	Gender             string                 `protobuf:"bytes,7,opt,name=gender,proto3" json:"gender,omitempty"`
+	ProfilePicUrl      string                 `protobuf:"bytes,8,opt,name=profile_pic_url,json=profilePicUrl,proto3" json:"profile_pic_url,omitempty"`
+	BannerUrl          string                 `protobuf:"bytes,9,opt,name=banner_url,json=bannerUrl,proto3" json:"banner_url,omitempty"`
+	Bio                string                 `protobuf:"bytes,10,opt,name=bio,proto3" json:"bio,omitempty"`
+	SocialLinks        map[string]string      `protobuf:"bytes,11,rep,name=social_links,json=socialLinks,proto3" json:"social_links,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Skills             []string               `protobuf:"bytes,12,rep,name=skills,proto3" json:"skills,omitempty"`
+	Recognitions       []string               `protobuf:"bytes,13,rep,name=recognitions,proto3" json:"recognitions,omitempty"`
+	InstitutionName    string                 `protobuf:"bytes,14,opt,name=institution_name,json=institutionName,proto3" json:"institution_name,omitempty"`
+	IsProfileCompleted bool                   `protobuf:"varint,15,opt,name=is_profile_completed,json=isProfileCompleted,proto3" json:"is_profile_completed,omitempty"`
+	Location           string                 `protobuf:"bytes,16,opt,name=location,proto3" json:"location,omitempty"`
+	Languages          []string               `protobuf:"bytes,17,rep,name=languages,proto3" json:"languages,omitempty"`
+	Demographic        string                 `protobuf:"bytes,18,opt,name=demographic,proto3" json:"demographic,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
 
 func (x *UserResponse) Reset() {
 	*x = UserResponse{}
-	mi := &file_proto_userpb_user_proto_msgTypes[14]
+	mi := &file_proto_userpb_user_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1114,7 +772,7 @@ func (x *UserResponse) String() string {
 func (*UserResponse) ProtoMessage() {}
 
 func (x *UserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_userpb_user_proto_msgTypes[14]
+	mi := &file_proto_userpb_user_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1127,7 +785,7 @@ func (x *UserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserResponse.ProtoReflect.Descriptor instead.
 func (*UserResponse) Descriptor() ([]byte, []int) {
-	return file_proto_userpb_user_proto_rawDescGZIP(), []int{14}
+	return file_proto_userpb_user_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *UserResponse) GetId() string {
@@ -1137,46 +795,11 @@ func (x *UserResponse) GetId() string {
 	return ""
 }
 
-func (x *UserResponse) GetEmail() string {
-	if x != nil {
-		return x.Email
-	}
-	return ""
-}
-
-func (x *UserResponse) GetMfaPreference() string {
-	if x != nil {
-		return x.MfaPreference
-	}
-	return ""
-}
-
-func (x *UserResponse) GetTotpSecret() string {
-	if x != nil {
-		return x.TotpSecret
-	}
-	return ""
-}
-
 func (x *UserResponse) GetUsername() string {
 	if x != nil {
 		return x.Username
 	}
 	return ""
-}
-
-func (x *UserResponse) GetPhone() string {
-	if x != nil {
-		return x.Phone
-	}
-	return ""
-}
-
-func (x *UserResponse) GetPhoneVerified() bool {
-	if x != nil {
-		return x.PhoneVerified
-	}
-	return false
 }
 
 func (x *UserResponse) GetKycVerified() bool {
@@ -1291,58 +914,82 @@ func (x *UserResponse) GetDemographic() string {
 	return ""
 }
 
-func (x *UserResponse) GetInstituteProfile() *InstituteProfile {
+type InstituteIDRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	InstituteId   string                 `protobuf:"bytes,1,opt,name=institute_id,json=instituteId,proto3" json:"institute_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InstituteIDRequest) Reset() {
+	*x = InstituteIDRequest{}
+	mi := &file_proto_userpb_user_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InstituteIDRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InstituteIDRequest) ProtoMessage() {}
+
+func (x *InstituteIDRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_userpb_user_proto_msgTypes[11]
 	if x != nil {
-		return x.InstituteProfile
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
 	}
-	return nil
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InstituteIDRequest.ProtoReflect.Descriptor instead.
+func (*InstituteIDRequest) Descriptor() ([]byte, []int) {
+	return file_proto_userpb_user_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *InstituteIDRequest) GetInstituteId() string {
+	if x != nil {
+		return x.InstituteId
+	}
+	return ""
 }
 
 var File_proto_userpb_user_proto protoreflect.FileDescriptor
 
 const file_proto_userpb_user_proto_rawDesc = "" +
 	"\n" +
-	"\x17proto/userpb/user.proto\x12\x04user\x1a\x1bgoogle/protobuf/empty.proto\"$\n" +
-	"\fEmailRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\"(\n" +
+	"\x17proto/userpb/user.proto\x12\x04user\x1a\x1bgoogle/protobuf/empty.proto\"(\n" +
 	"\rUserIDRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\"-\n" +
 	"\x0fUsernameRequest\x12\x1a\n" +
-	"\busername\x18\x01 \x01(\tR\busername\"$\n" +
-	"\fPhoneRequest\x12\x14\n" +
-	"\x05phone\x18\x01 \x01(\tR\x05phone\"\x9c\x01\n" +
-	"\x11CreateUserRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
-	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
-	"\x05phone\x18\x03 \x01(\tR\x05phone\x12\x0e\n" +
-	"\x02id\x18\x04 \x01(\tR\x02id\x12\x1b\n" +
-	"\tfull_name\x18\x05 \x01(\tR\bfullName\x12\x12\n" +
-	"\x04role\x18\x06 \x01(\tR\x04role\"[\n" +
-	"\x0eSetTOTPRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x16\n" +
-	"\x06secret\x18\x02 \x01(\tR\x06secret\x12\x18\n" +
-	"\aenabled\x18\x03 \x01(\bR\aenabled\"\xbe\x01\n" +
+	"\busername\x18\x01 \x01(\tR\busername\"\xfe\x01\n" +
+	"\x11CreateUserRequest\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername\x12\x0e\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\x12\x1b\n" +
+	"\tfull_name\x18\x03 \x01(\tR\bfullName\x12\x12\n" +
+	"\x04role\x18\x04 \x01(\tR\x04role\x12%\n" +
+	"\x0einstitute_name\x18\x05 \x01(\tR\rinstituteName\x12%\n" +
+	"\x0einstitute_type\x18\x06 \x01(\tR\rinstituteType\x12\x14\n" +
+	"\x05phone\x18\a \x01(\tR\x05phone\x12\x10\n" +
+	"\x03dob\x18\b \x01(\tR\x03dob\x12\x16\n" +
+	"\x06gender\x18\t \x01(\tR\x06gender\"\xbe\x01\n" +
 	"\x16MarkKYCVerifiedRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12!\n" +
 	"\freference_id\x18\x02 \x01(\tR\vreferenceId\x12!\n" +
 	"\faadhaar_hash\x18\x03 \x01(\tR\vaadhaarHash\x12\x1b\n" +
 	"\tfull_name\x18\x04 \x01(\tR\bfullName\x12\x10\n" +
 	"\x03dob\x18\x05 \x01(\tR\x03dob\x12\x16\n" +
-	"\x06gender\x18\x06 \x01(\tR\x06gender\"O\n" +
-	"\x14MFAPreferenceRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1e\n" +
-	"\n" +
-	"preference\x18\x02 \x01(\tR\n" +
-	"preference\"D\n" +
-	"\x11TOTPSecretRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x16\n" +
-	"\x06secret\x18\x02 \x01(\tR\x06secret\"?\n" +
+	"\x06gender\x18\x06 \x01(\tR\x06gender\"?\n" +
 	"\x12UpdateImageRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x10\n" +
 	"\x03url\x18\x02 \x01(\tR\x03url\"=\n" +
 	"\x10UpdateBioRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x10\n" +
-	"\x03bio\x18\x02 \x01(\tR\x03bio\"\xf6\x03\n" +
+	"\x03bio\x18\x02 \x01(\tR\x03bio\"\xb1\x03\n" +
 	"\x14UpdateProfileRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12N\n" +
 	"\fsocial_links\x18\x02 \x03(\v2+.user.UpdateProfileRequest.SocialLinksEntryR\vsocialLinks\x12\x16\n" +
@@ -1354,101 +1001,65 @@ const file_proto_userpb_user_proto_rawDesc = "" +
 	"\blocation\x18\b \x01(\tR\blocation\x12\x1c\n" +
 	"\tlanguages\x18\t \x03(\tR\tlanguages\x12 \n" +
 	"\vdemographic\x18\n" +
-	" \x01(\tR\vdemographic\x12C\n" +
-	"\x11institute_profile\x18\v \x01(\v2\x16.user.InstituteProfileR\x10instituteProfile\x1a>\n" +
+	" \x01(\tR\vdemographic\x1a>\n" +
 	"\x10SocialLinksEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xdb\t\n" +
-	"\x10InstituteProfile\x12%\n" +
-	"\x0einstitute_type\x18\x01 \x01(\tR\rinstituteType\x12)\n" +
-	"\x10established_year\x18\x02 \x01(\x05R\x0festablishedYear\x12/\n" +
-	"\x13registration_number\x18\x03 \x01(\tR\x12registrationNumber\x120\n" +
-	"\x14primary_contact_name\x18\x04 \x01(\tR\x12primaryContactName\x12>\n" +
-	"\x1bprimary_contact_designation\x18\x05 \x01(\tR\x19primaryContactDesignation\x12%\n" +
-	"\x0eofficial_phone\x18\x06 \x01(\tR\rofficialPhone\x12%\n" +
-	"\x0eofficial_email\x18\a \x01(\tR\rofficialEmail\x12\x1f\n" +
-	"\vwebsite_url\x18\b \x01(\tR\n" +
-	"websiteUrl\x12+\n" +
-	"\x11alternate_contact\x18\t \x01(\tR\x10alternateContact\x12'\n" +
-	"\x0fcourses_offered\x18\n" +
-	" \x01(\tR\x0ecoursesOffered\x12)\n" +
-	"\x10education_levels\x18\v \x01(\tR\x0feducationLevels\x12#\n" +
-	"\rstudent_count\x18\f \x01(\x05R\fstudentCount\x12#\n" +
-	"\rfaculty_count\x18\r \x01(\x05R\ffacultyCount\x12\x1f\n" +
-	"\vcampus_type\x18\x0e \x01(\tR\n" +
-	"campusType\x12'\n" +
-	"\x0foperating_hours\x18\x0f \x01(\tR\x0eoperatingHours\x12-\n" +
-	"\x12accreditation_docs\x18\x10 \x01(\tR\x11accreditationDocs\x126\n" +
-	"\x17license_certificate_url\x18\x11 \x01(\tR\x15licenseCertificateUrl\x12\x15\n" +
-	"\x06tax_id\x18\x12 \x01(\tR\x05taxId\x12&\n" +
-	"\x0ecertifications\x18\x13 \x01(\tR\x0ecertifications\x12*\n" +
-	"\x11bank_account_name\x18\x14 \x01(\tR\x0fbankAccountName\x12.\n" +
-	"\x13bank_account_number\x18\x15 \x01(\tR\x11bankAccountNumber\x12\x1b\n" +
-	"\tbank_ifsc\x18\x16 \x01(\tR\bbankIfsc\x12'\n" +
-	"\x0fbilling_address\x18\x17 \x01(\tR\x0ebillingAddress\x12+\n" +
-	"\x11short_description\x18\x18 \x01(\tR\x10shortDescription\x12\x1e\n" +
-	"\n" +
-	"facilities\x18\x19 \x01(\tR\n" +
-	"facilities\x12!\n" +
-	"\fsocial_links\x18\x1a \x01(\tR\vsocialLinks\x12*\n" +
-	"\x11terms_accepted_at\x18\x1b \x01(\tR\x0ftermsAcceptedAt\x12.\n" +
-	"\x13privacy_accepted_at\x18\x1c \x01(\tR\x11privacyAcceptedAt\x12:\n" +
-	"\x19authorized_signatory_name\x18\x1d \x01(\tR\x17authorizedSignatoryName\"(\n" +
-	"\x0eExistsResponse\x12\x16\n" +
-	"\x06exists\x18\x01 \x01(\bR\x06exists\"\xee\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x97\x02\n" +
+	"\tInstitute\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12%\n" +
+	"\x0einstitute_type\x18\x03 \x01(\tR\rinstituteType\x12)\n" +
+	"\x10established_year\x18\x04 \x01(\x05R\x0festablishedYear\x12/\n" +
+	"\x13registration_number\x18\x05 \x01(\tR\x12registrationNumber\x12\x1f\n" +
+	"\vwebsite_url\x18\x06 \x01(\tR\n" +
+	"websiteUrl\x12\x15\n" +
+	"\x06tax_id\x18\a \x01(\tR\x05taxId\x12+\n" +
+	"\x11short_description\x18\b \x01(\tR\x10shortDescription\"\xa2\x01\n" +
+	"\x16CreateInstituteRequest\x12\"\n" +
+	"\rowner_user_id\x18\x01 \x01(\tR\vownerUserId\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12%\n" +
+	"\x0einstitute_type\x18\x03 \x01(\tR\rinstituteType\x12)\n" +
+	"\x10established_year\x18\x04 \x01(\x05R\x0festablishedYear\"B\n" +
+	"\x11InstituteResponse\x12-\n" +
+	"\tinstitute\x18\x01 \x01(\v2\x0f.user.InstituteR\tinstitute\"\x8e\x05\n" +
 	"\fUserResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
-	"\x05email\x18\x02 \x01(\tR\x05email\x12%\n" +
-	"\x0emfa_preference\x18\x03 \x01(\tR\rmfaPreference\x12\x1f\n" +
-	"\vtotp_secret\x18\x04 \x01(\tR\n" +
-	"totpSecret\x12\x1a\n" +
-	"\busername\x18\x05 \x01(\tR\busername\x12\x14\n" +
-	"\x05phone\x18\x06 \x01(\tR\x05phone\x12%\n" +
-	"\x0ephone_verified\x18\a \x01(\bR\rphoneVerified\x12!\n" +
-	"\fkyc_verified\x18\b \x01(\bR\vkycVerified\x12\x12\n" +
-	"\x04role\x18\t \x01(\tR\x04role\x12\x1b\n" +
-	"\tfull_name\x18\n" +
-	" \x01(\tR\bfullName\x12\x10\n" +
-	"\x03dob\x18\v \x01(\tR\x03dob\x12\x16\n" +
-	"\x06gender\x18\f \x01(\tR\x06gender\x12&\n" +
-	"\x0fprofile_pic_url\x18\r \x01(\tR\rprofilePicUrl\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x12!\n" +
+	"\fkyc_verified\x18\x03 \x01(\bR\vkycVerified\x12\x12\n" +
+	"\x04role\x18\x04 \x01(\tR\x04role\x12\x1b\n" +
+	"\tfull_name\x18\x05 \x01(\tR\bfullName\x12\x10\n" +
+	"\x03dob\x18\x06 \x01(\tR\x03dob\x12\x16\n" +
+	"\x06gender\x18\a \x01(\tR\x06gender\x12&\n" +
+	"\x0fprofile_pic_url\x18\b \x01(\tR\rprofilePicUrl\x12\x1d\n" +
 	"\n" +
-	"banner_url\x18\x0e \x01(\tR\tbannerUrl\x12\x10\n" +
-	"\x03bio\x18\x0f \x01(\tR\x03bio\x12F\n" +
-	"\fsocial_links\x18\x10 \x03(\v2#.user.UserResponse.SocialLinksEntryR\vsocialLinks\x12\x16\n" +
-	"\x06skills\x18\x11 \x03(\tR\x06skills\x12\"\n" +
-	"\frecognitions\x18\x12 \x03(\tR\frecognitions\x12)\n" +
-	"\x10institution_name\x18\x13 \x01(\tR\x0finstitutionName\x120\n" +
-	"\x14is_profile_completed\x18\x14 \x01(\bR\x12isProfileCompleted\x12\x1a\n" +
-	"\blocation\x18\x15 \x01(\tR\blocation\x12\x1c\n" +
-	"\tlanguages\x18\x16 \x03(\tR\tlanguages\x12 \n" +
-	"\vdemographic\x18\x17 \x01(\tR\vdemographic\x12C\n" +
-	"\x11institute_profile\x18\x18 \x01(\v2\x16.user.InstituteProfileR\x10instituteProfile\x1a>\n" +
+	"banner_url\x18\t \x01(\tR\tbannerUrl\x12\x10\n" +
+	"\x03bio\x18\n" +
+	" \x01(\tR\x03bio\x12F\n" +
+	"\fsocial_links\x18\v \x03(\v2#.user.UserResponse.SocialLinksEntryR\vsocialLinks\x12\x16\n" +
+	"\x06skills\x18\f \x03(\tR\x06skills\x12\"\n" +
+	"\frecognitions\x18\r \x03(\tR\frecognitions\x12)\n" +
+	"\x10institution_name\x18\x0e \x01(\tR\x0finstitutionName\x120\n" +
+	"\x14is_profile_completed\x18\x0f \x01(\bR\x12isProfileCompleted\x12\x1a\n" +
+	"\blocation\x18\x10 \x01(\tR\blocation\x12\x1c\n" +
+	"\tlanguages\x18\x11 \x03(\tR\tlanguages\x12 \n" +
+	"\vdemographic\x18\x12 \x01(\tR\vdemographic\x1a>\n" +
 	"\x10SocialLinksEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\xae\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"7\n" +
+	"\x12InstituteIDRequest\x12!\n" +
+	"\finstitute_id\x18\x01 \x01(\tR\vinstituteId2\x98\x05\n" +
 	"\vUserService\x129\n" +
-	"\rExistsByEmail\x12\x12.user.EmailRequest\x1a\x14.user.ExistsResponse\x124\n" +
-	"\n" +
-	"GetByEmail\x12\x12.user.EmailRequest\x1a\x12.user.UserResponse\x129\n" +
 	"\n" +
 	"CreateUser\x12\x17.user.CreateUserRequest\x1a\x12.user.UserResponse\x122\n" +
 	"\aGetByID\x12\x13.user.UserIDRequest\x1a\x12.user.UserResponse\x12:\n" +
-	"\rGetByUsername\x12\x15.user.UsernameRequest\x1a\x12.user.UserResponse\x124\n" +
-	"\n" +
-	"GetByPhone\x12\x12.user.PhoneRequest\x1a\x12.user.UserResponse\x12:\n" +
-	"\vVerifyPhone\x12\x13.user.UserIDRequest\x1a\x16.google.protobuf.Empty\x12G\n" +
-	"\x0fMarkKYCVerified\x12\x1c.user.MarkKYCVerifiedRequest\x1a\x16.google.protobuf.Empty\x12@\n" +
-	"\rSetTOTPSecret\x12\x17.user.TOTPSecretRequest\x1a\x16.google.protobuf.Empty\x12I\n" +
-	"\x13UpdateMFAPreference\x12\x1a.user.MFAPreferenceRequest\x1a\x16.google.protobuf.Empty\x12:\n" +
-	"\vDisableTOTP\x12\x13.user.UserIDRequest\x1a\x16.google.protobuf.Empty\x12:\n" +
-	"\vDisableUser\x12\x13.user.UserIDRequest\x1a\x16.google.protobuf.Empty\x129\n" +
-	"\n" +
-	"EnableUser\x12\x13.user.UserIDRequest\x1a\x16.google.protobuf.Empty\x12D\n" +
+	"\rGetByUsername\x12\x15.user.UsernameRequest\x1a\x12.user.UserResponse\x12G\n" +
+	"\x0fMarkKYCVerified\x12\x1c.user.MarkKYCVerifiedRequest\x1a\x16.google.protobuf.Empty\x12D\n" +
 	"\x10UpdateProfilePic\x12\x18.user.UpdateImageRequest\x1a\x16.google.protobuf.Empty\x12@\n" +
 	"\fUpdateBanner\x12\x18.user.UpdateImageRequest\x1a\x16.google.protobuf.Empty\x12;\n" +
 	"\tUpdateBio\x12\x16.user.UpdateBioRequest\x1a\x16.google.protobuf.Empty\x12C\n" +
-	"\rUpdateProfile\x12\x1a.user.UpdateProfileRequest\x1a\x16.google.protobuf.EmptyB\x16Z\x14backend/proto/userpbb\x06proto3"
+	"\rUpdateProfile\x12\x1a.user.UpdateProfileRequest\x1a\x16.google.protobuf.Empty\x12H\n" +
+	"\x0fCreateInstitute\x12\x1c.user.CreateInstituteRequest\x1a\x17.user.InstituteResponse\x12A\n" +
+	"\fGetInstitute\x12\x18.user.InstituteIDRequest\x1a\x17.user.InstituteResponseB\x16Z\x14backend/proto/userpbb\x06proto3"
 
 var (
 	file_proto_userpb_user_proto_rawDescOnce sync.Once
@@ -1462,71 +1073,53 @@ func file_proto_userpb_user_proto_rawDescGZIP() []byte {
 	return file_proto_userpb_user_proto_rawDescData
 }
 
-var file_proto_userpb_user_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_proto_userpb_user_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_proto_userpb_user_proto_goTypes = []any{
-	(*EmailRequest)(nil),           // 0: user.EmailRequest
-	(*UserIDRequest)(nil),          // 1: user.UserIDRequest
-	(*UsernameRequest)(nil),        // 2: user.UsernameRequest
-	(*PhoneRequest)(nil),           // 3: user.PhoneRequest
-	(*CreateUserRequest)(nil),      // 4: user.CreateUserRequest
-	(*SetTOTPRequest)(nil),         // 5: user.SetTOTPRequest
-	(*MarkKYCVerifiedRequest)(nil), // 6: user.MarkKYCVerifiedRequest
-	(*MFAPreferenceRequest)(nil),   // 7: user.MFAPreferenceRequest
-	(*TOTPSecretRequest)(nil),      // 8: user.TOTPSecretRequest
-	(*UpdateImageRequest)(nil),     // 9: user.UpdateImageRequest
-	(*UpdateBioRequest)(nil),       // 10: user.UpdateBioRequest
-	(*UpdateProfileRequest)(nil),   // 11: user.UpdateProfileRequest
-	(*InstituteProfile)(nil),       // 12: user.InstituteProfile
-	(*ExistsResponse)(nil),         // 13: user.ExistsResponse
-	(*UserResponse)(nil),           // 14: user.UserResponse
-	nil,                            // 15: user.UpdateProfileRequest.SocialLinksEntry
-	nil,                            // 16: user.UserResponse.SocialLinksEntry
-	(*emptypb.Empty)(nil),          // 17: google.protobuf.Empty
+	(*UserIDRequest)(nil),          // 0: user.UserIDRequest
+	(*UsernameRequest)(nil),        // 1: user.UsernameRequest
+	(*CreateUserRequest)(nil),      // 2: user.CreateUserRequest
+	(*MarkKYCVerifiedRequest)(nil), // 3: user.MarkKYCVerifiedRequest
+	(*UpdateImageRequest)(nil),     // 4: user.UpdateImageRequest
+	(*UpdateBioRequest)(nil),       // 5: user.UpdateBioRequest
+	(*UpdateProfileRequest)(nil),   // 6: user.UpdateProfileRequest
+	(*Institute)(nil),              // 7: user.Institute
+	(*CreateInstituteRequest)(nil), // 8: user.CreateInstituteRequest
+	(*InstituteResponse)(nil),      // 9: user.InstituteResponse
+	(*UserResponse)(nil),           // 10: user.UserResponse
+	(*InstituteIDRequest)(nil),     // 11: user.InstituteIDRequest
+	nil,                            // 12: user.UpdateProfileRequest.SocialLinksEntry
+	nil,                            // 13: user.UserResponse.SocialLinksEntry
+	(*emptypb.Empty)(nil),          // 14: google.protobuf.Empty
 }
 var file_proto_userpb_user_proto_depIdxs = []int32{
-	15, // 0: user.UpdateProfileRequest.social_links:type_name -> user.UpdateProfileRequest.SocialLinksEntry
-	12, // 1: user.UpdateProfileRequest.institute_profile:type_name -> user.InstituteProfile
-	16, // 2: user.UserResponse.social_links:type_name -> user.UserResponse.SocialLinksEntry
-	12, // 3: user.UserResponse.institute_profile:type_name -> user.InstituteProfile
-	0,  // 4: user.UserService.ExistsByEmail:input_type -> user.EmailRequest
-	0,  // 5: user.UserService.GetByEmail:input_type -> user.EmailRequest
-	4,  // 6: user.UserService.CreateUser:input_type -> user.CreateUserRequest
-	1,  // 7: user.UserService.GetByID:input_type -> user.UserIDRequest
-	2,  // 8: user.UserService.GetByUsername:input_type -> user.UsernameRequest
-	3,  // 9: user.UserService.GetByPhone:input_type -> user.PhoneRequest
-	1,  // 10: user.UserService.VerifyPhone:input_type -> user.UserIDRequest
-	6,  // 11: user.UserService.MarkKYCVerified:input_type -> user.MarkKYCVerifiedRequest
-	8,  // 12: user.UserService.SetTOTPSecret:input_type -> user.TOTPSecretRequest
-	7,  // 13: user.UserService.UpdateMFAPreference:input_type -> user.MFAPreferenceRequest
-	1,  // 14: user.UserService.DisableTOTP:input_type -> user.UserIDRequest
-	1,  // 15: user.UserService.DisableUser:input_type -> user.UserIDRequest
-	1,  // 16: user.UserService.EnableUser:input_type -> user.UserIDRequest
-	9,  // 17: user.UserService.UpdateProfilePic:input_type -> user.UpdateImageRequest
-	9,  // 18: user.UserService.UpdateBanner:input_type -> user.UpdateImageRequest
-	10, // 19: user.UserService.UpdateBio:input_type -> user.UpdateBioRequest
-	11, // 20: user.UserService.UpdateProfile:input_type -> user.UpdateProfileRequest
-	13, // 21: user.UserService.ExistsByEmail:output_type -> user.ExistsResponse
-	14, // 22: user.UserService.GetByEmail:output_type -> user.UserResponse
-	14, // 23: user.UserService.CreateUser:output_type -> user.UserResponse
-	14, // 24: user.UserService.GetByID:output_type -> user.UserResponse
-	14, // 25: user.UserService.GetByUsername:output_type -> user.UserResponse
-	14, // 26: user.UserService.GetByPhone:output_type -> user.UserResponse
-	17, // 27: user.UserService.VerifyPhone:output_type -> google.protobuf.Empty
-	17, // 28: user.UserService.MarkKYCVerified:output_type -> google.protobuf.Empty
-	17, // 29: user.UserService.SetTOTPSecret:output_type -> google.protobuf.Empty
-	17, // 30: user.UserService.UpdateMFAPreference:output_type -> google.protobuf.Empty
-	17, // 31: user.UserService.DisableTOTP:output_type -> google.protobuf.Empty
-	17, // 32: user.UserService.DisableUser:output_type -> google.protobuf.Empty
-	17, // 33: user.UserService.EnableUser:output_type -> google.protobuf.Empty
-	17, // 34: user.UserService.UpdateProfilePic:output_type -> google.protobuf.Empty
-	17, // 35: user.UserService.UpdateBanner:output_type -> google.protobuf.Empty
-	17, // 36: user.UserService.UpdateBio:output_type -> google.protobuf.Empty
-	17, // 37: user.UserService.UpdateProfile:output_type -> google.protobuf.Empty
-	21, // [21:38] is the sub-list for method output_type
-	4,  // [4:21] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	12, // 0: user.UpdateProfileRequest.social_links:type_name -> user.UpdateProfileRequest.SocialLinksEntry
+	7,  // 1: user.InstituteResponse.institute:type_name -> user.Institute
+	13, // 2: user.UserResponse.social_links:type_name -> user.UserResponse.SocialLinksEntry
+	2,  // 3: user.UserService.CreateUser:input_type -> user.CreateUserRequest
+	0,  // 4: user.UserService.GetByID:input_type -> user.UserIDRequest
+	1,  // 5: user.UserService.GetByUsername:input_type -> user.UsernameRequest
+	3,  // 6: user.UserService.MarkKYCVerified:input_type -> user.MarkKYCVerifiedRequest
+	4,  // 7: user.UserService.UpdateProfilePic:input_type -> user.UpdateImageRequest
+	4,  // 8: user.UserService.UpdateBanner:input_type -> user.UpdateImageRequest
+	5,  // 9: user.UserService.UpdateBio:input_type -> user.UpdateBioRequest
+	6,  // 10: user.UserService.UpdateProfile:input_type -> user.UpdateProfileRequest
+	8,  // 11: user.UserService.CreateInstitute:input_type -> user.CreateInstituteRequest
+	11, // 12: user.UserService.GetInstitute:input_type -> user.InstituteIDRequest
+	10, // 13: user.UserService.CreateUser:output_type -> user.UserResponse
+	10, // 14: user.UserService.GetByID:output_type -> user.UserResponse
+	10, // 15: user.UserService.GetByUsername:output_type -> user.UserResponse
+	14, // 16: user.UserService.MarkKYCVerified:output_type -> google.protobuf.Empty
+	14, // 17: user.UserService.UpdateProfilePic:output_type -> google.protobuf.Empty
+	14, // 18: user.UserService.UpdateBanner:output_type -> google.protobuf.Empty
+	14, // 19: user.UserService.UpdateBio:output_type -> google.protobuf.Empty
+	14, // 20: user.UserService.UpdateProfile:output_type -> google.protobuf.Empty
+	9,  // 21: user.UserService.CreateInstitute:output_type -> user.InstituteResponse
+	9,  // 22: user.UserService.GetInstitute:output_type -> user.InstituteResponse
+	13, // [13:23] is the sub-list for method output_type
+	3,  // [3:13] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_proto_userpb_user_proto_init() }
@@ -1540,7 +1133,7 @@ func file_proto_userpb_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_userpb_user_proto_rawDesc), len(file_proto_userpb_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   17,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

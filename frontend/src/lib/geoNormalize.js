@@ -406,7 +406,7 @@ export function getSortedLanguagesByLocation(userLat, userLon) {
   }
 
   // 2. Second pass: Assign strict priorities (1 to N) based on the closest location
-  if (closestDistrict) {
+  if (closestCountry || closestDistrict) {
     let p = 1; // Priority rank, lower is better (top of the list)
     
     const setPriority = (codeStr) => {
@@ -422,7 +422,7 @@ export function getSortedLanguagesByLocation(userLat, userLon) {
       });
     };
 
-    setPriority(closestDistrict.local_lang);
+    if (closestDistrict) setPriority(closestDistrict.local_lang);
     if (closestState) setPriority(closestState.state_lang);
     if (closestCountry) setPriority(closestCountry.officialLang);
     setPriority('en');

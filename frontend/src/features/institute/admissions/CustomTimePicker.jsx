@@ -152,7 +152,7 @@ const CustomTimePicker = ({
   const minuteDisplay = selectedMinute !== null ? String(selectedMinute).padStart(2, "0") : "--";
   const displayValue  = value ? value.format("hh:mm A") : "";
 
-  const ACCENT = "#1565c0";
+  const ACCENT = "var(--color-primary)";
 
   return (
     <>
@@ -183,9 +183,8 @@ const CustomTimePicker = ({
         PaperProps={{
           elevation: 4,
           sx: {
-            borderRadius: "12px",
+            borderRadius: 'var(--radius-lg)',
             overflow: "hidden",
-            fontFamily: "'Inter', sans-serif",
             userSelect: "none",
             width: 300,
           },
@@ -211,7 +210,7 @@ const CustomTimePicker = ({
                 fontWeight: 300,
                 lineHeight: 1,
                 cursor: "pointer",
-                color: view === "hours" ? "#fff" : "rgba(255,255,255,0.45)",
+                color: view === "hours" ? "var(--color-white)" : "rgba(255,255,255,0.45)",
                 transition: "color 0.15s",
                 letterSpacing: 0,
               }}
@@ -228,7 +227,7 @@ const CustomTimePicker = ({
                 fontWeight: 300,
                 lineHeight: 1,
                 cursor: selectedHour !== null ? "pointer" : "default",
-                color: view === "minutes" ? "#fff" : "rgba(255,255,255,0.45)",
+                color: view === "minutes" ? "var(--color-white)" : "rgba(255,255,255,0.45)",
                 transition: "color 0.15s",
                 letterSpacing: 0,
               }}
@@ -249,15 +248,15 @@ const CustomTimePicker = ({
                   sx={{
                     px: 1,
                     py: 0.2,
-                    fontSize: "13px",
+                    fontSize: 'var(--font-sm)',
                     fontWeight: sel ? 700 : 400,
                     cursor: dis ? "default" : "pointer",
-                    color: sel ? "#fff" : dis ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.5)",
-                    borderRadius: "4px",
+                    color: sel ? "var(--color-white)" : dis ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.5)",
+                    borderRadius: 'var(--radius-sm)',
                     background: sel ? "rgba(255,255,255,0.18)" : "transparent",
                     transition: "all 0.15s",
                     textAlign: "center",
-                    "&:hover": !dis ? { background: "rgba(255,255,255,0.25)", color: "#fff" } : {},
+                    "&:hover": !dis ? { background: "rgba(255,255,255,0.25)", color: "var(--color-white)" } : {},
                   }}
                 >
                   {mer}
@@ -273,8 +272,8 @@ const CustomTimePicker = ({
             sx={{
               width: CLOCK_SIZE,
               height: CLOCK_SIZE,
-              borderRadius: "50%",
-              background: "#f0f0f0",
+              borderRadius: 'var(--radius-full)',
+              background: "var(--color-slate-50)",
               position: "relative",
             }}
           >
@@ -319,13 +318,12 @@ const CustomTimePicker = ({
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    borderRadius: "50%",
+                    borderRadius: 'var(--radius-full)',
                     zIndex: 2,
                     cursor: dis ? "not-allowed" : "pointer",
-                    color: sel ? "#fff" : dis ? "rgba(0,0,0,0.26)" : "#212121",
+                    color: sel ? "var(--color-white)" : dis ? "rgba(0,0,0,0.26)" : "var(--color-slate-900)",
                     fontWeight: sel ? 600 : 400,
-                    fontSize: "13px",
-                    fontFamily: "'Inter', sans-serif",
+                    fontSize: 'var(--font-sm)',
                     transition: "background 0.1s",
                     "&:hover": !dis && !sel
                       ? { background: "rgba(21,101,192,0.12)" }
@@ -351,8 +349,8 @@ const CustomTimePicker = ({
               sx={{
                 width: 7,
                 height: 7,
-                borderRadius: "50%",
-                background: view === v ? ACCENT : "#d0d0d0",
+                borderRadius: 'var(--radius-full)',
+                background: view === v ? ACCENT : "var(--color-slate-200)",
                 cursor: "pointer",
                 transition: "background 0.2s",
               }}
@@ -366,10 +364,10 @@ const CustomTimePicker = ({
             onClick={handleClose}
             size="small"
             sx={{
-              color: "#555",
-              fontWeight: 500,
+              color: "var(--color-slate-500)",
+              fontWeight: 'var(--font-medium)',
               textTransform: "none",
-              fontSize: "13px",
+              fontSize: 'var(--font-sm)',
             }}
           >
             Cancel
@@ -380,9 +378,9 @@ const CustomTimePicker = ({
             disabled={!canConfirm}
             sx={{
               color: canConfirm ? ACCENT : "rgba(0,0,0,0.26)",
-              fontWeight: 700,
+              fontWeight: 'var(--font-bold)',
               textTransform: "none",
-              fontSize: "13px",
+              fontSize: 'var(--font-sm)',
             }}
           >
             OK

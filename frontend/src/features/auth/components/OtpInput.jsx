@@ -6,33 +6,9 @@ export default function OtpInput({ value = "", onChange, numInputs = 6, isLoadin
   const otpArray = value.split("").concat(Array(numInputs).fill("")).slice(0, numInputs);
 
   useEffect(() => {
-    const currentOtpArray = value.split("").concat(Array(numInputs).fill("")).slice(0, numInputs);
-
     // Fill refs array
     inputRefs.current = inputRefs.current.slice(0, numInputs);
-
-    // Auto focus first empty input on mount OR when value is cleared (e.g. after resend)
-    // Only try to focus if not loading (inputs are enabled)
-    if (!isLoading) {
-      if (!value || value.length === 0) {
-        setTimeout(() => {
-          inputRefs.current[0]?.focus();
-        }, 150);
-      } else {
-        const firstEmptyIndex = currentOtpArray.findIndex(d => !d);
-        if (firstEmptyIndex !== -1) {
-          setTimeout(() => {
-            inputRefs.current[firstEmptyIndex]?.focus();
-          }, 150);
-        } else {
-          // If full, focus the last box so backspace works immediately
-          setTimeout(() => {
-            inputRefs.current[numInputs - 1]?.focus();
-          }, 150);
-        }
-      }
-    }
-  }, [numInputs, value, isLoading]);
+  }, [numInputs]);
 
   const handleChange = (index, val) => {
     if (!/^[0-9]?$/.test(val)) return;
@@ -74,7 +50,7 @@ export default function OtpInput({ value = "", onChange, numInputs = 6, isLoadin
   };
 
   return (
-    <Box sx={{ display: "flex", justifyContent: "space-between", gap: 1.5, my: 1 }}>
+    <Box sx={{ display: "flex", justifyContent: "space-between", gap: 1, my: 1 }}>
       {otpArray.map((digit, i) => (
         <TextField
           key={i}
@@ -89,31 +65,33 @@ export default function OtpInput({ value = "", onChange, numInputs = 6, isLoadin
             maxLength: 1,
             style: {
               textAlign: "center",
-              padding: "10px 0",
-              fontSize: "18px",
-              fontWeight: 600,
-              color: "#0f172a",
+              padding: 0,
+              fontSize: 'var(--font-lg)',
+              fontWeight: 'var(--font-semibold)',
+              fontFamily: 'inherit',
+              color: "var(--color-slate-900)",
               caretColor: (value.length === numInputs && !error) ? "transparent" : "inherit",
+              height: "100%",
+              boxSizing: "border-box"
             },
           }}
           sx={{
-            width: "52px",
+            width: "46px",
+            height: "46px",
+            "& .MuiInputBase-root": {
+              height: "100%",
+            },
             "& .MuiOutlinedInput-root": {
-              backgroundColor: "#f8fafc",
-              borderRadius: "8px",
-              transition: "all 0.2s ease-in-out",
               "& fieldset": {
-                borderColor: error ? "#ef4444" : "#e2e8f0",
-                borderWidth: "1.5px",
+                borderColor: error ? "var(--color-error)" : undefined,
+                borderWidth: error ? "1.5px" : undefined,
               },
               "&:hover fieldset": {
-                borderColor: error ? "#ef4444" : "#cbd5e1",
+                borderColor: error ? "var(--color-error)" : undefined,
               },
               "&.Mui-focused fieldset": {
-                borderColor: error ? "#ef4444" : "#0056b3",
-                borderWidth: "2px",
-              },
-              "&.Mui-focused": {
+                borderColor: error ? "var(--color-error)" : undefined,
+                borderWidth: error ? "2px" : undefined,
               },
             },
           }}

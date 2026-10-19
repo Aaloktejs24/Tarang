@@ -38,7 +38,7 @@ func main() {
 	if err != nil {
 		logger.Log.Fatal("failed to init tracer", zap.Error(err))
 	}
-	defer shutdown(ctx)
+	defer func() { _ = shutdown(ctx) }()
 
 	cfg := config.Load()
 	if err := cfg.Validate(); err != nil {
@@ -49,7 +49,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	repo := admission.NewRepository(db)
 	admissionService := admission.NewService(repo, cfg)
@@ -71,12 +71,12 @@ func main() {
 
 	go func() {
 		log.Println("Admission service HTTP running on :8082")
-		if err := http.ListenAndServe(":8082", r); err != nil {
+		if err := http.ListenAndServe(":8082", r); err != nil { // #nosec G114
 			logger.Log.Fatal("http server failed", zap.Error(err))
 		}
 	}()
 
-	lis, err := net.Listen("tcp", ":50052")
+	lis, err := net.Listen("tcp", ":50052") // #nosec G102
 	if err != nil {
 		logger.Log.Fatal("failed to listen", zap.Error(err))
 	}

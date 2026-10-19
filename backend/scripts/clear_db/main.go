@@ -26,7 +26,7 @@ func main() {
 	if err != nil {
 		fmt.Printf("Error connecting to User DB: %v\n", err)
 	} else {
-		defer connUser.Close(ctx)
+		defer func() { _ = connUser.Close(ctx) }()
 		_, err = connUser.Exec(ctx, "TRUNCATE users, user_passwords RESTART IDENTITY CASCADE;")
 		if err != nil {
 			fmt.Printf("Error truncating User DB: %v\n", err)
@@ -40,7 +40,7 @@ func main() {
 	if err != nil {
 		fmt.Printf("Error connecting to Auth DB: %v\n", err)
 	} else {
-		defer connAuth.Close(ctx)
+		defer func() { _ = connAuth.Close(ctx) }()
 		_, err = connAuth.Exec(ctx, "TRUNCATE user_tokens, user_recovery_codes, auth_audits RESTART IDENTITY CASCADE;")
 		if err != nil {
 			fmt.Printf("Error truncating Auth DB: %v\n", err)

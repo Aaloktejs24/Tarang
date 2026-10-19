@@ -9,24 +9,30 @@ export default function GlobalBackground() {
       sx={{
         position: "fixed",
         top: 0, left: 0, right: 0, bottom: 0,
-        zIndex: -9999, // Ensure it is always behind everything
+        zIndex: -9999,
         background: `
-          radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.55) 0, transparent 50%), 
-          radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.4) 0, transparent 50%), 
-          radial-gradient(at 80% 90%, rgba(40, 167, 69, 0.3) 0, transparent 50%),
-          radial-gradient(at 20% 80%, rgba(0, 86, 179, 0.3) 0, transparent 50%),
-          #eef2f6
+          radial-gradient(ellipse at 0% 0%, rgba(0, 86, 179, 0.35) 0%, rgba(0, 86, 179, 0) 80%), 
+          radial-gradient(ellipse at 100% 0%, rgba(40, 167, 69, 0.25) 0%, rgba(40, 167, 69, 0) 80%), 
+          radial-gradient(ellipse at 100% 100%, rgba(40, 167, 69, 0.2) 0%, rgba(40, 167, 69, 0) 80%),
+          radial-gradient(ellipse at 0% 100%, rgba(0, 86, 179, 0.2) 0%, rgba(0, 86, 179, 0) 80%),
+          #f1f5f9
         `
       }}
     >
-      <Box sx={{ position: "absolute", width: "50vw", height: "50vw", top: "-10%", left: "-10%", background: "rgba(16, 185, 129, 0.05)", filter: "blur(120px)", borderRadius: "50%", pointerEvents: "none" }} />
+      {/* Subtle center fill so mid-screen doesn't look empty on phones */}
+      <Box sx={{
+        position: "absolute", borderRadius: 'var(--radius-full)', pointerEvents: "none",
+        width: "var(--size-full)", height: "var(--size-full)",
+        top: 0, left: 0,
+        background: "radial-gradient(ellipse at 50% 50%, rgba(120, 160, 220, 0.06) 0%, transparent 70%)",
+      }} />
       {/* Combined Dot Grid and Varnmala Pattern Overlay */}
-      <Box sx={{ 
-        position: "absolute", 
-        top: 0, left: 0, right: 0, bottom: 0, 
-        zIndex: 1, 
+      <Box sx={{
+        position: "absolute",
+        top: 0, left: 0, right: 0, bottom: 0,
+        zIndex: 1,
         pointerEvents: "none",
-        backgroundImage: "radial-gradient(circle at 2px 2px, rgba(15, 23, 42, 0.09) 1.5px, transparent 0)", 
+        backgroundImage: "radial-gradient(circle at 2px 2px, rgba(15, 23, 42, 0.09) 1.5px, transparent 0)",
         backgroundSize: "20px 20px",
       }}>
         <svg width="100%" height="100%">

@@ -1,26 +1,39 @@
 "use client";
 
 import React from 'react';
-import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
+import BackdropBlur from './BackdropBlur';
+import { useTheme } from '@mui/material/styles';
+import { Box } from '@mui/material';
 
-const Loader = ({ fullPage = false, mini = false, transparent = false }) => {
-  if (mini) {
-    return <CircularProgress size={20} color="inherit" />;
+/**
+ * General-purpose loading indicator.
+ *
+ * Variants:
+ *  - <Loader />              → full-screen frosted-glass backdrop spinner
+ *  - <Loader mini />         → small inline spinner (20px), inherits color
+ *  - <Loader size={n} />     → inline spinner with custom pixel size
+ *
+ * The full-screen variant uses BackdropBlur for a consistent look across the app.
+ */
+const Loader = ({ mini = false, size }) => {
+  const theme = useTheme();
+
+  // Inline / mini spinner — no backdrop
+  if (mini || size) {
+    return (
+      <Box display="inline-flex" alignItems="center" justifyContent="center">
+        <CircularProgress size={size ?? 20} color="inherit" />
+      </Box>
+    );
   }
-  
+
+  // Full-screen spinner
   return (
-    <Backdrop
-      sx={(theme) => ({ 
-        color: '#fff', 
-        zIndex: theme.zIndex.drawer + 9999,
-        background: transparent ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.8)'
-      })}
-      open={true}
-    >
-      <CircularProgress color="inherit" />
-    </Backdrop>
+    <BackdropBlur zIndex={999999}>
+      <CircularProgress sx={{ color: 'var(--color-primary)' }} />
+    </BackdropBlur>
   );
-}
+};
 
 export default Loader;

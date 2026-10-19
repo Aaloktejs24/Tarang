@@ -1,11 +1,12 @@
 "use client";
-
+import { useAppRouter as useRouter } from '../../../../../hooks/useAppRouter';
 import React, { useState } from 'react';
-import { Box, Typography, TextField, Button, Grid, Paper, IconButton, Select, MenuItem, InputLabel, FormControl, Divider, Checkbox, FormControlLabel } from '@mui/material';
+import { Box, Typography, TextField, Button, Grid, Paper, IconButton, Divider, CircularProgress } from '@mui/material';
+import CentralDropdown from '../../../../../components/common/CentralDropdown';
+import CustomCheckbox from '../../../../../components/common/CustomCheckbox';
 import { DeleteOutline, AddCircleOutline } from '@mui/icons-material';
 import { apiClient } from '../../../../../lib/apiClient';
 import { useProfile } from '../../../../../hooks/useProfile';
-import { useRouter } from 'next/navigation';
 
 export default function CreateAdmissionProgram() {
   const { profile } = useProfile();
@@ -21,8 +22,7 @@ export default function CreateAdmissionProgram() {
     academic_year: '',
     eligibility: '',
     fees: '',
-    duration: '',
-  });
+    duration: '' });
 
   const [stages, setStages] = useState([
     { title: '', type: 'document', requirements: [''], academicRecordsConfig: [] }
@@ -103,8 +103,7 @@ export default function CreateAdmissionProgram() {
           title: s.title,
           type: s.type,
           requirements: s.type === 'document' ? s.requirements.filter(r => r.trim() !== '') : [],
-          academicRecordsConfig: s.type === 'document' ? (s.academicRecordsConfig || []).filter(r => r.name?.trim() !== '') : [],
-        }))
+          academicRecordsConfig: s.type === 'document' ? (s.academicRecordsConfig || []).filter(r => r.name?.trim() !== '') : [] }))
       };
 
       await apiClient.post('/admissions/programs', payload);
@@ -120,13 +119,13 @@ export default function CreateAdmissionProgram() {
 
   return (
     <Box sx={{ maxWidth: 900, mx: 'auto', p: 4 }}>
-      <Typography variant="h4" sx={{ fontWeight: 700, color: '#1e293b', mb: 4 }}>
+      <Typography variant="h4" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)', mb: 4 }}>
         Create Admission Program
       </Typography>
 
       <form onSubmit={handleSubmit}>
-        <Paper elevation={0} sx={{ p: 4, mb: 4, border: '1px solid #e2e8f0', borderRadius: '16px' }}>
-          <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Program Details</Typography>
+        <Paper elevation={0} sx={{ p: 4, mb: 4,  borderRadius: 'var(--radius-lg)' }}>
+          <Typography variant="h6" sx={{ fontWeight: 'var(--font-semibold)', mb: 3 }}>Program Details</Typography>
           <Grid container spacing={3}>
             <Grid size={{xs: 12, sm: 6}}>
               <TextField fullWidth label="Workflow Title" name="workflow_title" value={formData.workflow_title} onChange={handleChange} required />
@@ -158,14 +157,14 @@ export default function CreateAdmissionProgram() {
           </Grid>
         </Paper>
 
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#1e293b', mb: 3 }}>
+        <Typography variant="h5" sx={{ fontWeight: 'var(--font-bold)', color: 'var(--color-slate-900)', mb: 3 }}>
           Admission Stages
         </Typography>
 
         {stages.map((stage, sIndex) => (
-          <Paper key={sIndex} elevation={0} sx={{ p: 3, mb: 3, border: '1px solid #e2e8f0', borderRadius: '16px', bgcolor: '#f8fafc' }}>
+          <Paper key={sIndex} elevation={0} sx={{ p: 3, mb: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Stage {sIndex + 1}</Typography>
+              <Typography variant="subtitle1" sx={{ fontWeight: 'var(--font-semibold)' }}>Stage {sIndex + 1}</Typography>
               {stages.length > 1 && (
                 <IconButton color="error" onClick={() => removeStage(sIndex)}>
                   <DeleteOutline />
@@ -178,24 +177,23 @@ export default function CreateAdmissionProgram() {
                 <TextField fullWidth label="Stage Title" value={stage.title} onChange={(e) => handleStageChange(sIndex, 'title', e.target.value)} required />
               </Grid>
               <Grid size={{xs: 12, sm: 4}}>
-                <FormControl fullWidth>
-                  <InputLabel>Stage Type</InputLabel>
-                  <Select
-                    value={stage.type}
-                    label="Stage Type"
-                    onChange={(e) => handleStageChange(sIndex, 'type', e.target.value)}
-                  >
-                    <MenuItem value="document">Document Request</MenuItem>
-                    <MenuItem value="quiz">Entrance Quiz</MenuItem>
-                    <MenuItem value="interview">Personal Interview</MenuItem>
-                  </Select>
-                </FormControl>
+                <CentralDropdown
+                  label="Stage Type"
+                  value={stage.type}
+                  onChange={(e) => handleStageChange(sIndex, 'type', e.target.value)}
+                  options={[
+                    { value: "document", label: "Document Request" },
+                    { value: "quiz", label: "Entrance Quiz" },
+                    { value: "interview", label: "Personal Interview" }
+                  ]}
+                  searchable={false}
+                />
               </Grid>
 
               {stage.type === 'document' && (
                 <>
                   <Grid size={{xs: 12}}>
-                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 500, color: '#64748b' }}>Required Documents</Typography>
+                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-medium)', color: 'var(--color-slate-500)' }}>Required Documents</Typography>
                     {(stage.requirements || []).map((req, rIndex) => (
                       <Box key={rIndex} sx={{ display: 'flex', gap: 1, mb: 1 }}>
                         <TextField size="small" fullWidth placeholder="e.g. Identity Proof" value={req} onChange={(e) => handleRequirementChange(sIndex, rIndex, e.target.value)} />
@@ -211,12 +209,12 @@ export default function CreateAdmissionProgram() {
 
                   <Grid size={{xs: 12}}>
                     <Divider sx={{ my: 1 }} />
-                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 500, color: '#64748b' }}>Required Academic Records</Typography>
-                    <Typography variant="caption" sx={{ color: '#64748b', display: 'block', mb: 2 }}>
+                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-medium)', color: 'var(--color-slate-500)' }}>Required Academic Records</Typography>
+                    <Typography variant="caption" sx={{ color: 'var(--color-slate-500)', display: 'block', mb: 2 }}>
                       Add specific academic records you require from the applicant and select which fields they must provide.
                     </Typography>
                     {(stage.academicRecordsConfig || []).map((req, rIndex) => (
-                      <Box key={rIndex} sx={{ mb: 2, p: 2, border: '1px solid #e2e8f0', borderRadius: '8px', bgcolor: '#ffffff' }}>
+                      <Box key={rIndex} sx={{ mb: 2, p: 2 }}>
                         <Box sx={{ display: 'flex', gap: 1, mb: 2, alignItems: 'center' }}>
                           <TextField size="small" fullWidth placeholder="Academic Record Name (e.g. 10th Marksheet)" value={req.name} onChange={(e) => handleAcademicRecordConfigChange(sIndex, rIndex, 'name', e.target.value)} />
                           <IconButton color="error" onClick={() => removeAcademicRecordConfig(sIndex, rIndex)}>
@@ -225,22 +223,25 @@ export default function CreateAdmissionProgram() {
                         </Box>
                         
                         <Box sx={{ pl: 1 }}>
-                          <FormControlLabel
-                            control={<Checkbox size="small" checked={true} sx={{ color: '#94a3b8', '&.Mui-checked': { color: '#94a3b8' } }} />}
-                            label={<Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#334155' }}>ACADEMIC RECORD</Typography>}
-                            sx={{ pointerEvents: 'none' }}
+                          <CustomCheckbox
+                            checked={true}
+                            sx={{ pointerEvents: 'none', mb: 0.5 }}
+                            label={<Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-700)' }}>ACADEMIC RECORD</Typography>}
                           />
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 1, sm: 4 }, pl: { xs: 1, sm: 4 }, mt: 0.5 }}>
-                            <FormControlLabel
-                              control={<Checkbox size="small" checked={req.qualification} onChange={(e) => handleAcademicRecordConfigChange(sIndex, rIndex, 'qualification', e.target.checked)} />}
-                              label={<Typography variant="body2">Qualification <span style={{ color: '#64748b', fontSize: '0.7rem', backgroundColor: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', marginLeft: '4px' }}>+ proof</span></Typography>}
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 1, sm: 4 }, pl: { xs: 1, sm: 4 } }}>
+                            <CustomCheckbox
+                              checked={req.qualification}
+                              onChange={(e) => handleAcademicRecordConfigChange(sIndex, rIndex, 'qualification', e.target.checked)}
+                              label={<Typography variant="body2">Qualification <span style={{ color: 'var(--color-slate-500)', fontSize: '0.7rem', backgroundColor: 'var(--color-slate-50)', padding: '2px 6px', borderRadius: 'var(--radius-sm)', marginLeft: '4px' }}>+ proof</span></Typography>}
                             />
-                            <FormControlLabel
-                              control={<Checkbox size="small" checked={req.passingYear} onChange={(e) => handleAcademicRecordConfigChange(sIndex, rIndex, 'passingYear', e.target.checked)} />}
+                            <CustomCheckbox
+                              checked={req.passingYear}
+                              onChange={(e) => handleAcademicRecordConfigChange(sIndex, rIndex, 'passingYear', e.target.checked)}
                               label={<Typography variant="body2">Passing Year</Typography>}
                             />
-                            <FormControlLabel
-                              control={<Checkbox size="small" checked={req.percentage} onChange={(e) => handleAcademicRecordConfigChange(sIndex, rIndex, 'percentage', e.target.checked)} />}
+                            <CustomCheckbox
+                              checked={req.percentage}
+                              onChange={(e) => handleAcademicRecordConfigChange(sIndex, rIndex, 'percentage', e.target.checked)}
                               label={<Typography variant="body2">Percentage / CGPA</Typography>}
                             />
                           </Box>
@@ -257,13 +258,13 @@ export default function CreateAdmissionProgram() {
           </Paper>
         ))}
 
-        <Button variant="outlined" startIcon={<AddCircleOutline />} onClick={addStage} sx={{ mb: 4, borderRadius: '8px' }}>
+        <Button variant="outlined" startIcon={<AddCircleOutline />} onClick={addStage} sx={{ mb: 4 }}>
           Add Another Stage
         </Button>
 
-        <Box sx={{ mt: 4, pt: 3, borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end' }}>
-          <Button type="submit" variant="contained" disabled={loading} sx={{ px: 6, py: 1.5, borderRadius: '8px', bgcolor: '#1e4fa3', '&:hover': { bgcolor: '#153a7a' } }}>
-            {loading ? 'Publishing...' : 'Publish Admission Program'}
+        <Box sx={{ mt: 4, pt: 3, borderTop: 'var(--border-thin) solid #e2e8f0', display: 'flex', justifyContent: 'flex-end' }}>
+          <Button type="submit" variant="contained" disabled={loading} sx={{ px: 6, py: 1.5, bgcolor: 'var(--color-primary)', '&:hover': { bgcolor: 'var(--color-primary-hover)' } }}>
+            {loading ? <CircularProgress size={24} color="inherit" /> : 'Publish Admission Program'}
           </Button>
         </Box>
       </form>

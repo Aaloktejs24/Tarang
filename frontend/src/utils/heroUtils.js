@@ -1,4 +1,4 @@
-import { capitalizeFirstLetter, getAcronym } from './stringUtils';
+import { getNoNamePlaceholder, capitalizeFirstLetter, parseBilingualName } from './stringUtils';
 
 export function getHeroPropsFromProfile(profile, language, explicitProps = {}) {
   const {
@@ -9,9 +9,34 @@ export function getHeroPropsFromProfile(profile, language, explicitProps = {}) {
   } = explicitProps;
 
   const safeProfile = profile ?? {};
-  const rawName = safeProfile.full_name || safeProfile.institution_name || safeProfile.name || safeProfile.username || (language === 'en' ? 'Institution' : 'संस्थान');
-  const title = explicitTitle || capitalizeFirstLetter(rawName);
-  const subtitle = explicitSubtitle ?? safeProfile.nameLocal ?? safeProfile.nameHindi ?? (safeProfile.campus_type ? (language === 'en' ? `${safeProfile.campus_type} Campus` : `${safeProfile.campus_type} परिसर`) : "");
+
+  // institution_name in DB uses "LocalName / EnglishName" bilingual format
+  const rawName = safeProfile.institution_name
+    || safeProfile.institute_profile?.institution_name
+    || safeProfile.institute_profile?.full_name
+    || safeProfile.full_name
+    || safeProfile.name
+    || safeProfile.username
+    || '';
+  const { localName, englishName } = parseBilingualName(rawName);
+
+  let defaultTitle = '';
+  let defaultSubtitle = '';
+
+  if (localName && englishName) {
+    // Bilingual format: local name first, English second
+    defaultTitle = capitalizeFirstLetter(localName);
+    defaultSubtitle = capitalizeFirstLetter(englishName);
+  } else if (localName || englishName) {
+    defaultTitle = capitalizeFirstLetter(localName || englishName);
+    defaultSubtitle = '';
+  } else {
+    defaultTitle = language === 'en' ? 'Institution' : 'संस्थान';
+    defaultSubtitle = '';
+  }
+
+  const title = explicitTitle || defaultTitle;
+  const subtitle = explicitSubtitle !== undefined ? explicitSubtitle : defaultSubtitle;
   const bannerUrl = explicitBannerUrl || safeProfile?.banner_url || '';
   const avatarUrl = explicitAvatarUrl || safeProfile?.profile_pic_url || '';
 

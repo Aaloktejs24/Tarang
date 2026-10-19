@@ -19,14 +19,14 @@
 
 /* Image Resize Styles - Google Docs Aesthetic */
 .ProseMirror img {
-  max-width: 100%;
+  max-width: var(--size-full);
   height: auto;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
 /* When image is selected */
 .ProseMirror img.ProseMirror-selectednode {
-  outline: 2px solid #1a73e8;
+  outline: var(--border-thick) solid #1a73e8;
   outline-offset: -2px;
 }
 
@@ -37,7 +37,7 @@
 }
 
 .ProseMirror .image-resizer img {
-  border: 1px solid transparent; /* prevent jitter when outline appears */
+  border: var(--border-thin) solid transparent; /* prevent jitter when outline appears */
 }
 
 .ProseMirror .image-resizer.is-selected img {
@@ -50,7 +50,7 @@
   width: 10px;
   height: 10px;
   background-color: #1a73e8;
-  border: 1px solid white;
+  border: var(--border-thin) solid white;
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   border-radius: 1px; /* Square nodes like Google Docs */
   z-index: 10;
@@ -78,8 +78,8 @@
   width: 9px;
   height: 9px;
   background-color: #1a73e8;
-  border-radius: 50%;
-  border: 1px solid white;
+  border-radius: var(--radius-full);
+  border: var(--border-thin) solid white;
   z-index: 10;
   cursor: grab;
 }
@@ -87,12 +87,12 @@
 /* Math Node Styles */
 .ProseMirror .math-node {
   background-color: #f8fafc;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   padding: 2px 4px;
   font-family: 'monospace';
   cursor: pointer;
   display: inline-block;
-  border: 1px solid transparent;
+  border: var(--border-thin) solid transparent;
 }
 
 .ProseMirror .math-node.ProseMirror-selectednode {

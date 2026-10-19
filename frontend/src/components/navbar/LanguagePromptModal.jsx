@@ -9,17 +9,22 @@ const INDIA_STATES = (gazeteer.Countries.find(c => c.code === 'IN')?.states) || 
 
 import React, { useState, useEffect } from 'react';
 import {
-  Dialog, Box, Typography, Button, IconButton, Select,
-  MenuItem, FormControl, InputLabel,
+  Box, Typography, IconButton,
   Autocomplete, TextField
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 import TranslateIcon from '@mui/icons-material/Translate';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+
+import BackdropBlur from '../common/BackdropBlur';
+import TarangButton from '../common/TarangButton';
 import { useAccessibility } from '../../contexts/AccessibilityContext';
 import useScrollLock from '../../hooks/useScrollLock';
 import countryToCurrency from 'country-to-currency';
-import { useLoading } from '../../contexts/LoadingContext';
 
 const { POPULAR_COUNTRIES } = miscData;
 
@@ -179,68 +184,49 @@ export default function LanguagePromptModal() {
 
   const autocompleteSx = {
     '& .MuiOutlinedInput-root': {
-      backgroundColor: '#f8fafc',
-      borderRadius: "8px",
-      color: '#0f172a',
-      transition: 'all 0.2s ease-in-out',
+      color: 'var(--color-slate-900)',
       padding: '2px 14px !important',
-      '& fieldset': { 
-        borderColor: '#e2e8f0',
-      },
-      '&:hover fieldset': { 
-        borderColor: '#cbd5e1' 
-      },
-      '&.Mui-focused fieldset': { 
-        borderColor: '#0056b3', 
-        borderWidth: '1.5px' 
-      },
-      '&.Mui-disabled': {
-        backgroundColor: '#f1f5f9',
-        '& fieldset': { borderColor: '#e2e8f0' },
-      }
     },
     '& .MuiOutlinedInput-input': {
       padding: '10px 0px !important',
-      fontSize: '15px',
+      fontSize: 'var(--font-base)',
     },
     '& .MuiSvgIcon-root': { 
-      color: '#64748b' 
+      color: 'var(--color-slate-500)' 
     },
     '& .MuiInputBase-input::placeholder': {
       opacity: 0.6,
-      fontWeight: 400
+      fontWeight: 'var(--font-regular)'
     },
-    '& .Mui-disabled .MuiSvgIcon-root': { color: '#94a3b8' },
+    '& .Mui-disabled .MuiSvgIcon-root': { color: 'var(--color-slate-500)' },
     '& .Mui-disabled .MuiInputBase-input': { 
-      color: '#94a3b8',
-      WebkitTextFillColor: '#94a3b8'
+      color: 'var(--color-slate-500)',
+      WebkitTextFillColor: 'var(--color-slate-500)'
     }
   };
   const autocompletePaperSx = {
-    borderRadius: '8px', 
-    boxShadow: 'none',
-    border: '1px solid #E2E8F0',
+    borderRadius: 'var(--radius-md)',
+    border: 'var(--border-thin) solid #E2E8F0',
     '& .MuiAutocomplete-listbox': {
       maxHeight: 280,
       padding: '8px',
       overflowY: 'auto',
       '& .MuiAutocomplete-option': {
-        borderRadius: "8px",
+        borderRadius: 'var(--radius-md)',
         margin: '2px 4px',
         padding: '10px 14px',
-        fontSize: '15px',
-        color: '#334155',
-        fontWeight: 500,
-        fontFamily: "'Inter', sans-serif",
+        fontSize: 'var(--font-base)',
+        color: 'var(--color-slate-700)',
+        fontWeight: 'var(--font-medium)',
         transition: 'all 0.15s ease',
         '&[aria-selected="true"]': {
           backgroundColor: 'rgba(0, 86, 179, 0.08) !important',
-          color: '#0056b3',
-          fontWeight: 600,
+          color: 'var(--color-primary)',
+          fontWeight: 'var(--font-semibold)',
         },
         '&.Mui-focused, &:hover': {
-          backgroundColor: '#f8fafc',
-          color: '#0f172a'
+          backgroundColor: 'var(--color-slate-50)',
+          color: 'var(--color-slate-900)'
         }
       }
     }
@@ -299,60 +285,50 @@ export default function LanguagePromptModal() {
   const showSideBySideNationalLang = isIndia && primaryLang !== 'hi' && secondaryLang !== 'hi';
 
   return (
-    <Dialog 
+    <BackdropBlur 
       open={open} 
-      onClose={handleClose}
-      disableScrollLock
-      slotProps={{
-        backdrop: {
-          sx: {
-            backdropFilter: 'blur(15px)',
-            backgroundColor: 'rgba(0, 86, 179, 0.1)',
-          }
-        }
-      }}
-      PaperProps={{
-        sx: {
+      onClick={handleClose}
+      zIndex={1300}
+    >
+      <Box
+        onClick={(e) => e.stopPropagation()}
+        sx={{
           borderRadius: { xs: 0, sm: '28px' },
           margin: { xs: 0, sm: 4 },
-          minHeight: { xs: '100vh', sm: 'auto' },
-          maxHeight: { xs: '100vh', sm: 'calc(100% - 64px)' },
+          minHeight: { xs: 'var(--size-screen-h)', sm: 'auto' },
+          maxHeight: { xs: 'var(--size-screen-h)', sm: 'calc(100% - 64px)' },
           padding: { xs: '48px 24px', sm: '64px 64px' },
-          width: '100%',
+          width: 'var(--size-full)',
           maxWidth: '560px',
           background: `
             radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.45) 0, transparent 50%), 
             radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.3) 0, transparent 50%), 
             radial-gradient(at 80% 90%, rgba(40, 167, 69, 0.2) 0, transparent 50%),
             radial-gradient(at 20% 80%, rgba(0, 86, 179, 0.15) 0, transparent 50%),
-            #eef2f6
+            #f1f5f9
           `,
           backdropFilter: 'blur(28px) saturate(200%)',
-          boxShadow: 'none',
-          border: '1px solid #E2E8F0',
+          border: 'none',
           textAlign: 'center',
-          position: 'relative'
-        }
-      }}
-    >
-
-
+          position: 'relative',
+          overflowY: 'auto'
+        }}
+      >
       <Box sx={{ position: 'relative', zIndex: 1 }}>
         <Box sx={{ 
-          width: 72, height: 72, borderRadius: '50%', 
+          width: 72, height: 72, borderRadius: 'var(--radius-full)', 
           background: 'linear-gradient(135deg, rgba(0, 86, 179, 0.1) 0%, rgba(40, 167, 69, 0.1) 100%)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          margin: '0 auto 20px', color: '#0056b3',
-          boxShadow: 'none',
-          border: '1px solid #E2E8F0',
+          margin: '0 auto 20px', color: 'var(--color-primary)',
+          border: 'var(--border-thin) solid #E2E8F0',
         }}>
           <TranslateIcon sx={{ fontSize: 34 }} />
         </Box>
 
-        <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a', mb: 1, letterSpacing: '-0.5px' }}>
+        <Typography variant="h5" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', mb: 1, letterSpacing: '-0.5px' }}>
           {"Choose Your Language"}
         </Typography>
-        <Typography variant="body1" sx={{ color: '#475569', mb: 4, px: { xs: 1, sm: 3 }, lineHeight: 1.6 }}>
+        <Typography variant="body1" sx={{ color: 'var(--color-slate-500)', mb: 4, px: { xs: 1, sm: 3 }, lineHeight: 1.6 }}>
           {"We detect dialect preferences by region to provide the most localized experience."}
         </Typography>
 
@@ -360,7 +336,7 @@ export default function LanguagePromptModal() {
         {loading && (
           <Box sx={{ py: 4 }}>
             
-            <Typography variant="body2" sx={{ mt: 2, color: '#64748b', fontSize: '13px', fontWeight: 500 }}>
+            <Typography variant="body2" sx={{ mt: 2, color: 'var(--color-slate-500)', fontSize: 'var(--font-sm)', fontWeight: 'var(--font-medium)' }}>
               {"Detecting location..."}
             </Typography>
           </Box>
@@ -369,48 +345,22 @@ export default function LanguagePromptModal() {
         {/* Initial Prompt to Detect */}
         {!loading && !showOptions && !manualMode && (
           <Box>
-            <Button
-              variant="contained" disableElevation
+            <TarangButton
+              variant="gradient"
               fullWidth
               onClick={handleDetectLocation}
               startIcon={<MyLocationIcon sx={{ fontSize: '20px !important' }} />}
-              sx={{
-                py: 1.5,
-                borderRadius: "8px",
-                textTransform: 'none',
-                fontWeight: 700,
-                fontSize: '16px',
-                background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)',
-                mb: 2,
-                '&:hover': {
-                  background: 'linear-gradient(135deg, #004494 0%, #218838 100%)',
-                },
-                transition: 'all 0.2s ease-in-out'
-              }}
+              sx={{ mb: 2 }}
             >
               {"Detect My Location"}
-            </Button>
-            <Button
+            </TarangButton>
+            <TarangButton
               variant="outlined"
               fullWidth
               onClick={() => setManualMode(true)}
-              sx={{ 
-                textTransform: 'none', 
-                color: '#64748b', 
-                fontWeight: 600,
-                fontSize: '16px',
-                py: 1.5,
-                borderRadius: "8px",
-                borderColor: 'rgba(0,0,0,0.12)',
-                '&:hover': { 
-                  color: '#0f172a', 
-                  background: 'rgba(0,0,0,0.02)',
-                  borderColor: 'rgba(0,0,0,0.2)'
-                }
-              }}
             >
               {"Select location manually"}
-            </Button>
+            </TarangButton>
           </Box>
         )}
 
@@ -418,7 +368,7 @@ export default function LanguagePromptModal() {
         {!loading && manualMode && !showOptions && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, textAlign: 'left', mb: 3 }}>
             <Box>
-              <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px", textAlign: 'left' }}>
+              <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)', textAlign: 'left' }}>
                 {"Select Country"}
               </Typography>
               <Autocomplete
@@ -445,7 +395,7 @@ export default function LanguagePromptModal() {
             </Box>
 
             <Box>
-              <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px", textAlign: 'left' }}>
+              <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)', textAlign: 'left' }}>
                 {"Select State"}
               </Typography>
               <Autocomplete
@@ -473,7 +423,7 @@ export default function LanguagePromptModal() {
             </Box>
             
             <Box>
-              <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px", textAlign: 'left' }}>
+              <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)', textAlign: 'left' }}>
                 {countryName === "India" ? "Select District" : "Select City"}
               </Typography>
               <Autocomplete
@@ -502,101 +452,50 @@ export default function LanguagePromptModal() {
           </Box>
         )}
 
-      {/* Options Mode */}
       {showOptions && !loading && (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-          
-          {/* Dynamic local/state languages stacked full-width */}
+
           {primaryLang && (
-            <Button
-              variant="contained" disableElevation
+            <TarangButton
+              variant="success"
               fullWidth
               onClick={() => selectLanguage(primaryLang)}
-              sx={{ 
-                height: '48px', borderRadius: '8px', textTransform: 'none', fontWeight: 600,
-                bgcolor: '#28a745',
-                color: '#ffffff',
-                fontSize: '14px',
-                lineHeight: 1,
-                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', px: 2,
-                '&:hover': { 
-                  bgcolor: '#218838',
-                },
-                transition: 'all 0.2s ease'
-              }}
+              sx={{ height: 'var(--box-height)', overflow: 'hidden', textOverflow: 'ellipsis' }}
             >
               {getLanguageName(primaryLang)}
-            </Button>
+            </TarangButton>
           )}
 
           {secondaryLang && (
-            <Button
-              variant="contained" disableElevation
+            <TarangButton
+              variant="primary"
               fullWidth
               onClick={() => selectLanguage(secondaryLang)}
-              sx={{ 
-                height: '48px', borderRadius: '8px', textTransform: 'none', fontWeight: 600,
-                bgcolor: '#0056b3',
-                color: '#ffffff',
-                fontSize: '14px',
-                lineHeight: 1,
-                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', px: 2,
-                '&:hover': { 
-                  bgcolor: '#004494',
-                },
-                transition: 'all 0.2s ease'
-              }}
+              sx={{ height: 'var(--box-height)', overflow: 'hidden', textOverflow: 'ellipsis' }}
             >
               {getLanguageName(secondaryLang)}
-            </Button>
+            </TarangButton>
           )}
 
           <Box sx={{ display: 'flex', gap: 1.5 }}>
             {showSideBySideNationalLang && (
-              <Button
-                variant="contained" disableElevation
+              <TarangButton
+                variant="white"
                 fullWidth
                 onClick={() => selectLanguage('hi')}
-                sx={{ 
-                  height: '48px', borderRadius: '8px', textTransform: 'none', fontWeight: 700,
-                  fontSize: '15px',
-                  lineHeight: 1,
-                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', px: 2,
-                  bgcolor: '#ffffff',
-                  color: '#0056b3',
-                  border: '1px solid rgba(0, 86, 179, 0.2)',
-                  '&:hover': { 
-                    bgcolor: '#f8fafc',
-                    borderColor: '#0056b3',
-                  },
-                  transition: 'all 0.2s ease-in-out'
-                }}
+                sx={{ height: 'var(--box-height)', overflow: 'hidden', textOverflow: 'ellipsis' }}
               >
                 {"हिन्दी"}
-              </Button>
+              </TarangButton>
             )}
-
-            <Button
-              variant="contained" disableElevation
+            <TarangButton
+              variant="white"
               fullWidth
               onClick={() => selectLanguage('en')}
-              sx={{ 
-                height: '48px', borderRadius: '8px', textTransform: 'none', fontWeight: 700,
-                fontSize: '15px',
-                lineHeight: 1,
-                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', px: 2,
-                bgcolor: '#ffffff',
-                color: '#0056b3',
-                border: '1px solid rgba(0, 86, 179, 0.2)',
-                '&:hover': { 
-                  bgcolor: '#f8fafc',
-                  borderColor: '#0056b3',
-                },
-                transition: 'all 0.2s ease-in-out'
-              }}
+              sx={{ height: 'var(--box-height)', overflow: 'hidden', textOverflow: 'ellipsis' }}
             >
               {"English"}
-            </Button>
+            </TarangButton>
           </Box>
         </Box>
       )}
@@ -605,114 +504,35 @@ export default function LanguagePromptModal() {
         <Box>
           {!manualMode ? (
             <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, mt: 1.5, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Typography variant="body2" sx={{ color: '#64748b', fontSize: '13px', fontWeight: 600 }}>
+              <Typography variant="body2" sx={{ color: 'var(--color-slate-500)', fontSize: 'var(--font-sm)', fontWeight: 'var(--font-semibold)' }}>
                 {"Wrong location?"}
               </Typography>
               <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-                <Button
-                  variant="text"
-                  onClick={() => {
-                    handleDetectLocation();
-                  }}
-                  sx={{ 
-                    textTransform: 'none', color: '#0056b3', fontWeight: 600, fontSize: '13px', p: 0, minWidth: 'auto',
-                    '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' }
-                  }}
-                >
-                  {"Try Again"}
-                </Button>
-                <Typography variant="body2" sx={{ color: '#64748b', fontSize: '13px', fontWeight: 600 }}>
-                  {"or"}
-                </Typography>
-                <Button
-                  variant="text"
-                  onClick={() => {
-                    setManualMode(true);
-                    setCountryName(null);
-                    setStateName(null);
-                    setDistrictName(null);
-                    setLocalDialectCode("");
-                    setStateLanguageCode("");
-                  }}
-                  sx={{ 
-                    textTransform: 'none', color: '#0056b3', fontWeight: 600, fontSize: '13px', p: 0, minWidth: 'auto',
-                    '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' }
-                  }}
-                >
-                  {"Select Manually"}
-                </Button>
+                <TarangButton variant="text" size="sm" onClick={handleDetectLocation}>{"Try Again"}</TarangButton>
+                <Typography variant="body2" sx={{ color: 'var(--color-slate-500)', fontSize: 'var(--font-sm)', fontWeight: 'var(--font-semibold)' }}>{"or"}</Typography>
+                <TarangButton variant="text" size="sm" onClick={() => { setManualMode(true); setCountryName(null); setStateName(null); setDistrictName(null); setLocalDialectCode(""); setStateLanguageCode(""); }}>{"Select Manually"}</TarangButton>
               </Box>
             </Box>
           ) : showOptions ? (
             <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, mt: 1.5, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Typography variant="body2" sx={{ color: '#64748b', fontSize: '13px', fontWeight: 600 }}>
+              <Typography variant="body2" sx={{ color: 'var(--color-slate-500)', fontSize: 'var(--font-sm)', fontWeight: 'var(--font-semibold)' }}>
                 {"Wrong location?"}
               </Typography>
               <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-                <Button
-                  variant="text"
-                  onClick={() => {
-                    setCountryName(null);
-                    setStateName(null);
-                    setDistrictName(null);
-                    setLocalDialectCode("");
-                    setStateLanguageCode("");
-                  }}
-                  sx={{ 
-                    textTransform: 'none', color: '#0056b3', fontWeight: 600, fontSize: '13px', p: 0, minWidth: 'auto',
-                    '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' }
-                  }}
-                >
-                  {"Select Again"}
-                </Button>
-                <Typography variant="body2" sx={{ color: '#64748b', fontSize: '13px', fontWeight: 600 }}>
-                  {"or"}
-                </Typography>
-                <Button
-                  variant="text"
-                  onClick={() => {
-                    setManualMode(false);
-                    setCountryName(null);
-                    setStateName(null);
-                    setDistrictName(null);
-                    setLocalDialectCode("");
-                    setStateLanguageCode("");
-                    handleDetectLocation();
-                  }}
-                  sx={{ 
-                    textTransform: 'none', color: '#0056b3', fontWeight: 600, fontSize: '13px', p: 0, minWidth: 'auto',
-                    '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' }
-                  }}
-                >
-                  {"Auto Detect"}
-                </Button>
+                <TarangButton variant="text" size="sm" onClick={() => { setCountryName(null); setStateName(null); setDistrictName(null); setLocalDialectCode(""); setStateLanguageCode(""); }}>{"Select Again"}</TarangButton>
+                <Typography variant="body2" sx={{ color: 'var(--color-slate-500)', fontSize: 'var(--font-sm)', fontWeight: 'var(--font-semibold)' }}>{"or"}</Typography>
+                <TarangButton variant="text" size="sm" onClick={() => { setManualMode(false); setCountryName(null); setStateName(null); setDistrictName(null); setLocalDialectCode(""); setStateLanguageCode(""); handleDetectLocation(); }}>{"Auto Detect"}</TarangButton>
               </Box>
             </Box>
           ) : (
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1.5 }}>
-              <Button
-                variant="text"
-                onClick={() => {
-                  setManualMode(false);
-                  setCountryName(null);
-                  setStateName(null);
-                  setDistrictName(null);
-                  setLocalDialectCode("");
-                  setStateLanguageCode("");
-                  handleDetectLocation();
-                }}
-                sx={{ 
-                  textTransform: 'none', color: '#0056b3', fontWeight: 600, fontSize: '13px', p: 0, minWidth: 'auto',
-                  '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' }
-                }}
-              >
-                {"Auto Detect"}
-              </Button>
+              <TarangButton variant="text" size="sm" onClick={() => { setManualMode(false); setCountryName(null); setStateName(null); setDistrictName(null); setLocalDialectCode(""); setStateLanguageCode(""); handleDetectLocation(); }}>{"Auto Detect"}</TarangButton>
             </Box>
           )}
         </Box>
       )}
       </Box>
-    </Dialog>
+      </Box>
+    </BackdropBlur>
   );
 }

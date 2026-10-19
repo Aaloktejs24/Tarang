@@ -27,20 +27,21 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import RecordVoiceOverIcon from '@mui/icons-material/RecordVoiceOver';
 import CodeIcon from '@mui/icons-material/Code';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
-import { Checkbox, FormControlLabel, Divider } from "@mui/material";
-import { useRouter } from "next/navigation";
+import { Divider } from "@mui/material";
+import { useAppRouter } from '../../hooks/useAppRouter';
 import FeedMobileFilter from "./FeedMobileFilter";
+import CustomCheckbox from "../../components/common/CustomCheckbox";
 
 const checkboxStyles = {
-  color: "#64748b",
+  color: "var(--color-slate-500)",
   padding: "4px",
   "&.Mui-checked": {
-    color: "#0056b3",
+    color: "var(--color-primary)",
   },
   "& + .MuiFormControlLabel-label": {
-    fontSize: "0.95rem",
-    fontWeight: 600,
-    color: "#334155",
+    fontSize: 'var(--font-base)',
+    fontWeight: 'var(--font-semibold)',
+    color: "var(--color-slate-700)",
     letterSpacing: "0.2px",
   },
 };
@@ -51,39 +52,36 @@ const FilterRow = ({ icon, label, checked, onChange }) => (
     alignItems: "center",
     px: 1,
     py: 0.2,
-    borderRadius: "8px",
-    transition: "all 0.2s ease",
+    borderRadius: 'var(--radius-md)',
+    transition: "var(--transition-base)",
     cursor: "pointer",
     mb: 0.5,
-    border: checked ? "1px solid rgba(0, 86, 179, 0.15)" : "1px solid transparent",
+    border: checked ? "var(--border-thin) solid rgba(0, 86, 179, 0.15)" : "var(--border-thin) solid transparent",
     background: checked ? "rgba(0, 86, 179, 0.04)" : "transparent",
     '&:hover': {
       backgroundColor: "rgba(0, 86, 179, 0.08)",
       transform: "translateX(4px)",
     }
   }} onClick={onChange}>
-    <FormControlLabel
-      sx={{ m: 0, width: "100%" }}
-      control={
-        <Checkbox
-          size="small"
-          sx={checkboxStyles}
-          checked={checked}
-          onChange={(e) => {
-            e.stopPropagation();
-            onChange();
-          }}
-        />
-      }
-      label={
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-          {React.cloneElement(icon, { sx: { fontSize: 18, color: checked ? "#0056b3" : "#64748b", opacity: checked ? 1 : 0.7 } })}
-          <Typography sx={{ fontWeight: 600, fontSize: "0.92rem", color: checked ? "#0056b3" : "#475569" }}>
-            {label}
-          </Typography>
-        </Box>
-      }
-    />
+    <Box sx={{ width: "100%", display: "flex", alignItems: "center" }}>
+      <CustomCheckbox
+        size={20}
+        checked={checked}
+        onChange={(e) => {
+          e.stopPropagation();
+          onChange();
+        }}
+        sx={{ width: "100%" }}
+        label={
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+            {React.cloneElement(icon, { sx: { fontSize: 18, color: checked ? "var(--color-primary)" : "var(--color-slate-500)", opacity: checked ? 1 : 0.7 } })}
+            <Typography sx={{ fontWeight: 'var(--font-semibold)', fontSize: "0.92rem", color: checked ? "var(--color-primary)" : "var(--color-slate-500)" }}>
+              {label}
+            </Typography>
+          </Box>
+        }
+      />
+    </Box>
   </Box>
 );
 
@@ -111,7 +109,7 @@ const getIcon = (type, color, size = 20) => {
 };
 
 export default function FlowPage() {
-  const router = useRouter();
+  const router = useAppRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const filters = searchParams.getAll("filter");
@@ -168,7 +166,7 @@ export default function FlowPage() {
       >
         <Container maxWidth="xl" sx={{ px: { xs: 4, md: 6, lg: 8 }, pb: 10, zIndex: 1, position: "relative" }}>
 
-          <Grid container spacing={4} sx={{ width: "100%", m: 0 }}>
+          <Grid container spacing={4} sx={{ width: "var(--size-full)", m: 0 }}>
 
             {/* ─── LEFT FIXED FILTER SIDEBAR (Hidden on mobile) ─── */}
             <Grid size={{ xs: 12, md: 3, lg: 2.5 }} sx={{ display: { xs: 'none', md: 'block' }, pr: { md: 2 } }}>
@@ -177,22 +175,21 @@ export default function FlowPage() {
                 top: "104px",
                 background: "transparent",
                 border: "none",
-                boxShadow: "none",
-                transition: "all 0.3s ease",
+                transition: "var(--transition-slow)",
                 p: { md: 1, lg: 2 },
                 height: "calc(100vh - 160px)",
                 overflowY: "auto",
                 '&::-webkit-scrollbar': { width: '4px' },
                 '&::-webkit-scrollbar-track': { background: 'transparent' },
-                '&::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(0, 86, 179, 0.2)', borderRadius: "8px" },
+                '&::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(0, 86, 179, 0.2)', borderRadius: 'var(--radius-md)' },
                 '&:hover::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(0, 86, 179, 0.4)' },
               }}>
                 <Box sx={{ mb: 5 }}>
-                  <Typography variant="h6" sx={{ 
-                    color: "#0f172a", 
-                    fontWeight: 800, 
-                    mb: 2.5, 
-                    fontSize: "1.05rem",
+                  <Typography variant="h6" sx={{
+                    color: "var(--color-slate-900)",
+                    fontWeight: 800,
+                    mb: 2.5,
+                    fontSize: 'var(--font-base)',
                     display: 'inline-block',
                     position: 'relative',
                     pb: 0.5,
@@ -203,7 +200,7 @@ export default function FlowPage() {
                       left: 0,
                       width: '60px',
                       height: '3px',
-                      background: 'linear-gradient(90deg, #ffc107 0%, transparent 100%)',
+                      background: 'linear-gradient(90deg, #f59e0b 0%, transparent 100%)',
                       borderRadius: '2px'
                     }
                   }}>
@@ -221,11 +218,11 @@ export default function FlowPage() {
                 </Box>
 
                 <Box>
-                  <Typography variant="h6" sx={{ 
-                    color: "#0f172a", 
-                    fontWeight: 800, 
-                    mb: 2.5, 
-                    fontSize: "1.05rem",
+                  <Typography variant="h6" sx={{
+                    color: "var(--color-slate-900)",
+                    fontWeight: 800,
+                    mb: 2.5,
+                    fontSize: 'var(--font-base)',
                     display: 'inline-block',
                     position: 'relative',
                     pb: 0.5,
@@ -266,24 +263,22 @@ export default function FlowPage() {
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.4, delay: index * 0.1, ease: "easeOut" }}
-                        sx={{ width: '100%', maxWidth: 450, display: "flex" }}
+                        sx={{ width: 'var(--size-full)', maxWidth: 450, display: "flex" }}
                       >
                         <Card
                           sx={{
-                            width: "100%",
+                            width: "var(--size-full)",
                             display: "flex",
                             flexDirection: "column",
-                            borderRadius: "16px",
+                            borderRadius: 'var(--radius-lg)',
                             background: "rgba(255, 255, 255, 0.3)",
                             backdropFilter: "blur(30px)",
                             WebkitBackdropFilter: "blur(30px)",
-                            border: "1px solid rgba(30, 79, 163, 0.2)",
-                            boxShadow: "none",
-                            transition: "all 0.3s ease",
+                            border: "var(--border-thin) solid rgba(30, 79, 163, 0.2)",
+                            transition: "var(--transition-slow)",
                             '&:hover': {
-                              border: "1px solid rgba(30, 79, 163, 0.5)",
+                              border: "var(--border-thin) solid rgba(30, 79, 163, 0.5)",
                               background: "rgba(255, 255, 255, 0.45)",
-                              boxShadow: "none"
                             }
                           }}
                         >
@@ -292,7 +287,7 @@ export default function FlowPage() {
                           <Box
                             sx={{
                               aspectRatio: "16/9",
-                              width: '100%',
+                              width: 'var(--size-full)',
                               borderTopLeftRadius: "15px",
                               borderTopRightRadius: "15px",
                               backgroundImage: `url(${item.thumbnail})`,
@@ -301,7 +296,6 @@ export default function FlowPage() {
                               position: 'relative',
                               overflow: 'hidden',
                               flexShrink: 0,
-                              boxShadow: "none",
                             }}
                           >
                             {/* Top-Left Document Type Icon (No Background) */}
@@ -310,7 +304,7 @@ export default function FlowPage() {
                               top: 12, left: 12,
                               display: 'flex', alignItems: 'center', justifyContent: 'center'
                             }}>
-                              {getIcon(item.types[0], "#ffffff", 24)}
+                              {getIcon(item.types[0], "var(--color-white)", 24)}
                             </Box>
                           </Box>
 
@@ -323,7 +317,7 @@ export default function FlowPage() {
                                 fontWeight: 800,
                                 lineHeight: 1.3,
                                 mb: 1,
-                                color: "#0f172a",
+                                color: "var(--color-slate-900)",
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
                                 whiteSpace: 'nowrap'
@@ -336,11 +330,11 @@ export default function FlowPage() {
                             <Typography
                               variant="body2"
                               sx={{
-                                color: "#475569",
+                                color: "var(--color-slate-500)",
                                 mb: 2,
                                 flexGrow: 1,
                                 lineHeight: 1.5,
-                                fontWeight: 500,
+                                fontWeight: 'var(--font-medium)',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
                                 display: '-webkit-box',
@@ -354,14 +348,14 @@ export default function FlowPage() {
                             {/* Unified Metadata Row */}
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 'auto', pt: 2 }}>
                               {/* Generously sized Uploader Avatar - Flat Design */}
-                              <Avatar sx={{ width: 42, height: 42, bgcolor: item.color, fontSize: "1.2rem", fontWeight: 800, boxShadow: "none" }}>
+                              <Avatar sx={{ width: 42, height: 42, bgcolor: item.color, fontSize: "1.2rem", fontWeight: 800, }}>
                                 {item.uploader.charAt(0)}
                               </Avatar>
 
                               <Box sx={{ overflow: "hidden", minWidth: 0, flex: 1 }}>
                                 {/* High emphasis uploader topic */}
                                 <Typography variant="subtitle2" sx={{
-                                  fontWeight: 800, color: "#0f172a", fontSize: "0.9rem", lineHeight: 1.5, py: 0.5,
+                                  fontWeight: 800, color: "var(--color-slate-900)", fontSize: 'var(--font-sm)', lineHeight: 1.5, py: 0.5,
                                   whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
                                 }}>
                                   {item.uploader}
@@ -369,22 +363,22 @@ export default function FlowPage() {
 
                                 {/* Crisp inline metadata (Instructor, Date, Rating) */}
                                 <Typography variant="caption" component="div" sx={{
-                                  color: "#475569", fontWeight: 600, mt: 0.5,
+                                  color: "var(--color-slate-500)", fontWeight: 'var(--font-semibold)', mt: 0.5,
                                   whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
                                 }}>
                                   {item.instructor && (
                                     <>
-                                      <Box component="span" sx={{ color: "#0056b3" }}>
+                                      <Box component="span" sx={{ color: "var(--color-primary)" }}>
                                         <PersonOutlineIcon sx={{ fontSize: 13, verticalAlign: "middle", mr: 0.3 }} />
                                         {item.instructor}
                                       </Box>
-                                      <Box component="span" sx={{ mx: 0.8, color: "#cbd5e1" }}>•</Box>
+                                      <Box component="span" sx={{ mx: 0.8, color: "var(--color-slate-200)" }}>•</Box>
                                     </>
                                   )}
                                   <span>{item.date}</span>
-                                  <Box component="span" sx={{ mx: 0.8, color: "#cbd5e1" }}>•</Box>
+                                  <Box component="span" sx={{ mx: 0.8, color: "var(--color-slate-200)" }}>•</Box>
                                   <Box component="span">
-                                    <StarIcon sx={{ fontSize: 12, color: "#ffc107", verticalAlign: "middle", mr: 0.3, mb: "1px" }} />
+                                    <StarIcon sx={{ fontSize: 12, color: "var(--color-warning)", verticalAlign: "middle", mr: 0.3, mb: "1px" }} />
                                     {item.rating}
                                   </Box>
                                 </Typography>
@@ -396,14 +390,14 @@ export default function FlowPage() {
 
                               {/* Styled Action Icons Flat Design */}
                               <IconButton size="small" sx={{
-                                color: "#64748b", bgcolor: "rgba(30,79,163,0.06)", borderRadius: "12px", width: 44, height: 44,
-                                transition: "all 0.2s", '&:hover': { color: "#22c55e", bgcolor: "rgba(34,197,94,0.15)" }
+                                color: "var(--color-slate-500)", bgcolor: "rgba(30,79,163,0.06)", borderRadius: 'var(--radius-lg)', width: 44, height: 44,
+                                transition: "all 0.2s", '&:hover': { color: "var(--color-success)", bgcolor: "rgba(34,197,94,0.15)" }
                               }}>
                                 <ShareIcon sx={{ fontSize: 20 }} />
                               </IconButton>
                               <IconButton size="small" sx={{
-                                color: "#64748b", bgcolor: "rgba(30,79,163,0.06)", borderRadius: "12px", width: 44, height: 44,
-                                transition: "all 0.2s", '&:hover': { color: "#0056b3", bgcolor: "rgba(59,130,246,0.15)" }
+                                color: "var(--color-slate-500)", bgcolor: "rgba(30,79,163,0.06)", borderRadius: 'var(--radius-lg)', width: 44, height: 44,
+                                transition: "all 0.2s", '&:hover': { color: "var(--color-primary)", bgcolor: "rgba(59,130,246,0.15)" }
                               }}>
                                 <BookmarkBorderIcon sx={{ fontSize: 20 }} />
                               </IconButton>
@@ -414,27 +408,25 @@ export default function FlowPage() {
                               <Button
                                 variant="contained" disableElevation
                                 sx={{
-                                  bgcolor: "#0056b3",
-                                  color: "#fff",
+                                  bgcolor: "var(--color-primary)",
+                                  color: "var(--color-white)",
                                   fontWeight: 800,
                                   py: 1.2,
                                   minWidth: "155px", // Force uniform size
-                                  borderRadius: "12px",
+                                  borderRadius: 'var(--radius-lg)',
                                   textTransform: "none",
-                                  fontSize: "0.95rem",
+                                  fontSize: 'var(--font-base)',
                                   whiteSpace: "nowrap", // Prevent text wrapping
                                   letterSpacing: "0.2px",
-                                  boxShadow: "none",
-                                  transition: "all 0.2s ease",
+                                  transition: "var(--transition-base)",
                                   '&:hover': {
-                                    bgcolor: "#0f172a",
-                                    boxShadow: "none"
+                                    bgcolor: "var(--color-slate-900)",
                                   }
                                 }}
                               >
-                                {item.types.some(t => ["video", "webinar"].includes(t)) ? "Watch" : 
-                                 item.types.some(t => ["pdf", "article", "journal", "ebook"].includes(t)) ? "Read" : 
-                                 "Start Learning"}
+                                {item.types.some(t => ["video", "webinar"].includes(t)) ? "Watch" :
+                                  item.types.some(t => ["pdf", "article", "journal", "ebook"].includes(t)) ? "Read" :
+                                    "Start Learning"}
                               </Button>
                             </Box>
                           </CardContent>
@@ -448,16 +440,16 @@ export default function FlowPage() {
                   component={motion.div}
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  sx={{ width: "100%", textAlign: "center", py: { xs: 8, md: 15 }, px: 2 }}
+                  sx={{ width: "var(--size-full)", textAlign: "center", py: { xs: 8, md: 15 }, px: 2 }}
                 >
                   <Box sx={{
-                    width: 80, height: 80, borderRadius: "50%", bgcolor: "rgba(30,79,163,0.1)",
+                    width: 80, height: 80, borderRadius: 'var(--radius-full)', bgcolor: "rgba(30,79,163,0.1)",
                     display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", mb: 3
                   }}>
-                    <ArticleIcon sx={{ fontSize: 40, color: "#0056b3", opacity: 0.7 }} />
+                    <ArticleIcon sx={{ fontSize: 40, color: "var(--color-primary)", opacity: 0.7 }} />
                   </Box>
-                  <Typography variant="h5" sx={{ fontWeight: 800, color: "#0f172a", mb: 1 }}>कोई सामग्री नहीं मिली</Typography>
-                  <Typography variant="body1" sx={{ color: "#64748b", maxWidth: 400, mx: "auto", lineHeight: 1.6 }}>
+                  <Typography variant="h5" sx={{ fontWeight: 800, color: "var(--color-slate-900)", mb: 1 }}>कोई सामग्री नहीं मिली</Typography>
+                  <Typography variant="body1" sx={{ color: "var(--color-slate-500)", maxWidth: 400, mx: "auto", lineHeight: 1.6 }}>
                     आपने जो रिसोर्स टाइप चुना है, उससे संबंधित कोई भी कंटेंट अभी उपलब्ध नहीं है। कृपया कोई अन्य टाइप चुनें।
                   </Typography>
                 </Box>

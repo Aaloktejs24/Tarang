@@ -14,14 +14,13 @@ export default function ProjectBreadcrumbs({ items = [], floating = true, sx = {
     position: 'fixed',
     top: { xs: 88, md: 96 },
     left: { xs: 24, md: 40 },
-    zIndex: 10,
+    zIndex: 'var(--z-sticky)',
     background: "rgba(255, 255, 255, 0.65)",
     backdropFilter: "blur(10px)",
     WebkitBackdropFilter: "blur(10px)",
     padding: "6px 16px",
-    borderRadius: "20px",
-    border: "1px solid rgba(255, 255, 255, 0.5)",
-    boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+    borderRadius: 'var(--radius-lg)',
+    border: "var(--border-thin) solid rgba(255, 255, 255, 0.5)",
   };
 
   // If floating, merge floating styles with sx. Otherwise just use sx.
@@ -30,10 +29,10 @@ export default function ProjectBreadcrumbs({ items = [], floating = true, sx = {
   return (
     <Box sx={wrapperSx} style={style}>
       <Breadcrumbs
-        separator={<NavigateNextIcon fontSize="small" sx={{ color: '#64748b' }} />}
+        separator={<NavigateNextIcon fontSize="small" sx={{ color: 'var(--color-slate-500)' }} />}
         aria-label="breadcrumb"
         sx={{
-          '& .MuiBreadcrumbs-separator': { color: '#64748b', mx: 0 },
+          '& .MuiBreadcrumbs-separator': { color: 'var(--color-slate-500)', mx: 0 },
           '& .MuiBreadcrumbs-li': { display: 'flex', alignItems: 'center' }
         }}
       >
@@ -44,7 +43,7 @@ export default function ProjectBreadcrumbs({ items = [], floating = true, sx = {
           // Render active item (last item)
           if (isLast) {
             return (
-              <Typography key={index} sx={{ color: '#000', fontWeight: 900, fontSize: "0.95rem" }}>
+              <Typography key={index} sx={{ color: 'var(--color-slate-900)', fontWeight: 900, fontSize: 'var(--font-base)' }}>
                 {displayLabel}
               </Typography>
             );
@@ -52,14 +51,14 @@ export default function ProjectBreadcrumbs({ items = [], floating = true, sx = {
 
           // Link styling
           const linkSx = {
-            color: '#0f172a',
-            fontWeight: 700,
-            fontSize: "0.95rem",
+            color: 'var(--color-slate-900)',
+            fontWeight: 'var(--font-bold)',
+            fontSize: 'var(--font-base)',
             cursor: 'pointer',
             textDecoration: 'none',
             display: 'flex',
             alignItems: 'center',
-            '&:hover': { color: '#0056b3' }
+            '&:hover': { color: 'var(--color-primary)' }
           };
 
           // Render clickable items

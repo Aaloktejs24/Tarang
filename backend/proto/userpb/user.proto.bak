@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "backend/proto/userpb";
+
+import "google/protobuf/empty.proto";
+
+service UserService {
+  rpc CreateUser (CreateUserRequest) returns (UserResponse);
+
+  rpc GetByID (UserIDRequest) returns (UserResponse);
+
+  rpc GetByUsername (UsernameRequest) returns (UserResponse);
+  rpc MarkKYCVerified (MarkKYCVerifiedRequest) returns (google.protobuf.Empty);  
+  rpc UpdateProfilePic (UpdateImageRequest) returns (google.protobuf.Empty);
+  rpc UpdateBanner (UpdateImageRequest) returns (google.protobuf.Empty);
+  rpc UpdateBio (UpdateBioRequest) returns (google.protobuf.Empty);
+  rpc UpdateProfile (UpdateProfileRequest) returns (google.protobuf.Empty);
+
+  rpc CreateInstitute (CreateInstituteRequest) returns (InstituteResponse);
+  rpc GetInstitute (InstituteIDRequest) returns (InstituteResponse);
+}
+
+/////////////////////////////////////////////////////
+//// REQUESTS
+/////////////////////////////////////////////////////
+
+message UserIDRequest {
+  string user_id = 1;
+}
+
+message UsernameRequest {
+  string username = 1;
+}
+
+message CreateUserRequest {
+  string username = 1;
+  string id = 2;
+  string full_name = 3;
+  string role = 4;
+}
+
+message MarkKYCVerifiedRequest {
+  string user_id = 1;
+  string reference_id = 2;
+  string aadhaar_hash = 3;
+  string full_name = 4;
+  string dob = 5;
+  string gender = 6;
+}
+
+message UpdateImageRequest {
+  string user_id = 1;
+  string url = 2;
+}
+
+message UpdateBioRequest {
+  string user_id = 1;
+  string bio = 2;
+}
+
+message UpdateProfileRequest {
+  string user_id = 1;
+  map<string, string> social_links = 2;
+  repeated string skills = 3;
+  repeated string recognitions = 4;
+  string institution_name = 5;
+  string full_name = 6;
+  string bio = 7;
+  string location = 8;
+  repeated string languages = 9;
+  string demographic = 10;
+  }
+
+
+message Institute {
+  string id = 1;
+  string name = 2;
+  string institute_type = 3;
+  int32 established_year = 4;
+  string registration_number = 5;
+  string website_url = 6;
+  string tax_id = 7;
+  string short_description = 8;
+}
+
+message CreateInstituteRequest {
+  string owner_user_id = 1;
+  string name = 2;
+  string institute_type = 3;
+  int32 established_year = 4;
+}
+
+message InstituteResponse {
+  Institute institute = 1;
+}
+
+/////////////////////////////////////////////////////
+//// RESPONSES
+/////////////////////////////////////////////////////
+
+message UserResponse {
+  string id = 1;
+  string username = 2;
+  bool kyc_verified = 3;
+  string role = 4;
+  string full_name = 5;
+  string dob = 6;
+  string gender = 7;
+  string profile_pic_url = 8;
+  string banner_url = 9;
+  string bio = 10;
+  map<string, string> social_links = 11;
+  repeated string skills = 12;
+  repeated string recognitions = 13;
+  string institution_name = 14;
+  bool is_profile_completed = 15;
+  string location = 16;
+  repeated string languages = 17;
+  string demographic = 18;
+  }
+message InstituteIDRequest {
+  string institute_id = 1;
+}

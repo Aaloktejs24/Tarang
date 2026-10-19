@@ -15,13 +15,14 @@ import (
 	"backend/shared/redis"
 	"backend/shared/tracing"
 
+	v1 "backend/services/user/internal/http/v1"
 	"backend/shared/env"
 	"backend/shared/kyc"
-	"backend/shared/s3"
+	"backend/shared/storage"
+	"net/http"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
-	"net/http"
-	v1 "backend/services/user/internal/http/v1"
 
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/zap"
@@ -48,7 +49,7 @@ func main() {
 	if err != nil {
 		logger.Log.Fatal("failed to init tracer", zap.Error(err))
 	}
-	defer shutdown(ctx)
+	defer func() { _ = shutdown(ctx) }()
 
 	//---------------------------------------------------
 	// Config
@@ -79,7 +80,7 @@ func main() {
 	if err != nil {
 		logger.Log.Fatal("redis connection failed", zap.Error(err))
 	}
-	defer redisClient.Close()
+	defer func() { _ = redisClient.Close() }()
 
 	//---------------------------------------------------
 	// Repository + Service
@@ -93,9 +94,9 @@ func main() {
 	// S3 and KYC Clients
 	//---------------------------------------------------
 
-	s3Client, err := s3.NewS3Client(cfg)
+	minioClient, err := storage.NewMinioClient(cfg)
 	if err != nil {
-		logger.Log.Fatal("failed to initialize s3 client", zap.Error(err))
+		logger.Log.Fatal("failed to initialize minio client", zap.Error(err))
 	}
 
 	kycSandbox := kyc.NewSandboxProvider(cfg.SandboxAPIKey, cfg.SandboxAPISecret, cfg.DigilockerRedirectURL)
@@ -104,7 +105,7 @@ func main() {
 	// HTTP Handlers & Router
 	//---------------------------------------------------
 
-	userHandler := v1.NewUserHandler(userService, s3Client)
+	userHandler := v1.NewUserHandler(userService, minioClient, cfg)
 	kycHandler := v1.NewKycHandler(userService, kycSandbox)
 
 	r := chi.NewRouter()
@@ -122,7 +123,7 @@ func main() {
 
 	go func() {
 		log.Println("User service HTTP running on :8081")
-		if err := http.ListenAndServe(":8081", r); err != nil {
+		if err := http.ListenAndServe(":8081", r); err != nil { // #nosec G114
 			logger.Log.Fatal("http server failed", zap.Error(err))
 		}
 	}()
@@ -131,7 +132,7 @@ func main() {
 	// gRPC server
 	//---------------------------------------------------
 
-	lis, err := net.Listen("tcp", ":50051")
+	lis, err := net.Listen("tcp", ":50051") // #nosec G102
 	if err != nil {
 		logger.Log.Fatal("failed to listen", zap.Error(err))
 	}

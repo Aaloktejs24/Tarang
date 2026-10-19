@@ -1,5 +1,5 @@
 "use client";
-
+import { useAppRouter as useRouter } from '../../hooks/useAppRouter';
 import mockData from '../../data/lmsData.json';
 import courseConfig from '../../data/courseConfig.json';
 const { lmsData: lmsData } = mockData;
@@ -9,8 +9,8 @@ import dayjs from 'dayjs';
 import { useBreadcrumbs } from '../../contexts/BreadcrumbContext';
 import { formatBreadcrumbName } from '../../utils/stringUtils';
 import { useTheme } from '@mui/material';
-import { Box, Typography, Button, Container, Grid, Card, CardMedia, CardContent, IconButton, Chip, Fab, SpeedDialIcon, Breadcrumbs, Link, TextField, Paper, Accordion, AccordionSummary, AccordionDetails, Autocomplete, Dialog, Popover, Tooltip, InputAdornment, ListItemButton, Avatar, Skeleton } from '@mui/material';
-import { useRouter } from 'next/navigation';
+import { Box, Typography, Button, Container, Grid, CardMedia, CardContent, IconButton, Chip, Fab, SpeedDialIcon, Breadcrumbs, Link, TextField, Paper, Accordion, AccordionSummary, AccordionDetails, Autocomplete, Dialog, Popover, Tooltip, InputAdornment, ListItemButton, Avatar, Skeleton } from '@mui/material';
+import PremiumCard from '../../components/ui/PremiumCard';
 import { ShowMore } from '@re-dev/react-truncate';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -86,7 +86,7 @@ const timelineCalendarPaperSx = {
   mt: 1,
   width: 'min(340px, calc(100vw - 32px))',
   p: 0.75,
-  borderRadius: '16px',
+  borderRadius: 'var(--radius-lg)',
   background: `
     radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.1) 0, transparent 55%),
     radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.09) 0, transparent 55%),
@@ -94,16 +94,15 @@ const timelineCalendarPaperSx = {
   `,
   backdropFilter: 'blur(24px)',
   WebkitBackdropFilter: 'blur(24px)',
-  boxShadow: 'none',
-  border: '1px solid #E2E8F0',
+  border: 'var(--border-thin) solid #E2E8F0',
   overflow: 'hidden'
 };
 
 const timelineCalendarSx = {
-  width: '100%',
+  width: 'var(--size-full)',
   height: 'auto',
   maxHeight: 'none',
-  color: '#0f172a',
+  color: 'var(--color-slate-900)',
   fontFamily: calendarFont,
   '& *': {
     fontFamily: `${calendarFont} !important`
@@ -123,7 +122,7 @@ const timelineCalendarSx = {
     minWidth: 0
   },
   '& .MuiPickersCalendarHeader-label': {
-    color: '#0f172a',
+    color: 'var(--color-slate-900)',
     fontSize: '15.5px',
     fontWeight: 850,
     letterSpacing: 0,
@@ -136,24 +135,22 @@ const timelineCalendarSx = {
     alignItems: 'center',
     gap: 0.35,
     p: 0.35,
-    borderRadius: "8px",
+    borderRadius: 'var(--radius-md)',
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    boxShadow: 'none',
-    border: '1px solid #E2E8F0'
+    border: 'var(--border-thin) solid #E2E8F0'
   },
   '& .MuiPickersCalendarHeader-switchViewButton, & .MuiPickersArrowSwitcher-button': {
     width: 36,
     height: 32,
-    borderRadius: "8px",
-    color: '#64748b',
+    borderRadius: 'var(--radius-md)',
+    color: 'var(--color-slate-500)',
     m: 0,
-    transition: 'all 0.2s ease',
+    transition: 'var(--transition-base)',
     '& svg': {
       fontSize: '1.45rem',
-      strokeWidth: 1.5,
-    },
+      strokeWidth: 1.5 },
     '&:hover': {
-      color: '#0056b3',
+      color: 'var(--color-primary)',
       backgroundColor: 'rgba(0, 86, 179, 0.08)'
     }
   },
@@ -170,7 +167,7 @@ const timelineCalendarSx = {
     width: 34,
     height: 28,
     m: 0,
-    color: '#64748b',
+    color: 'var(--color-slate-500)',
     fontSize: '11.5px',
     fontWeight: 800
   },
@@ -186,14 +183,14 @@ const timelineCalendarSx = {
     width: 34,
     height: 34,
     m: 0,
-    borderRadius: "8px",
-    border: '1px solid transparent',
-    color: '#0f172a',
-    fontSize: '13px',
-    fontWeight: 700,
+    borderRadius: 'var(--radius-md)',
+    border: 'var(--border-thin) solid transparent',
+    color: 'var(--color-slate-900)',
+    fontSize: 'var(--font-sm)',
+    fontWeight: 'var(--font-bold)',
     transition: 'all 0.18s ease',
     '&:hover': {
-      color: '#0056b3',
+      color: 'var(--color-primary)',
       backgroundColor: 'rgba(0, 86, 179, 0.08)'
     }
   },
@@ -202,31 +199,30 @@ const timelineCalendarSx = {
     backgroundColor: 'rgba(40, 167, 69, 0.08)'
   },
   '& .MuiPickersDay-root.Mui-selected': {
-    color: '#ffffff',
+    color: 'var(--color-white)',
     borderColor: 'transparent',
-    background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%) !important',
-    boxShadow: 'none', border: '1px solid #E2E8F0'
+    background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%) !important', border: 'var(--border-thin) solid #E2E8F0'
   },
   '& .MuiPickersDay-root.Mui-disabled': {
-    color: '#cbd5e1'
+    color: 'var(--color-slate-200)'
   },
   '& .MuiYearCalendar-root, & .MuiMonthCalendar-root': {
-    width: '100%',
+    width: 'var(--size-full)',
     maxHeight: 228,
     p: 1
   },
   '& .MuiPickersYear-yearButton, & .MuiPickersMonth-monthButton': {
-    borderRadius: "8px",
-    color: '#0f172a',
-    fontSize: '13px',
-    fontWeight: 700,
+    borderRadius: 'var(--radius-md)',
+    color: 'var(--color-slate-900)',
+    fontSize: 'var(--font-sm)',
+    fontWeight: 'var(--font-bold)',
     '&:hover': {
-      color: '#0056b3',
+      color: 'var(--color-primary)',
       backgroundColor: 'rgba(0, 86, 179, 0.08)'
     }
   },
   '& .MuiPickersYear-yearButton.Mui-selected, & .MuiPickersMonth-monthButton.Mui-selected': {
-    color: '#ffffff',
+    color: 'var(--color-white)',
     background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%) !important'
   }
 };
@@ -238,7 +234,8 @@ export default function CourseDashboard() {
   const { language } = useAccessibility();
   const router = useRouter();
   const theme = useTheme();
-  const rawInstituteName = profile ? (profile.full_name || profile.institution_name || profile.username) : 'Institute';
+  const { profile } = useProfile();
+  const rawInstituteName = profile ? (profile.institution_name || profile.full_name || profile.username) : 'Institute';
   const breadcrumbInstituteName = formatBreadcrumbName(rawInstituteName);
 
   useBreadcrumbs([
@@ -249,7 +246,6 @@ export default function CourseDashboard() {
 
   const [courses, setCourses] = React.useState([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
-  const { profile } = useProfile();
 
   useScrollLock(isCreateModalOpen);
 
@@ -465,8 +461,6 @@ export default function CourseDashboard() {
     }
   };
 
-  const heroTitle = profile?.institution_name || profile?.full_name || profile?.username;
-  const heroSubtitle = profile?.nameLocal || profile?.nameHindi;
   return (
     <>
       <Box sx={{ position: "relative", minHeight: "calc(100vh - 72px)", overflowX: "hidden", bgcolor: "transparent", mt: "-1px" }}>
@@ -486,8 +480,7 @@ export default function CourseDashboard() {
             height: "calc(100vh - 72px)",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-          })
+            justifyContent: "center" })
         }}>
 
           {/* Content Area */}
@@ -513,9 +506,9 @@ export default function CourseDashboard() {
               }
               onAction={() => setIsCreateModalOpen(true)}
               illustration={
-                <svg viewBox="0 0 260 180" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%', animation: 'float 6s ease-in-out infinite' }}>
-                  <style>
-                    {`
+                  <svg viewBox="0 0 260 180" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 'var(--size-full)', height: 'var(--size-full)', animation: 'float 6s ease-in-out infinite' }}>
+                    <style>
+                      {`
                       @keyframes float {
                         0%, 100% { transform: translateY(0px); }
                         50% { transform: translateY(-8px); }
@@ -529,73 +522,97 @@ export default function CourseDashboard() {
                         50% { opacity: 0.7; r: 68px; }
                       }
                     `}
-                  </style>
+                    </style>
+                    {/* Ground Shadow Blob */}
+                    <ellipse cx="130" cy="165" rx="110" ry="12" fill="rgba(0, 0, 0, 0.04)" />
 
-                  {/* Ground Shadow Blob */}
-                  <ellipse cx="130" cy="165" rx="110" ry="12" fill="rgba(0, 0, 0, 0.04)" />
+                    {/* Background Ambient Glow */}
+                    <circle cx="170" cy="80" r="65" fill="rgba(37, 99, 235, 0.05)" style={{ animation: 'pulseGlow 4s ease-in-out infinite' }} />
 
-                  {/* Background Ambient Glow */}
-                  <circle cx="130" cy="80" r="65" fill="rgba(37, 99, 235, 0.05)" style={{ animation: 'pulseGlow 4s ease-in-out infinite' }} />
+                    {/* Floating decorative elements (Learning theme) */}
+                    <path d="M 40 35 Q 40 45 30 45 Q 40 45 40 55 Q 40 45 50 45 Q 40 45 40 35" fill="var(--color-warning)" opacity="0.9" style={{ animation: 'floatSlow 4s ease-in-out infinite', transformOrigin: '40px 45px' }} />
+                    <rect x="220" y="30" width="12" height="12" rx="3" fill="var(--color-success)" opacity="0.8" style={{ animation: 'float 5s ease-in-out infinite', transformOrigin: '226px 36px' }} transform="rotate(15 226 36)" />
+                    <path d="M 210 120 L 222 128 L 210 136 Z" fill="var(--color-primary)" opacity="0.7" style={{ animation: 'floatSlow 6s ease-in-out infinite' }} />
 
-                  {/* Floating decorative elements (math/science/creativity symbols) */}
-                  <path d="M 40 35 Q 40 45 30 45 Q 40 45 40 55 Q 40 45 50 45 Q 40 45 40 35" fill="#ffc107" opacity="0.9" style={{ animation: 'floatSlow 4s ease-in-out infinite', transformOrigin: '40px 45px' }} />
-                  <rect x="220" y="30" width="12" height="12" rx="3" fill="#10b981" opacity="0.8" style={{ animation: 'float 5s ease-in-out infinite', transformOrigin: '226px 36px' }} transform="rotate(15 226 36)" />
-                  <path d="M 210 120 L 222 128 L 210 136 Z" fill="#3b82f6" opacity="0.7" style={{ animation: 'floatSlow 6s ease-in-out infinite' }} />
+                    {/* ================= BOARD (Modern Filled) ================= */}
+                    {/* Back Leg */}
+                    <line x1="180" y1="100" x2="180" y2="155" stroke="var(--color-slate-500)" strokeWidth="5" strokeLinecap="round" />
 
-                  {/* WHITEBOARD (Background layer) */}
-                  <rect x="90" y="30" width="140" height="110" rx="4" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="3" />
-                  <rect x="95" y="137" width="130" height="3" fill="#94a3b8" />
-                  <path d="M 120 135 L 128 135 L 128 137 L 120 137 Z" fill="#ef4444" />
-                  <path d="M 132 135 L 140 135 L 140 137 L 132 137 Z" fill="#10b981" />
+                    {/* Main Board Frame */}
+                    <rect x="130" y="30" width="100" height="70" rx="8" fill="var(--color-slate-200)" />
 
-                  {/* Scribbles on whiteboard */}
-                  <path d="M 110 50 Q 130 30 150 50 T 190 50" stroke="#94a3b8" strokeWidth="3" strokeLinecap="round" fill="none" opacity="0.6" />
-                  <path d="M 110 70 L 160 70" stroke="#94a3b8" strokeWidth="3" strokeLinecap="round" opacity="0.6" />
-                  <path d="M 110 90 L 140 90" stroke="#94a3b8" strokeWidth="3" strokeLinecap="round" opacity="0.6" />
-                  <circle cx="190" cy="90" r="15" stroke="#94a3b8" strokeWidth="3" fill="none" opacity="0.6" />
-                  <path d="M 175 90 L 205 90 M 190 75 L 190 105" stroke="#94a3b8" strokeWidth="2" opacity="0.6" />
+                    {/* Inner Board Canvas */}
+                    <rect x="136" y="36" width="88" height="58" rx="4" fill="var(--color-white)" />
 
-                  {/* CHARACTER */}
-                  {/* Left Arm (Behind) */}
-                  <path d="M 60 70 L 45 95 L 55 100 L 70 80 Z" fill="#004b9c" />
-                  <circle cx="48" cy="100" r="5" fill="#fad6ca" />
+                    {/* Content on Board: Video Player & Text Lines */}
+                    <rect x="146" y="46" width="34" height="24" rx="4" fill="var(--color-slate-50)" />
+                    <polygon points="159,53 159,63 167,58" fill="var(--color-primary)" />
 
-                  {/* Torso */}
-                  <path d="M 50 60 Q 80 50 100 65 L 90 145 L 45 145 Z" fill="#0056b3" />
+                    <line x1="188" y1="48" x2="212" y2="48" stroke="var(--color-slate-200)" strokeWidth="3" strokeLinecap="round" />
+                    <line x1="188" y1="56" x2="204" y2="56" stroke="var(--color-slate-200)" strokeWidth="3" strokeLinecap="round" />
+                    <line x1="188" y1="64" x2="210" y2="64" stroke="var(--color-slate-200)" strokeWidth="3" strokeLinecap="round" />
 
-                  {/* Tie and Collar */}
-                  <polygon points="70,58 90,58 80,80" fill="#f1f5f9" />
-                  <polygon points="78,70 82,70 80,95" fill="#ffc107" />
+                    {/* Progress bar on board */}
+                    <rect x="146" y="78" width="68" height="6" rx="3" fill="var(--color-slate-50)" />
+                    <rect x="146" y="78" width="40" height="6" rx="3" fill="var(--color-success)" />
 
-                  {/* Right Arm (Reaching up to write) */}
-                  <path d="M 90 75 Q 120 60 145 70 L 140 85 Q 115 75 95 90 Z" fill="#004b9c" />
-                  
-                  {/* Hand and Marker */}
-                  <circle cx="147" cy="69" r="6" fill="#fad6ca" />
-                  <rect x="145" y="60" width="4" height="15" rx="1" fill="#ef4444" transform="rotate(30 147 67)" />
+                    {/* Board Marker Tray */}
+                    <rect x="120" y="100" width="120" height="8" rx="4" fill="var(--color-slate-200)" />
 
-                  {/* Legs */}
-                  <path d="M 50 140 L 55 170 L 65 170 L 65 140 Z" fill="#1e293b" />
-                  <path d="M 75 140 L 70 170 L 80 170 L 85 140 Z" fill="#1e293b" />
-                  
-                  {/* Shoes */}
-                  <ellipse cx="60" cy="170" rx="10" ry="4" fill="#0f172a" />
-                  <ellipse cx="75" cy="170" rx="10" ry="4" fill="#0f172a" />
+                    {/* Little Eraser & Marker on Tray */}
+                    <rect x="190" y="94" width="14" height="6" rx="1" fill="var(--color-slate-500)" />
+                    <circle cx="180" cy="97" r="3" fill="var(--color-error)" />
 
-                  {/* Neck */}
-                  <rect x="75" y="47" width="10" height="15" fill="#fad6ca" />
+                    {/* Front Legs */}
+                    <line x1="150" y1="106" x2="140" y2="160" stroke="var(--color-slate-500)" strokeWidth="5" strokeLinecap="round" />
+                    <line x1="210" y1="106" x2="220" y2="160" stroke="var(--color-slate-500)" strokeWidth="5" strokeLinecap="round" />
 
-                  {/* Head */}
-                  <circle cx="85" cy="38" r="14" fill="#fad6ca" />
+                    {/* ================= CHARACTER (Modern Flat Design) ================= */}
+                    {/* Back Arm (Right Arm) */}
+                    <path d="M 98 70 L 116 80 L 112 86 L 94 76 Z" fill="var(--color-primary-hover)" />
+                    {/* Back Hand */}
+                    <circle cx="116" cy="83" r="4.5" fill="var(--color-slate-200)" />
 
-                  {/* Hair */}
-                  <path d="M 71 38 Q 69 20 85 22 Q 101 20 99 38 Q 93 27 85 28 Q 77 27 71 38 Z" fill="#0f172a" />
+                    {/* Stick */}
+                    <line x1="116" y1="83" x2="166" y2="60" stroke="var(--color-slate-700)" strokeWidth="3" strokeLinecap="round" />
 
-                  {/* Glasses (Modern half-frame) */}
-                  <line x1="76" y1="36" x2="98" y2="36" stroke="#0f172a" strokeWidth="2" strokeLinecap="round" />
-                  <path d="M 78 36 L 84 36 Q 84 42 81 42 Q 78 42 78 36 Z" fill="#ffffff" opacity="0.8" stroke="#0f172a" strokeWidth="1" />
-                  <path d="M 90 36 L 96 36 Q 96 42 93 42 Q 90 42 90 36 Z" fill="#ffffff" opacity="0.8" stroke="#0f172a" strokeWidth="1" />
-                </svg>
+                    {/* Pants & Legs */}
+                    {/* Left Leg */}
+                    <path d="M 75 115 L 84 115 L 82 165 L 73 165 Z" fill="var(--color-slate-900)" />
+                    {/* Right Leg */}
+                    <path d="M 86 115 L 95 115 L 97 165 L 88 165 Z" fill="var(--color-slate-900)" />
+
+                    {/* Shoes */}
+                    <path d="M 71 165 L 84 165 Q 84 170 78 170 Q 69 170 71 165 Z" fill="var(--color-slate-900)" />
+                    <path d="M 86 165 L 99 165 Q 101 170 92 170 Q 86 170 86 165 Z" fill="var(--color-slate-900)" />
+
+                    {/* Torso (Suit Jacket) */}
+                    <path d="M 65 65 Q 85 62 105 65 L 95 120 L 75 120 Z" fill="var(--color-primary)" />
+
+                    {/* Shirt Collar / V-neck */}
+                    <polygon points="85,64 92,82 78,82" fill="var(--color-slate-50)" />
+                    <polygon points="85,74 88,80 85,95 82,80" fill="var(--color-warning)" />
+
+                    {/* Neck */}
+                    <rect x="81" y="48" width="8" height="18" fill="var(--color-slate-200)" />
+
+                    {/* Front Arm (Left Arm) */}
+                    <path d="M 72 68 L 60 85 L 67 89 L 77 72 Z" fill="var(--color-primary-hover)" />
+                    <path d="M 60 84 L 70 102 L 77 98 L 66 81 Z" fill="var(--color-primary-hover)" />
+                    {/* Front Hand */}
+                    <circle cx="73" cy="100" r="4.5" fill="var(--color-slate-200)" />
+
+                    {/* Head */}
+                    <circle cx="85" cy="38" r="14" fill="var(--color-slate-200)" />
+
+                    {/* Hair */}
+                    <path d="M 71 38 Q 69 20 85 22 Q 101 20 99 38 Q 93 27 85 28 Q 77 27 71 38 Z" fill="var(--color-slate-900)" />
+
+                    {/* Glasses (Modern half-frame) */}
+                    <line x1="76" y1="36" x2="98" y2="36" stroke="var(--color-slate-900)" strokeWidth="2" strokeLinecap="round" />
+                    <path d="M 78 36 L 84 36 Q 84 42 81 42 Q 78 42 78 36 Z" fill="var(--color-white)" opacity="0.8" stroke="var(--color-slate-900)" strokeWidth="1" />
+                    <path d="M 90 36 L 96 36 Q 96 42 93 42 Q 90 42 90 36 Z" fill="var(--color-white)" opacity="0.8" stroke="var(--color-slate-900)" strokeWidth="1" />
+                  </svg>
               }
             />
             </Box>
@@ -604,27 +621,16 @@ export default function CourseDashboard() {
             <Grid container spacing={4}>
               {courses.map((course) => (
                 <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={course.id}>
-                  <Card sx={{
-                    height: '100%',
+                  <PremiumCard sx={{
+                    height: 'var(--size-full)',
                     display: "flex",
                     flexDirection: "column",
-                    borderRadius: "16px",
-                    background: "rgba(255, 255, 255, 0.3)",
-                    backdropFilter: "blur(30px)",
-                    WebkitBackdropFilter: "blur(30px)",
-                    border: "1px solid rgba(30, 79, 163, 0.2)",
-                    boxShadow: "none",
-                    transition: "all 0.3s ease",
-                    overflow: 'hidden',
-                    '&:hover': {
-                      border: "1px solid rgba(30, 79, 163, 0.5)",
-                      background: "rgba(255, 255, 255, 0.45)",
-                    }
+                    overflow: 'hidden'
                   }}>
                     <Box
                       sx={{
                         aspectRatio: "16/9",
-                        width: '100%',
+                        width: 'var(--size-full)',
                         borderTopLeftRadius: "15px",
                         borderTopRightRadius: "15px",
                         backgroundImage: `url(${course.image})`,
@@ -632,9 +638,7 @@ export default function CourseDashboard() {
                         backgroundPosition: 'center',
                         position: 'relative',
                         overflow: 'hidden',
-                        flexShrink: 0,
-                        boxShadow: "none",
-                      }}
+                        flexShrink: 0, }}
                     >
                       <Chip
                         label={course.status}
@@ -643,13 +647,12 @@ export default function CourseDashboard() {
                           position: 'absolute',
                           top: 12,
                           left: 12,
-                          bgcolor: course.status === 'Active' ? '#28a745' : '#ffc107',
+                          bgcolor: course.status === 'Active' ? 'var(--color-success)' : 'var(--color-warning)',
                           color: 'white',
                           fontWeight: 800,
-                          fontSize: '0.75rem',
+                          fontSize: 'var(--font-xs)',
                           px: 1,
-                          border: 'none',
-                        }}
+                          border: 'none' }}
                       />
                       <IconButton sx={{
                         position: 'absolute', top: 8, right: 8,
@@ -659,18 +662,18 @@ export default function CourseDashboard() {
                         '&:hover': { bgcolor: 'white', transform: 'scale(1.05)' },
                         transition: 'all 0.2s'
                       }}>
-                        <MoreVertIcon fontSize="small" sx={{ color: '#0f172a' }} />
+                        <MoreVertIcon fontSize="small" sx={{ color: 'var(--color-slate-900)' }} />
                       </IconButton>
                     </Box>
                     <CardContent sx={{ flexGrow: 1, p: 3, pt: 2.5, display: "flex", flexDirection: "column" }}>
                       {course.category && (
-                        <Typography variant="caption" sx={{ color: '#0056b3', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', display: 'block', mb: 0.5, fontSize: '11px' }}>
+                        <Typography variant="caption" sx={{ color: 'var(--color-primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', display: 'block', mb: 0.5, fontSize: 'var(--font-xs)' }}>
                           {course.category}
                         </Typography>
                       )}
                       <Typography variant="h6" sx={{
                         fontWeight: 800,
-                        color: '#0f172a',
+                        color: 'var(--color-slate-900)',
                         lineHeight: 1.3,
                         mb: 1.5,
                         overflow: 'hidden',
@@ -683,10 +686,10 @@ export default function CourseDashboard() {
                       </Typography>
                       {course.description && (
                         <Typography variant="body2" sx={{
-                          color: "#475569",
+                          color: "var(--color-slate-500)",
                           mb: 2,
                           lineHeight: 1.5,
-                          fontWeight: 500,
+                          fontWeight: 'var(--font-medium)',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                           display: '-webkit-box',
@@ -707,9 +710,9 @@ export default function CourseDashboard() {
                                 fontSize: '10px',
                                 fontWeight: 750,
                                 bgcolor: 'rgba(0, 86, 179, 0.05)',
-                                color: '#0056b3',
-                                border: '1px solid rgba(30, 79, 163, 0.15)',
-                                borderRadius: "8px",
+                                color: 'var(--color-primary)',
+                                border: 'var(--border-thin) solid rgba(30, 79, 163, 0.15)',
+                                borderRadius: 'var(--radius-md)',
                                 height: '20px',
                                 "& .MuiChip-label": { px: 1, py: 0 }
                               }}
@@ -720,21 +723,21 @@ export default function CourseDashboard() {
 
                       <Box sx={{ mt: 'auto', pt: 2 }}>
                         <Typography variant="caption" component="div" sx={{
-                          color: "#475569", fontWeight: 600,
+                          color: "var(--color-slate-500)", fontWeight: 'var(--font-semibold)',
                           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
                         }}>
-                          <Box component="span" sx={{ color: "#0056b3" }}>
+                          <Box component="span" sx={{ color: "var(--color-primary)" }}>
                             <MenuBookIcon sx={{ fontSize: 15, verticalAlign: "text-bottom", mr: 0.4 }} />
                             {course.modules} Modules
                           </Box>
-                          <Box component="span" sx={{ mx: 1, color: "#cbd5e1" }}>•</Box>
+                          <Box component="span" sx={{ mx: 1, color: "var(--color-slate-200)" }}>•</Box>
                           <Box component="span">
                             <PersonOutlineIcon sx={{ fontSize: 15, verticalAlign: "text-bottom", mr: 0.4 }} />
                             {course.students} Students
                           </Box>
                           {course.audience && (
                             <>
-                              <Box component="span" sx={{ mx: 1, color: "#cbd5e1" }}>•</Box>
+                              <Box component="span" sx={{ mx: 1, color: "var(--color-slate-200)" }}>•</Box>
                               <Box component="span">
                                 <GroupIcon sx={{ fontSize: 15, verticalAlign: "text-bottom", mr: 0.4 }} />
                                 {course.audience}
@@ -747,7 +750,7 @@ export default function CourseDashboard() {
                         </Typography>
                       </Box>
                     </CardContent>
-                  </Card>
+                  </PremiumCard>
                 </Grid>
               ))}
             </Grid>
@@ -757,18 +760,17 @@ export default function CourseDashboard() {
       </Box>
 
       {/* ─── FLOATING ACTION BUTTON (SPEED DIAL STYLE) ─── */}
-      <Box sx={{ position: 'fixed', bottom: { xs: 80, md: 32 }, right: { xs: 24, md: 32 }, zIndex: 100 }}>
+      <Box sx={{ position: 'fixed', bottom: { xs: 80, md: 32 }, right: { xs: 24, md: 32 }, zIndex: 'var(--z-sticky)' }}>
         <Fab
           aria-label={t('Create Course')}
           onClick={() => setIsCreateModalOpen(true)}
           sx={{
             width: { xs: 56, md: 64 },
             height: { xs: 56, md: 64 },
-            bgcolor: '#0056b3',
+            bgcolor: 'var(--color-primary)',
             color: 'white',
-            boxShadow: 'none',
-            border: "1.5px solid #ffc107",
-            '&:hover': { bgcolor: '#004494' }
+            border: "1.5px solid #f59e0b",
+            '&:hover, &:focus, &:active': { bgcolor: 'var(--color-primary-hover)', }
           }}
         >
           <SpeedDialIcon />
@@ -782,7 +784,7 @@ export default function CourseDashboard() {
           sx={{
             position: 'fixed',
             inset: 0,
-            zIndex: 1200,
+            zIndex: 'var(--z-fixed)',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
@@ -801,8 +803,8 @@ export default function CourseDashboard() {
             sx={{
               display: "flex",
               flexDirection: "column",
-              width: { xs: "100%", sm: "1000px" },
-              minHeight: { xs: "100%", sm: "auto" },
+              width: { xs: "var(--size-full)", sm: "1000px" },
+              minHeight: { xs: "var(--size-full)", sm: "auto" },
               borderRadius: { xs: 0, sm: "28px" },
               background: `
                 radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.18) 0, transparent 50%), 
@@ -825,21 +827,21 @@ export default function CourseDashboard() {
                 position: 'absolute',
                 top: 16,
                 right: 16,
-                color: '#64748b',
-                '&:hover': { color: '#0f172a', bgcolor: 'rgba(0,0,0,0.05)' }
+                color: 'var(--color-slate-500)',
+                '&:hover': { color: 'var(--color-slate-900)', bgcolor: 'rgba(0,0,0,0.05)' }
               }}
             >
               <CloseIcon />
             </IconButton>
 
-            <Box sx={{ px: { xs: 3, sm: 6 }, py: { xs: 5, sm: 6 }, width: '100%', boxSizing: 'border-box' }}>
+            <Box sx={{ px: { xs: 3, sm: 6 }, py: { xs: 5, sm: 6 }, width: 'var(--size-full)', boxSizing: 'border-box' }}>
               {/* Header */}
               <Box sx={{ mb: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="h4" sx={{ fontWeight: 800, color: "#111827", letterSpacing: "-0.5px", fontSize: "24px" }}>
+                  <Typography variant="h4" sx={{ fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-xl)' }}>
                     {t('courseDashboard.modal.createCourse')}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: "#6B7280", mt: 0.5, fontSize: "14px" }}>
+                  <Typography variant="body2" sx={{ color: "var(--color-slate-500)", mt: 0.5, fontSize: 'var(--font-sm)' }}>
                     {activeStep === 0 ? t("courseDashboard.modal.basicDetails") : t("Outline the course curriculum and content.")}
                   </Typography>
                 </Box>
@@ -848,14 +850,14 @@ export default function CourseDashboard() {
               {/* Step Indicator Progress Bar */}
               <Box sx={{ display: 'flex', gap: 2, mb: 4, mt: 1 }}>
                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
-                  <Box sx={{ height: 4, borderRadius: "8px", bgcolor: activeStep >= 0 ? '#0056b3' : '#cbd5e1', transition: 'all 0.3s' }} />
-                  <Typography variant="caption" sx={{ fontWeight: 800, color: activeStep === 0 ? '#0056b3' : '#64748b', fontSize: '11.5px' }}>
+                  <Box sx={{ height: 4, borderRadius: 'var(--radius-md)', bgcolor: activeStep >= 0 ? 'var(--color-primary)' : 'var(--color-slate-200)', transition: 'all 0.3s' }} />
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: activeStep === 0 ? 'var(--color-primary)' : 'var(--color-slate-500)', fontSize: '11.5px' }}>
                     {t('courseDashboard.modal.stepDetails')}
                   </Typography>
                 </Box>
                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
-                  <Box sx={{ height: 4, borderRadius: "8px", bgcolor: activeStep >= 1 ? '#0056b3' : '#cbd5e1', transition: 'all 0.3s' }} />
-                  <Typography variant="caption" sx={{ fontWeight: 800, color: activeStep === 1 ? '#0056b3' : '#64748b', fontSize: '11.5px' }}>
+                  <Box sx={{ height: 4, borderRadius: 'var(--radius-md)', bgcolor: activeStep >= 1 ? 'var(--color-primary)' : 'var(--color-slate-200)', transition: 'all 0.3s' }} />
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: activeStep === 1 ? 'var(--color-primary)' : 'var(--color-slate-500)', fontSize: '11.5px' }}>
                     {t('courseDashboard.modal.stepCurriculum')}
                   </Typography>
                 </Box>
@@ -896,11 +898,11 @@ export default function CourseDashboard() {
                   }
                 ]);
                 setActiveStep(0);
-              }} sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
+              }} sx={{ width: 'var(--size-full)', display: 'flex', flexDirection: 'column' }}>
 
                 {/* STEP 1: COURSE DETAILS */}
                 {activeStep === 0 && (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: '100%' }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: 'var(--size-full)' }}>
                     {/* Top Row: Columns */}
                     <Box sx={{
                       display: { xs: 'flex', sm: 'grid' },
@@ -908,14 +910,14 @@ export default function CourseDashboard() {
                       gridTemplateColumns: '1fr 1fr',
                       rowGap: 3,
                       columnGap: 4,
-                      width: '100%'
+                      width: 'var(--size-full)'
                     }}>
 
                       {/* Left Column: Course Details */}
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0, gridColumn: '1', gridRow: '1' }}>
                         {/* Course Title */}
                         <Box>
-                          <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#374151", fontSize: "13px" }}>
+                          <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
                             {t('courseDashboard.modal.courseTitle')}
                           </Typography>
                           <TextField
@@ -926,18 +928,7 @@ export default function CourseDashboard() {
                             placeholder={t('courseDashboard.modal.courseTitlePlaceholder')}
                             sx={{
                               "& .MuiOutlinedInput-root": {
-                                backgroundColor: "rgba(255, 255, 255, 0.8)",
-                                backdropFilter: "blur(4px)",
-                                borderRadius: "8px",
-                                transition: "all 0.2s ease",
-                                "& fieldset": { borderColor: "rgba(203, 213, 225, 0.8)", borderWidth: "1.5px" },
-                                "&:hover fieldset": { borderColor: "#94a3b8" },
-                                "&.Mui-focused fieldset": { borderColor: "#0056b3", borderWidth: "1.5px" },
-                                "&.Mui-focused": {
-                                  backgroundColor: "#ffffff",
-                                  boxShadow: "none"
-                                },
-                                "& input": { color: "#111827", fontSize: "15px", fontWeight: 500 }
+                                "& input": { color: "var(--color-slate-900)", fontSize: 'var(--font-base)', fontWeight: 'var(--font-medium)' }
                               }
                             }}
                           />
@@ -945,7 +936,7 @@ export default function CourseDashboard() {
 
                         {/* Target Audience / Educational Level */}
                         <Box>
-                          <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#374151", fontSize: "13px" }}>
+                          <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
                             {t('courseDashboard.modal.targetAudience')}
                           </Typography>
                           <Autocomplete
@@ -969,18 +960,7 @@ export default function CourseDashboard() {
                                 placeholder={t('courseDashboard.modal.selectAudience')}
                                 sx={{
                                   "& .MuiOutlinedInput-root": {
-                                    backgroundColor: "rgba(255, 255, 255, 0.8)",
-                                    backdropFilter: "blur(4px)",
-                                    borderRadius: "8px",
-                                    transition: "all 0.2s ease",
-                                    "& fieldset": { borderColor: "rgba(203, 213, 225, 0.8)", borderWidth: "1.5px" },
-                                    "&:hover fieldset": { borderColor: "#94a3b8" },
-                                    "&.Mui-focused fieldset": { borderColor: "#0056b3", borderWidth: "1.5px" },
-                                    "&.Mui-focused": {
-                                      backgroundColor: "#ffffff",
-                                      boxShadow: "none"
-                                    },
-                                    "& input": { color: "#111827", fontSize: "15px", fontWeight: 500 }
+                                    "& input": { color: "var(--color-slate-900)", fontSize: 'var(--font-base)', fontWeight: 'var(--font-medium)' }
                                   }
                                 }}
                               />
@@ -992,7 +972,7 @@ export default function CourseDashboard() {
 
                       {/* Course Category */}
                       <Box sx={{ gridColumn: '1', gridRow: '2', minWidth: 0 }}>
-                        <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#374151", fontSize: "13px" }}>
+                        <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
                           {t('courseDashboard.modal.courseCategory')}
                         </Typography>
                         <Autocomplete
@@ -1014,43 +994,27 @@ export default function CourseDashboard() {
                               inputProps={inputProps}
                               required
                               placeholder={t('courseDashboard.modal.selectCategory')}
-                              sx={{
-                                "& .MuiOutlinedInput-root": {
-                                  backgroundColor: "rgba(255, 255, 255, 0.8)",
-                                  backdropFilter: "blur(4px)",
-                                  borderRadius: "8px",
-                                  transition: "all 0.2s ease",
-                                  "& fieldset": { borderColor: "rgba(203, 213, 225, 0.8)", borderWidth: "1.5px" },
-                                  "&:hover fieldset": { borderColor: "#94a3b8" },
-                                  "&.Mui-focused fieldset": { borderColor: "#0056b3", borderWidth: "1.5px" },
-                                  "&.Mui-focused": {
-                                    backgroundColor: "#ffffff",
-                                    boxShadow: "none"
-                                  },
-                                  "& input": { color: "#111827", fontSize: "15px", fontWeight: 500 }
-                                }
-                              }}
                             />
                           }}
                         />
                       </Box>
 
                       {/* Right Column: 16:9 Aspect-Ratio Course Thumbnail */}
-                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: '100%', minWidth: 0, gridColumn: '2', gridRow: '1' }}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: 'var(--size-full)', minWidth: 0, gridColumn: '2', gridRow: '1' }}>
                         <Box>
-                          <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#374151", fontSize: "13px" }}>
+                          <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
                             {t('courseDashboard.modal.courseThumbnail')}
                           </Typography>
 
                           {/* Wrapper with relative position so lock icon can float over thumbnail */}
-                          <Box sx={{ position: 'relative', width: '100%' }}>
+                          <Box sx={{ position: 'relative', width: 'var(--size-full)' }}>
 
                             {/* Thumbnail clickable area */}
                             <Box
                               sx={{
-                                width: '100%',
+                                width: 'var(--size-full)',
                                 aspectRatio: '16/9',
-                                borderRadius: '8px',
+                                borderRadius: 'var(--radius-md)',
                                 backgroundColor: courseThumbnail ? 'transparent' : 'rgba(0, 86, 179, 0.03)',
                                 backgroundImage: courseThumbnail ? `url(${courseThumbnail})` : 'none',
                                 backgroundSize: 'cover',
@@ -1063,9 +1027,9 @@ export default function CourseDashboard() {
                                 cursor: 'pointer',
                                 overflow: 'hidden',
                                 position: 'relative',
-                                transition: 'all 0.2s ease',
+                                transition: 'var(--transition-base)',
                                 '&:hover': {
-                                  borderColor: '#0056b3',
+                                  borderColor: 'var(--color-primary)',
                                   backgroundColor: 'rgba(0, 86, 179, 0.05)'
                                 }
                               }}
@@ -1083,24 +1047,24 @@ export default function CourseDashboard() {
                                   transition: 'opacity 0.2s',
                                   '&:hover': { opacity: 1 }
                                 }}>
-                                  <Typography sx={{ color: 'white', fontWeight: 700, fontSize: '0.9rem', bgcolor: 'rgba(0,0,0,0.6)', px: 2, py: 1, borderRadius: '8px' }}>
+                                  <Typography sx={{ color: 'white', fontWeight: 'var(--font-bold)', fontSize: 'var(--font-sm)', bgcolor: 'rgba(0,0,0,0.6)', px: 2, py: 1, borderRadius: 'var(--radius-md)' }}>
                                     {t('courseDashboard.modal.changeImage')}
                                   </Typography>
                                 </Box>
                               ) : isUploadingThumbnail ? (
                                 <>
-                                  <CloudUploadIcon sx={{ color: '#94a3b8', fontSize: 36, mb: 0.5 }} />
-                                  <Typography sx={{ fontSize: '13px', fontWeight: 600, color: '#0056b3' }}>
+                                  <CloudUploadIcon sx={{ color: 'var(--color-slate-500)', fontSize: 36, mb: 0.5 }} />
+                                  <Typography sx={{ fontSize: 'var(--font-sm)', fontWeight: 'var(--font-semibold)', color: 'var(--color-primary)' }}>
                                     {t('courseDashboard.modal.uploading')}
                                   </Typography>
                                 </>
                               ) : (
                                 <>
-                                  <CloudUploadIcon sx={{ color: '#0056b3', fontSize: 36, mb: 0.5 }} />
-                                  <Typography sx={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>
+                                  <CloudUploadIcon sx={{ color: 'var(--color-primary)', fontSize: 36, mb: 0.5 }} />
+                                  <Typography sx={{ fontSize: 'var(--font-sm)', fontWeight: 'var(--font-semibold)', color: 'var(--color-slate-500)' }}>
                                     {t('courseDashboard.modal.uploadThumbnail')}
                                   </Typography>
-                                  <Typography sx={{ fontSize: '11px', color: '#94a3b8', mt: 0.5 }}>
+                                  <Typography sx={{ fontSize: 'var(--font-xs)', color: 'var(--color-slate-500)', mt: 0.5 }}>
                                     {t('courseDashboard.modal.fileFormats')}
                                   </Typography>
                                 </>
@@ -1131,13 +1095,13 @@ export default function CourseDashboard() {
                                   position: 'absolute',
                                   top: 8,
                                   right: 38,
-                                  zIndex: 10,
+                                  zIndex: 'var(--z-sticky)',
                                   p: 0.75,
                                   '&:hover': { backgroundColor: 'transparent', transform: 'scale(1.15)' },
-                                  transition: 'all 0.2s ease'
+                                  transition: 'var(--transition-base)'
                                 }}
                               >
-                                <AttachFileIcon sx={{ color: courseDoc ? '#0056b3' : '#94a3b8', fontSize: '18px' }} />
+                                <AttachFileIcon sx={{ color: courseDoc ? 'var(--color-primary)' : 'var(--color-slate-500)', fontSize: 'var(--font-lg)' }} />
                               </IconButton>
                             </Tooltip>
 
@@ -1150,13 +1114,13 @@ export default function CourseDashboard() {
                                   position: 'absolute',
                                   top: 8,
                                   right: 8,
-                                  zIndex: 10,
+                                  zIndex: 'var(--z-sticky)',
                                   p: 0.75,
                                   '&:hover': { backgroundColor: 'transparent', transform: 'scale(1.15)' },
-                                  transition: 'all 0.2s ease'
+                                  transition: 'var(--transition-base)'
                                 }}
                               >
-                                <LockOutlinedIcon sx={{ color: courseAccess === 'public' ? '#28a745' : courseAccess === 'locked' ? '#ef4444' : '#94a3b8', fontSize: '18px' }} />
+                                <LockOutlinedIcon sx={{ color: courseAccess === 'public' ? 'var(--color-success)' : courseAccess === 'locked' ? 'var(--color-error)' : 'var(--color-slate-500)', fontSize: 'var(--font-lg)' }} />
                               </IconButton>
                             </Tooltip>
 
@@ -1172,7 +1136,7 @@ export default function CourseDashboard() {
                                 }
                               }}
                             >
-                              <Typography variant="caption" sx={{ display: 'block', px: 1, py: 0.5, fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                              <Typography variant="caption" sx={{ display: 'block', px: 1, py: 0.5, fontWeight: 800, color: 'var(--color-slate-500)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
                                 {t('Course Access')}
                               </Typography>
                               {[
@@ -1202,7 +1166,7 @@ export default function CourseDashboard() {
 
                       {/* Course Tags */}
                       <Box ref={tagsContainerRef} sx={{ position: "relative", gridColumn: '2', gridRow: '2', minWidth: 0 }}>
-                        <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#374151", fontSize: "13px" }}>
+                        <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
                           {t('courseDashboard.modal.courseTags')}
                         </Typography>
 
@@ -1212,18 +1176,17 @@ export default function CourseDashboard() {
                           onClick={() => setIsTagsSectionExpanded(!isTagsSectionExpanded)}
                           sx={{
                             py: 1.75,
-                            borderRadius: "8px",
+                            borderRadius: 'var(--radius-md)',
                             textTransform: "none",
-                            fontSize: "15px",
-                            fontWeight: 400,
-                            color: "#9ca3af",
+                            fontSize: 'var(--font-base)',
+                            fontWeight: 'var(--font-regular)',
+                            color: "var(--color-slate-500)",
                             backgroundColor: "rgba(255, 255, 255, 0.8)",
                             backdropFilter: "blur(4px)",
                             border: "1.5px solid rgba(203, 213, 225, 0.8)",
                             "&:hover": {
                               border: "1.5px solid #94a3b8",
-                              backgroundColor: "rgba(255, 255, 255, 0.8)",
-                            },
+                              backgroundColor: "rgba(255, 255, 255, 0.8)" },
                             display: "flex",
                             justifyContent: "flex-start",
                             alignItems: "center",
@@ -1231,7 +1194,7 @@ export default function CourseDashboard() {
                             gap: 0.75,
                             px: 1.75,
                             mb: 1.5,
-                            height: "48px",
+                            height: 'var(--box-height)',
                             overflowX: "auto",
                             overflowY: "hidden",
                             scrollbarWidth: "none",
@@ -1251,16 +1214,16 @@ export default function CourseDashboard() {
                                   setCourseTags(courseTags.filter(t => t !== tag));
                                 }}
                                 sx={{
-                                  fontSize: "12px",
-                                  fontWeight: 600,
+                                  fontSize: 'var(--font-xs)',
+                                  fontWeight: 'var(--font-semibold)',
                                   bgcolor: "rgba(0, 86, 179, 0.08)",
-                                  color: "#0056b3",
+                                  color: "var(--color-primary)",
                                   border: "none",
-                                  borderRadius: "8px",
+                                  borderRadius: 'var(--radius-md)',
                                   height: "26px",
                                   "& .MuiChip-deleteIcon": {
                                     color: "rgba(0, 86, 179, 0.5)",
-                                    "&:hover": { color: "#0056b3" }
+                                    "&:hover": { color: "var(--color-primary)" }
                                   }
                                 }}
                               />
@@ -1274,13 +1237,13 @@ export default function CourseDashboard() {
                             elevation={0}
                             sx={{
                               position: "absolute",
-                              top: "100%",
+                              top: "var(--size-full)",
                               left: 0,
                               right: 0,
-                              zIndex: 100,
+                              zIndex: 'var(--z-sticky)',
                               mt: 0.1,
                               border: "1.5px solid rgba(255, 255, 255, 0.8)",
-                              borderRadius: "16px",
+                              borderRadius: 'var(--radius-lg)',
                               backgroundColor: "rgba(255, 255, 255, 0.96)",
                               backdropFilter: "blur(30px)",
                               WebkitBackdropFilter: "blur(30px)",
@@ -1303,16 +1266,10 @@ export default function CourseDashboard() {
                               value={tagSearchQuery}
                               onChange={(e) => setTagSearchQuery(e.target.value)}
                               sx={{
-                                mb: 1.5,
-                                "& .MuiOutlinedInput-root": {
-                                  borderRadius: "8px",
-                                  backgroundColor: "#ffffff",
-                                  "& fieldset": { borderColor: "rgba(203, 213, 225, 0.6)" }
-                                }
-                              }}
+                                mb: 1.5 }}
                               InputProps={{
                                 startAdornment: (
-                                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" style={{ width: 14, height: 14, color: '#64748b', marginRight: 6 }}>
+                                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" style={{ width: 14, height: 14, color: 'var(--color-slate-500)', marginRight: 6 }}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.637 10.637z" />
                                   </svg>
                                 )
@@ -1330,7 +1287,7 @@ export default function CourseDashboard() {
 
                                 return (
                                   <Box key={catIdx} sx={{ mb: 2 }}>
-                                    <Typography sx={{ fontWeight: 800, color: "#0056b3", fontSize: "11px", borderBottom: "1px solid rgba(0, 86, 179, 0.08)", pb: 0.25, mb: 1, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                                    <Typography sx={{ fontWeight: 800, color: "var(--color-primary)", fontSize: 'var(--font-xs)', borderBottom: "var(--border-thin) solid rgba(0, 86, 179, 0.08)", pb: 0.25, mb: 1, textTransform: "uppercase", letterSpacing: "0.5px" }}>
                                       {cat.category}
                                     </Typography>
 
@@ -1353,11 +1310,11 @@ export default function CourseDashboard() {
                                                 alignItems: "center",
                                                 gap: 0.75,
                                                 p: 0.5,
-                                                borderRadius: "8px",
+                                                borderRadius: 'var(--radius-md)',
                                                 cursor: "pointer",
                                                 transition: "all 0.1s ease",
                                                 backgroundColor: isChecked ? "rgba(0, 86, 179, 0.04)" : "transparent",
-                                                border: "1px solid",
+                                                border: "var(--border-thin) solid",
                                                 borderColor: isChecked ? "rgba(0, 86, 179, 0.2)" : "transparent",
                                                 "&:hover": {
                                                   backgroundColor: "rgba(0, 0, 0, 0.02)"
@@ -1372,10 +1329,10 @@ export default function CourseDashboard() {
                                                   width: "14px",
                                                   height: "14px",
                                                   cursor: "pointer",
-                                                  accentColor: "#0056b3"
+                                                  accentColor: "var(--color-primary)"
                                                 }}
                                               />
-                                              <Typography sx={{ fontSize: "11.5px", fontWeight: isChecked ? 700 : 500, color: isChecked ? "#0056b3" : "#334155", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                              <Typography sx={{ fontSize: "11.5px", fontWeight: isChecked ? 700 : 500, color: isChecked ? "var(--color-primary)" : "var(--color-slate-700)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                                                 {tag.split(' / ')[1]}
                                               </Typography>
                                             </Box>
@@ -1394,8 +1351,8 @@ export default function CourseDashboard() {
                     </Box>
 
                     {/* Full Width Row: Course Description */}
-                    <Box sx={{ width: '100%' }}>
-                      <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#374151", fontSize: "13px" }}>
+                    <Box sx={{ width: 'var(--size-full)' }}>
+                      <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
                         {t('courseDashboard.modal.courseDescription')}
                       </Typography>
                       <TextField
@@ -1407,25 +1364,14 @@ export default function CourseDashboard() {
                         placeholder={t('courseDashboard.modal.courseDescPlaceholder')}
                         sx={{
                           "& .MuiOutlinedInput-root": {
-                            backgroundColor: "rgba(255, 255, 255, 0.8)",
-                            backdropFilter: "blur(4px)",
-                            borderRadius: "8px",
-                            transition: "all 0.2s ease",
-                            "& fieldset": { borderColor: "rgba(203, 213, 225, 0.8)", borderWidth: "1.5px" },
-                            "&:hover fieldset": { borderColor: "#94a3b8" },
-                            "&.Mui-focused fieldset": { borderColor: "#0056b3", borderWidth: "1.5px" },
-                            "&.Mui-focused": {
-                              backgroundColor: "#ffffff",
-                              boxShadow: "none"
-                            },
-                            "& textarea": { color: "#111827", fontSize: "15px", fontWeight: 500 }
+                            "& textarea": { color: "var(--color-slate-900)", fontSize: 'var(--font-base)', fontWeight: 'var(--font-medium)' }
                           }
                         }}
                       />
                     </Box>
 
                     {/* Step 1 Actions */}
-                    <Box sx={{ display: 'flex', gap: 2, mt: 4, pt: 2.5, borderTop: '1px solid #F3F4F6' }}>
+                    <Box sx={{ display: 'flex', gap: 2, mt: 4, pt: 2.5, borderTop: 'var(--border-thin) solid #F1F5F9' }}>
                       <Button
                         fullWidth
                         variant="outlined"
@@ -1433,15 +1379,15 @@ export default function CourseDashboard() {
                         disableElevation
                         sx={{
                           py: 1.5,
-                          borderRadius: '8px',
+                          borderRadius: 'var(--radius-md)',
                           textTransform: "none",
-                          fontSize: "15px",
-                          fontWeight: 600,
-                          borderColor: "#D1D5DB",
-                          color: "#374151",
+                          fontSize: 'var(--font-base)',
+                          fontWeight: 'var(--font-semibold)',
+                          borderColor: "var(--color-slate-200)",
+                          color: "var(--color-slate-700)",
                           "&:hover": {
-                            borderColor: "#9CA3AF",
-                            backgroundColor: "#F9FAFB"
+                            borderColor: "var(--color-slate-500)",
+                            backgroundColor: "var(--color-slate-50)"
                           }
                         }}
                       >
@@ -1459,21 +1405,20 @@ export default function CourseDashboard() {
                         disabled={!courseTitle.trim() || !audienceLevel || !courseCategory || !courseDesc.trim() || !courseThumbnail}
                         sx={{
                           py: 1.5,
-                          borderRadius: '8px',
+                          borderRadius: 'var(--radius-md)',
                           textTransform: "none",
-                          fontSize: "16px",
-                          fontWeight: 700,
-                          background: (courseTitle.trim() && audienceLevel && courseCategory && courseDesc.trim() && courseThumbnail) ? 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)' : '#e2e8f0',
-                          color: '#ffffff',
+                          fontSize: 'var(--font-base)',
+                          fontWeight: 'var(--font-bold)',
+                          background: (courseTitle.trim() && audienceLevel && courseCategory && courseDesc.trim() && courseThumbnail) ? 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)' : 'var(--color-slate-200)',
+                          color: 'var(--color-white)',
                           transition: 'all 0.2s',
                           '&.Mui-disabled': {
-                            color: '#94a3b8',
-                            background: '#e2e8f0',
-                            WebkitTextFillColor: '#94a3b8'
+                            color: 'var(--color-slate-500)',
+                            background: 'var(--color-slate-200)',
+                            WebkitTextFillColor: 'var(--color-slate-500)'
                           },
                           '&:hover': {
-                            background: 'linear-gradient(135deg, #004494 0%, #218838 100%)',
-                          }
+                            background: 'linear-gradient(135deg, #004494 0%, #28A745 100%)' }
                         }}
                       >
                         {t('courseDashboard.modal.proceed')}
@@ -1484,11 +1429,11 @@ export default function CourseDashboard() {
 
                 {/* STEP 2: CURRICULUM BUILDER */}
                 {activeStep === 1 && (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: '100%' }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: 'var(--size-full)' }}>
                     {/* Curriculum Builder */}
                     <Box>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 700, color: "#0f172a", fontSize: "14px" }}>
+                        <Typography variant="body2" sx={{ fontWeight: 'var(--font-bold)', color: "var(--color-slate-900)", fontSize: 'var(--font-sm)' }}>
                           {t('courseDashboard.modal.curriculumHeading')}
                         </Typography>
                         <Button
@@ -1498,11 +1443,11 @@ export default function CourseDashboard() {
                           size="small"
                           sx={{
                             textTransform: 'none',
-                            borderRadius: '8px',
-                            fontWeight: 700,
-                            borderColor: '#0056b3',
-                            color: '#0056b3',
-                            fontSize: '12px',
+                            borderRadius: 'var(--radius-md)',
+                            fontWeight: 'var(--font-bold)',
+                            borderColor: 'var(--color-primary)',
+                            color: 'var(--color-primary)',
+                            fontSize: 'var(--font-xs)',
                             py: 0.5,
                             '&:hover': { borderWidth: 1.5 }
                           }}
@@ -1516,16 +1461,11 @@ export default function CourseDashboard() {
                           key={module.id}
                           sx={{
                             margin: '0 0 16px 0 !important',
-                            borderRadius: '12px !important',
-                            border: '1.5px solid rgba(30, 79, 163, 0.15)',
-                            boxShadow: 'none',
-                            background: "rgba(255, 255, 255, 0.4)",
-                            backdropFilter: "blur(20px)",
                             '&:before': { display: 'none' }
                           }}
                         >
                           <AccordionSummary
-                            expandIcon={<ExpandMoreIcon sx={{ color: '#0056b3' }} />}
+                            expandIcon={<ExpandMoreIcon sx={{ color: 'var(--color-primary)' }} />}
                             disableRipple
                             sx={{
                               borderTopLeftRadius: '12px',
@@ -1563,12 +1503,12 @@ export default function CourseDashboard() {
                                 gridTemplateColumns: { xs: '1fr', lg: 'minmax(0, 1fr) auto' },
                                 alignItems: 'center',
                                 gap: { xs: 1.5, lg: 2 },
-                                width: '100%',
+                                width: 'var(--size-full)',
                                 minWidth: 0
                               }}
                             >
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
-                                <DragIndicatorIcon sx={{ color: '#94a3b8', fontSize: '18px', flexShrink: 0 }} />
+                                <DragIndicatorIcon sx={{ color: 'var(--color-slate-500)', fontSize: 'var(--font-lg)', flexShrink: 0 }} />
                                 <TextField
                                   value={module.title}
                                   onChange={(e) => updateModuleTitle(module.id, e.target.value)}
@@ -1581,8 +1521,8 @@ export default function CourseDashboard() {
                                     minWidth: 0,
                                     input: {
                                       fontWeight: 800,
-                                      color: '#0f172a',
-                                      fontSize: '0.95rem',
+                                      color: 'var(--color-slate-900)',
+                                      fontSize: 'var(--font-base)',
                                       py: 0.2,
                                       textOverflow: 'ellipsis'
                                     }
@@ -1600,7 +1540,7 @@ export default function CourseDashboard() {
                                     }}
                                     sx={{ ml: 0.5, p: 0.5, cursor: courseAccess === 'locked' ? 'not-allowed' : 'pointer' }}
                                   >
-                                    <LockOutlinedIcon sx={{ color: module.access === 'public' ? '#28a745' : module.access === 'locked' ? '#ef4444' : '#94a3b8', fontSize: '18px' }} />
+                                    <LockOutlinedIcon sx={{ color: module.access === 'public' ? 'var(--color-success)' : module.access === 'locked' ? 'var(--color-error)' : 'var(--color-slate-500)', fontSize: 'var(--font-lg)' }} />
                                   </IconButton>
                                 </Tooltip>
                                 <Popover
@@ -1616,7 +1556,7 @@ export default function CourseDashboard() {
                                     }
                                   }}
                                 >
-                                  <Typography variant="caption" sx={{ display: 'block', px: 1, py: 0.5, fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                                  <Typography variant="caption" sx={{ display: 'block', px: 1, py: 0.5, fontWeight: 800, color: 'var(--color-slate-500)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
                                     {t('Module Access')}
                                   </Typography>
                                   {accessOptions.map(option => {
@@ -1648,7 +1588,7 @@ export default function CourseDashboard() {
                                               {option.label}
                                             </Typography>
                                             {isBlocked && (
-                                              <LockOutlinedIcon sx={{ fontSize: '13px', ml: 'auto', color: '#94a3b8' }} />
+                                              <LockOutlinedIcon sx={{ fontSize: 'var(--font-sm)', ml: 'auto', color: 'var(--color-slate-500)' }} />
                                             )}
                                           </ListItemButton>
                                         </span>
@@ -1677,14 +1617,14 @@ export default function CourseDashboard() {
                                     display: 'inline-flex',
                                     alignItems: 'center',
                                     gap: 0.75,
-                                    maxWidth: { xs: '100%', sm: '220px' },
+                                    maxWidth: { xs: 'var(--size-full)', sm: '220px' },
                                     minHeight: '40px',
                                     justifyContent: 'center',
                                     px: 1.35,
                                     py: 0.55,
                                     borderRadius: '999px',
-                                    border: '1px solid rgba(203, 213, 225, 0.75)',
-                                    color: module.startDate || module.endDate ? '#0056b3' : '#64748b',
+                                    border: 'var(--border-thin) solid rgba(203, 213, 225, 0.75)',
+                                    color: module.startDate || module.endDate ? 'var(--color-primary)' : 'var(--color-slate-500)',
                                     backgroundColor: 'rgba(255, 255, 255, 0.72)',
                                     backdropFilter: 'blur(8px)',
                                     fontWeight: 750,
@@ -1694,15 +1634,15 @@ export default function CourseDashboard() {
                                     fontVariantNumeric: 'tabular-nums',
                                     cursor: 'pointer',
                                     boxShadow: module.startDate || module.endDate ? '0 8px 22px -18px rgba(0, 86, 179, 0.35)' : 'none',
-                                    transition: 'all 0.2s ease',
+                                    transition: 'var(--transition-base)',
                                     '&:hover': {
                                       backgroundColor: 'rgba(0, 86, 179, 0.08)',
                                       borderColor: 'rgba(0, 86, 179, 0.22)',
-                                      color: '#0056b3'
+                                      color: 'var(--color-primary)'
                                     }
                                   }}
                                 >
-                                  <CalendarMonthOutlinedIcon sx={{ fontSize: '16px', color: module.startDate || module.endDate ? '#0056b3' : 'inherit' }} />
+                                  <CalendarMonthOutlinedIcon sx={{ fontSize: 'var(--font-base)', color: module.startDate || module.endDate ? 'var(--color-primary)' : 'inherit' }} />
                                   {getModuleDateTriggerLabel(module)}
                                 </Box>
                                 <Popover
@@ -1745,8 +1685,8 @@ export default function CourseDashboard() {
                                             borderRadius: '999px',
                                             textTransform: 'none',
                                             fontSize: '0.72rem',
-                                            fontWeight: 700,
-                                            color: '#ef4444'
+                                            fontWeight: 'var(--font-bold)',
+                                            color: 'var(--color-error)'
                                           }}
                                         >
                                           {t('Clear')}
@@ -1772,13 +1712,13 @@ export default function CourseDashboard() {
                                         sx={{
                                           appearance: 'none',
                                           border: activeCalendarField === 'startDate'
-                                            ? '1px solid rgba(31, 143, 82, 0.3)'
-                                            : '1px solid rgba(203, 213, 225, 0.75)',
+                                            ? 'var(--border-thin) solid rgba(31, 143, 82, 0.3)'
+                                            : 'var(--border-thin) solid rgba(203, 213, 225, 0.75)',
                                           background: activeCalendarField === 'startDate'
                                             ? 'rgba(31, 143, 82, 0.08)'
                                             : 'rgba(255, 255, 255, 0.76)',
-                                          color: activeCalendarField === 'startDate' ? '#1f8f52' : '#64748b',
-                                          borderRadius: "8px",
+                                          color: activeCalendarField === 'startDate' ? 'var(--color-success)' : 'var(--color-slate-500)',
+                                          borderRadius: 'var(--radius-md)',
                                           minHeight: '58px',
                                           px: 1,
                                           py: 0.85,
@@ -1803,13 +1743,13 @@ export default function CourseDashboard() {
                                         sx={{
                                           appearance: 'none',
                                           border: activeCalendarField === 'endDate'
-                                            ? '1px solid rgba(0, 86, 179, 0.3)'
-                                            : '1px solid rgba(203, 213, 225, 0.75)',
+                                            ? 'var(--border-thin) solid rgba(0, 86, 179, 0.3)'
+                                            : 'var(--border-thin) solid rgba(203, 213, 225, 0.75)',
                                           background: activeCalendarField === 'endDate'
                                             ? 'rgba(0, 86, 179, 0.08)'
                                             : 'rgba(255, 255, 255, 0.76)',
-                                          color: activeCalendarField === 'endDate' ? '#0056b3' : '#64748b',
-                                          borderRadius: "8px",
+                                          color: activeCalendarField === 'endDate' ? 'var(--color-primary)' : 'var(--color-slate-500)',
+                                          borderRadius: 'var(--radius-md)',
                                           minHeight: '58px',
                                           px: 1,
                                           py: 0.85,
@@ -1859,7 +1799,7 @@ export default function CourseDashboard() {
                                   component="span"
                                   size="small"
                                   onClick={(e) => { e.stopPropagation(); deleteModule(module.id); }}
-                                  sx={{ color: '#ef4444', ml: { xs: 0, sm: 0.25 } }}
+                                  sx={{ color: 'var(--color-error)', ml: { xs: 0, sm: 0.25 } }}
                                 >
                                   <DeleteOutlineIcon fontSize="small" />
                                 </IconButton>
@@ -1871,10 +1811,7 @@ export default function CourseDashboard() {
                               pt: 0,
                               pb: 0.5,
                               pl: { xs: 2, sm: '46px' },
-                              pr: 2,
-                              background: "rgba(255, 255, 255, 0.65)",
-                              borderBottomLeftRadius: '12px',
-                              borderBottomRightRadius: '12px'
+                              pr: 2
                             }}
                           >
                             {module.lessons.map((lesson) => (
@@ -1886,15 +1823,10 @@ export default function CourseDashboard() {
                                   justifyContent: 'space-between',
                                   p: 1.25,
                                   mb: 1,
-                                  bgcolor: '#ffffff',
-                                  border: '1px solid rgba(30, 79, 163, 0.1)',
-                                  borderRadius: '8px',
-                                  transition: 'all 0.2s',
-                                  '&:hover': { borderColor: '#0056b3' }
-                                }}
+                                  transition: 'all 0.2s' }}
                               >
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexGrow: 1 }}>
-                                  {lesson.type === 'video' ? <OndemandVideoIcon sx={{ color: '#0056b3', fontSize: '18px' }} /> : <PictureAsPdfIcon sx={{ color: '#28a745', fontSize: '18px' }} />}
+                                  {lesson.type === 'video' ? <OndemandVideoIcon sx={{ color: 'var(--color-primary)', fontSize: 'var(--font-lg)' }} /> : <PictureAsPdfIcon sx={{ color: 'var(--color-success)', fontSize: 'var(--font-lg)' }} />}
                                   <TextField
                                     value={lesson.title}
                                     onChange={(e) => updateLessonTitle(module.id, lesson.id, e.target.value)}
@@ -1904,8 +1836,8 @@ export default function CourseDashboard() {
                                     sx={{
                                       width: '80%',
                                       input: {
-                                        fontWeight: 600,
-                                        color: '#1e293b',
+                                        fontWeight: 'var(--font-semibold)',
+                                        color: 'var(--color-slate-900)',
                                         fontSize: '0.88rem',
                                         py: 0.1
                                       }
@@ -1915,7 +1847,7 @@ export default function CourseDashboard() {
                                 <IconButton
                                   size="small"
                                   onClick={() => deleteLesson(module.id, lesson.id)}
-                                  sx={{ color: '#ef4444' }}
+                                  sx={{ color: 'var(--color-error)' }}
                                 >
                                   <DeleteOutlineIcon fontSize="small" />
                                 </IconButton>
@@ -1929,7 +1861,6 @@ export default function CourseDashboard() {
                                   multiline
                                   minRows={2}
                                   maxRows={3}
-                                  autoFocus={editingDescId === module.id}
                                   onBlur={() => setEditingDescId(null)}
                                   variant="standard"
                                   InputProps={{ disableUnderline: true }}
@@ -1942,8 +1873,8 @@ export default function CourseDashboard() {
                                     "& .MuiInputBase-root": {
                                       fontSize: "13.5px",
                                       lineHeight: 1.5,
-                                      fontWeight: 500,
-                                      color: "#475569",
+                                      fontWeight: 'var(--font-medium)',
+                                      color: "var(--color-slate-500)",
                                       padding: "0",
                                       backgroundColor: "transparent"
                                     },
@@ -1963,7 +1894,7 @@ export default function CourseDashboard() {
                                     cursor: 'pointer',
                                     p: 1,
                                     ml: -1,
-                                    borderRadius: "8px",
+                                    borderRadius: 'var(--radius-md)',
                                     '&:hover': { backgroundColor: 'rgba(0,0,0,0.02)' }
                                   }}
                                 >
@@ -1972,8 +1903,8 @@ export default function CourseDashboard() {
                                     sx={{
                                       fontSize: "13.5px",
                                       lineHeight: 1.5,
-                                      fontWeight: 500,
-                                      color: "#475569",
+                                      fontWeight: 'var(--font-medium)',
+                                      color: "var(--color-slate-500)",
                                       whiteSpace: 'pre-wrap',
                                       maxHeight: Reflect.get(expandedDescModules, module.id) ? '60.75px' : 'none',
                                       overflowY: Reflect.get(expandedDescModules, module.id) ? 'auto' : 'visible',
@@ -1982,12 +1913,12 @@ export default function CourseDashboard() {
                                       },
                                       '&::-webkit-scrollbar-thumb': {
                                         backgroundColor: 'rgba(0,0,0,0.1)',
-                                        borderRadius: "8px"
+                                        borderRadius: 'var(--radius-md)'
                                       },
                                       '& .view-more-action': {
-                                        color: '#0056b3',
+                                        color: 'var(--color-primary)',
                                         fontWeight: 800,
-                                        fontSize: '12px',
+                                        fontSize: 'var(--font-xs)',
                                         ml: 1,
                                         cursor: 'pointer',
                                         textDecoration: 'none',
@@ -2020,7 +1951,7 @@ export default function CourseDashboard() {
                     </Box>
 
                     {/* Step 2 Actions */}
-                    <Box sx={{ display: 'flex', gap: 2, mt: 4, pt: 2.5, borderTop: '1px solid #F3F4F6' }}>
+                    <Box sx={{ display: 'flex', gap: 2, mt: 4, pt: 2.5, borderTop: 'var(--border-thin) solid #F1F5F9' }}>
                       <Button
                         fullWidth
                         variant="outlined"
@@ -2028,15 +1959,15 @@ export default function CourseDashboard() {
                         disableElevation
                         sx={{
                           py: 1.5,
-                          borderRadius: '8px',
+                          borderRadius: 'var(--radius-md)',
                           textTransform: "none",
-                          fontSize: "15px",
-                          fontWeight: 600,
-                          borderColor: "#D1D5DB",
-                          color: "#374151",
+                          fontSize: 'var(--font-base)',
+                          fontWeight: 'var(--font-semibold)',
+                          borderColor: "var(--color-slate-200)",
+                          color: "var(--color-slate-700)",
                           "&:hover": {
-                            borderColor: "#9CA3AF",
-                            backgroundColor: "#F9FAFB"
+                            borderColor: "var(--color-slate-500)",
+                            backgroundColor: "var(--color-slate-50)"
                           }
                         }}
                       >
@@ -2050,21 +1981,20 @@ export default function CourseDashboard() {
                         disabled={modules.length === 0 || modules.some(m => !m.title.trim() || !m.description || !m.description.trim())}
                         sx={{
                           py: 1.5,
-                          borderRadius: '8px',
+                          borderRadius: 'var(--radius-md)',
                           textTransform: "none",
-                          fontSize: "16px",
-                          fontWeight: 700,
-                          background: (modules.length > 0 && modules.every(m => m.title.trim() && m.description?.trim())) ? 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)' : '#e2e8f0',
-                          color: '#ffffff',
+                          fontSize: 'var(--font-base)',
+                          fontWeight: 'var(--font-bold)',
+                          background: (modules.length > 0 && modules.every(m => m.title.trim() && m.description?.trim())) ? 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)' : 'var(--color-slate-200)',
+                          color: 'var(--color-white)',
                           transition: 'all 0.2s',
                           '&.Mui-disabled': {
-                            color: '#94a3b8',
-                            background: '#e2e8f0',
-                            WebkitTextFillColor: '#94a3b8'
+                            color: 'var(--color-slate-500)',
+                            background: 'var(--color-slate-200)',
+                            WebkitTextFillColor: 'var(--color-slate-500)'
                           },
                           '&:hover': {
-                            background: 'linear-gradient(135deg, #004494 0%, #218838 100%)',
-                          }
+                            background: 'linear-gradient(135deg, #004494 0%, #28A745 100%)' }
                         }}
                       >
                         {t('courseDashboard.modal.publishCourse')}

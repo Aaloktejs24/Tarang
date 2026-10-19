@@ -45,19 +45,7 @@ const processQueue = (error, token = null) => {
 };
 
 apiClient.interceptors.response.use(
-  async (response) => {
-    // Add artificial delay for GET requests to prevent skeleton UI flashing
-    const isGet = response.config.method?.toLowerCase() === 'get';
-    const MINIMUM_DELAY = 1000; // 3000ms for smooth skeleton viewing
-    const startTime = response.config.metadata?.startTime;
-
-    if (isGet && startTime) {
-      const elapsed = new Date() - startTime;
-      if (elapsed < MINIMUM_DELAY) {
-        await new Promise(resolve => setTimeout(resolve, MINIMUM_DELAY - elapsed));
-      }
-    }
-
+  (response) => {
     return response;
   },
   async (error) => {
@@ -96,16 +84,18 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // We use fetch here to avoid circular dependency with apiClient/authService
-        const refreshResp = await fetch(`${baseURL}/auth/refresh`, {
+        // Call our Next.js proxy route to swallow 401 errors from backend
+        const refreshResp = await fetch(`/api/auth/refresh`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include" // Crucial for sending/receiving HttpOnly cookies
+          headers: { "Content-Type": "application/json" }
         });
 
-        if (!refreshResp.ok) throw new Error("Refresh failed");
-
         const data = await refreshResp.json();
+        
+        if (data.authenticated === false) {
+          throw new Error("Refresh failed");
+        }
+
         const newToken = data.access_token;
 
         if (newToken) {
@@ -131,10 +121,12 @@ apiClient.interceptors.response.use(
 
 function handleLogout() {
   const isWindowAvailable = typeof window !== "undefined";
-  if (isWindowAvailable && window.location.pathname !== "/") {
+  if (isWindowAvailable) {
     removeToken();
     sessionStorage.removeItem("registration_token");
     sessionStorage.removeItem("auth_flow_in_progress");
-    window.location.href = "/";
+    // We let the application/components decide if they want to redirect the user
+    // (e.g., protected routes will redirect if user is null).
+    // Public routes can remain accessible for guests.
   }
 }

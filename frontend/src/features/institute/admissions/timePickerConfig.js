@@ -7,65 +7,61 @@ export const globalTimePickerViewRenderers = {
 };
 
 const commonTimeSx = {
-  "& *": {
-    fontFamily: "'Inter', sans-serif !important",
-  },
   "& .MuiClockNumber-root.Mui-selected, & .MuiTypography-root.MuiClockNumber-root.Mui-selected": {
-    color: "#ffffff !important",
-    zIndex: "20 !important",
+    color: "var(--color-white)",
+    zIndex: "var(--z-sticky)",
   },
   "& .MuiClock-pin": {
-    backgroundColor: "#0056b3 !important",
+    backgroundColor: "var(--theme-blue)",
   },
   "& .MuiClockPointer-root": {
-    backgroundColor: "#0056b3 !important",
+    backgroundColor: "var(--theme-blue)",
   },
   "& .MuiClockPointer-thumb": {
-    backgroundColor: "#0056b3 !important",
-    borderColor: "#0056b3 !important",
-    boxSizing: "content-box !important",
+    backgroundColor: "var(--theme-blue)",
+    borderColor: "var(--theme-blue)",
+    boxSizing: "content-box",
   },
   "& .MuiClock-clock": {
-    backgroundColor: "rgba(0, 86, 179, 0.06) !important",
+    backgroundColor: "rgba(0, 86, 179, 0.06)",
   },
   "& .MuiTimePickerToolbar-ampmSelection .MuiTimePickerToolbar-ampmLabel.Mui-selected": {
-    color: "#ffffff !important",
-    fontWeight: "900 !important",
-    opacity: "1 !important",
+    color: "var(--color-white)",
+    fontWeight: "var(--font-bold)",
+    opacity: 1,
   },
   "& .MuiTimePickerToolbar-ampmSelection .MuiTimePickerToolbar-ampmLabel": {
-    color: "rgba(255,255,255,0.4) !important",
-    fontWeight: "400 !important",
+    color: "rgba(255, 255, 255, 0.4)",
+    fontWeight: "var(--font-regular)",
   },
   "& .MuiTimePickerToolbar-root": {
-    backgroundColor: "#0056b3 !important",
-    color: "#ffffff !important",
+    backgroundColor: "var(--theme-blue)",
+    color: "var(--color-white)",
   },
   "& .MuiTimePickerToolbar-root .MuiTypography-root": {
-    color: "#ffffff !important",
+    color: "var(--color-white)",
   },
   "& .MuiTimePickerToolbar-separator": {
-    color: "rgba(255,255,255,0.5) !important",
+    color: "rgba(255, 255, 255, 0.5)",
   },
-
   "& .MuiTimeClock-arrowSwitcher": {
-    display: "none !important",
+    display: "none",
   },
   "& .MuiClock-amButton, & .MuiClock-pmButton": {
-    opacity: "0 !important",
-    width: "0px !important",
-    height: "0px !important",
-    overflow: "hidden !important",
-    pointerEvents: "none !important",
+    opacity: 0,
+    width: 0,
+    height: 0,
+    overflow: "hidden",
+    pointerEvents: "none",
   },
   "& .MuiPickersToolbar-root .MuiTypography-overline, & .MuiTimePickerToolbar-root .MuiTypography-overline": {
-    display: "none !important",
+    display: "none",
   },
   "& .MuiDialogActions-root .MuiButton-root": {
-    color: "#0056b3 !important",
-    fontWeight: "700 !important",
-    textTransform: "uppercase !important",
-    letterSpacing: "0.05em !important",
+    color: "var(--theme-blue)",
+    fontWeight: "var(--font-bold)",
+    textTransform: "uppercase",
+    letterSpacing: "0.05em",
   },
 };
 
@@ -83,9 +79,8 @@ export const globalTimePickerSlotProps = {
     sx: {
       marginTop: "8px",
       border: "1.5px solid rgba(203, 213, 225, 0.8)",
-      boxShadow: "none",
-      borderRadius: "8px",
-      backgroundColor: "#ffffff",
+      borderRadius: 'var(--radius-md)',
+      backgroundColor: "var(--color-white)",
       overflow: "hidden",
       ...commonTimeSx,
     },

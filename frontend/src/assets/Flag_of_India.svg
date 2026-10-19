@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="900" height="600" viewBox="-45 -30 90 60" fill="#07038D">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="900" height="600" viewBox="-45 -30 90 60" fill="#004494">
 	<title>Flag of India</title>
 	<path fill="#FFF" d="m-45-30h90v60h-90z"/>
-	<path fill="#FF6820" d="m-45-30h90v20h-90z"/>
-	<path fill="#046A38" d="m-45 10h90v20h-90z"/>
+	<path fill="#EF4444" d="m-45-30h90v20h-90z"/>
+	<path fill="#334155" d="m-45 10h90v20h-90z"/>
 	<circle r="9.25"/>
 	<circle fill="#FFF" r="8"/>
 	<circle r="1.6"/>

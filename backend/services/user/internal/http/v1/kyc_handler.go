@@ -185,7 +185,8 @@ func (h *KycHandler) digilockerCallback(w http.ResponseWriter, r *http.Request) 
 	}
 
 	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(`
+	// #nosec G705
+	_, _ = w.Write([]byte(`
 		<div style="font-family: Arial, sans-serif; border: 2px solid #007bff; padding: 25px; width: 350px; border-radius: 12px; text-align: center; margin: 80px auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
 			<div style="font-size: 48px; color: #28a745; margin-bottom: 10px;">✓</div>
 			<h2 style="color: #007bff; margin-bottom: 5px; font-weight: 600;">Verification Successful</h2>

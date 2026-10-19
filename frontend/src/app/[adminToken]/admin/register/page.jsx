@@ -1,20 +1,18 @@
 "use client";
-
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, TextField, Paper, Alert, InputAdornment, Container } from '@mui/material';
+import { Box, Typography, Button, TextField, Paper, Alert, InputAdornment, Container, CircularProgress } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
+
+import { useAppRouter as useRouter } from '../../../../hooks/useAppRouter';
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { useLoading } from '../../../../contexts/LoadingContext';
 
 const theme = createTheme({
   typography: {
-    fontFamily: "'Rozha One', serif",
-  },
-});
+    } });
 
 export default function AdminRegister() {
   const params = useParams();
@@ -26,6 +24,8 @@ export default function AdminRegister() {
   const [username, setUsername] = useState('');
   const [fullName, setFullName] = useState('');
   const [password, setPassword] = useState('');
+  const [instituteName, setInstituteName] = useState('');
+  const [instituteType, setInstituteType] = useState('University');
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -119,7 +119,9 @@ export default function AdminRegister() {
           password,
           full_name: fullName,
           role: 'admin',
-          admin_token: adminToken // Though backend might ignore it, we pass it just in case
+          admin_token: adminToken,
+          institute_name: instituteName,
+          institute_type: instituteType
         })
       });
       
@@ -142,7 +144,7 @@ export default function AdminRegister() {
     <ThemeProvider theme={theme}>
       <Box
         sx={{
-          minHeight: '100vh',
+          minHeight: 'var(--size-screen-h)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -152,8 +154,7 @@ export default function AdminRegister() {
             radial-gradient(at 80% 90%, rgba(40, 167, 69, 0.2) 0, transparent 50%),
             radial-gradient(at 20% 80%, rgba(0, 86, 179, 0.15) 0, transparent 50%),
             #eef2f6
-          `,
-        }}
+          ` }}
       >
         <Paper
           elevation={0}
@@ -161,21 +162,16 @@ export default function AdminRegister() {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-start',
-            width: { xs: '100vw', sm: '500px' },
-            minHeight: { xs: '100vh', sm: 'auto' },
-            borderRadius: { xs: 0, sm: '28px' },
-            background: 'rgba(255, 255, 255, 0.85)',
-            backdropFilter: 'blur(28px) saturate(200%)',
-            boxShadow: { sm: '0 24px 64px rgba(0,0,0,0.12)' },
+            width: { xs: 'var(--size-screen-w)', sm: '500px' },
+            minHeight: { xs: 'var(--size-screen-h)', sm: 'auto' },
             px: { xs: 3, sm: 6 },
             py: { xs: 6, sm: 6 },
-            border: 'none',
-          }}
+            border: 'none' }}
         >
           <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Box component="img" src="/logo.svg" alt="Tarang Logo" sx={{ width: 48, height: 48, objectFit: 'contain' }} />
-              <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a', letterSpacing: '-1px', fontSize: '26px' }}>
+              <Typography variant="h5" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', letterSpacing: '-1px', fontSize: '26px' }}>
                 Admin Setup
               </Typography>
             </Box>
@@ -192,11 +188,11 @@ export default function AdminRegister() {
             <>
               {flowState === 'email' && (
                 <form onSubmit={handleStartRegistration}>
-                  <Typography variant="body2" sx={{ mb: 3, color: '#64748b' }}>
+                  <Typography variant="body2" sx={{ mb: 3, color: 'var(--color-slate-500)' }}>
                     Welcome! Enter your email to begin setting up your Admin account.
                   </Typography>
                   <Box sx={{ mb: 4 }}>
-                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px" }}>
+                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
                       Email Address
                     </Typography>
                     <TextField
@@ -210,16 +206,10 @@ export default function AdminRegister() {
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            <EmailIcon sx={{ fontSize: 20, color: '#94a3b8' }} />
+                            <EmailIcon sx={{ fontSize: 20, color: 'var(--color-slate-500)' }} />
                           </InputAdornment>
-                        ),
-                      }}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          backgroundColor: "#f8fafc",
-                          borderRadius: "8px",
-                        }
-                      }}
+                        ) }}
+                      sx={{}}
                     />
                   </Box>
                   <Button 
@@ -229,20 +219,19 @@ export default function AdminRegister() {
                     disableElevation
                     disabled={loading}
                     sx={{ 
-                      height: "48px",
-                      borderRadius: "8px",
-                      fontWeight: 700,
-                      background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)",
-                    }}
+                      height: 'var(--box-height)',
+                      borderRadius: 'var(--radius-md)',
+                      fontWeight: 'var(--font-bold)',
+                      background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)" }}
                   >
-                    {loading ? "Loading..." : 'Continue'}
+                    {loading ? <CircularProgress size={24} color="inherit" /> : 'Continue'}
                   </Button>
                 </form>
               )}
 
               {flowState === 'otp' && (
                 <form onSubmit={handleVerifyOtp}>
-                  <Typography variant="body2" sx={{ mb: 3, color: '#64748b' }}>
+                  <Typography variant="body2" sx={{ mb: 3, color: 'var(--color-slate-500)' }}>
                     We&apos;ve sent a 6-digit OTP to {email}. Enter it below to verify your email.
                   </Typography>
                   <Box sx={{ mb: 4 }}>
@@ -254,8 +243,7 @@ export default function AdminRegister() {
                       size="medium"
                       required
                       sx={{
-                        "& .MuiOutlinedInput-input": { padding: "12px 14px", fontSize: "18px", letterSpacing: 8, textAlign: 'center' },
-                      }}
+                        "& .MuiOutlinedInput-input": { padding: "12px 14px", fontSize: 'var(--font-lg)', letterSpacing: 8, textAlign: 'center' } }}
                     />
                   </Box>
                   <Button 
@@ -265,13 +253,12 @@ export default function AdminRegister() {
                     disableElevation
                     disabled={loading}
                     sx={{ 
-                      height: "48px",
-                      borderRadius: "8px",
-                      fontWeight: 700,
-                      background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)",
-                    }}
+                      height: 'var(--box-height)',
+                      borderRadius: 'var(--radius-md)',
+                      fontWeight: 'var(--font-bold)',
+                      background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)" }}
                   >
-                    {loading ? "Loading..." : 'Verify Email'}
+                    {loading ? <CircularProgress size={24} color="inherit" /> : 'Verify Email'}
                   </Button>
                 </form>
               )}
@@ -279,7 +266,7 @@ export default function AdminRegister() {
               {flowState === 'details' && !success && (
                 <form onSubmit={handleCompleteRegistration}>
                   <Box sx={{ mb: 3 }}>
-                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px" }}>
+                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
                       Full Name
                     </Typography>
                     <TextField
@@ -290,14 +277,13 @@ export default function AdminRegister() {
                       size="medium"
                       required
                       InputProps={{
-                        startAdornment: <InputAdornment position="start"><PersonIcon sx={{ color: '#94a3b8' }} /></InputAdornment>,
-                      }}
-                      sx={{ "& .MuiOutlinedInput-root": { backgroundColor: "#f8fafc", borderRadius: "8px" } }}
+                        startAdornment: <InputAdornment position="start"><PersonIcon sx={{ color: 'var(--color-slate-500)' }} /></InputAdornment> }}
+                      sx={{}}
                     />
                   </Box>
 
                   <Box sx={{ mb: 3 }}>
-                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px" }}>
+                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
                       Username
                     </Typography>
                     <TextField
@@ -308,14 +294,13 @@ export default function AdminRegister() {
                       size="medium"
                       required
                       InputProps={{
-                        startAdornment: <InputAdornment position="start"><AccountCircleIcon sx={{ color: '#94a3b8' }} /></InputAdornment>,
-                      }}
-                      sx={{ "& .MuiOutlinedInput-root": { backgroundColor: "#f8fafc", borderRadius: "8px" } }}
+                        startAdornment: <InputAdornment position="start"><AccountCircleIcon sx={{ color: 'var(--color-slate-500)' }} /></InputAdornment> }}
+                      sx={{}}
                     />
                   </Box>
 
                   <Box sx={{ mb: 4 }}>
-                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px" }}>
+                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
                       Password
                     </Typography>
                     <TextField
@@ -327,9 +312,8 @@ export default function AdminRegister() {
                       size="medium"
                       required
                       InputProps={{
-                        startAdornment: <InputAdornment position="start"><LockIcon sx={{ color: '#94a3b8' }} /></InputAdornment>,
-                      }}
-                      sx={{ "& .MuiOutlinedInput-root": { backgroundColor: "#f8fafc", borderRadius: "8px" } }}
+                        startAdornment: <InputAdornment position="start"><LockIcon sx={{ color: 'var(--color-slate-500)' }} /></InputAdornment> }}
+                      sx={{}}
                     />
                   </Box>
                   
@@ -340,13 +324,12 @@ export default function AdminRegister() {
                     disableElevation
                     disabled={loading}
                     sx={{ 
-                      height: "48px",
-                      borderRadius: "8px",
-                      fontWeight: 700,
-                      background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)",
-                    }}
+                      height: 'var(--box-height)',
+                      borderRadius: 'var(--radius-md)',
+                      fontWeight: 'var(--font-bold)',
+                      background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)" }}
                   >
-                    {loading ? "Loading..." : 'Complete Registration'}
+                    {loading ? <CircularProgress size={24} color="inherit" /> : 'Complete Registration'}
                   </Button>
                 </form>
               )}

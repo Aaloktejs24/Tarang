@@ -20,46 +20,32 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserService_ExistsByEmail_FullMethodName       = "/user.UserService/ExistsByEmail"
-	UserService_GetByEmail_FullMethodName          = "/user.UserService/GetByEmail"
-	UserService_CreateUser_FullMethodName          = "/user.UserService/CreateUser"
-	UserService_GetByID_FullMethodName             = "/user.UserService/GetByID"
-	UserService_GetByUsername_FullMethodName       = "/user.UserService/GetByUsername"
-	UserService_GetByPhone_FullMethodName          = "/user.UserService/GetByPhone"
-	UserService_VerifyPhone_FullMethodName         = "/user.UserService/VerifyPhone"
-	UserService_MarkKYCVerified_FullMethodName     = "/user.UserService/MarkKYCVerified"
-	UserService_SetTOTPSecret_FullMethodName       = "/user.UserService/SetTOTPSecret"
-	UserService_UpdateMFAPreference_FullMethodName = "/user.UserService/UpdateMFAPreference"
-	UserService_DisableTOTP_FullMethodName         = "/user.UserService/DisableTOTP"
-	UserService_DisableUser_FullMethodName         = "/user.UserService/DisableUser"
-	UserService_EnableUser_FullMethodName          = "/user.UserService/EnableUser"
-	UserService_UpdateProfilePic_FullMethodName    = "/user.UserService/UpdateProfilePic"
-	UserService_UpdateBanner_FullMethodName        = "/user.UserService/UpdateBanner"
-	UserService_UpdateBio_FullMethodName           = "/user.UserService/UpdateBio"
-	UserService_UpdateProfile_FullMethodName       = "/user.UserService/UpdateProfile"
+	UserService_CreateUser_FullMethodName       = "/user.UserService/CreateUser"
+	UserService_GetByID_FullMethodName          = "/user.UserService/GetByID"
+	UserService_GetByUsername_FullMethodName    = "/user.UserService/GetByUsername"
+	UserService_MarkKYCVerified_FullMethodName  = "/user.UserService/MarkKYCVerified"
+	UserService_UpdateProfilePic_FullMethodName = "/user.UserService/UpdateProfilePic"
+	UserService_UpdateBanner_FullMethodName     = "/user.UserService/UpdateBanner"
+	UserService_UpdateBio_FullMethodName        = "/user.UserService/UpdateBio"
+	UserService_UpdateProfile_FullMethodName    = "/user.UserService/UpdateProfile"
+	UserService_CreateInstitute_FullMethodName  = "/user.UserService/CreateInstitute"
+	UserService_GetInstitute_FullMethodName     = "/user.UserService/GetInstitute"
 )
 
 // UserServiceClient is the client API for UserService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
-	ExistsByEmail(ctx context.Context, in *EmailRequest, opts ...grpc.CallOption) (*ExistsResponse, error)
-	GetByEmail(ctx context.Context, in *EmailRequest, opts ...grpc.CallOption) (*UserResponse, error)
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*UserResponse, error)
 	GetByID(ctx context.Context, in *UserIDRequest, opts ...grpc.CallOption) (*UserResponse, error)
 	GetByUsername(ctx context.Context, in *UsernameRequest, opts ...grpc.CallOption) (*UserResponse, error)
-	GetByPhone(ctx context.Context, in *PhoneRequest, opts ...grpc.CallOption) (*UserResponse, error)
-	VerifyPhone(ctx context.Context, in *UserIDRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	MarkKYCVerified(ctx context.Context, in *MarkKYCVerifiedRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	SetTOTPSecret(ctx context.Context, in *TOTPSecretRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	UpdateMFAPreference(ctx context.Context, in *MFAPreferenceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	DisableTOTP(ctx context.Context, in *UserIDRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	DisableUser(ctx context.Context, in *UserIDRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	EnableUser(ctx context.Context, in *UserIDRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpdateProfilePic(ctx context.Context, in *UpdateImageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpdateBanner(ctx context.Context, in *UpdateImageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpdateBio(ctx context.Context, in *UpdateBioRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CreateInstitute(ctx context.Context, in *CreateInstituteRequest, opts ...grpc.CallOption) (*InstituteResponse, error)
+	GetInstitute(ctx context.Context, in *InstituteIDRequest, opts ...grpc.CallOption) (*InstituteResponse, error)
 }
 
 type userServiceClient struct {
@@ -68,26 +54,6 @@ type userServiceClient struct {
 
 func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
 	return &userServiceClient{cc}
-}
-
-func (c *userServiceClient) ExistsByEmail(ctx context.Context, in *EmailRequest, opts ...grpc.CallOption) (*ExistsResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ExistsResponse)
-	err := c.cc.Invoke(ctx, UserService_ExistsByEmail_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userServiceClient) GetByEmail(ctx context.Context, in *EmailRequest, opts ...grpc.CallOption) (*UserResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UserResponse)
-	err := c.cc.Invoke(ctx, UserService_GetByEmail_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *userServiceClient) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*UserResponse, error) {
@@ -120,80 +86,10 @@ func (c *userServiceClient) GetByUsername(ctx context.Context, in *UsernameReque
 	return out, nil
 }
 
-func (c *userServiceClient) GetByPhone(ctx context.Context, in *PhoneRequest, opts ...grpc.CallOption) (*UserResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UserResponse)
-	err := c.cc.Invoke(ctx, UserService_GetByPhone_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userServiceClient) VerifyPhone(ctx context.Context, in *UserIDRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, UserService_VerifyPhone_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *userServiceClient) MarkKYCVerified(ctx context.Context, in *MarkKYCVerifiedRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, UserService_MarkKYCVerified_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userServiceClient) SetTOTPSecret(ctx context.Context, in *TOTPSecretRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, UserService_SetTOTPSecret_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userServiceClient) UpdateMFAPreference(ctx context.Context, in *MFAPreferenceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, UserService_UpdateMFAPreference_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userServiceClient) DisableTOTP(ctx context.Context, in *UserIDRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, UserService_DisableTOTP_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userServiceClient) DisableUser(ctx context.Context, in *UserIDRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, UserService_DisableUser_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userServiceClient) EnableUser(ctx context.Context, in *UserIDRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, UserService_EnableUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -240,27 +136,40 @@ func (c *userServiceClient) UpdateProfile(ctx context.Context, in *UpdateProfile
 	return out, nil
 }
 
+func (c *userServiceClient) CreateInstitute(ctx context.Context, in *CreateInstituteRequest, opts ...grpc.CallOption) (*InstituteResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InstituteResponse)
+	err := c.cc.Invoke(ctx, UserService_CreateInstitute_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) GetInstitute(ctx context.Context, in *InstituteIDRequest, opts ...grpc.CallOption) (*InstituteResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InstituteResponse)
+	err := c.cc.Invoke(ctx, UserService_GetInstitute_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
 type UserServiceServer interface {
-	ExistsByEmail(context.Context, *EmailRequest) (*ExistsResponse, error)
-	GetByEmail(context.Context, *EmailRequest) (*UserResponse, error)
 	CreateUser(context.Context, *CreateUserRequest) (*UserResponse, error)
 	GetByID(context.Context, *UserIDRequest) (*UserResponse, error)
 	GetByUsername(context.Context, *UsernameRequest) (*UserResponse, error)
-	GetByPhone(context.Context, *PhoneRequest) (*UserResponse, error)
-	VerifyPhone(context.Context, *UserIDRequest) (*emptypb.Empty, error)
 	MarkKYCVerified(context.Context, *MarkKYCVerifiedRequest) (*emptypb.Empty, error)
-	SetTOTPSecret(context.Context, *TOTPSecretRequest) (*emptypb.Empty, error)
-	UpdateMFAPreference(context.Context, *MFAPreferenceRequest) (*emptypb.Empty, error)
-	DisableTOTP(context.Context, *UserIDRequest) (*emptypb.Empty, error)
-	DisableUser(context.Context, *UserIDRequest) (*emptypb.Empty, error)
-	EnableUser(context.Context, *UserIDRequest) (*emptypb.Empty, error)
 	UpdateProfilePic(context.Context, *UpdateImageRequest) (*emptypb.Empty, error)
 	UpdateBanner(context.Context, *UpdateImageRequest) (*emptypb.Empty, error)
 	UpdateBio(context.Context, *UpdateBioRequest) (*emptypb.Empty, error)
 	UpdateProfile(context.Context, *UpdateProfileRequest) (*emptypb.Empty, error)
+	CreateInstitute(context.Context, *CreateInstituteRequest) (*InstituteResponse, error)
+	GetInstitute(context.Context, *InstituteIDRequest) (*InstituteResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -271,12 +180,6 @@ type UserServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedUserServiceServer struct{}
 
-func (UnimplementedUserServiceServer) ExistsByEmail(context.Context, *EmailRequest) (*ExistsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ExistsByEmail not implemented")
-}
-func (UnimplementedUserServiceServer) GetByEmail(context.Context, *EmailRequest) (*UserResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetByEmail not implemented")
-}
 func (UnimplementedUserServiceServer) CreateUser(context.Context, *CreateUserRequest) (*UserResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateUser not implemented")
 }
@@ -286,29 +189,8 @@ func (UnimplementedUserServiceServer) GetByID(context.Context, *UserIDRequest) (
 func (UnimplementedUserServiceServer) GetByUsername(context.Context, *UsernameRequest) (*UserResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetByUsername not implemented")
 }
-func (UnimplementedUserServiceServer) GetByPhone(context.Context, *PhoneRequest) (*UserResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetByPhone not implemented")
-}
-func (UnimplementedUserServiceServer) VerifyPhone(context.Context, *UserIDRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method VerifyPhone not implemented")
-}
 func (UnimplementedUserServiceServer) MarkKYCVerified(context.Context, *MarkKYCVerifiedRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method MarkKYCVerified not implemented")
-}
-func (UnimplementedUserServiceServer) SetTOTPSecret(context.Context, *TOTPSecretRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method SetTOTPSecret not implemented")
-}
-func (UnimplementedUserServiceServer) UpdateMFAPreference(context.Context, *MFAPreferenceRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method UpdateMFAPreference not implemented")
-}
-func (UnimplementedUserServiceServer) DisableTOTP(context.Context, *UserIDRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method DisableTOTP not implemented")
-}
-func (UnimplementedUserServiceServer) DisableUser(context.Context, *UserIDRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method DisableUser not implemented")
-}
-func (UnimplementedUserServiceServer) EnableUser(context.Context, *UserIDRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method EnableUser not implemented")
 }
 func (UnimplementedUserServiceServer) UpdateProfilePic(context.Context, *UpdateImageRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateProfilePic not implemented")
@@ -321,6 +203,12 @@ func (UnimplementedUserServiceServer) UpdateBio(context.Context, *UpdateBioReque
 }
 func (UnimplementedUserServiceServer) UpdateProfile(context.Context, *UpdateProfileRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateProfile not implemented")
+}
+func (UnimplementedUserServiceServer) CreateInstitute(context.Context, *CreateInstituteRequest) (*InstituteResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateInstitute not implemented")
+}
+func (UnimplementedUserServiceServer) GetInstitute(context.Context, *InstituteIDRequest) (*InstituteResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetInstitute not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -341,42 +229,6 @@ func RegisterUserServiceServer(s grpc.ServiceRegistrar, srv UserServiceServer) {
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&UserService_ServiceDesc, srv)
-}
-
-func _UserService_ExistsByEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(EmailRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).ExistsByEmail(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: UserService_ExistsByEmail_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).ExistsByEmail(ctx, req.(*EmailRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _UserService_GetByEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(EmailRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).GetByEmail(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: UserService_GetByEmail_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetByEmail(ctx, req.(*EmailRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _UserService_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -433,42 +285,6 @@ func _UserService_GetByUsername_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_GetByPhone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PhoneRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).GetByPhone(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: UserService_GetByPhone_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetByPhone(ctx, req.(*PhoneRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _UserService_VerifyPhone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserIDRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).VerifyPhone(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: UserService_VerifyPhone_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).VerifyPhone(ctx, req.(*UserIDRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _UserService_MarkKYCVerified_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MarkKYCVerifiedRequest)
 	if err := dec(in); err != nil {
@@ -483,96 +299,6 @@ func _UserService_MarkKYCVerified_Handler(srv interface{}, ctx context.Context, 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).MarkKYCVerified(ctx, req.(*MarkKYCVerifiedRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _UserService_SetTOTPSecret_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TOTPSecretRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).SetTOTPSecret(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: UserService_SetTOTPSecret_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).SetTOTPSecret(ctx, req.(*TOTPSecretRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _UserService_UpdateMFAPreference_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MFAPreferenceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).UpdateMFAPreference(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: UserService_UpdateMFAPreference_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).UpdateMFAPreference(ctx, req.(*MFAPreferenceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _UserService_DisableTOTP_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserIDRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).DisableTOTP(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: UserService_DisableTOTP_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).DisableTOTP(ctx, req.(*UserIDRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _UserService_DisableUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserIDRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).DisableUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: UserService_DisableUser_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).DisableUser(ctx, req.(*UserIDRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _UserService_EnableUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserIDRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).EnableUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: UserService_EnableUser_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).EnableUser(ctx, req.(*UserIDRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -649,6 +375,42 @@ func _UserService_UpdateProfile_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_CreateInstitute_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateInstituteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).CreateInstitute(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_CreateInstitute_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).CreateInstitute(ctx, req.(*CreateInstituteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_GetInstitute_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InstituteIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GetInstitute(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_GetInstitute_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GetInstitute(ctx, req.(*InstituteIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -656,14 +418,6 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "user.UserService",
 	HandlerType: (*UserServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "ExistsByEmail",
-			Handler:    _UserService_ExistsByEmail_Handler,
-		},
-		{
-			MethodName: "GetByEmail",
-			Handler:    _UserService_GetByEmail_Handler,
-		},
 		{
 			MethodName: "CreateUser",
 			Handler:    _UserService_CreateUser_Handler,
@@ -677,36 +431,8 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserService_GetByUsername_Handler,
 		},
 		{
-			MethodName: "GetByPhone",
-			Handler:    _UserService_GetByPhone_Handler,
-		},
-		{
-			MethodName: "VerifyPhone",
-			Handler:    _UserService_VerifyPhone_Handler,
-		},
-		{
 			MethodName: "MarkKYCVerified",
 			Handler:    _UserService_MarkKYCVerified_Handler,
-		},
-		{
-			MethodName: "SetTOTPSecret",
-			Handler:    _UserService_SetTOTPSecret_Handler,
-		},
-		{
-			MethodName: "UpdateMFAPreference",
-			Handler:    _UserService_UpdateMFAPreference_Handler,
-		},
-		{
-			MethodName: "DisableTOTP",
-			Handler:    _UserService_DisableTOTP_Handler,
-		},
-		{
-			MethodName: "DisableUser",
-			Handler:    _UserService_DisableUser_Handler,
-		},
-		{
-			MethodName: "EnableUser",
-			Handler:    _UserService_EnableUser_Handler,
 		},
 		{
 			MethodName: "UpdateProfilePic",
@@ -723,6 +449,14 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateProfile",
 			Handler:    _UserService_UpdateProfile_Handler,
+		},
+		{
+			MethodName: "CreateInstitute",
+			Handler:    _UserService_CreateInstitute_Handler,
+		},
+		{
+			MethodName: "GetInstitute",
+			Handler:    _UserService_GetInstitute_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

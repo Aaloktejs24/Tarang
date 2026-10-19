@@ -1,26 +1,27 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Drawer, Box, Typography, Divider, Checkbox, FormControlLabel, IconButton } from "@mui/material";
+import { Drawer, Box, Typography, Divider, IconButton } from "@mui/material";
 import FilterListIcon from '@mui/icons-material/FilterList';
 import CloseIcon from '@mui/icons-material/Close';
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useAppRouter } from "../../hooks/useAppRouter";
+import CustomCheckbox from "../../components/common/CustomCheckbox";
 
 const checkboxStyles = {
-  color: "#64748b",
+  color: "var(--color-slate-500)",
   "&.Mui-checked": {
-    color: "#0056b3",
+    color: "var(--color-primary)",
   },
   "& + .MuiFormControlLabel-label": {
-    fontFamily: `"Inter", "Roboto", "Helvetica", "Arial", sans-serif`,
-    fontSize: "14px",
-    fontWeight: 600,
-    color: "#334155",
+    fontSize: 'var(--font-sm)',
+    fontWeight: 'var(--font-semibold)',
+    color: "var(--color-slate-700)",
   },
 };
 
 export default function FeedMobileFilter() {
   const [open, setOpen] = useState(false);
-  const router = useRouter();
+  const router = useAppRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
@@ -61,7 +62,7 @@ export default function FeedMobileFilter() {
             background: "rgba(255, 255, 255, 0.85)",
             backdropFilter: "blur(30px)",
             WebkitBackdropFilter: "blur(30px)",
-            borderTop: "1px solid rgba(255,255,255,0.4)",
+            borderTop: "var(--border-thin) solid rgba(255,255,255,0.4)",
             maxHeight: "85vh",
             display: "flex",
             flexDirection: "column",
@@ -69,10 +70,10 @@ export default function FeedMobileFilter() {
         }}
       >
         <Box sx={{ p: 4, pb: 2, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <Typography variant="h6" sx={{ fontWeight: 800, color: "#0f172a" }}>
+          <Typography variant="h6" sx={{ fontWeight: 800, color: "var(--color-slate-900)" }}>
             सामग्री फ़िल्टर
           </Typography>
-          <IconButton onClick={() => setOpen(false)} sx={{ color: "#64748b", bgcolor: "rgba(0,0,0,0.04)" }}>
+          <IconButton onClick={() => setOpen(false)} sx={{ color: "var(--color-slate-500)", bgcolor: "rgba(0,0,0,0.04)" }}>
             <CloseIcon />
           </IconButton>
         </Box>
@@ -81,34 +82,32 @@ export default function FeedMobileFilter() {
         <Box sx={{ px: 4, pb: 6, overflowY: "auto", display: "flex", flexDirection: "column", gap: 4 }}>
           
           <Box>
-            <Typography variant="subtitle2" sx={{ color: "#0056b3", fontWeight: 800, textTransform: "uppercase", letterSpacing: "1.2px", mb: 2, fontSize: "0.75rem" }}>
+            <Typography variant="subtitle2" sx={{ color: "var(--color-primary)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "1.2px", mb: 2, fontSize: 'var(--font-xs)' }}>
               फ़ॉर्मेट
             </Typography>
             <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 }}>
-              <FormControlLabel control={<Checkbox size="small" sx={checkboxStyles} checked={isChecked('video')} onChange={() => handleToggle('video')} />} label="वीडियो" />
-              <FormControlLabel control={<Checkbox size="small" sx={checkboxStyles} checked={isChecked('audio')} onChange={() => handleToggle('audio')} />} label="आडियो" />
-              <FormControlLabel control={<Checkbox size="small" sx={checkboxStyles} checked={isChecked('pdf')} onChange={() => handleToggle('pdf')} />} label="पीडीऍफ़" />
-              <FormControlLabel control={<Checkbox size="small" sx={checkboxStyles} checked={isChecked('ebook')} onChange={() => handleToggle('ebook')} />} label="ई-बुक" />
-              <FormControlLabel control={<Checkbox size="small" sx={checkboxStyles} checked={isChecked('article')} onChange={() => handleToggle('article')} />} label="लेख" />
-              <FormControlLabel control={<Checkbox size="small" sx={checkboxStyles} checked={isChecked('code')} onChange={() => handleToggle('code')} />} label="कोड" />
-              <FormControlLabel control={<Checkbox size="small" sx={checkboxStyles} checked={isChecked('quiz')} onChange={() => handleToggle('quiz')} />} label="क्विज़" />
+              <CustomCheckbox size={20} checked={isChecked('video')} onChange={() => handleToggle('video')} label="वीडियो" />
+              <CustomCheckbox size={20} checked={isChecked('audio')} onChange={() => handleToggle('audio')} label="आडियो" />
+              <CustomCheckbox size={20} checked={isChecked('pdf')} onChange={() => handleToggle('pdf')} label="पीडीऍफ़" />
+              <CustomCheckbox size={20} checked={isChecked('ebook')} onChange={() => handleToggle('ebook')} label="ई-बुक" />
+              <CustomCheckbox size={20} checked={isChecked('article')} onChange={() => handleToggle('article')} label="लेख" />
+              <CustomCheckbox size={20} checked={isChecked('code')} onChange={() => handleToggle('code')} label="कोड" />
+              <CustomCheckbox size={20} checked={isChecked('quiz')} onChange={() => handleToggle('quiz')} label="क्विज़" />
             </Box>
           </Box>
 
-          <Divider sx={{ borderColor: "rgba(0,0,0,0.04)" }} />
-
           <Box>
-            <Typography variant="subtitle2" sx={{ color: "#0056b3", fontWeight: 800, textTransform: "uppercase", letterSpacing: "1.2px", mb: 2, fontSize: "0.75rem" }}>
-              श्रेणी
+            <Typography variant="subtitle2" sx={{ fontWeight: 'var(--font-bold)', color: "var(--color-slate-900)", mb: 1.5 }}>
+              इवेंट्स और लाइव
             </Typography>
-            <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 }}>
-              <FormControlLabel control={<Checkbox size="small" sx={checkboxStyles} checked={isChecked('webinar')} onChange={() => handleToggle('webinar')} />} label="लाइव क्लास" />
-              <FormControlLabel control={<Checkbox size="small" sx={checkboxStyles} checked={isChecked('interview')} onChange={() => handleToggle('interview')} />} label="इंटरव्यू" />
-              <FormControlLabel control={<Checkbox size="small" sx={checkboxStyles} checked={isChecked('case_study')} onChange={() => handleToggle('case_study')} />} label="केस स्टडी" />
-              <FormControlLabel control={<Checkbox size="small" sx={checkboxStyles} checked={isChecked('hackathon')} onChange={() => handleToggle('hackathon')} />} label="हैकथॉन" />
-              <FormControlLabel control={<Checkbox size="small" sx={checkboxStyles} checked={isChecked('news')} onChange={() => handleToggle('news')} />} label="न्यूज़" />
-              <FormControlLabel control={<Checkbox size="small" sx={checkboxStyles} checked={isChecked('journal')} onChange={() => handleToggle('journal')} />} label="जर्नल" />
-              <FormControlLabel control={<Checkbox size="small" sx={checkboxStyles} checked={isChecked('poll')} onChange={() => handleToggle('poll')} />} label="पोल" />
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              <CustomCheckbox size={20} checked={isChecked('webinar')} onChange={() => handleToggle('webinar')} label="लाइव क्लास" />
+              <CustomCheckbox size={20} checked={isChecked('interview')} onChange={() => handleToggle('interview')} label="इंटरव्यू" />
+              <CustomCheckbox size={20} checked={isChecked('case_study')} onChange={() => handleToggle('case_study')} label="केस स्टडी" />
+              <CustomCheckbox size={20} checked={isChecked('hackathon')} onChange={() => handleToggle('hackathon')} label="हैकथॉन" />
+              <CustomCheckbox size={20} checked={isChecked('news')} onChange={() => handleToggle('news')} label="न्यूज़" />
+              <CustomCheckbox size={20} checked={isChecked('journal')} onChange={() => handleToggle('journal')} label="जर्नल" />
+              <CustomCheckbox size={20} checked={isChecked('poll')} onChange={() => handleToggle('poll')} label="पोल" />
             </Box>
           </Box>
 

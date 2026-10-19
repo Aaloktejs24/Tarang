@@ -35,15 +35,9 @@ const (
 ////////////////////////////////////////////////////////////
 
 type UserClient interface {
-	ExistsByEmail(ctx context.Context, email string) (bool, error)
-	GetByEmail(ctx context.Context, email string) (*User, error)
 	GetByUsername(ctx context.Context, username string) (*User, error)
-	GetByPhone(ctx context.Context, phone string) (*User, error)
 	Create(ctx context.Context, u *User) error
 	GetByID(ctx context.Context, id uuid.UUID) (*User, error)
-	SetTOTPSecret(ctx context.Context, id uuid.UUID, secret string) error
-	UpdateMFAPreference(ctx context.Context, id uuid.UUID, preference string) error
-	VerifyPhone(ctx context.Context, id uuid.UUID) error
 	MarkKYCVerified(ctx context.Context, id uuid.UUID, referenceID, aadhaarHash, fullName, dob, gender string) error
 	UpdateProfilePic(ctx context.Context, id uuid.UUID, url string) error
 	UpdateBanner(ctx context.Context, id uuid.UUID, url string) error
@@ -132,8 +126,8 @@ func (s *Service) GetAccountByUsername(ctx context.Context, username string) (*A
 	return s.repo.GetAccountByUsername(ctx, username)
 }
 
-func (s *Service) GetUserByEmail(ctx context.Context, email string) (*User, error) {
-	return s.users.GetByEmail(ctx, normalizeEmail(email))
+func (s *Service) GetAccountByID(ctx context.Context, id uuid.UUID) (*Account, error) {
+	return s.repo.GetAccountByID(ctx, id)
 }
 
 func (s *Service) GetUserByID(ctx context.Context, id uuid.UUID) (*User, error) {
@@ -144,35 +138,15 @@ func (s *Service) GetProfile(ctx context.Context, userID uuid.UUID) (*User, erro
 	return s.users.GetByID(ctx, userID)
 }
 
-func (s *Service) SetUserTOTPSecret(ctx context.Context, id uuid.UUID, secret string) error {
-	return s.users.SetTOTPSecret(ctx, id, secret)
-}
 
-func (s *Service) UpdateUserMFAPreference(ctx context.Context, id uuid.UUID, preference string) error {
-	return s.users.UpdateMFAPreference(ctx, id, preference)
-}
+
+
 
 func (s *Service) GetUserByUsername(ctx context.Context, username string) (*User, error) {
 	return s.users.GetByUsername(ctx, username)
 }
 
-func (s *Service) GetUserByPhone(ctx context.Context, phone string) (*User, error) {
-	return s.users.GetByPhone(ctx, phone)
-}
 
-func (s *Service) GetUserByIdentifier(ctx context.Context, identifier string) (*User, error) {
-	// Try email
-	u, err := s.users.GetByEmail(ctx, normalizeEmail(identifier))
-	if err == nil {
-		return u, nil
-	}
-	// Try username
-	return s.users.GetByUsername(ctx, identifier)
-}
-
-////////////////////////////////////////////////////////////
-//// LOGIN SESSIONS
-////////////////////////////////////////////////////////////
 
 func (s *Service) CreateLoginSession(ctx context.Context, session *LoginSession) error {
 	return s.repo.CreateLoginSession(ctx, session)
@@ -247,8 +221,42 @@ func (s *Service) VerifyRegistrationOTP(ctx context.Context, sessionID uuid.UUID
 
 	return s.repo.SetRegistrationSessionEmailVerified(ctx, sessionID)
 }
+func (s *Service) SetupRegistrationTOTP(ctx context.Context, sessionID uuid.UUID) (secret string, url string, err error) {
+	session, err := s.repo.GetRegistrationSessionByID(ctx, sessionID)
+	if err != nil {
+		return "", "", err
+	}
 
-func (s *Service) CompleteRegistrationSession(ctx context.Context, sessionID uuid.UUID, username, password, fullName, role string) (*Account, error) {
+	if session.ExpiresAt.Before(time.Now()) {
+		return "", "", fmt.Errorf("registration session expired")
+	}
+
+	// Idempotency: if a secret is already set, reuse it (don't regenerate)
+	if session.TOTPSecret != nil && *session.TOTPSecret != "" {
+		existingSecret := *session.TOTPSecret
+		// Build the otpauth URL directly from the stored base32 secret
+		// (do NOT use totp.Generate with Secret: []byte(base32str) — that double-encodes)
+		totpURL := fmt.Sprintf(
+			"otpauth://totp/Tarang:%s?secret=%s&issuer=Tarang&algorithm=SHA1&digits=6&period=30",
+			session.Email, existingSecret,
+		)
+		return existingSecret, totpURL, nil
+	}
+
+	secret, url, err = s.GenerateTOTPSecret(session.Email)
+	if err != nil {
+		return "", "", err
+	}
+
+	err = s.repo.SetRegistrationSessionTOTPSecret(ctx, sessionID, secret)
+	if err != nil {
+		return "", "", err
+	}
+
+	return secret, url, nil
+}
+
+func (s *Service) CompleteRegistrationSession(ctx context.Context, sessionID uuid.UUID, username, password, fullName, role, phone, dob, gender string, totpCode string) (*Account, error) {
 	session, err := s.repo.GetRegistrationSessionByID(ctx, sessionID)
 	if err != nil {
 		return nil, err
@@ -262,21 +270,45 @@ func (s *Service) CompleteRegistrationSession(ctx context.Context, sessionID uui
 		return nil, fmt.Errorf("registration session expired")
 	}
 
+	if session.TOTPSecret != nil && *session.TOTPSecret != "" {
+		if totpCode == "" {
+			return nil, fmt.Errorf("totp verification required")
+		}
+		if !s.ValidateTOTP(*session.TOTPSecret, totpCode) {
+			return nil, fmt.Errorf("invalid totp code")
+		}
+	}
+
 	hash, err := argon2id.CreateHash(password, argon2id.DefaultParams)
 	if err != nil {
 		return nil, err
 	}
 
 	now := time.Now()
+	
+	// Prepare phone pointer if it exists
+	var phonePtr *string
+	if phone != "" {
+		phonePtr = &phone
+	}
+
+	mfaPref := "none"
+	if session.TOTPSecret != nil && *session.TOTPSecret != "" {
+		mfaPref = "totp"
+	}
+
 	acc := &Account{
 		Username:        username,
 		Email:           session.Email,
+		Phone:           phonePtr,
 		PasswordHash:    hash,
 		EmailVerifiedAt: &now,
+		TOTPSecret:      session.TOTPSecret,
+		MFAPreference:   mfaPref,
 	}
 
 	if err := s.repo.CreateAccount(ctx, acc); err != nil {
-		return nil, fmt.Errorf("username or email already taken")
+		return nil, fmt.Errorf("username, email, or phone already taken")
 	}
 
 	// Also create Public Profile in user-service via gRPC
@@ -286,6 +318,9 @@ func (s *Service) CompleteRegistrationSession(ctx context.Context, sessionID uui
 		Username: acc.Username,
 		FullName: fullName,
 		Role:     role,
+		Phone:    phone,
+		DOB:      dob,
+		Gender:   gender,
 	}
 
 	log.Printf("[Registration] Creating profile - ID: %s, Username: %s, FullName: %s, Role: %s", u.ID, u.Username, u.FullName, u.Role)
@@ -295,24 +330,24 @@ func (s *Service) CompleteRegistrationSession(ctx context.Context, sessionID uui
 		return nil, fmt.Errorf("failed to create user profile: %v", err)
 	}
 
-	s.repo.DeleteRegistrationSession(ctx, sessionID)
+	_ = s.repo.DeleteRegistrationSession(ctx, sessionID)
 
 	return acc, nil
 }
 
 func (s *Service) ResendOTP(ctx context.Context, purpose, target string) (string, error) {
-	var u *User
+	var u *Account
 	var errLookup error
 
 	if purpose == "register" {
 		// For registration, we expect target to be email
-		u = &User{Email: normalizeEmail(target)}
+		u = &Account{Email: normalizeEmail(target)}
 	} else {
 		// Only Email and Phone allowed for reset/resend
 		if strings.Contains(target, "@") {
-			u, errLookup = s.users.GetByEmail(ctx, normalizeEmail(target))
+			u, errLookup = s.repo.GetAccountByEmail(ctx, normalizeEmail(target))
 		} else {
-			u, errLookup = s.users.GetByPhone(ctx, target)
+			u, errLookup = s.repo.GetAccountByPhone(ctx, target)
 		}
 
 		if errLookup != nil || u == nil {
@@ -323,8 +358,8 @@ func (s *Service) ResendOTP(ctx context.Context, purpose, target string) (string
 	finalTarget := target
 	if u.Email != "" {
 		finalTarget = u.Email
-	} else if u.Phone != "" {
-		finalTarget = u.Phone
+	} else if u.Phone != nil && *u.Phone != "" {
+		finalTarget = *u.Phone
 	}
 
 	otp, err := s.GenerateOTP(ctx, purpose, finalTarget)
@@ -332,11 +367,15 @@ func (s *Service) ResendOTP(ctx context.Context, purpose, target string) (string
 		return "", err
 	}
 
+	phoneTarget := ""
+	if u.Phone != nil {
+		phoneTarget = *u.Phone
+	}
 	job := queue.OTPJob{
 		Purpose: purpose,
 		Code:    otp,
 		Email:   u.Email,
-		Phone:   u.Phone,
+		Phone:   phoneTarget,
 	}
 
 	if err := s.queue.PublishOTP(job); err != nil {
@@ -351,18 +390,18 @@ func (s *Service) ResendOTP(ctx context.Context, purpose, target string) (string
 ////////////////////////////////////////////////////////////
 
 func (s *Service) StartPasswordReset(ctx context.Context, target string) (string, error) {
-	var u *User
+	var u *Account
 	var errLookup error
 
 	if strings.Contains(target, "@") {
 		// 1. Try Email
-		u, errLookup = s.users.GetByEmail(ctx, normalizeEmail(target))
+		u, errLookup = s.repo.GetAccountByEmail(ctx, normalizeEmail(target))
 	} else {
 		// 2. Try Phone (must be numeric)
 		if _, err := strconv.ParseInt(target, 10, 64); err != nil {
 			return "", fmt.Errorf("user not found")
 		}
-		u, errLookup = s.users.GetByPhone(ctx, target)
+		u, errLookup = s.repo.GetAccountByPhone(ctx, target)
 	}
 
 	if errLookup != nil || u == nil {
@@ -372,8 +411,8 @@ func (s *Service) StartPasswordReset(ctx context.Context, target string) (string
 	finalTarget := target
 	if u.Email != "" {
 		finalTarget = u.Email
-	} else if u.Phone != "" {
-		finalTarget = u.Phone
+	} else if u.Phone != nil && *u.Phone != "" {
+		finalTarget = *u.Phone
 	}
 
 	otp, err := s.GenerateOTP(ctx, "password_reset", finalTarget)
@@ -381,11 +420,15 @@ func (s *Service) StartPasswordReset(ctx context.Context, target string) (string
 		return "", err
 	}
 
+	phoneTarget2 := ""
+	if u.Phone != nil {
+		phoneTarget2 = *u.Phone
+	}
 	job := queue.OTPJob{
 		Purpose: "password_reset",
 		Code:    otp,
 		Email:   u.Email,
-		Phone:   u.Phone,
+		Phone:   phoneTarget2,
 	}
 
 	if err := s.queue.PublishOTP(job); err != nil {
@@ -410,16 +453,7 @@ func (s *Service) ResetPassword(ctx context.Context, target, code, password stri
 		acc, errLookup = s.repo.GetAccountByEmail(ctx, target)
 	} else {
 		// 2. Try Phone
-		// Since we don't have GetAccountByPhone, we might need a workaround. For now, fetch by username if not email or fetch user to get email?
-		// Actually, target should be email. If phone, we need to map phone -> email, or phone -> account.
-		// We'll trust the target format.
-		// Wait, user-service GetByPhone returns `u`. Then we can lookup auth_db.
-		u, errPhone := s.users.GetByPhone(ctx, target)
-		if errPhone == nil {
-			acc, errLookup = s.repo.GetAccountByEmail(ctx, u.Email)
-		} else {
-			return fmt.Errorf("user not found")
-		}
+		acc, errLookup = s.repo.GetAccountByPhone(ctx, target)
 	}
 
 	if errLookup != nil || acc == nil {
@@ -467,7 +501,7 @@ func (s *Service) VerifyPhone(ctx context.Context, userID uuid.UUID, phone, code
 		return fmt.Errorf("invalid or expired otp")
 	}
 
-	return s.users.VerifyPhone(ctx, userID)
+	return s.repo.SetPhoneVerified(ctx, userID)
 }
 
 func (s *Service) MarkKYCVerified(ctx context.Context, userID uuid.UUID, referenceID, hash, name, dob, gender string) error {
@@ -892,4 +926,12 @@ func (s *Service) SendAdminTokenEmail(ctx context.Context, email string) error {
 
 func (s *Service) GetAdminWebAuthnCredentials(ctx context.Context, role, identifier string) ([]AdminWebAuthnCredential, error) {
 	return s.repo.GetAdminWebAuthnCredentials(ctx, role, identifier)
+}
+
+func (s *Service) SetUserTOTPSecret(ctx context.Context, id uuid.UUID, secret string) error {
+	return s.repo.SetAccountTOTPSecret(ctx, id, secret)
+}
+
+func (s *Service) UpdateUserMFAPreference(ctx context.Context, id uuid.UUID, preference string) error {
+	return s.repo.UpdateAccountMFAPreference(ctx, id, preference)
 }

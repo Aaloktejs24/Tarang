@@ -23,10 +23,11 @@ import ApartmentOutlinedIcon from '@mui/icons-material/ApartmentOutlined';
 import Diversity3OutlinedIcon from '@mui/icons-material/Diversity3Outlined';
 import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
 import { useAccessibility } from '../../../../contexts/AccessibilityContext';
-import { getAcronym, capitalizeFirstLetter, formatBreadcrumbName } from '../../../../utils/stringUtils';
+import { formatBreadcrumbName } from '../../../../utils/stringUtils';
 import UniversalHero from '../../../../components/hero/UniversalHero';
 import { getHeroPropsFromProfile } from '../../../../utils/heroUtils';
 import { useBreadcrumbs } from "../../../../contexts/BreadcrumbContext";
+import InstituteSkeleton from "../../../../features/institute/InstituteSkeleton";
 
 const MotionDiv = motion.div;
 
@@ -40,7 +41,7 @@ export default function InstituteDetails() {
 
   const cardsRef = React.useRef(null);
 
-  const rawInstituteName = profile?.full_name || profile?.institution_name || profile?.username || username;
+  const rawInstituteName = profile?.institution_name || profile?.full_name || profile?.username || username;
   const breadcrumbInstituteName = formatBreadcrumbName(rawInstituteName);
 
   // Auto-manage breadcrumbs
@@ -76,23 +77,20 @@ export default function InstituteDetails() {
     if (username) fetchProfile();
   }, [username]);
 
-  const displayTitle = profile ? capitalizeFirstLetter(profile.full_name || profile.username) : '';
-  const displaySubtitle = profile ? (profile.nameLocal || profile.nameHindi || "") : '';
-
   const exploreModules = [
-    { id: "about", title: "संस्थान के बारे में / About Institute", subTitle: "Bio & History", icon: <InfoOutlinedIcon />, color: "#0056b3" },
-    { id: "programs", title: "प्रोग्राम्स / Top Programs", subTitle: "B.Tech, M.Tech & More", icon: <SchoolOutlinedIcon />, color: "#0056b3" },
-    { id: "achievements", title: "उपलब्धियां / Recognitions", subTitle: "Rankings & Awards", icon: <EmojiEventsOutlinedIcon />, color: "#0056b3" },
-    { id: "campus", title: "परिसर / Campus & Location", subTitle: profile?.location || "India", icon: <LocationOnOutlinedIcon />, color: "#0056b3" },
-    { id: "community", title: "समुदाय / Student Community", subTitle: "Clubs & Societies", icon: <PeopleOutlinedIcon />, color: "#0056b3" },
-    { id: "website", title: "वेबसाइट / Official Website", subTitle: "Visit portal", icon: <LanguageOutlinedIcon />, color: "#0056b3" },
-    { id: "contact", title: "संपर्क / Contact Us", subTitle: "Email & Phone", icon: <EmailOutlinedIcon />, color: "#0056b3" },
-    { id: "courses", title: "कोर्स और फीस / Courses & Fees", subTitle: "UG, PG & Ph.D", icon: <LibraryBooksOutlinedIcon />, color: "#0056b3" },
-    { id: "faculty", title: "फैकल्टी / Faculty & Staff", subTitle: "Professors & Mentors", icon: <GroupWorkOutlinedIcon />, color: "#0056b3" },
-    { id: "placement", title: "प्लेसमेंट सेल / Placement Cell", subTitle: "Recruiters & Stats", icon: <WorkOutlineOutlinedIcon />, color: "#0056b3" },
-    { id: "facilities", title: "सुविधाएं / Facilities", subTitle: "Labs, Hostels & Library", icon: <ApartmentOutlinedIcon />, color: "#0056b3" },
-    { id: "alumni", title: "पूर्व छात्र / Alumni Network", subTitle: "Notable Graduates", icon: <Diversity3OutlinedIcon />, color: "#0056b3" },
-    { id: "reviews", title: "समीक्षाएं / Reviews & Ratings", subTitle: "Student Feedback", icon: <StarOutlineOutlinedIcon />, color: "#0056b3" },
+    { id: "about", title: "संस्थान के बारे में / About Institute", subTitle: "Bio & History", icon: <InfoOutlinedIcon />, color: "var(--color-primary)" },
+    { id: "programs", title: "प्रोग्राम्स / Top Programs", subTitle: "B.Tech, M.Tech & More", icon: <SchoolOutlinedIcon />, color: "var(--color-primary)" },
+    { id: "achievements", title: "उपलब्धियां / Recognitions", subTitle: "Rankings & Awards", icon: <EmojiEventsOutlinedIcon />, color: "var(--color-primary)" },
+    { id: "campus", title: "परिसर / Campus & Location", subTitle: profile?.location || "India", icon: <LocationOnOutlinedIcon />, color: "var(--color-primary)" },
+    { id: "community", title: "समुदाय / Student Community", subTitle: "Clubs & Societies", icon: <PeopleOutlinedIcon />, color: "var(--color-primary)" },
+    { id: "website", title: "वेबसाइट / Official Website", subTitle: "Visit portal", icon: <LanguageOutlinedIcon />, color: "var(--color-primary)" },
+    { id: "contact", title: "संपर्क / Contact Us", subTitle: "Email & Phone", icon: <EmailOutlinedIcon />, color: "var(--color-primary)" },
+    { id: "courses", title: "कोर्स और फीस / Courses & Fees", subTitle: "UG, PG & Ph.D", icon: <LibraryBooksOutlinedIcon />, color: "var(--color-primary)" },
+    { id: "faculty", title: "फैकल्टी / Faculty & Staff", subTitle: "Professors & Mentors", icon: <GroupWorkOutlinedIcon />, color: "var(--color-primary)" },
+    { id: "placement", title: "प्लेसमेंट सेल / Placement Cell", subTitle: "Recruiters & Stats", icon: <WorkOutlineOutlinedIcon />, color: "var(--color-primary)" },
+    { id: "facilities", title: "सुविधाएं / Facilities", subTitle: "Labs, Hostels & Library", icon: <ApartmentOutlinedIcon />, color: "var(--color-primary)" },
+    { id: "alumni", title: "पूर्व छात्र / Alumni Network", subTitle: "Notable Graduates", icon: <Diversity3OutlinedIcon />, color: "var(--color-primary)" },
+    { id: "reviews", title: "समीक्षाएं / Reviews & Ratings", subTitle: "Student Feedback", icon: <StarOutlineOutlinedIcon />, color: "var(--color-primary)" },
   ];
 
   const getTranslatedText = (text) => {
@@ -106,7 +104,7 @@ export default function InstituteDetails() {
     return (
       <Box sx={{ p: 5, textAlign: "center", mt: 10 }}>
         <Typography variant="h5" color="error">{error || "Institute not found"}</Typography>
-        <Button variant="contained" disableElevation onClick={() => router.push('/dashboard/explore')} sx={{ mt: 3, bgcolor: "#0056b3" }}>Return to Explore</Button>
+        <Button variant="contained" disableElevation onClick={() => router.push('/dashboard/explore')} sx={{ mt: 3, bgcolor: "var(--color-primary)" }}>Return to Explore</Button>
       </Box>
     );
   }
@@ -138,17 +136,21 @@ export default function InstituteDetails() {
             <>
               {Array.from(new Array(8)).map((_, idx) => (
                 <Card key={idx} sx={{
-                  height: "100%", width: "100%", borderRadius: "16px",
+                  height: "var(--size-full)", width: "var(--size-full)", borderRadius: 'var(--radius-lg)',
                   background: "rgba(255, 255, 255, 0.3)", backdropFilter: "blur(30px)",
-                  border: "1px solid rgba(30, 79, 163, 0.2)", boxShadow: "none",
-                  display: "flex", alignItems: "center", p: 2
+                  border: "var(--border-thin) solid rgba(30, 79, 163, 0.2)",
+                  display: "flex", alignItems: "center", p: 2, gap: 2
                 }}>
-                  <Skeleton variant="circular" width={24} height={24} sx={{ mr: 2, flexShrink: 0 }} />
-                  <Box sx={{ flexGrow: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                    <Skeleton variant="text" width="60%" height={20} />
-                    <Skeleton variant="text" width="40%" height={16} />
+                  <Box className="MuiSkeleton-root" sx={{ width: 48, height: 48, borderRadius: 'var(--radius-lg)', flexShrink: 0 }} />
+                  <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                    <Typography variant="subtitle1" noWrap sx={{ lineHeight: 1.5, mb: 0.5, fontSize: 'var(--font-base)', py: 0.5, display: 'flex', alignItems: 'center' }}>
+                      <Box className="MuiSkeleton-root" sx={{ width: "70%", height: 18, borderRadius: 'var(--radius-sm)' }} />
+                    </Typography>
+                    <Typography variant="caption" noWrap sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Box className="MuiSkeleton-root" sx={{ width: "50%", height: 14, borderRadius: 'var(--radius-sm)' }} />
+                    </Typography>
                   </Box>
-                  <Skeleton variant="circular" width={14} height={14} sx={{ ml: 1 }} />
+                  <Box className="MuiSkeleton-root" sx={{ width: 14, height: 14, borderRadius: '50%', flexShrink: 0 }} />
                 </Card>
               ))}
             </>
@@ -160,26 +162,25 @@ export default function InstituteDetails() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
-                  style={{ height: "100%", width: "100%" }}
+                  style={{ height: "var(--size-full)", width: "var(--size-full)" }}
                 >
                   <Card
                     onClick={() => { }}
                     sx={{
-                      height: "100%",
-                      width: "100%",
-                      borderRadius: "16px",
+                      height: "var(--size-full)",
+                      width: "var(--size-full)",
+                      borderRadius: 'var(--radius-lg)',
                       background: "rgba(255, 255, 255, 0.3)",
                       backdropFilter: "blur(30px)",
                       WebkitBackdropFilter: "blur(30px)",
-                      border: "1px solid rgba(30, 79, 163, 0.2)",
-                      boxShadow: "none",
-                      transition: "all 0.3s ease",
+                      border: "var(--border-thin) solid rgba(30, 79, 163, 0.2)",
+                      transition: "var(--transition-slow)",
                       cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
                       p: 2,
                       "&:hover": {
-                        border: "1px solid rgba(30, 79, 163, 0.5)",
+                        border: "var(--border-thin) solid rgba(30, 79, 163, 0.5)",
                         background: "rgba(255, 255, 255, 0.45)",
                         "& .module-icon": {
                           bgcolor: "transparent",
@@ -199,13 +200,13 @@ export default function InstituteDetails() {
                       sx={{
                         width: 48,
                         height: 48,
-                        borderRadius: "12px",
+                        borderRadius: 'var(--radius-lg)',
                         bgcolor: "transparent",
                         color: module.color,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        transition: "all 0.3s ease",
+                        transition: "var(--transition-slow)",
                         flexShrink: 0,
                         mr: 2
                       }}
@@ -215,10 +216,10 @@ export default function InstituteDetails() {
 
                     {/* Text */}
                     <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                      <Typography variant="subtitle1" noWrap sx={{ fontWeight: 800, color: "#0f172a", lineHeight: 1.5, mb: 0.5, fontSize: "0.95rem", py: 0.5 }}>
+                      <Typography variant="subtitle1" noWrap sx={{ fontWeight: 800, color: "var(--color-slate-900)", lineHeight: 1.5, mb: 0.5, fontSize: 'var(--font-base)', py: 0.5 }}>
                         {getTranslatedText(module.title)}
                       </Typography>
-                      <Typography variant="caption" noWrap sx={{ color: "#475569", fontWeight: 500, display: "block" }}>
+                      <Typography variant="caption" noWrap sx={{ color: "var(--color-slate-500)", fontWeight: 'var(--font-medium)', display: "block" }}>
                         {getTranslatedText(module.subTitle)}
                       </Typography>
                     </Box>
@@ -228,8 +229,8 @@ export default function InstituteDetails() {
                       className="arrow-icon"
                       sx={{
                         fontSize: 14,
-                        color: "#cbd5e1",
-                        transition: "all 0.3s ease",
+                        color: "var(--color-slate-200)",
+                        transition: "var(--transition-slow)",
                         ml: 1
                       }}
                     />
@@ -242,7 +243,7 @@ export default function InstituteDetails() {
       </Container>
 
       {/* Floating Action Button at Bottom Right */}
-      <Box sx={{ position: 'fixed', bottom: { xs: 24, md: 40 }, right: { xs: 24, md: 40 }, zIndex: 50 }}>
+      <Box sx={{ position: 'fixed', bottom: { xs: 24, md: 40 }, right: { xs: 24, md: 40 }, zIndex: 'var(--z-sticky)' }}>
         <Button
           variant="contained"
           disableRipple
@@ -253,17 +254,15 @@ export default function InstituteDetails() {
             px: { xs: 3, md: 4 },
             py: { xs: 1.2, md: 1.5 },
             borderRadius: '50px',
-            border: '1.5px solid #ffc107',
+            border: '1.5px solid #f59e0b',
             textTransform: 'none',
-            boxShadow: 'none !important',
-            transition: 'all 0.3s ease',
+            transition: 'var(--transition-slow)',
             '&:hover, &:focus, &:active': {
               bgcolor: '#004494 !important',
-              boxShadow: 'none !important'
             }
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', fontWeight: 600, fontSize: { xs: '1rem', md: '1.1rem' } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', fontWeight: 'var(--font-semibold)', fontSize: { xs: '1rem', md: '1.1rem' } }}>
             {language === 'en' ? 'Take Admission' : 'प्रवेश लें'}
             <SendIcon sx={{ ml: 1, fontSize: '1.3rem' }} />
           </Box>

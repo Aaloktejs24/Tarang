@@ -34,6 +34,12 @@ type Config struct {
 	AWSAccessKeyID     string
 	AWSSecretAccessKey string
 
+	MinioEndpoint  string
+	MinioAccessKey string
+	MinioSecretKey string
+	MinioUseSSL    bool
+	MinioPublicURL string
+
 	UserServiceAddr    string
 	SuperAdminPassword string
 }
@@ -74,9 +80,17 @@ func Load() *Config {
 
 		ALEMasterKey: getEnv("ALE_MASTER_KEY", ""),
 
+		// Used by SES
 		AWSRegion:          getEnv("AWS_REGION", "ap-south-1"),
 		AWSAccessKeyID:     os.Getenv("AWS_ACCESS_KEY_ID"),
 		AWSSecretAccessKey: os.Getenv("AWS_SECRET_ACCESS_KEY"),
+
+		// Used by MinIO Object Storage
+		MinioEndpoint:  getEnv("MINIO_ENDPOINT", "localhost:9000"),
+		MinioAccessKey: getEnv("MINIO_ACCESS_KEY", "minioadmin"),
+		MinioSecretKey: getEnv("MINIO_SECRET_KEY", "minioadmin"),
+		MinioUseSSL:    getEnv("MINIO_USE_SSL", "false") == "true",
+		MinioPublicURL: getEnv("MINIO_PUBLIC_URL", "http://localhost:9000"),
 
 		UserServiceAddr:    getEnv("USER_SERVICE_ADDR", "user-service:50051"),
 		SuperAdminPassword: os.Getenv("SUPER_ADMIN_PASSWORD"),

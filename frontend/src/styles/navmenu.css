@@ -11,17 +11,17 @@
   align-items: center;
   color: white;
   position: fixed;
-  width: 100%;
+  width: var(--size-full);
   top: 64px;
   left: 0;
   z-index: 998;
-  border-bottom: 2px solid #ffc107;
+  border-bottom: var(--border-thick) solid #ffc107;
 }
 
 .navmenu_left {
   display: flex;
   align-items: center;
-  height: 100%;
+  height: var(--size-full);
   margin-left: auto;
   margin-right: max(calc(1.9vw - 7.5px), 15px);
   order: 2;
@@ -37,7 +37,7 @@
   padding: 0px 15px;
   font-size: 16px;
   color: white;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   text-decoration: none;
   overflow: hidden;
   cursor: pointer;

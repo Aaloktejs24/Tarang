@@ -1,15 +1,19 @@
-import { Box, Typography, TextField, Button, InputAdornment, Popover, List, ListItemButton, Checkbox, FormControlLabel } from "@mui/material";
+import { Box, Typography, TextField, InputAdornment, Popover, List, ListItemButton, Checkbox, FormControlLabel } from "@mui/material";
 import EmailIcon from "@mui/icons-material/Email";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import SearchIcon from "@mui/icons-material/Search";
 import { useState } from "react";
-import Loader from "../../../components/common/Loader";
+import { motion, AnimatePresence } from "framer-motion";
+import { validateEmail } from "../../../utils/validationUtils";
+import AuthMessage from "./AuthMessage";
 
 import gazeteer from '../../../data/formated/gazeteer.json';
 const COUNTRY_CODES = gazeteer.Countries.map(c => ({ ...c, code: c.phoneCode, enName: c.name, label: c.phoneCode }));
+import TarangButton from "../../../components/common/TarangButton";
 export default function RegisterEmailStep({ setStep, setMode, formData, updateFormData, setError, error, isLoading, onRegisterStart, success, setSuccess }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const selectedCountry = COUNTRY_CODES.find(c => c.code === (formData.countryCode || "+91")) || COUNTRY_CODES[1] || COUNTRY_CODES[0];
   const filteredCountries = COUNTRY_CODES.filter(c =>
@@ -19,15 +23,12 @@ export default function RegisterEmailStep({ setStep, setMode, formData, updateFo
   );
 
   const handleSendOtp = async () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email) {
-      setError("ईमेल आवश्यक है");
+    const emailErr = validateEmail(formData.email);
+    if (emailErr) {
+      setFieldErrors({ email: emailErr });
       return;
     }
-    if (!emailRegex.test(formData.email)) {
-      setError("कृपया एक मान्य ईमेल पता डालें");
-      return;
-    }
+    setFieldErrors({});
 
     try {
       const fullPhone = formData.phone ? `${formData.countryCode || "+91"}${formData.phone}` : "";
@@ -38,18 +39,29 @@ export default function RegisterEmailStep({ setStep, setMode, formData, updateFo
   };
 
   return (
-    <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 3 }}>
-      <Box sx={{ mb: 1 }}>
-        <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px", fontSize: "28px" }}>
+    <Box sx={{ width: "var(--size-full)", display: "flex", flexDirection: "column", gap: 3 }}>
+      <Box>
+        <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: "var(--color-slate-900)", letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)' }}>
           नया अकाउंट बनाएँ
         </Typography>
-        <Typography variant="body2" sx={{ color: "#64748b", fontSize: "15px", lineHeight: 1.5 }}>
-          हमारी कम्युनिटी से जुड़ें और अपनी यात्रा शुरू करें।
+        <Typography variant="body2" sx={{ color: "var(--color-slate-500)", fontSize: 'var(--font-base)', lineHeight: 1.5 }}>
+          हमारी कम्युनिटी से जुड़ें और अपनी यात्रा शुरू करें.
         </Typography>
+        <AnimatePresence mode="wait">
+            {(error || success) && (
+                <motion.div key={error ? "error" : "success"} initial={{ opacity: 0, height: 0, marginTop: 0 }} animate={{ opacity: 1, height: "auto", marginTop: 12 }} exit={{ opacity: 0, height: 0, marginTop: 0 }} style={{ overflow: "hidden", textAlign: "center" }}>
+                    {error ? (
+                        <AuthMessage type="error" message={error} />
+                    ) : (
+                        <AuthMessage type="success" message={success} />
+                    )}
+                </motion.div>
+            )}
+        </AnimatePresence>
       </Box>
 
       <Box>
-        <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: "#334155", fontSize: "14px" }}>
+        <Typography variant="body2" sx={{ mb: 1, fontWeight: 'var(--font-semibold)', color: "var(--color-slate-700)", fontSize: 'var(--font-sm)' }}>
           ईमेल पता
         </Typography>
         <TextField
@@ -59,14 +71,17 @@ export default function RegisterEmailStep({ setStep, setMode, formData, updateFo
             updateFormData({ email: e.target.value });
             if (error) setError("");
             if (success) setSuccess("");
+            if (fieldErrors.email) setFieldErrors({ email: "" });
           }}
+          error={!!fieldErrors.email}
+          helperText={fieldErrors.email}
           placeholder="name@example.com"
           size="medium"
           disabled={isLoading}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <Box sx={{ mr: 1, color: "#94a3b8", display: "flex", alignItems: "center" }}>
+                <Box sx={{ mr: 1, color: "var(--color-slate-500)", display: "flex", alignItems: "center" }}>
                   <EmailIcon sx={{ fontSize: 20 }} />
                 </Box>
               </InputAdornment>
@@ -74,64 +89,31 @@ export default function RegisterEmailStep({ setStep, setMode, formData, updateFo
           }}
           sx={{
             "& .MuiOutlinedInput-root": {
-              backgroundColor: "#f8fafc",
-              borderRadius: "8px",
-              transition: "all 0.2s ease-in-out",
-              "& fieldset": { borderColor: "#e2e8f0" },
-              "&:hover fieldset": { borderColor: "#cbd5e1" },
-              "&.Mui-focused fieldset": { borderColor: "#0056b3", borderWidth: "1.5px" },
-              "& input": { color: "#0f172a" }
+              "& input": { color: "var(--color-slate-900)" }
             },
-            "& .MuiOutlinedInput-input": { padding: "12px 14px", fontSize: "15px" },
+            "& .MuiOutlinedInput-input": { padding: "12px 14px", fontSize: 'var(--font-base)' },
           }}
         />
       </Box>
 
       <Box sx={{ mt: 0 }}>
-        {/* Message Area with Fixed Height */}
-        {(error || (success && !error)) && (
-            <Box sx={{ height: "24px", display: "flex", alignItems: "center", justifyContent: "center", mb: 1 }}>
-                {error && (
-                    <Typography variant="body2" sx={{ color: "#ef4444 !important", fontSize: "13px", fontWeight: 600 }}>
-                        {error}
-                    </Typography>
-                )}
-                {success && !error && (
-                    <Typography variant="body2" sx={{ color: "#28a745", fontSize: "13px", fontWeight: 600 }}>
-                        {success}
-                    </Typography>
-                )}
-            </Box>
-        )}
 
-        <Button
+
+        <TarangButton
           fullWidth
-          variant="contained" disableElevation
+          loading={isLoading}
           disabled={isLoading}
           onClick={handleSendOtp}
-          sx={{
-            height: "48px",
-            borderRadius: "8px",
-            textTransform: "none",
-            fontSize: "16px",
-            fontWeight: 700,
-            background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)",
-            transition: "all 0.2s ease-in-out",
-            "&:hover": {
-              background: "linear-gradient(135deg, #004494 0%, #218838 100%)",
-              },
-            
-            "&.Mui-disabled": { background: "#e2e8f0", color: "#94a3b8" }
-          }}
+          sx={{ height: 'var(--box-height)' }}
         >
-          {isLoading ? <Loader mini /> : "OTP भेजें"}
-        </Button>
+          {"एप्रकू भेजें"}
+        </TarangButton>
 
-        <Typography variant="body2" sx={{ textAlign: "center", color: "#64748b", mt: 2.5 }}>
+        <Typography variant="body2" sx={{ textAlign: "center", color: "var(--color-slate-500)", mt: 2.5 }}>
           क्या आपका पहले से अकाउंट है?{" "}
           <Box
             component="span"
-            sx={{ color: "#0056b3", fontWeight: 600, cursor: "pointer", ml: 0.5, "&:hover": { textDecoration: "none" } }}
+            sx={{ color: "var(--color-primary)", fontWeight: 'var(--font-semibold)', cursor: "pointer", ml: 0.5, "&:hover": { textDecoration: "none" } }}
             onClick={() => { setMode("login"); setStep(1); }}
           >
             अभी लॉगिन करें

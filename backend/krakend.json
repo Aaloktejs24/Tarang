@@ -147,6 +147,22 @@
             ]
         },
         {
+            "endpoint": "/api/v1/auth/registration-sessions/{id}/totp-setup",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/auth/registration-sessions/{id}/totp-setup",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://auth-service:8080"
+                    ]
+                }
+            ]
+        },
+        {
             "endpoint": "/api/v1/auth/registration-sessions/{id}/complete",
             "method": "POST",
             "output_encoding": "no-op",
@@ -198,6 +214,41 @@
             ]
         },
         {
+            "endpoint": "/api/v1/auth/check-email/{email}",
+            "method": "GET",
+            "output_encoding": "no-op",
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/auth/check-email/{email}",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "GET",
+                    "host": [
+                        "http://auth-service:8080"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/auth/check-email",
+            "method": "GET",
+            "output_encoding": "no-op",
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/auth/check-email",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "GET",
+                    "host": [
+                        "http://auth-service:8080"
+                    ],
+                    "input_query_params": [
+                        "email"
+                    ]
+                }
+            ]
+        },
+        {
             "endpoint": "/api/v1/auth/forgot-password",
             "method": "POST",
             "output_encoding": "no-op",
@@ -220,6 +271,22 @@
             "backend": [
                 {
                     "url_pattern": "/api/v1/auth/reset-password",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://auth-service:8080"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/auth/register/resend",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/auth/register/resend",
                     "encoding": "no-op",
                     "sd": "static",
                     "method": "POST",
@@ -830,6 +897,50 @@
                     "method": "GET",
                     "host": [
                         "http://admission-service:8082"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/streaming/{path}",
+            "method": "*",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "*"
+            ],
+            "input_query_strings": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/streaming/{path}",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "*",
+                    "host": [
+                        "http://streaming-api:8083"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/v1/viewer/{path}",
+            "method": "*",
+            "output_encoding": "no-op",
+            "input_headers": [
+                "*"
+            ],
+            "input_query_strings": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "url_pattern": "/api/v1/viewer/{path}",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "*",
+                    "host": [
+                        "http://viewer-api:8084"
                     ]
                 }
             ]

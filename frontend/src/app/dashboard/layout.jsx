@@ -1,20 +1,25 @@
 "use client";
 
 import React, { useState } from "react";
-import DashboardNavbar from "../../components/navbar/DashboardNavbar";
+import Navbar from "../../components/navbar/Navbar";
 import { useAuth } from "../../hooks/useAuth";
 import { useProfile } from "../../hooks/useProfile";
-import Loader from "../../components/common/Loader";
-import { Box, SpeedDial, SpeedDialIcon, SpeedDialAction, Fab, Grid, Skeleton } from "@mui/material";
+import { Box, SpeedDial, SpeedDialIcon, SpeedDialAction, Fab, Grid } from "@mui/material";
 
 import SchoolIcon from "@mui/icons-material/School";
 import DynamicFeedIcon from "@mui/icons-material/DynamicFeed";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import FilterListIcon from '@mui/icons-material/FilterList';
-import SetupOverlay from "../../features/auth/components/SetupOverlay";
+import SetupModal from "../../features/auth/components/SetupModal";
+import InstituteSetupModal from "../../features/auth/components/InstituteSetupModal";
+import DashboardLayoutSkeleton from "./DashboardLayoutSkeleton";
+import InstituteSkeleton from "../../features/institute/InstituteSkeleton";
+import ExploreLoading from "./explore/loading";
+import FeedSkeleton from "../../features/feed/FeedSkeleton";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { useAppRouter } from "../../hooks/useAppRouter";;
 import Link from "next/link";
 import { BreadcrumbProvider, useBreadcrumbs } from "../../contexts/BreadcrumbContext";
 import ProjectBreadcrumbs from "../../components/ui/ProjectBreadcrumbs";
@@ -25,41 +30,34 @@ const GlobalBreadcrumbs = () => {
 };
 
 export default function DashboardLayout({ children }) {
-  const [mounted, setMounted] = useState(false);
-  const router = useRouter();
-  const { isAuthenticated, isLoading } = useAuth(true);
+  const router = useAppRouter();
+  const { isAuthenticated, isLoading: authLoading } = useAuth(true);
+
+  const isLoading = authLoading;
   const pathname = usePathname();
 
   const { profile, loading: profileLoading } = useProfile();
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return null; // Prevents SSR Hydration mismatch with MUI Box
-  }
 
   const isSetupPage = pathname === "/dashboard/home/setup";
   const hideLayoutExtras = isSetupPage && profile && !profile.is_profile_completed;
 
   if (isLoading) {
+    let SkeletonComponent = DashboardLayoutSkeleton;
+    const isProfilePage = pathname?.includes("/institute") || (pathname?.includes("/explore/") && pathname !== "/dashboard/explore/");
+    
+    if (isProfilePage) {
+      SkeletonComponent = InstituteSkeleton;
+    } else if (pathname === "/dashboard/explore") {
+      SkeletonComponent = ExploreLoading;
+    } else if (pathname?.includes("/feed")) {
+      SkeletonComponent = FeedSkeleton;
+    }
+
     return (
       <>
-        {!hideLayoutExtras && <DashboardNavbar />}
-        <Box className={!hideLayoutExtras ? "user-content margin-top-72" : ""} sx={{ p: { xs: 2, md: 4, lg: 6 }, display: 'flex', flexDirection: 'column', gap: 4, minHeight: 'calc(100vh - 72px)' }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Skeleton variant="text" width={200} height={40} />
-            <Skeleton variant="rounded" width={100} height={40} sx={{ borderRadius: "20px" }} />
-          </Box>
-          <Grid container spacing={3}>
-            {[1, 2, 3].map(i => (
-              <Grid key={i} size={{xs: 12, md: 4}}>
-                <Skeleton variant="rounded" height={150} sx={{ borderRadius: "16px" }} />
-              </Grid>
-            ))}
-          </Grid>
-          <Skeleton variant="rounded" height={300} sx={{ borderRadius: "16px", mt: 2 }} />
+        {!hideLayoutExtras && <Navbar />}
+        <Box className={!hideLayoutExtras ? "user-content margin-top-72" : ""}>
+          <SkeletonComponent hideLayoutExtras={hideLayoutExtras} />
         </Box>
       </>
     );
@@ -75,8 +73,8 @@ export default function DashboardLayout({ children }) {
       {!hideLayoutExtras && (
         <>
           {/* Solid 'bg' blocker behind Navbar (nav -> bg -> image order) */}
-          <Box sx={{ 
-            position: 'fixed', top: 0, left: 0, right: 0, height: '72px', 
+          <Box sx={{
+            position: 'fixed', top: 0, left: 0, right: 0, height: '72px',
             zIndex: 500, // Below nav (1000), Above image (0)
             backgroundAttachment: "fixed",
             background: `
@@ -84,10 +82,10 @@ export default function DashboardLayout({ children }) {
               radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.4) 0, transparent 50%), 
               radial-gradient(at 80% 90%, rgba(40, 167, 69, 0.3) 0, transparent 50%),
               radial-gradient(at 20% 80%, rgba(0, 86, 179, 0.3) 0, transparent 50%),
-              #eef2f6
+              #f1f5f9
             `
           }} />
-          <DashboardNavbar />
+          <Navbar />
         </>
       )}
       <Box className={!hideLayoutExtras ? "user-content margin-top-72" : ""}>
@@ -96,8 +94,12 @@ export default function DashboardLayout({ children }) {
       </Box>
 
       {/* Show Profile Setup Overlay if profile is incomplete */}
-      {!profileLoading && profile && !profile.is_profile_completed && (
-        <SetupOverlay profile={profile} />
+      {false && !profileLoading && profile && !profile.is_profile_completed && (
+        isManagement ? (
+          <InstituteSetupModal profile={profile} />
+        ) : (
+          <SetupModal profile={profile} />
+        )
       )}
 
       {/* ─── GLOBAL DOCK PANNEL - CENTERED ─── */}
@@ -109,23 +111,22 @@ export default function DashboardLayout({ children }) {
           display: 'flex',
           alignItems: 'end',
           gap: { xs: 2, md: 3 }, // Increased gap gracefully since the bounding pill visual was detached
-          zIndex: 1100,
+          zIndex: 'var(--z-tooltip)',
           pointerEvents: 'none', // ensures the invisible box doesn't block underlying clicks
           '& > *': { pointerEvents: 'auto' } // reinstates physical interaction for the buttons inside it!
         }}>
-          
+
           {/* Direct Mobile Filter FAB (clubbed externally side-by-side) */}
           {pathname.includes("/feed") && (
-            <Fab 
-              sx={{ 
+            <Fab
+              sx={{
                 display: { xs: "flex", md: "none" },
-                bgcolor: '#ffffff',
-                color: '#0056b3',
-                boxShadow: 'none',
+                bgcolor: 'var(--color-white)',
+                color: 'var(--color-primary)',
                 border: '1.5px solid #e2e8f0',
-                width: { xs: 56, md: 64 }, 
+                width: { xs: 56, md: 64 },
                 height: { xs: 56, md: 64 },
-                '&:hover': { bgcolor: '#f8fafc' } 
+                '&:hover, &:focus, &:active': { bgcolor: 'var(--color-slate-50)', }
               }}
               onClick={() => document.dispatchEvent(new Event('open-feed-filter'))}
             >
@@ -135,47 +136,50 @@ export default function DashboardLayout({ children }) {
 
           <SpeedDial
             ariaLabel="Tarang View Switcher"
-            sx={{ 
-              '& .MuiSpeedDial-fab': { width: { xs: 56, md: 64 }, height: { xs: 56, md: 64 }, m: 0 } 
+            sx={{
+              '& .MuiSpeedDial-fab': { width: { xs: 56, md: 64 }, height: { xs: 56, md: 64 }, m: 0 }
             }}
             icon={<SpeedDialIcon icon={<DashboardIcon />} openIcon={<ExpandMoreIcon />} />}
             direction="up"
             FabProps={{
               sx: {
-                bgcolor: '#0056b3',
-                boxShadow: 'none',
-                border: "1.5px solid #ffc107",
-                '&:hover': { bgcolor: '#004494' }
+                bgcolor: 'var(--color-primary)',
+                border: "1.5px solid #f59e0b",
+                '&:hover, &:focus, &:active': { bgcolor: 'var(--color-primary-hover)', }
               }
             }}
           >
             <SpeedDialAction
-              icon={<DynamicFeedIcon sx={{ color: pathname.includes("/feed") ? "#ffffff" : "#0056b3" }} />}
+              icon={<DynamicFeedIcon sx={{ color: pathname.includes("/feed") ? "var(--color-white)" : "var(--color-primary)" }} />}
               tooltipTitle="फ़ीड"
               tooltipOpen
               onClick={() => {
                 router.push('/dashboard/home/feed', { scroll: false });
               }}
               FabProps={{
-                sx: { 
-                  bgcolor: pathname.includes("/feed") ? '#28a745' : '#ffffff',
+                sx: {
+                  bgcolor: pathname.includes("/feed") ? 'var(--color-success)' : 'var(--color-white)',
                   border: pathname.includes("/feed") ? 'none' : '1.5px solid #e2e8f0',
-                  '&:hover': { bgcolor: pathname.includes("/feed") ? '#218838' : '#f8fafc' } 
+                  '&:hover, &:focus, &:active': {
+                    bgcolor: pathname.includes("/feed") ? 'var(--color-success)' : 'var(--color-slate-50)',
+                  }
                 }
               }}
             />
             <SpeedDialAction
-              icon={<SchoolIcon sx={{ color: pathname.includes("/institute") ? "#ffffff" : "#0056b3" }} />}
+              icon={<SchoolIcon sx={{ color: pathname.includes("/institute") ? "var(--color-white)" : "var(--color-primary)" }} />}
               tooltipTitle="संस्थान"
               tooltipOpen
               onClick={() => {
                 router.push('/dashboard/home/institute', { scroll: false });
               }}
               FabProps={{
-                sx: { 
-                  bgcolor: pathname.includes("/institute") ? '#28a745' : '#ffffff',
+                sx: {
+                  bgcolor: pathname.includes("/institute") ? 'var(--color-success)' : 'var(--color-white)',
                   border: pathname.includes("/institute") ? 'none' : '1.5px solid #e2e8f0',
-                  '&:hover': { bgcolor: pathname.includes("/institute") ? '#218838' : '#f8fafc' } 
+                  '&:hover, &:focus, &:active': {
+                    bgcolor: pathname.includes("/institute") ? 'var(--color-success)' : 'var(--color-slate-50)',
+                  }
                 }
               }}
             />
@@ -186,4 +190,3 @@ export default function DashboardLayout({ children }) {
   );
 }
 
-// Triggering recompile

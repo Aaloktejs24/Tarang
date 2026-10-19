@@ -22,22 +22,24 @@ import EventIcon from "@mui/icons-material/Event";
 import PersonIcon from "@mui/icons-material/Person";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import LandingNavbar from "../../components/navbar/LandingNavbar";
+import Navbar from "../../components/navbar/Navbar";
 import LandingFooter from "../../components/footer/LandingFooter";
 
 
 
 import { useTranslation } from "../../hooks/useTranslation";
+import { useBgPreloader } from "../../hooks/useBgPreloader";
 
 export default function EventsGridPage() {
   const { t } = useTranslation();
-const { mockEvents } = dashboardMockData;
+  const { mockEvents } = dashboardMockData;
+  useBgPreloader('https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=2000');
 
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column", bgcolor: "#f8faff" }}>
-      <LandingNavbar />
+    <Box sx={{ minHeight: "var(--size-screen-h)", display: "flex", flexDirection: "column", bgcolor: "var(--color-slate-50)" }}>
+      <Navbar variant="landing" />
 
       {/* ─── HERO SECTION ───────────────────────────────────────────────────── */}
       <Box
@@ -66,7 +68,7 @@ const { mockEvents } = dashboardMockData;
           <Typography
             variant="h1"
             sx={{
-              color: "#ffffff",
+              color: "var(--color-white)",
               fontSize: { xs: "2.5rem", md: "4rem" },
               fontWeight: 800,
               
@@ -77,9 +79,9 @@ const { mockEvents } = dashboardMockData;
             {t("landing.eventsPage.title")}
           </Typography>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1 }}>
-            <Typography sx={{ color: "#ffffff", fontWeight: 600 }}>{t("landing.eventsPage.home")}</Typography>
+            <Typography sx={{ color: "var(--color-white)", fontWeight: 'var(--font-semibold)' }}>{t("landing.eventsPage.home")}</Typography>
             <Typography sx={{ color: "rgba(255,255,255,0.6)" }}>/</Typography>
-            <Typography sx={{ color: "#28a745", fontWeight: 600 }}>{t("landing.eventsPage.title")}</Typography>
+            <Typography sx={{ color: "var(--color-success)", fontWeight: 'var(--font-semibold)' }}>{t("landing.eventsPage.title")}</Typography>
           </Box>
         </Box>
       </Box>
@@ -91,8 +93,8 @@ const { mockEvents } = dashboardMockData;
           <Paper
             elevation={0}
             sx={{
-              bgcolor: "#0056b3",
-              borderRadius: "8px",
+              bgcolor: "var(--color-primary)",
+              borderRadius: 'var(--radius-md)',
               p: 2,
               mb: 6,
               display: "flex",
@@ -104,14 +106,14 @@ const { mockEvents } = dashboardMockData;
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
               <Box sx={{ display: "flex", gap: 1 }}>
-                <IconButton size="small" sx={{ color: "#fff" }}>
+                <IconButton size="small" sx={{ color: "var(--color-white)" }}>
                   <ViewModuleIcon />
                 </IconButton>
                 <IconButton size="small" sx={{ color: "rgba(255,255,255,0.4)" }}>
                   <ViewListIcon />
                 </IconButton>
               </Box>
-              <Typography sx={{ color: "#fff", fontSize: "0.95rem", fontWeight: 500 }}>
+              <Typography sx={{ color: "var(--color-white)", fontSize: 'var(--font-base)', fontWeight: 'var(--font-medium)' }}>
                 {t("landing.eventsPage.showingResults").replace("{{count}}", mockEvents.length)}
               </Typography>
             </Box>
@@ -122,34 +124,33 @@ const { mockEvents } = dashboardMockData;
                 alignItems: "center",
                 bgcolor: "rgba(255, 255, 255, 0.15)",
                 backdropFilter: "blur(8px)",
-                borderRadius: "24px", // Pill shape like dashboard navbar
+                borderRadius: 'var(--radius-lg)', // Pill shape like dashboard navbar
                 px: 2,
-                width: { xs: "100%", sm: "320px" },
-                boxShadow: "none",
+                width: { xs: "var(--size-full)", sm: "320px" },
                 height: "44px", // Match navbar search height
                 boxSizing: "border-box",
-                border: "1px solid rgba(255, 255, 255, 0.3)",
-                transition: "all 0.3s ease",
+                border: "var(--border-thin) solid rgba(255, 255, 255, 0.3)",
+                transition: "var(--transition-slow)",
                 "&:focus-within": {
                   bgcolor: "rgba(255, 255, 255, 0.25)",
-                  border: "1px solid rgba(255, 255, 255, 0.5)"
+                  border: "var(--border-thin) solid rgba(255, 255, 255, 0.5)"
                 }
               }}
             >
-              <SearchIcon sx={{ color: '#ffffff', fontSize: 22, opacity: 0.8, mr: 1 }} />
+              <SearchIcon sx={{ color: 'var(--color-white)', fontSize: 22, opacity: 0.8, mr: 1 }} />
               <InputBase
                 placeholder={t("landing.eventsPage.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 sx={{ 
                   flex: 1, 
-                  fontSize: "15px", 
-                  color: "#ffffff", 
-                  height: "100%",
+                  fontSize: 'var(--font-base)', 
+                  color: "var(--color-white)", 
+                  height: "var(--size-full)",
                   "& input::placeholder": {
                     color: "rgba(255, 255, 255, 0.7)",
                     opacity: 1,
-                    fontWeight: 500
+                    fontWeight: 'var(--font-medium)'
                   }
                 }}
               />
@@ -163,22 +164,18 @@ const { mockEvents } = dashboardMockData;
                 <Paper
                   elevation={0}
                   sx={{
-                    borderRadius: "8px",
                     overflow: "hidden",
-                    border: "1px solid rgba(0,0,0,0.06)",
-                    boxShadow: "none",
                     transition: "transform 0.3s ease, box-shadow 0.3s ease",
                     "&:hover": {
                        
                     },
                     display: "flex",
                     flexDirection: "column",
-                    height: "100%",
-                    bgcolor: "#ffffff"
+                    height: "var(--size-full)"
                   }}
                 >
                   <Box sx={{ position: "relative", height: 220 }}>
-                    <Box component="img" src={event.image} alt={event.title} sx={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <Box component="img" src={event.image} alt={event.title} sx={{ width: "var(--size-full)", height: "var(--size-full)", objectFit: "cover" }} />
                   </Box>
                   <Box sx={{ p: 4, flexGrow: 1, display: "flex", flexDirection: "column" }}>
                     <Chip
@@ -186,28 +183,28 @@ const { mockEvents } = dashboardMockData;
                       sx={{ 
                         alignSelf: "flex-start", 
                         bgcolor: "rgba(40,167,69,0.1)", 
-                        color: "#28a745", 
-                        fontWeight: 700, 
-                        borderRadius: "8px", 
+                        color: "var(--color-success)", 
+                        fontWeight: 'var(--font-bold)', 
+                        borderRadius: 'var(--radius-md)', 
                         height: 28, 
-                        fontSize: "0.8rem", 
+                        fontSize: 'var(--font-xs)', 
                         mb: 2 
                       }}
                     />
-                    <Typography variant="h5" sx={{ fontWeight: 800, color: "#0f172a", fontSize: "1.25rem", lineHeight: 1.3, mb: 2, flexGrow: 1 }}>
+                    <Typography variant="h5" sx={{ fontWeight: 800, color: "var(--color-slate-900)", fontSize: "1.25rem", lineHeight: 1.3, mb: 2, flexGrow: 1 }}>
                       {t(event.title)}
                     </Typography>
                     
-                    <Box sx={{ display: "flex", flexDirection: "column", gap: 1, color: "#64748b", fontSize: "0.9rem", fontWeight: 600, mb: 3 }}>
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 1, color: "var(--color-slate-500)", fontSize: 'var(--font-sm)', fontWeight: 'var(--font-semibold)', mb: 3 }}>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <CalendarTodayIcon sx={{ fontSize: 18, color: "#0056b3" }} /> {t(event.date)}
+                        <CalendarTodayIcon sx={{ fontSize: 18, color: "var(--color-primary)" }} /> {t(event.date)}
                       </Box>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <AccessTimeIcon sx={{ fontSize: 18, color: "#0056b3" }} /> {t(event.time)}
+                        <AccessTimeIcon sx={{ fontSize: 18, color: "var(--color-primary)" }} /> {t(event.time)}
                       </Box>
                     </Box>
                     
-                    <Typography sx={{ color: "#64748b", lineHeight: 1.6, mb: 4, fontSize: "0.95rem" }}>
+                    <Typography sx={{ color: "var(--color-slate-500)", lineHeight: 1.6, mb: 4, fontSize: 'var(--font-base)' }}>
                       {t(event.desc)}
                     </Typography>
                     
@@ -215,12 +212,12 @@ const { mockEvents } = dashboardMockData;
                       variant="contained" 
                       disableElevation
                       sx={{ 
-                        bgcolor: "#0056b3", 
-                        color: "#fff", 
-                        fontWeight: 700, 
-                        borderRadius: "8px", 
+                        bgcolor: "var(--color-primary)", 
+                        color: "var(--color-white)", 
+                        fontWeight: 'var(--font-bold)', 
+                        borderRadius: 'var(--radius-md)', 
                         py: 1.2, 
-                        "&:hover": { bgcolor: "#004494" }, 
+                        "&:hover": { bgcolor: "var(--color-primary-hover)" }, 
                         textTransform: "none",
                         alignSelf: "flex-start"
                       }}
@@ -239,14 +236,14 @@ const { mockEvents } = dashboardMockData;
               disableElevation
               sx={{
                 background: "linear-gradient(135deg, #0056b3 0%, #28a745 100%)",
-                color: "#fff",
-                fontWeight: 700,
-                borderRadius: "8px",
+                color: "var(--color-white)",
+                fontWeight: 'var(--font-bold)',
+                borderRadius: 'var(--radius-md)',
                 px: 5,
                 py: 1.5,
-                "&:hover": { background: "linear-gradient(135deg, #004494 0%, #218838 100%)" },
+                "&:hover": { background: "linear-gradient(135deg, #004494 0%, #28A745 100%)" },
                 textTransform: "none",
-                fontSize: "1rem"
+                fontSize: 'var(--font-base)'
               }}
             >
               {t("landing.eventsPage.viewMore")}

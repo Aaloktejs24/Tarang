@@ -7,45 +7,24 @@ option go_package = "backend/proto/userpb";
 import "google/protobuf/empty.proto";
 
 service UserService {
-
-  rpc ExistsByEmail (EmailRequest) returns (ExistsResponse);
-  rpc GetByEmail (EmailRequest) returns (UserResponse);
-
   rpc CreateUser (CreateUserRequest) returns (UserResponse);
 
   rpc GetByID (UserIDRequest) returns (UserResponse);
 
   rpc GetByUsername (UsernameRequest) returns (UserResponse);
-
-  rpc GetByPhone (PhoneRequest) returns (UserResponse);
-
-  rpc VerifyPhone (UserIDRequest) returns (google.protobuf.Empty);
-
-  rpc MarkKYCVerified (MarkKYCVerifiedRequest) returns (google.protobuf.Empty);
-
-  rpc SetTOTPSecret (TOTPSecretRequest) returns (google.protobuf.Empty);
-
-  rpc UpdateMFAPreference (MFAPreferenceRequest) returns (google.protobuf.Empty);
-
-  rpc DisableTOTP (UserIDRequest) returns (google.protobuf.Empty);
-
-  rpc DisableUser (UserIDRequest) returns (google.protobuf.Empty);
-
-  rpc EnableUser (UserIDRequest) returns (google.protobuf.Empty);
-  
+  rpc MarkKYCVerified (MarkKYCVerifiedRequest) returns (google.protobuf.Empty);  
   rpc UpdateProfilePic (UpdateImageRequest) returns (google.protobuf.Empty);
   rpc UpdateBanner (UpdateImageRequest) returns (google.protobuf.Empty);
   rpc UpdateBio (UpdateBioRequest) returns (google.protobuf.Empty);
   rpc UpdateProfile (UpdateProfileRequest) returns (google.protobuf.Empty);
+
+  rpc CreateInstitute (CreateInstituteRequest) returns (InstituteResponse);
+  rpc GetInstitute (InstituteIDRequest) returns (InstituteResponse);
 }
 
 /////////////////////////////////////////////////////
 //// REQUESTS
 /////////////////////////////////////////////////////
-
-message EmailRequest {
-  string email = 1;
-}
 
 message UserIDRequest {
   string user_id = 1;
@@ -55,23 +34,16 @@ message UsernameRequest {
   string username = 1;
 }
 
-message PhoneRequest {
-  string phone = 1;
-}
-
 message CreateUserRequest {
-  string email = 1;
-  string username = 2;
-  string phone = 3;
-  string id = 4;
-  string full_name = 5;
-  string role = 6;
-}
-
-message SetTOTPRequest {
-  string user_id = 1;
-  string secret = 2;
-  bool enabled = 3;
+  string username = 1;
+  string id = 2;
+  string full_name = 3;
+  string role = 4;
+  string institute_name = 5;
+  string institute_type = 6;
+  string phone = 7;
+  string dob = 8;
+  string gender = 9;
 }
 
 message MarkKYCVerifiedRequest {
@@ -81,16 +53,6 @@ message MarkKYCVerifiedRequest {
   string full_name = 4;
   string dob = 5;
   string gender = 6;
-}
-
-message MFAPreferenceRequest {
-  string user_id = 1;
-  string preference = 2;
-}
-
-message TOTPSecretRequest {
-  string user_id = 1;
-  string secret = 2;
 }
 
 message UpdateImageRequest {
@@ -114,72 +76,55 @@ message UpdateProfileRequest {
   string location = 8;
   repeated string languages = 9;
   string demographic = 10;
-  InstituteProfile institute_profile = 11;
+  }
+
+
+message Institute {
+  string id = 1;
+  string name = 2;
+  string institute_type = 3;
+  int32 established_year = 4;
+  string registration_number = 5;
+  string website_url = 6;
+  string tax_id = 7;
+  string short_description = 8;
 }
 
-message InstituteProfile {
-  string institute_type = 1;
-  int32 established_year = 2;
-  string registration_number = 3;
-  string primary_contact_name = 4;
-  string primary_contact_designation = 5;
-  string official_phone = 6;
-  string official_email = 7;
-  string website_url = 8;
-  string alternate_contact = 9;
-  string courses_offered = 10;
-  string education_levels = 11;
-  int32 student_count = 12;
-  int32 faculty_count = 13;
-  string campus_type = 14;
-  string operating_hours = 15;
-  string accreditation_docs = 16;
-  string license_certificate_url = 17;
-  string tax_id = 18;
-  string certifications = 19;
-  string bank_account_name = 20;
-  string bank_account_number = 21;
-  string bank_ifsc = 22;
-  string billing_address = 23;
-  string short_description = 24;
-  string facilities = 25;
-  string social_links = 26;
-  string terms_accepted_at = 27;
-  string privacy_accepted_at = 28;
-  string authorized_signatory_name = 29;
+message CreateInstituteRequest {
+  string owner_user_id = 1;
+  string name = 2;
+  string institute_type = 3;
+  int32 established_year = 4;
+}
+
+message InstituteResponse {
+  Institute institute = 1;
 }
 
 /////////////////////////////////////////////////////
 //// RESPONSES
 /////////////////////////////////////////////////////
 
-message ExistsResponse {
-  bool exists = 1;
-}
-
 message UserResponse {
   string id = 1;
-  string email = 2;
-  string mfa_preference = 3;
-  string totp_secret = 4;
-  string username = 5;
-  string phone = 6;
-  bool phone_verified = 7;
-  bool kyc_verified = 8;
-  string role = 9;
-  string full_name = 10;
-  string dob = 11;
-  string gender = 12;
-  string profile_pic_url = 13;
-  string banner_url = 14;
-  string bio = 15;
-  map<string, string> social_links = 16;
-  repeated string skills = 17;
-  repeated string recognitions = 18;
-  string institution_name = 19;
-  bool is_profile_completed = 20;
-  string location = 21;
-  repeated string languages = 22;
-  string demographic = 23;
-  InstituteProfile institute_profile = 24;
+  string username = 2;
+  bool kyc_verified = 3;
+  string role = 4;
+  string full_name = 5;
+  string dob = 6;
+  string gender = 7;
+  string profile_pic_url = 8;
+  string banner_url = 9;
+  string bio = 10;
+  map<string, string> social_links = 11;
+  repeated string skills = 12;
+  repeated string recognitions = 13;
+  string institution_name = 14;
+  bool is_profile_completed = 15;
+  string location = 16;
+  repeated string languages = 17;
+  string demographic = 18;
+}
+message InstituteIDRequest {
+  string institute_id = 1;
 }

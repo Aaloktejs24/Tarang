@@ -9,19 +9,21 @@ import (
 	"time"
 
 	"backend/services/user/internal/user"
-	"backend/shared/s3"
+	"backend/shared/config"
+	"backend/shared/storage"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
 
 type UserHandler struct {
-	svc *user.Service
-	s3  *s3.S3Client
+	svc   *user.Service
+	minio *storage.MinioClient
+	cfg   *config.Config
 }
 
-func NewUserHandler(s *user.Service, s3Client *s3.S3Client) *UserHandler {
-	return &UserHandler{svc: s, s3: s3Client}
+func NewUserHandler(s *user.Service, minioClient *storage.MinioClient, cfg *config.Config) *UserHandler {
+	return &UserHandler{svc: s, minio: minioClient, cfg: cfg}
 }
 
 func (h *UserHandler) RegisterRoutes(r chi.Router) {
@@ -73,10 +75,7 @@ func (h *UserHandler) getProfile(w http.ResponseWriter, r *http.Request) {
 
 	// Map user model fields back to response payload mapping from Auth service
 	// The auth service response expects certain boolean flags.
-	phone := ""
-	if u.Phone != nil {
-		phone = *u.Phone
-	}
+	
 
 	fullName := ""
 	if u.FullName != nil {
@@ -85,7 +84,7 @@ func (h *UserHandler) getProfile(w http.ResponseWriter, r *http.Request) {
 
 	dob := ""
 	if u.DOB != nil {
-		dob = *u.DOB
+		dob = u.DOB.Format("2006-01-02")
 	}
 
 	gender := ""
@@ -107,42 +106,39 @@ func (h *UserHandler) getProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := map[string]any{
-		"id":             u.ID,
-		"email":          u.Email,
-		"username":       u.Username,
-		"role":           u.Role,
-		"phone":          phone,
-		"phone_verified": u.PhoneVerifiedAt != nil,
-		"kyc_verified":   u.KycVerifiedAt != nil,
-		"kyc_status":     h.getKycStatus(u),
-		"mfa_preference": u.MFAPreference,
-		"full_name":      fullName,
-		"dob":            dob,
-		"gender":         gender,
-		"profile_pic_url": profilePic,
-		"banner_url":      banner,
-		"bio":             bio,
-		"social_links":    u.SocialLinks,
-		"skills":          u.Skills,
-		"recognitions":    u.Recognitions,
-		"location":        u.Location,
-		"languages":       u.Languages,
-		"demographic":     u.Demographic,
+		"id":               u.ID,
+		"username":         u.Username,
+		"role":             u.Role,
+		"kyc_verified":     u.KycVerifiedAt != nil,
+		"kyc_status":       h.getKycStatus(u),
+		"full_name":        fullName,
+		"dob":              dob,
+		"gender":           gender,
+		"profile_pic_url":  profilePic,
+		"banner_url":       banner,
+		"bio":              bio,
+		"social_links":     u.SocialLinks,
+		"skills":           u.Skills,
+		"recognitions":     u.Recognitions,
+		"location":         u.Location,
+		"languages":        u.Languages,
+		"demographic":      u.Demographic,
 		"institution_name": u.InstitutionName,
+		"institute_profile": u.InstituteProfile,
 	}
 
 	bucket := "tarang-user-service"
 	// Generate signed URLs if they exist
 	if profilePic != "" {
-		if key := h.getS3KeyFromURL(profilePic); key != "" {
-			if signed, err := h.s3.GenerateDownloadURL(r.Context(), bucket, key, 1*time.Hour); err == nil {
+		if key := h.getStorageKeyFromURL(profilePic); key != "" {
+			if signed, err := h.minio.GenerateDownloadURL(r.Context(), bucket, key, 1*time.Hour); err == nil {
 				resp["profile_pic_url"] = signed
 			}
 		}
 	}
 	if banner != "" {
-		if key := h.getS3KeyFromURL(banner); key != "" {
-			if signed, err := h.s3.GenerateDownloadURL(r.Context(), bucket, key, 1*time.Hour); err == nil {
+		if key := h.getStorageKeyFromURL(banner); key != "" {
+			if signed, err := h.minio.GenerateDownloadURL(r.Context(), bucket, key, 1*time.Hour); err == nil {
 				resp["banner_url"] = signed
 			}
 		}
@@ -198,21 +194,22 @@ func (h *UserHandler) getPublicProfile(w http.ResponseWriter, r *http.Request) {
 		"recognitions":    u.Recognitions,
 		"location":        u.Location,
 		"languages":       u.Languages,
-		"demographic":     u.Demographic,
+		"institution_name": u.InstitutionName,
+		"institute_profile": u.InstituteProfile,
 	}
 
 	bucket := "tarang-user-service"
-	// Generate signed URLs for public access (images are private in S3)
+	// Generate signed URLs for public access
 	if profilePic != "" {
-		if key := h.getS3KeyFromURL(profilePic); key != "" {
-			if signed, err := h.s3.GenerateDownloadURL(r.Context(), bucket, key, 1*time.Hour); err == nil {
+		if key := h.getStorageKeyFromURL(profilePic); key != "" {
+			if signed, err := h.minio.GenerateDownloadURL(r.Context(), bucket, key, 1*time.Hour); err == nil {
 				resp["profile_pic_url"] = signed
 			}
 		}
 	}
 	if banner != "" {
-		if key := h.getS3KeyFromURL(banner); key != "" {
-			if signed, err := h.s3.GenerateDownloadURL(r.Context(), bucket, key, 1*time.Hour); err == nil {
+		if key := h.getStorageKeyFromURL(banner); key != "" {
+			if signed, err := h.minio.GenerateDownloadURL(r.Context(), bucket, key, 1*time.Hour); err == nil {
 				resp["banner_url"] = signed
 			}
 		}
@@ -250,15 +247,16 @@ func (h *UserHandler) getUploadUrl(w http.ResponseWriter, r *http.Request) {
 	fileName := fmt.Sprintf("users/%s/%s/current%s", uidStr, fileType, ext)
 	bucket := "tarang-user-service"
 
-	url, err := h.s3.GenerateUploadURL(ctx, bucket, fileName, 15*time.Minute)
+	url, err := h.minio.GenerateUploadURL(ctx, bucket, fileName, 15*time.Minute)
 	if err != nil {
+		fmt.Printf("ERROR generating upload URL: %v\n", err)
 		respondError(w, http.StatusInternalServerError, "failed to generate upload url")
 		return
 	}
 
 	respondJSON(w, http.StatusOK, map[string]string{
 		"upload_url": url,
-		"file_url":   fmt.Sprintf("https://%s.s3.ap-south-1.amazonaws.com/%s", bucket, fileName),
+		"file_url":   fmt.Sprintf("%s/%s/%s", h.cfg.MinioPublicURL, bucket, fileName),
 	})
 }
 
@@ -273,7 +271,6 @@ func (h *UserHandler) updateProfilePic(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Printf("DEBUG: updateProfilePic - user_id: %s, url: %s\n", in.UserID, in.URL)
-
 
 	uid, err := uuid.Parse(in.UserID)
 	if err != nil {
@@ -300,7 +297,6 @@ func (h *UserHandler) updateBanner(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Printf("DEBUG: updateBanner - user_id: %s, url: %s\n", in.UserID, in.URL)
-
 
 	uid, err := uuid.Parse(in.UserID)
 	if err != nil {
@@ -342,19 +338,19 @@ func (h *UserHandler) updateBio(w http.ResponseWriter, r *http.Request) {
 
 func (h *UserHandler) updateProfile(w http.ResponseWriter, r *http.Request) {
 	var in struct {
-		UserID       string            `json:"user_id"`
-		Bio          string            `json:"bio"`
-		SocialLinks  map[string]string `json:"social_links"`
-		Skills       []string          `json:"skills"`
-		Recognitions []string          `json:"recognitions"`
-		FullName     string            `json:"full_name"`
-		DOB          string            `json:"dob"`
-		Gender       string            `json:"gender"`
+		UserID           string                 `json:"user_id"`
+		Bio              string                 `json:"bio"`
+		SocialLinks      map[string]string      `json:"social_links"`
+		Skills           []string               `json:"skills"`
+		Recognitions     []string               `json:"recognitions"`
+		FullName         string                 `json:"full_name"`
+		DOB              string                 `json:"dob"`
+		Gender           string                 `json:"gender"`
 		Location         string                 `json:"location"`
 		Languages        []string               `json:"languages"`
 		Demographic      string                 `json:"demographic"`
 		InstitutionName  string                 `json:"institution_name"`
-		InstituteProfile *user.InstituteProfile `json:"institute_profile"`
+		InstituteProfile *user.InstituteProfileInput `json:"institute_profile"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 		respondError(w, http.StatusBadRequest, "invalid payload")
@@ -367,6 +363,29 @@ func (h *UserHandler) updateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if in.InstituteProfile != nil {
+		if in.InstituteProfile.InstituteType == "" {
+			respondError(w, http.StatusBadRequest, "institute_type is required")
+			return
+		}
+		if in.InstituteProfile.EstablishedYear < 1800 {
+			respondError(w, http.StatusBadRequest, "established_year is invalid")
+			return
+		}
+		if in.InstituteProfile.RegistrationNumber == "" {
+			respondError(w, http.StatusBadRequest, "registration_number is required")
+			return
+		}
+		if len(in.InstituteProfile.CoursesOffered) == 0 {
+			respondError(w, http.StatusBadRequest, "courses_offered is required")
+			return
+		}
+		if in.InstituteProfile.StudentCount < 0 || in.InstituteProfile.FacultyCount < 0 {
+			respondError(w, http.StatusBadRequest, "counts cannot be negative")
+			return
+		}
+	}
+
 	if err := h.svc.UpdateProfile(r.Context(), uid, in.FullName, in.DOB, in.Gender, in.Bio, in.SocialLinks, in.Skills, in.Recognitions, in.Location, in.Languages, in.Demographic, in.InstitutionName, in.InstituteProfile); err != nil {
 		fmt.Printf("[UserHandler] UpdateProfile error: %v\n", err)
 		respondError(w, http.StatusInternalServerError, "failed to update profile")
@@ -375,12 +394,28 @@ func (h *UserHandler) updateProfile(w http.ResponseWriter, r *http.Request) {
 
 	respondJSON(w, http.StatusOK, map[string]string{"message": "profile updated"})
 }
-func (h *UserHandler) getS3KeyFromURL(fileURL string) string {
-	parts := strings.Split(fileURL, ".amazonaws.com/")
-	if len(parts) < 2 {
-		return ""
+func (h *UserHandler) getStorageKeyFromURL(fileURL string) string {
+	// Handle old AWS URLs
+	if strings.Contains(fileURL, ".amazonaws.com/") {
+		parts := strings.Split(fileURL, ".amazonaws.com/")
+		if len(parts) >= 2 {
+			return parts[1]
+		}
 	}
-	return parts[1]
+	
+	// Handle new MinIO URLs
+	if h.cfg.MinioPublicURL != "" && strings.Contains(fileURL, h.cfg.MinioPublicURL) {
+		parts := strings.Split(fileURL, h.cfg.MinioPublicURL+"/")
+		if len(parts) >= 2 {
+			// Parts[1] is bucket/key. We just want the key.
+			keyParts := strings.SplitN(parts[1], "/", 2)
+			if len(keyParts) == 2 {
+				return keyParts[1]
+			}
+		}
+	}
+	
+	return ""
 }
 
 func (h *UserHandler) getKycStatus(u *user.User) string {
@@ -422,8 +457,8 @@ func (h *UserHandler) getInstitutes(w http.ResponseWriter, r *http.Request) {
 		profilePic := ""
 		if u.ProfilePicURL != nil {
 			profilePic = *u.ProfilePicURL
-			if key := h.getS3KeyFromURL(profilePic); key != "" {
-				if signed, err := h.s3.GenerateDownloadURL(r.Context(), bucket, key, 1*time.Hour); err == nil {
+			if key := h.getStorageKeyFromURL(profilePic); key != "" {
+				if signed, err := h.minio.GenerateDownloadURL(r.Context(), bucket, key, 1*time.Hour); err == nil {
 					profilePic = signed
 				}
 			}
@@ -432,8 +467,8 @@ func (h *UserHandler) getInstitutes(w http.ResponseWriter, r *http.Request) {
 		banner := ""
 		if u.BannerURL != nil {
 			banner = *u.BannerURL
-			if key := h.getS3KeyFromURL(banner); key != "" {
-				if signed, err := h.s3.GenerateDownloadURL(r.Context(), bucket, key, 1*time.Hour); err == nil {
+			if key := h.getStorageKeyFromURL(banner); key != "" {
+				if signed, err := h.minio.GenerateDownloadURL(r.Context(), bucket, key, 1*time.Hour); err == nil {
 					banner = signed
 				}
 			}
@@ -442,7 +477,6 @@ func (h *UserHandler) getInstitutes(w http.ResponseWriter, r *http.Request) {
 		results = append(results, map[string]any{
 			"id":                u.ID,
 			"username":          u.Username,
-			"email":             u.Email,
 			"full_name":         fullName,
 			"profile_pic_url":   profilePic,
 			"banner_url":        banner,
@@ -452,8 +486,7 @@ func (h *UserHandler) getInstitutes(w http.ResponseWriter, r *http.Request) {
 			"bio":               u.Bio,
 			"recognitions":      u.Recognitions,
 			"institution_name":  u.InstitutionName,
-			"institute_profile": u.InstituteProfile,
-		})
+					})
 	}
 
 	// Make sure we return an empty array instead of null if no results

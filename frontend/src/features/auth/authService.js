@@ -6,6 +6,11 @@ export const onRegisterStart = async (email) => {
   return response.data;
 }; // returns { session_id, expires_at }
 
+export const checkEmail = async (email) => {
+  const response = await apiClient.get(`/auth/check-email/${encodeURIComponent(email)}`);
+  return response.data;
+};
+
 export const sendRegistrationEmailOtp = async (sessionId) => {
   const response = await apiClient.post(`/auth/registration-sessions/${sessionId}/send-email-otp`);
   return response.data;
@@ -16,8 +21,25 @@ export const verifyRegistrationEmailOtp = async (sessionId, otp) => {
   return response.data;
 };
 
-export const completeRegistrationSession = async (sessionId, username, password, fullName, role) => {
-  const response = await apiClient.post(`/auth/registration-sessions/${sessionId}/complete`, { username, password, full_name: fullName, role });
+export const setupRegistrationTotp = async (sessionId) => {
+  const response = await apiClient.post(`/auth/registration-sessions/${sessionId}/totp-setup`);
+  return response.data;
+};
+
+export const completeRegistrationSession = async (sessionId, username, password, fullName, role, phone, dob, gender, totpCode = null) => {
+  const payload = { 
+    username, 
+    password, 
+    full_name: fullName, 
+    role,
+    phone,
+    dob,
+    gender 
+  };
+  if (totpCode) {
+    payload.totp_code = totpCode;
+  }
+  const response = await apiClient.post(`/auth/registration-sessions/${sessionId}/complete`, payload);
   if (response.data.access_token) {
     setToken(response.data.access_token);
   }
@@ -152,12 +174,18 @@ let refreshPromise = null;
 
 export const refreshAuthToken = async () => {
   if (refreshPromise) return refreshPromise;
-  refreshPromise = apiClient.post("/auth/refresh").then(response => {
-    setToken(response.data.access_token);
-    return response.data;
-  }).finally(() => {
-    refreshPromise = null;
-  });
+  refreshPromise = fetch("/api/auth/refresh", { method: "POST" })
+    .then(res => res.json())
+    .then(data => {
+      if (data.authenticated === false) {
+        throw new Error("Refresh failed");
+      }
+      setToken(data.access_token);
+      return data;
+    })
+    .finally(() => {
+      refreshPromise = null;
+    });
   return refreshPromise;
 };
 

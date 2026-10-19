@@ -22,7 +22,7 @@ type UserClient struct {
 
 func NewUserClient(addr string) (*UserClient, error) {
 
-	conn, err := grpc.Dial(
+	conn, err := grpc.NewClient(
 		addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
@@ -46,61 +46,12 @@ func (c *UserClient) Close() error {
 //// ExistsByEmail
 /////////////////////////////////////////////////////
 
-func (c *UserClient) ExistsByEmail(ctx context.Context, email string) (bool, error) {
 
-	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
-
-	resp, err := c.client.ExistsByEmail(ctx, &userpb.EmailRequest{
-		Email: email,
-	})
-
-	if err != nil {
-		return false, err
-	}
-
-	return resp.Exists, nil
-}
 
 /////////////////////////////////////////////////////
 //// GetByEmail
 /////////////////////////////////////////////////////
 
-func (c *UserClient) GetByEmail(ctx context.Context, email string) (*auth.User, error) {
-
-	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
-
-	resp, err := c.client.GetByEmail(ctx, &userpb.EmailRequest{
-		Email: email,
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	id, err := uuid.Parse(resp.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	return &auth.User{
-		ID:            id,
-		Email:         resp.Email,
-		Username:      resp.Username,
-		Role:          resp.Role,
-		Phone:         resp.Phone,
-		PhoneVerified: resp.PhoneVerified,
-		KycVerified:   resp.KycVerified,
-		MFAPreference: resp.MfaPreference,
-		TOTPSecret:    resp.TotpSecret,
-		FullName:      resp.FullName,
-		DOB:           resp.Dob,
-		Gender:        resp.Gender,
-		ProfilePicURL: resp.ProfilePicUrl,
-		BannerURL:     resp.BannerUrl,
-	}, nil
-}
 
 /////////////////////////////////////////////////////
 //// GetByUsername
@@ -126,14 +77,9 @@ func (c *UserClient) GetByUsername(ctx context.Context, username string) (*auth.
 
 	return &auth.User{
 		ID:            id,
-		Email:         resp.Email,
 		Username:      resp.Username,
 		Role:          resp.Role,
-		Phone:         resp.Phone,
-		PhoneVerified: resp.PhoneVerified,
 		KycVerified:   resp.KycVerified,
-		MFAPreference: resp.MfaPreference,
-		TOTPSecret:    resp.TotpSecret,
 		FullName:      resp.FullName,
 		DOB:           resp.Dob,
 		Gender:        resp.Gender,
@@ -146,41 +92,6 @@ func (c *UserClient) GetByUsername(ctx context.Context, username string) (*auth.
 //// GetByPhone
 /////////////////////////////////////////////////////
 
-func (c *UserClient) GetByPhone(ctx context.Context, phone string) (*auth.User, error) {
-
-	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
-
-	resp, err := c.client.GetByPhone(ctx, &userpb.PhoneRequest{
-		Phone: phone,
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	id, err := uuid.Parse(resp.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	return &auth.User{
-		ID:            id,
-		Email:         resp.Email,
-		Username:      resp.Username,
-		Role:          resp.Role,
-		Phone:         resp.Phone,
-		PhoneVerified: resp.PhoneVerified,
-		KycVerified:   resp.KycVerified,
-		MFAPreference: resp.MfaPreference,
-		TOTPSecret:    resp.TotpSecret,
-		FullName:      resp.FullName,
-		DOB:           resp.Dob,
-		Gender:        resp.Gender,
-		ProfilePicURL: resp.ProfilePicUrl,
-		BannerURL:     resp.BannerUrl,
-	}, nil
-}
 
 
 /////////////////////////////////////////////////////
@@ -195,10 +106,12 @@ func (c *UserClient) Create(ctx context.Context, u *auth.User) error {
 	log.Printf("[AuthClient] Mapping Request - ID: %s, Role: %s, FullName: %s", u.ID.String(), u.Role, u.FullName)
 	req := &userpb.CreateUserRequest{}
 	req.Id = u.ID.String()
-	req.Email = u.Email
 	req.Username = u.Username
 	req.FullName = u.FullName
 	req.Role = u.Role
+	req.Phone = u.Phone
+	req.Dob = u.DOB
+	req.Gender = u.Gender
 
 	jsonBytes, _ := protojson.Marshal(req)
 	log.Printf("[AuthClient] FINAL JSON TO SEND: %s", string(jsonBytes))
@@ -240,14 +153,9 @@ func (c *UserClient) GetByID(ctx context.Context, id uuid.UUID) (*auth.User, err
 
 	return &auth.User{
 		ID:            id,
-		Email:         resp.Email,
 		Username:      resp.Username,
 		Role:          resp.Role,
-		Phone:         resp.Phone,
-		PhoneVerified: resp.PhoneVerified,
 		KycVerified:   resp.KycVerified,
-		MFAPreference: resp.MfaPreference,
-		TOTPSecret:    resp.TotpSecret,
 		ProfilePicURL: resp.ProfilePicUrl,
 		BannerURL:     resp.BannerUrl,
 	}, nil
@@ -257,51 +165,19 @@ func (c *UserClient) GetByID(ctx context.Context, id uuid.UUID) (*auth.User, err
 //// VerifyPhone
 /////////////////////////////////////////////////////
 
-func (c *UserClient) VerifyPhone(ctx context.Context, id uuid.UUID) error {
 
-	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
-
-	_, err := c.client.VerifyPhone(ctx, &userpb.UserIDRequest{
-		UserId: id.String(),
-	})
-
-	return err
-}
 
 /////////////////////////////////////////////////////
 //// SetTOTPSecret
 /////////////////////////////////////////////////////
 
-func (c *UserClient) SetTOTPSecret(ctx context.Context, id uuid.UUID, secret string) error {
 
-	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
-
-	_, err := c.client.SetTOTPSecret(ctx, &userpb.TOTPSecretRequest{
-		UserId: id.String(),
-		Secret: secret,
-	})
-
-	return err
-}
 
 /////////////////////////////////////////////////////
 //// UpdateMFAPreference
 /////////////////////////////////////////////////////
 
-func (c *UserClient) UpdateMFAPreference(ctx context.Context, id uuid.UUID, preference string) error {
 
-	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
-
-	_, err := c.client.UpdateMFAPreference(ctx, &userpb.MFAPreferenceRequest{
-		UserId:     id.String(),
-		Preference: preference,
-	})
-
-	return err
-}
 
 // MarkKYCVerified updates the KYC details
 func (c *UserClient) MarkKYCVerified(ctx context.Context, id uuid.UUID, referenceID, aadhaarHash, fullName, dob, gender string) error {

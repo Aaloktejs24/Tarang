@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Typography, Button, Alert } from '@mui/material';
+import { Box, Typography, Alert } from '@mui/material';
 import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
-import { useLoading } from '../../../contexts/LoadingContext';
+import TarangButton from '../../../components/common/TarangButton';
 
 export default function BiometricStep({ role, identifier, onFinish, isRegistering, API_URL }) {
   const [loading, setLoading] = useState(false);
@@ -69,7 +69,7 @@ export default function BiometricStep({ role, identifier, onFinish, isRegisterin
         onFinish(finishData.access_token);
       }
     } catch (err) {
-      setError(err.message || 'An error occurred during biometric verification');
+      setError(err.message || AUTH_ERRORS.GENERIC.BIOMETRIC_FAILED);
     } finally {
       setLoading(false);
     }
@@ -77,50 +77,37 @@ export default function BiometricStep({ role, identifier, onFinish, isRegisterin
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 2 }}>
-      <FingerprintIcon sx={{ fontSize: 80, color: '#0056b3', mb: 3 }} />
-      <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a', letterSpacing: "-0.5px", fontSize: "28px", mb: 1 }}>
+      <FingerprintIcon sx={{ fontSize: 80, color: 'var(--color-primary)', mb: 3 }} />
+      <Typography variant="h5" sx={{ fontWeight: 800, color: 'var(--color-slate-900)', letterSpacing: "-0.5px", fontSize: 'var(--font-2xl)', mb: 1 }}>
         {isRegistering ? 'Setup Biometric Access' : 'Biometric Verification'}
       </Typography>
-      <Typography variant="body2" sx={{ color: '#64748b', textAlign: 'center', mb: 4, fontSize: "15px", lineHeight: 1.5 }}>
+      <Typography variant="body2" sx={{ color: 'var(--color-slate-500)', textAlign: 'center', mb: 4, fontSize: 'var(--font-base)', lineHeight: 1.5 }}>
         {isRegistering 
           ? 'Add an extra layer of security by enabling Touch ID, Face ID, or Windows Hello.' 
           : 'Please verify your identity using your device biometrics.'}
       </Typography>
 
-      {error && <Alert severity="error" sx={{ width: '100%', mb: 3 }}>{error}</Alert>}
+      {error && <Alert severity="error" sx={{ width: 'var(--size-full)', mb: 3 }}>{error}</Alert>}
 
-      <Button
+      <TarangButton
         fullWidth
-        variant="contained"
-        onClick={handleBiometric}
+        loading={loading}
         disabled={loading}
-        sx={{
-          height: '48px',
-          borderRadius: '8px',
-          textTransform: 'none',
-          fontSize: '16px',
-          fontWeight: 700,
-          background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)',
-          transition: 'all 0.2s ease-in-out',
-          '&:hover': {
-            background: 'linear-gradient(135deg, #004494 0%, #218838 100%)',
-          },
-          '&.Mui-disabled': { background: '#e2e8f0', color: '#94a3b8' },
-          mb: 2
-        }}
+        onClick={handleBiometric}
+        sx={{ height: 'var(--box-height)', mb: 2 }}
       >
-        {loading ? (isRegistering ? 'Register Device' : 'Verify Identity') : (isRegistering ? 'Register Device' : 'Verify Identity')}
-      </Button>
+        {isRegistering ? 'Register Device' : 'Verify Identity'}
+      </TarangButton>
 
       {isRegistering && (
-        <Button
+        <TarangButton
           fullWidth
           variant="text"
           onClick={() => onFinish(null)}
-          sx={{ color: '#64748b', textTransform: 'none', fontWeight: 600, fontSize: "14.5px", height: "44px" }}
+          sx={{ color: 'var(--color-slate-500)', height: 'var(--box-height)' }}
         >
           Skip for now
-        </Button>
+        </TarangButton>
       )}
     </Box>
   );

@@ -1,17 +1,26 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect } from "react";
-import Backdrop from "@mui/material/Backdrop";
-import CircularProgress from "@mui/material/CircularProgress";
-import { usePathname, useSearchParams } from "next/navigation";
 
+import React, { createContext, useContext, useState, useEffect } from "react";
+import CircularProgress from "@mui/material/CircularProgress";
+import BackdropBlur from "../components/common/BackdropBlur";
+
+/**
+ * Global loading context.
+ * Supports concurrent callers via a ref-counted counter:
+ *   - startLoading() increments the counter and shows the spinner.
+ *   - stopLoading()  decrements the counter; spinner hides only when count reaches 0.
+ *   - resetLoading() force-resets the counter (emergency/cleanup use).
+ */
 const LoadingContext = createContext({
   isLoading: false,
   startLoading: () => {},
   stopLoading: () => {},
+  resetLoading: () => {},
 });
 
 export const useLoading = () => useContext(LoadingContext);
 
+/** Declarative helper — syncs an external boolean into the loading context. */
 export function SyncLoading({ isLoading }) {
   const { startLoading, stopLoading } = useLoading();
   useEffect(() => {
@@ -24,48 +33,57 @@ export function SyncLoading({ isLoading }) {
 
 export const LoadingProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const loadingCountRef = React.useRef(0);
-  const timeoutRef = React.useRef(null);
+  const countRef = React.useRef(0);
+  const debounceRef = React.useRef(null);
 
-  const startLoading = () => {
-    loadingCountRef.current += 1;
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
+  // Clear any pending hide-timer
+  const clearDebounce = () => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
     }
+  };
+
+  const startLoading = React.useCallback(() => {
+    countRef.current += 1;
+    clearDebounce();
     setIsLoading(true);
-  };
+  }, []);
 
-  const stopLoading = () => {
-    loadingCountRef.current = Math.max(0, loadingCountRef.current - 1);
-    if (loadingCountRef.current === 0) {
-      timeoutRef.current = setTimeout(() => {
-        setIsLoading(false);
-      }, 200);
+  const stopLoading = React.useCallback(() => {
+    countRef.current = Math.max(0, countRef.current - 1);
+    if (countRef.current === 0) {
+      // Small debounce prevents flicker when multiple async ops chain quickly
+      debounceRef.current = setTimeout(() => setIsLoading(false), 150);
     }
-  };
+  }, []);
+
+  /** Force-reset — use when you suspect the counter got out of sync. */
+  const resetLoading = React.useCallback(() => {
+    clearDebounce();
+    countRef.current = 0;
+    setIsLoading(false);
+  }, []);
+
+  // Safety valve: auto-reset if spinner has been visible for > 30s (stuck guard)
+  useEffect(() => {
+    if (!isLoading) return;
+    const safetyTimer = setTimeout(() => {
+      if (countRef.current > 0) {
+        console.warn("[LoadingContext] Spinner stuck for 30s — force-resetting.");
+        countRef.current = 0;
+        setIsLoading(false);
+      }
+    }, 30_000);
+    return () => clearTimeout(safetyTimer);
+  }, [isLoading]);
 
   return (
-    <LoadingContext.Provider value={{ isLoading, startLoading, stopLoading }}>
+    <LoadingContext.Provider value={{ isLoading, startLoading, stopLoading, resetLoading }}>
       {children}
-      <Backdrop
-        sx={(theme) => ({ 
-          color: "#0056b3", 
-          zIndex: theme.zIndex.drawer + 9999,
-          background: `
-            radial-gradient(at 0% 0%, rgba(0, 86, 179, 0.25) 0, transparent 50%), 
-            radial-gradient(at 100% 0%, rgba(40, 167, 69, 0.2) 0, transparent 50%), 
-            radial-gradient(at 80% 100%, rgba(40, 167, 69, 0.2) 0, transparent 50%),
-            radial-gradient(at 20% 100%, rgba(0, 86, 179, 0.2) 0, transparent 50%),
-            rgba(255, 255, 255, 0.35)
-          `,
-          backdropFilter: "blur(4px)",
-          WebkitBackdropFilter: "blur(4px)",
-        })}
-        open={isLoading}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
+      <BackdropBlur open={isLoading} zIndex={99998}>
+        <CircularProgress sx={{ color: 'var(--color-primary)' }} />
+      </BackdropBlur>
     </LoadingContext.Provider>
   );
 };

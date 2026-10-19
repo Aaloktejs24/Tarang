@@ -13,10 +13,10 @@ export default function SearchBox() {
       slotProps={{
         paper: {
           sx: {
-            minWidth: "100%",
+            minWidth: "var(--size-full)",
             transform: "translateX(-12px)", 
             width: "calc(100% + 24px)",
-            borderRadius: "16px",
+            borderRadius: 'var(--radius-lg)',
             overflow: "hidden", // Fix any corner bleed
             "& .MuiAutocomplete-listbox": {
               maxHeight: "35vh",
@@ -27,7 +27,7 @@ export default function SearchBox() {
               "&::-webkit-scrollbar": { display: "none" },
               "& .MuiAutocomplete-option": {
                 minHeight: "44px",
-                borderRadius: "8px",
+                borderRadius: 'var(--radius-md)',
                 marginBottom: "2px",
                 transition: "background-color 0.2s",
                 "&:hover": {
@@ -63,7 +63,7 @@ export default function SearchBox() {
             ...params.InputProps,
             startAdornment: (
               <InputAdornment position="start" sx={{ pl: 1, pr: 0.5, mt: 0 }}>
-                <SearchIcon sx={{ color: '#0056b3', fontSize: 22, opacity: 0.6 }} />
+                <SearchIcon sx={{ color: 'var(--color-primary)', fontSize: 22, opacity: 0.6 }} />
               </InputAdornment>
             ),
           }}
@@ -74,8 +74,8 @@ export default function SearchBox() {
             "& .MuiInputBase-root": {
               height: "38px",
               fontStyle: "normal",
-              color: "#0056b3",
-              fontWeight: 500,
+              color: "var(--color-primary)",
+              fontWeight: 'var(--font-medium)',
               backgroundColor: "transparent !important",
               borderRadius: "0px",
               paddingRight: "0px !important",
@@ -90,9 +90,9 @@ export default function SearchBox() {
               padding: "0",
               boxSizing: "border-box",
               "&::placeholder": {
-                color: "#94a3b8", // Standard subtle grey placeholder
+                color: "var(--color-slate-500)", // Standard subtle grey placeholder
                 opacity: 1,
-                fontWeight: 400,
+                fontWeight: 'var(--font-regular)',
               }
             },
             "& .MuiAutocomplete-popupIndicator": {

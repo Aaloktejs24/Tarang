@@ -11,6 +11,7 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import Link from "next/link";
 import { logoutUser } from "../../features/auth/authService";
+import Loader from "../common/Loader";
 
 // ── Styled dropdown ─────────────────────────────────────────
 const StyledMenu = styled((props) => (
@@ -24,8 +25,7 @@ const StyledMenu = styled((props) => (
   "& .MuiPaper-root": {
     minWidth: 180,
     borderRadius: "14px",
-    border: "1px solid rgba(0, 86, 179, 0.18)",
-    boxShadow: "none",
+    border: "var(--border-thin) solid rgba(0, 86, 179, 0.18)",
     marginTop: "6px",
     background:
       "linear-gradient(135deg, rgba(0, 86, 179, 0.04) 0%, rgba(40, 167, 69, 0.03) 100%), #ffffff",
@@ -34,15 +34,15 @@ const StyledMenu = styled((props) => (
   // icon container — minWidth controls gap between icon & text
   "& .MuiListItemIcon-root": {
     minWidth: 20,            // ← tight gap
-    color: "#475569",
+    color: "var(--color-slate-500)",
     "& .MuiSvgIcon-root": {
-      fontSize: "16px",      // ← matches 14px text baseline
+      fontSize: 'var(--font-base)',      // ← matches 14px text baseline
     },
   },
   "& .MuiMenuItem-root": {
-    fontSize: "14px",        // ← same as navbar .user_name
-    fontWeight: 600,         // ← same as navbar .user_name
-    color: "#0056b3",        // ← project blue
+    fontSize: 'var(--font-sm)',        // ← same as navbar .user_name
+    fontWeight: 'var(--font-semibold)',         // ← same as navbar .user_name
+    color: "var(--color-primary)",        // ← project blue
     padding: "8px 14px",
     gap: "4px",
     "&:hover": {
@@ -62,8 +62,11 @@ export default function CustomizedMenus() {
   const handleClick  = (e) => setAnchorEl(e.currentTarget);
   const handleClose  = ()  => setAnchorEl(null);
 
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
+
   const handleLogout = async () => {
     handleClose();
+    setIsLoggingOut(true);
     try {
       await logoutUser();
     } catch (error) {
@@ -75,6 +78,7 @@ export default function CustomizedMenus() {
 
   return (
     <div>
+      {isLoggingOut && <Loader />}
       {/* ── Trigger button ── */}
       <Button
         id="qlinks-button"
@@ -87,8 +91,8 @@ export default function CustomizedMenus() {
         sx={{
           minWidth: "auto",
           p: "6px",
-          color: "#0056b3",
-          borderRadius: "8px",
+          color: "var(--color-primary)",
+          borderRadius: 'var(--radius-md)',
         }}
       >
         {/* Trigger icon size is independent — set it here */}
@@ -111,7 +115,7 @@ export default function CustomizedMenus() {
             </ListItemIcon>
             <ListItemText
               primary="समायोजन"
-              primaryTypographyProps={{ fontSize: "14px", fontWeight: 500, color: "#1e293b" }}
+              primaryTypographyProps={{ fontSize: 'var(--font-sm)', fontWeight: 'var(--font-medium)', color: "var(--color-slate-900)" }}
             />
           </MenuItem>
         </Link>
@@ -120,7 +124,7 @@ export default function CustomizedMenus() {
         <MenuItem
           onClick={handleLogout}
           sx={{
-            "&, & .MuiListItemIcon-root": { color: "#ef4444" },
+            "&, & .MuiListItemIcon-root": { color: "var(--color-error)" },
             "&:hover": { backgroundColor: "rgba(239,68,68,0.06)" },
           }}
         >
@@ -129,7 +133,7 @@ export default function CustomizedMenus() {
           </ListItemIcon>
           <ListItemText
             primary="लॉगआउट"
-            primaryTypographyProps={{ fontSize: "14px", fontWeight: 500, color: "#ef4444" }}
+            primaryTypographyProps={{ fontSize: 'var(--font-sm)', fontWeight: 'var(--font-medium)', color: "var(--color-error)" }}
           />
         </MenuItem>
       </StyledMenu>
