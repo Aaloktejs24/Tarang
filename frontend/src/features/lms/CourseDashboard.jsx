@@ -538,7 +538,7 @@ export default function CourseDashboard() {
                   <circle cx="130" cy="80" r="65" fill="rgba(37, 99, 235, 0.05)" style={{ animation: 'pulseGlow 4s ease-in-out infinite' }} />
 
                   {/* Floating decorative elements (math/science/creativity symbols) */}
-                  <path d="M 40 35 Q 40 45 30 45 Q 40 45 40 55 Q 40 45 50 45 Q 40 45 40 35" fill="#f59e0b" opacity="0.9" style={{ animation: 'floatSlow 4s ease-in-out infinite', transformOrigin: '40px 45px' }} />
+                  <path d="M 40 35 Q 40 45 30 45 Q 40 45 40 55 Q 40 45 50 45 Q 40 45 40 35" fill="#ffc107" opacity="0.9" style={{ animation: 'floatSlow 4s ease-in-out infinite', transformOrigin: '40px 45px' }} />
                   <rect x="220" y="30" width="12" height="12" rx="3" fill="#10b981" opacity="0.8" style={{ animation: 'float 5s ease-in-out infinite', transformOrigin: '226px 36px' }} transform="rotate(15 226 36)" />
                   <path d="M 210 120 L 222 128 L 210 136 Z" fill="#3b82f6" opacity="0.7" style={{ animation: 'floatSlow 6s ease-in-out infinite' }} />
 
@@ -565,7 +565,7 @@ export default function CourseDashboard() {
 
                   {/* Tie and Collar */}
                   <polygon points="70,58 90,58 80,80" fill="#f1f5f9" />
-                  <polygon points="78,70 82,70 80,95" fill="#f59e0b" />
+                  <polygon points="78,70 82,70 80,95" fill="#ffc107" />
 
                   {/* Right Arm (Reaching up to write) */}
                   <path d="M 90 75 Q 120 60 145 70 L 140 85 Q 115 75 95 90 Z" fill="#004b9c" />
@@ -643,7 +643,7 @@ export default function CourseDashboard() {
                           position: 'absolute',
                           top: 12,
                           left: 12,
-                          bgcolor: course.status === 'Active' ? '#28a745' : '#f59e0b',
+                          bgcolor: course.status === 'Active' ? '#28a745' : '#ffc107',
                           color: 'white',
                           fontWeight: 800,
                           fontSize: '0.75rem',

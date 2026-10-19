@@ -26,26 +26,7 @@ import { useAppRouter as useRouter } from '../../../hooks/useAppRouter';
 import { Skeleton } from '@mui/material';
 import { useBreadcrumbs } from '../../../contexts/BreadcrumbContext';
 
-const CustomTooltip = styled(({ className, ...props }) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(({ theme }) => ({
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: 'rgba(30, 79, 163, 0.65)',
-    backdropFilter: 'blur(12px)',
-    WebkitBackdropFilter: 'blur(12px)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    color: '#ffffff',
-    boxShadow: '0 8px 32px rgba(30, 79, 163, 0.3)',
-    fontSize: '0.75rem',
-    fontWeight: 600,
-    borderRadius: '12px',
-    padding: '8px 12px',
-  },
-  [`& .${tooltipClasses.arrow}`]: {
-    color: 'rgba(30, 79, 163, 0.65)',
-  },
-}));
-
+import { CustomTooltip } from '../../../components/common/CustomTooltip';
 export default function ExploreInstitutes() {
   const { language } = useAccessibility();
   const router = useRouter();

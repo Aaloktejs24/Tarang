@@ -7,7 +7,7 @@ import admissionBuilder from './admissionBuilder.json';
 import aboutPage from './aboutPage.json';
 import articlePage from './articlePage.json';
 
-export default {
+const translations = {
   accessibilityMenu,
   courseDashboard,
   auth,
@@ -17,3 +17,5 @@ export default {
   aboutPage,
   articlePage
 };
+
+export default translations;

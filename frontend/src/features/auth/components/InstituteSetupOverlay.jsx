@@ -7,8 +7,7 @@ import { sortLocationsByDistance } from '../../../lib/geoNormalize';
 
 const COUNTRY_CODES = gazeteer.Countries.map(c => ({ ...c, code: c.phoneCode, enName: c.name, label: c.phoneCode }));
 const INDIA_STATES = (gazeteer.Countries.find(c => c.code === 'IN')?.states) || [];
-/* eslint-disable react/jsx-props-no-spreading */
-/* eslint-disable security/detect-object-injection */
+ 
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
@@ -262,6 +261,7 @@ export default function InstituteSetupOverlay({ profile }) {
       }
     }
     return [];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.location_country, formData.location_state]);
 
   const currentYear = new Date().getFullYear();
@@ -808,7 +808,7 @@ export default function InstituteSetupOverlay({ profile }) {
                 renderOption={(props, option, { selected }) => {
                   const { key, id, className, onClick, onTouchStart, 'data-option-index': dataOptionIndex, 'aria-disabled': ariaDisabled, 'aria-selected': ariaSelected } = props;
                   return (
-                    <li key={key} id={id} className={className} onClick={onClick} onTouchStart={onTouchStart} data-option-index={dataOptionIndex} aria-disabled={ariaDisabled} aria-selected={ariaSelected}>
+                    <li key={key} id={id} className={className} onClick={onClick} onTouchStart={onTouchStart} data-option-index={dataOptionIndex}  >
                       <Checkbox style={{ marginRight: 8, padding: 0 }} checked={selected} />
                       {option}
                     </li>
@@ -845,7 +845,7 @@ export default function InstituteSetupOverlay({ profile }) {
                 renderOption={(props, option, { selected }) => {
                   const { key, id, className, onClick, onTouchStart, 'data-option-index': dataOptionIndex, 'aria-disabled': ariaDisabled, 'aria-selected': ariaSelected } = props;
                   return (
-                    <li key={key} id={id} className={className} onClick={onClick} onTouchStart={onTouchStart} data-option-index={dataOptionIndex} aria-disabled={ariaDisabled} aria-selected={ariaSelected}>
+                    <li key={key} id={id} className={className} onClick={onClick} onTouchStart={onTouchStart} data-option-index={dataOptionIndex}  >
                       <Checkbox style={{ marginRight: 8, padding: 0 }} checked={selected} />
                       {option}
                     </li>

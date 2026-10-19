@@ -73,6 +73,7 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
         initialContent += `<p><img src="${image}" /></p>`;
       }
       
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDraftValue(initialContent);
       if (editor && initialContent !== editor.getHTML()) {
         editor.commands.setContent(initialContent);
@@ -117,7 +118,7 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
       return (
         <Box sx={{ overflowX: 'auto' }}>
           <Latex>{previewContent.includes('$$') || previewContent.includes('$') ? previewContent : `$$${previewContent}$$`}</Latex>
-          {image && <img src={image} style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'contain', borderRadius: "8px", marginTop: '8px' }} />}
+          {image && <img src={image} alt="Expression" style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'contain', borderRadius: "8px", marginTop: '8px' }} />}
         </Box>
       );
     }
@@ -126,7 +127,7 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
       return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
           <Typography sx={{ whiteSpace: 'pre-wrap', color: '#1e293b' }}>{previewContent}</Typography>
-          {image && <img src={image} style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'contain', borderRadius: "8px" }} />}
+          {image && <img src={image} alt="Expression" style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'contain', borderRadius: "8px" }} />}
         </Box>
       );
     }
@@ -335,7 +336,7 @@ export default function RichQuestionEditor({ label, value, type, image, onChange
             transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
             sx={{ '& .MuiPopover-paper': { p: 1, display: 'flex', gap: 1, mb: 1, borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: 'none' } }}
           >
-            {['#000000', '#dc2626', '#2563eb', '#16a34a', '#d97706', '#9333ea'].map(color => (
+            {['#000000', '#dc2626', '#2563eb', '#16a34a', '#ffc107', '#9333ea'].map(color => (
               <Box 
                 key={color} 
                 onClick={() => handleColorSelect(color)}

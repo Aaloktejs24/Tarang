@@ -22,7 +22,7 @@ export default function ProfileLoading() {
 
       {/* Profile Body */}
       <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
+        <Grid size={{xs: 12, md: 4}}>
           <Box sx={{ p: 3, bgcolor: '#fff', borderRadius: 2, border: '1px solid #e2e8f0' }}>
             <Skeleton variant="text" width="60%" height={24} sx={{ mb: 2 }} />
             <Skeleton variant="text" width="100%" height={20} />
@@ -30,7 +30,7 @@ export default function ProfileLoading() {
             <Skeleton variant="text" width="80%" height={20} />
           </Box>
         </Grid>
-        <Grid item xs={12} md={8}>
+        <Grid size={{xs: 12, md: 8}}>
           <Box sx={{ p: 3, bgcolor: '#fff', borderRadius: 2, border: '1px solid #e2e8f0' }}>
             <Skeleton variant="rectangular" width="100%" height={200} sx={{ borderRadius: 2, mb: 2 }} />
             <Skeleton variant="rectangular" width="100%" height={200} sx={{ borderRadius: 2 }} />

@@ -165,11 +165,10 @@ func (s *service) DeleteDraft(ctx context.Context, req *admissionpb.DeleteDraftR
 
 // Applications & Progress Tracking Implementations
 func (s *service) ApplyForProgram(ctx context.Context, req *admissionpb.ApplyRequest) (*admissionpb.TransactionResponse, error) {
-	appID := uuid.New().String()
 	txID := uuid.New().String()
 
 	app := &admissionpb.Application{
-		Id:                appID,
+		Id:                "", // The DB will generate this using a sequence
 		UserId:            req.UserId,
 		InstituteId:       req.InstituteId,
 		ProgramId:         req.ProgramId,
@@ -179,7 +178,7 @@ func (s *service) ApplyForProgram(ctx context.Context, req *admissionpb.ApplyReq
 
 	tx := &admissionpb.Transaction{
 		Id:            txID,
-		ApplicationId: appID,
+		ApplicationId: "", // The repo will fill this in after generating the app ID
 		ActorId:       req.UserId, // User applies, so they are the actor
 		ActionType:    "APPLICATION_STARTED",
 		Metadata:      req.Metadata,

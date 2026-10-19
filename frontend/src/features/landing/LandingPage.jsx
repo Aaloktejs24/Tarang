@@ -1,5 +1,6 @@
 "use client";
 
+import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { TextField } from '@mui/material';
 import LandingNavbar from "../../components/navbar/LandingNavbar";
@@ -606,8 +607,8 @@ POTENZA.isSticky = function () {
                           <div className="animated text-white px-lg-5" data-swiper-animation="fadeInUp" data-duration="2.5s" data-delay="0.25s">
                             <p className="d-none d-sm-block lead" style={{ opacity: 0.95, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>The first thing to remember about success is that it is a process nothing more, nothing less. There is really no magic to it and it’s not reserved only for a select few people.</p>
                           </div>
-                          <a href="#" className="animated4 btn mt-4 mr-1 mr-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: '#ffffff', color: '#0056b3', border: 'none', fontWeight: 700, height: '48px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Discover More<span></span></a>
-                          <a href="#" className="animated4 btn mt-4 ml-1 ml-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', color: '#ffffff', border: 'none', fontWeight: 700, height: '48px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Join Tarang<span></span></a>
+                          <Link href="#" className="animated4 btn mt-4 mr-1 mr-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: '#ffffff', color: '#0056b3', border: 'none', fontWeight: 700, height: '48px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Discover More<span></span></Link>
+                          <Link href="#" className="animated4 btn mt-4 ml-1 ml-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', color: '#ffffff', border: 'none', fontWeight: 700, height: '48px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Join Tarang<span></span></Link>
                         </div>
                       </div>
                     </div>
@@ -625,8 +626,8 @@ POTENZA.isSticky = function () {
                           <div className="animated text-dark" data-swiper-animation="fadeInUp" data-duration="2.5s" data-delay="0.25s">
                             <p className="text-white d-none d-sm-block lead" style={{ opacity: 0.95, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>There are basically six key areas to higher achievement. Some people will tell you there are four while others may tell you there are eight.</p>
                           </div>
-                          <a href="#" className="animated4 btn mt-4 mr-1 mr-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: '#ffffff', color: '#0056b3', border: 'none', fontWeight: 700, height: '48px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Discover More<span></span></a>
-                          <a href="#" className="animated4 btn mt-4 ml-1 ml-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', color: '#ffffff', border: 'none', fontWeight: 700, height: '48px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Join Tarang<span></span></a>
+                          <Link href="#" className="animated4 btn mt-4 mr-1 mr-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: '#ffffff', color: '#0056b3', border: 'none', fontWeight: 700, height: '48px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Discover More<span></span></Link>
+                          <Link href="#" className="animated4 btn mt-4 ml-1 ml-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', color: '#ffffff', border: 'none', fontWeight: 700, height: '48px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Join Tarang<span></span></Link>
                         </div>
                       </div>
                     </div>
@@ -644,8 +645,8 @@ POTENZA.isSticky = function () {
                           <div className="animated text-white px-lg-5" data-swiper-animation="fadeInUp" data-duration="2.5s" data-delay="0.25s">
                             <p className="d-none d-sm-block lead" style={{ opacity: 0.95, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>Join our platform to experience modern education.</p>
                           </div>
-                          <a href="#" className="animated4 btn mt-4 mr-1 mr-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: '#ffffff', color: '#0056b3', border: 'none', fontWeight: 700, height: '48px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Discover More<span></span></a>
-                          <a href="#" className="animated4 btn mt-4 ml-1 ml-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', color: '#ffffff', border: 'none', fontWeight: 700, height: '48px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Join Tarang<span></span></a>
+                          <Link href="#" className="animated4 btn mt-4 mr-1 mr-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: '#ffffff', color: '#0056b3', border: 'none', fontWeight: 700, height: '48px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Discover More<span></span></Link>
+                          <Link href="#" className="animated4 btn mt-4 ml-1 ml-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', color: '#ffffff', border: 'none', fontWeight: 700, height: '48px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Join Tarang<span></span></Link>
                         </div>
                       </div>
                     </div>
@@ -663,8 +664,8 @@ POTENZA.isSticky = function () {
                           <div className="animated text-white px-lg-5" data-swiper-animation="fadeInUp" data-duration="2.5s" data-delay="0.25s">
                             <p className="d-none d-sm-block lead" style={{ opacity: 0.95, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>Join our platform to experience modern education.</p>
                           </div>
-                          <a href="#" className="animated4 btn mt-4 mr-1 mr-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: '#ffffff', color: '#0056b3', border: 'none', fontWeight: 700, height: '48px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Discover More<span></span></a>
-                          <a href="#" className="animated4 btn mt-4 ml-1 ml-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', color: '#ffffff', border: 'none', fontWeight: 700, height: '48px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Join Tarang<span></span></a>
+                          <Link href="#" className="animated4 btn mt-4 mr-1 mr-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: '#ffffff', color: '#0056b3', border: 'none', fontWeight: 700, height: '48px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Discover More<span></span></Link>
+                          <Link href="#" className="animated4 btn mt-4 ml-1 ml-sm-2" data-swiper-animation="fadeInUp" data-duration="3.5s" data-delay="0.25s" style={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', color: '#ffffff', border: 'none', fontWeight: 700, height: '48px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Join Tarang<span></span></Link>
                         </div>
                       </div>
                     </div>
@@ -734,7 +735,7 @@ POTENZA.isSticky = function () {
                 </div>
                 <div className="col-md-4">
                   <div className="course-serach">
-                    <a className="btn btn-block" style={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', border: 'none', color: '#ffffff', fontWeight: 600, borderRadius: '8px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} href="#">Book Counseling</a>
+                    <Link className="btn btn-block" style={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', border: 'none', color: '#ffffff', fontWeight: 600, borderRadius: '8px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} href="#">Book Counseling</Link>
                   </div>
                 </div>
               </div>
@@ -753,7 +754,7 @@ POTENZA.isSticky = function () {
                   <p className="lead mb-0">Commitment is something that comes from understanding that everything has its price and then having the willingness to pay that price.</p>
                 </div>
                 <p className="mb-4 mb-lg-5">The other virtues practice in succession by Franklin were silence, order, resolution, frugality, industry, sincerity, Justice, moderation, cleanliness, tranquility, chastity and humility. For the summary order he followed a little scheme of employing his time each day.</p>
-                <a href="#" className="btn btn-round" style={{ background: '#28a745', color: '#ffffff', border: 'none', fontWeight: 700 }}>Read More</a>
+                <Link href="#" className="btn btn-round" style={{ background: '#28a745', color: '#ffffff', border: 'none', fontWeight: 700 }}>Read More</Link>
               </div>
               <div className="col-lg-6 pr-lg-5">
                 <div className="row">
@@ -764,9 +765,9 @@ POTENZA.isSticky = function () {
                     <img className="img-fluid mb-sm-2 w-100 border-radius" src="/images/about/02.jpg" alt="" />
                     <div className="position-relative bg-overlay-black-50 border-radius overflow-hidden mt-4">
                       <img className="img-fluid border-radius" src="/images/about/03.jpg" alt="image" />
-                      <a className="btn-animation position-center popup-youtube" href="https://www.youtube.com/watch?v=LgvseYYhqU0">
+                      <Link className="btn-animation position-center popup-youtube" href="https://www.youtube.com/watch?v=LgvseYYhqU0">
                         <PlayArrowIcon className="fas fa-play" style={{ fontSize: 'inherit' }} />
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -839,7 +840,7 @@ POTENZA.isSticky = function () {
                 </div>
               </div>
               <div className="col-sm-4 text-md-right mb-4 mb-sm-0">
-                <a className="btn" href="#" style={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', color: '#ffffff', border: 'none', fontWeight: 700 }}>All Courses</a>
+                <Link className="btn" href="#" style={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', color: '#ffffff', border: 'none', fontWeight: 700 }}>All Courses</Link>
               </div>
             </div>
             <div className="row">
@@ -858,16 +859,16 @@ POTENZA.isSticky = function () {
                       <div className="coures-img">
                         <img className="img-fluid" src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800" alt="" />
                         <div className="course-tag">
-                          <a href="#">Business</a>
+                          <Link href="#">Business</Link>
                         </div>
                       </div>
                       <div className="course-conten">
-                        <a href="#" className="course-author d-flex align-items-center mb-3">
+                        <Link href="#" className="course-author d-flex align-items-center mb-3">
                           <img className="avatar img-fluid" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=400" alt="" />
                           <span className="author-name">Alice Williams</span>
-                        </a>
+                        </Link>
                         <h5 className="mb-3">
-                          <a href="course-detail.html">Aeronautical & Manufacturing Engineering</a>
+                          <Link href="course-detail">Aeronautical & Manufacturing Engineering</Link>
                         </h5>
                         <div className="course-rating mb-3 pb-3 border-bottom">
                           <div className="review-rating">
@@ -896,16 +897,16 @@ POTENZA.isSticky = function () {
                       <div className="coures-img">
                         <img className="img-fluid" src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?q=80&w=800" alt="" />
                         <div className="course-tag">
-                          <a href="#">Politics</a>
+                          <Link href="#">Politics</Link>
                         </div>
                       </div>
                       <div className="course-conten">
-                        <a href="#" className="course-author d-flex align-items-center mb-3">
+                        <Link href="#" className="course-author d-flex align-items-center mb-3">
                           <img className="avatar img-fluid" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=400" alt="" />
                           <span className="author-name">Mellissa Doe</span>
-                        </a>
+                        </Link>
                         <h5 className="mb-3">
-                          <a href="course-detail.html">Business & Management Studies</a>
+                          <Link href="course-detail">Business & Management Studies</Link>
                         </h5>
                         <div className="course-rating mb-3 pb-3 border-bottom">
                           <div className="review-rating">
@@ -934,16 +935,16 @@ POTENZA.isSticky = function () {
                       <div className="coures-img">
                         <img className="img-fluid" src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=800" alt="" />
                         <div className="course-tag">
-                          <a href="#">Psychology</a>
+                          <Link href="#">Psychology</Link>
                         </div>
                       </div>
                       <div className="course-conten">
-                        <a href="#" className="course-author d-flex align-items-center mb-3">
+                        <Link href="#" className="course-author d-flex align-items-center mb-3">
                           <img className="avatar img-fluid" src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=400" alt="" />
                           <span className="author-name">Paul Flavius</span>
-                        </a>
+                        </Link>
                         <h5 className="mb-3">
-                          <a href="course-detail.html">History of Art, Architecture & Design</a>
+                          <Link href="course-detail">History of Art, Architecture & Design</Link>
                         </h5>
                         <div className="course-rating mb-3 pb-3 border-bottom">
                           <div className="review-rating">
@@ -972,16 +973,16 @@ POTENZA.isSticky = function () {
                       <div className="coures-img">
                         <img className="img-fluid" src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=800" alt="" />
                         <div className="course-tag">
-                          <a href="#">Medicine</a>
+                          <Link href="#">Medicine</Link>
                         </div>
                       </div>
                       <div className="course-conten">
-                        <a href="#" className="course-author d-flex align-items-center mb-3">
+                        <Link href="#" className="course-author d-flex align-items-center mb-3">
                           <img className="avatar img-fluid" src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=400" alt="" />
                           <span className="author-name">Felica Queen</span>
-                        </a>
+                        </Link>
                         <h5 className="mb-3">
-                          <a href="course-detail.html">Communication & Media Studies</a>
+                          <Link href="course-detail">Communication & Media Studies</Link>
                         </h5>
                         <div className="course-rating mb-3 pb-3 border-bottom">
                           <div className="review-rating">
@@ -1010,16 +1011,16 @@ POTENZA.isSticky = function () {
                       <div className="coures-img">
                         <img className="img-fluid" src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=800" alt="" />
                         <div className="course-tag">
-                          <a href="#">Architecture</a>
+                          <Link href="#">Architecture</Link>
                         </div>
                       </div>
                       <div className="course-conten">
-                        <a href="#" className="course-author d-flex align-items-center mb-3">
+                        <Link href="#" className="course-author d-flex align-items-center mb-3">
                           <img className="avatar img-fluid" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=400" alt="" />
                           <span className="author-name">Michael Bean</span>
-                        </a>
+                        </Link>
                         <h5 className="mb-3">
-                          <a href="course-detail.html">Geography & Environmental Science</a>
+                          <Link href="course-detail">Geography & Environmental Science</Link>
                         </h5>
                         <div className="course-rating mb-3 pb-3 border-bottom">
                           <div className="review-rating">
@@ -1048,16 +1049,16 @@ POTENZA.isSticky = function () {
                       <div className="coures-img">
                         <img className="img-fluid" src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800" alt="" />
                         <div className="course-tag">
-                          <a href="#">Biological</a>
+                          <Link href="#">Biological</Link>
                         </div>
                       </div>
                       <div className="course-conten">
-                        <a href="#" className="course-author d-flex align-items-center mb-3">
+                        <Link href="#" className="course-author d-flex align-items-center mb-3">
                           <img className="avatar img-fluid" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=400" alt="" />
                           <span className="author-name">Sara Lisbon</span>
-                        </a>
+                        </Link>
                         <h5 className="mb-3">
-                          <a href="course-detail.html">Electrical & Electronic Engineering</a>
+                          <Link href="course-detail">Electrical & Electronic Engineering</Link>
                         </h5>
                         <div className="course-rating mb-3 pb-3 border-bottom">
                           <div className="review-rating">
@@ -1139,7 +1140,7 @@ POTENZA.isSticky = function () {
                     </div>
                   </div>
                   <div className="col-md-5 text-md-right mb-4 mb-md-0">
-                    <a className="btn btn-round" href="#" style={{ background: '#0056b3', color: '#ffffff', border: 'none', fontWeight: 700 }}>View All</a>
+                    <Link className="btn btn-round" href="#" style={{ background: '#0056b3', color: '#ffffff', border: 'none', fontWeight: 700 }}>View All</Link>
                   </div>
                 </div>
                 <div className="row">
@@ -1157,20 +1158,20 @@ POTENZA.isSticky = function () {
                               <div className="col-lg-6 align-self-center">
                                 <div className="events-content">
                                   <div className="events-tag mb-3">
-                                    <a href="#" className="badge badge-primary px-3 py-2" style={{ borderRadius: '8px' }}>Art Competition</a>
+                                    <Link href="#" className="badge badge-primary px-3 py-2" style={{ borderRadius: '8px' }}>Art Competition</Link>
                                   </div>
-                                  <a href="event-detail.html" className="text-dark h4 font-weight-bold">Young leaders in tech policy fellowship</a>
+                                  <Link href="event-detail" className="text-dark h4 font-weight-bold">Young leaders in tech policy fellowship</Link>
                                   <div className="events-meta my-3">
                                     <ul className="list-unstyled mb-0 d-flex text-muted">
-                                      <li className="mr-3"><a href="#" className="text-muted"><CalendarMonthIcon className="pr-1" style={{ fontSize: '20px', color: '#28a745' }} /> 5 Oct, 2020</a></li>
-                                      <li><a href="#" className="text-muted"><AccessTimeIcon className="pr-1" style={{ fontSize: '20px', color: '#28a745' }} />  9:00 AM - 11:00 AM</a></li>
+                                      <li className="mr-3"><Link href="#" className="text-muted"><CalendarMonthIcon className="pr-1" style={{ fontSize: '20px', color: '#28a745' }} /> 5 Oct, 2020</Link></li>
+                                      <li><Link href="#" className="text-muted"><AccessTimeIcon className="pr-1" style={{ fontSize: '20px', color: '#28a745' }} />  9:00 AM - 11:00 AM</Link></li>
                                     </ul>
                                   </div>
                                   <p className="text-secondary mb-lg-0">Franklin’s extraordinary success in life and politics can be attributed to his perseverance to overcome his personal liabilities, and his desire to constantly become better.</p>
                                 </div>
                               </div>
                               <div className="col-lg-3 align-self-center text-lg-right text-left">
-                                <a className="btn" href="#" style={{ background: '#0056b3', color: '#ffffff', border: 'none', fontWeight: 700, padding: '10px 28px', fontSize: '0.95rem', borderRadius: '8px' }}>Join Event</a>
+                                <Link className="btn" href="#" style={{ background: '#0056b3', color: '#ffffff', border: 'none', fontWeight: 700, padding: '10px 28px', fontSize: '0.95rem', borderRadius: '8px' }}>Join Event</Link>
                               </div>
                             </div>
                           </div>
@@ -1184,20 +1185,20 @@ POTENZA.isSticky = function () {
                               <div className="col-lg-6 align-self-center">
                                 <div className="events-content">
                                   <div className="events-tag mb-3">
-                                    <a href="#" className="badge badge-primary px-3 py-2" style={{ borderRadius: '8px' }}>Architecture Events</a>
+                                    <Link href="#" className="badge badge-primary px-3 py-2" style={{ borderRadius: '8px' }}>Architecture Events</Link>
                                   </div>
-                                  <a href="event-detail.html" className="text-dark h4 font-weight-bold">Expert panel- careers in tech policy</a>
+                                  <Link href="event-detail" className="text-dark h4 font-weight-bold">Expert panel- careers in tech policy</Link>
                                   <div className="events-meta my-3">
                                     <ul className="list-unstyled mb-0 d-flex text-muted">
-                                      <li className="mr-3"><a href="#" className="text-muted"><CalendarMonthIcon className="pr-1" style={{ fontSize: '20px', color: '#28a745' }} /> 05 Nov, 2020</a></li>
-                                      <li><a href="#" className="text-muted"><AccessTimeIcon className="pr-1" style={{ fontSize: '20px', color: '#28a745' }} />  2:00 PM - 4:00 PM</a></li>
+                                      <li className="mr-3"><Link href="#" className="text-muted"><CalendarMonthIcon className="pr-1" style={{ fontSize: '20px', color: '#28a745' }} /> 05 Nov, 2020</Link></li>
+                                      <li><Link href="#" className="text-muted"><AccessTimeIcon className="pr-1" style={{ fontSize: '20px', color: '#28a745' }} />  2:00 PM - 4:00 PM</Link></li>
                                     </ul>
                                   </div>
                                   <p className="text-secondary mb-lg-0">Next time you really want to achieve something, take time to focus on your own personal journal. What is your temptation that is standing in your way to greatness?</p>
                                 </div>
                               </div>
                               <div className="col-lg-3 align-self-center text-lg-right text-left">
-                                <a className="btn" href="#" style={{ background: '#0056b3', color: '#ffffff', border: 'none', fontWeight: 700, padding: '10px 28px', fontSize: '0.95rem', borderRadius: '8px' }}>Join Event</a>
+                                <Link className="btn" href="#" style={{ background: '#0056b3', color: '#ffffff', border: 'none', fontWeight: 700, padding: '10px 28px', fontSize: '0.95rem', borderRadius: '8px' }}>Join Event</Link>
                               </div>
                             </div>
                           </div>
@@ -1211,20 +1212,20 @@ POTENZA.isSticky = function () {
                               <div className="col-lg-6 align-self-center">
                                 <div className="events-content">
                                   <div className="events-tag mb-3">
-                                    <a href="#" className="badge badge-primary px-3 py-2" style={{ borderRadius: '8px' }}>Medicine Events</a>
+                                    <Link href="#" className="badge badge-primary px-3 py-2" style={{ borderRadius: '8px' }}>Medicine Events</Link>
                                   </div>
-                                  <a href="event-detail.html" className="text-dark h4 font-weight-bold">Health and life expectancy</a>
+                                  <Link href="event-detail" className="text-dark h4 font-weight-bold">Health and life expectancy</Link>
                                   <div className="events-meta my-3">
                                     <ul className="list-unstyled mb-0 d-flex text-muted">
-                                      <li className="mr-3"><a href="#" className="text-muted"><CalendarMonthIcon className="pr-1" style={{ fontSize: '20px', color: '#28a745' }} /> 27 Nov, 2020</a></li>
-                                      <li><a href="#" className="text-muted"><AccessTimeIcon className="pr-1" style={{ fontSize: '20px', color: '#28a745' }} />  4:00 PM - 6:00 PM</a></li>
+                                      <li className="mr-3"><Link href="#" className="text-muted"><CalendarMonthIcon className="pr-1" style={{ fontSize: '20px', color: '#28a745' }} /> 27 Nov, 2020</Link></li>
+                                      <li><Link href="#" className="text-muted"><AccessTimeIcon className="pr-1" style={{ fontSize: '20px', color: '#28a745' }} />  4:00 PM - 6:00 PM</Link></li>
                                     </ul>
                                   </div>
                                   <p className="text-secondary mb-lg-0">Get yourself nice and relaxed and settled. Concentrate on your breathing, engage in the moment and spend some time being still, quiet and drift inside of your own mind.</p>
                                 </div>
                               </div>
                               <div className="col-lg-3 align-self-center text-lg-right text-left">
-                                <a className="btn" href="#" style={{ background: '#0056b3', color: '#ffffff', border: 'none', fontWeight: 700, padding: '10px 28px', fontSize: '0.95rem', borderRadius: '8px' }}>Join Event</a>
+                                <Link className="btn" href="#" style={{ background: '#0056b3', color: '#ffffff', border: 'none', fontWeight: 700, padding: '10px 28px', fontSize: '0.95rem', borderRadius: '8px' }}>Join Event</Link>
                               </div>
                             </div>
                           </div>
@@ -1260,13 +1261,13 @@ POTENZA.isSticky = function () {
                     <img className="img-fluid rounded" style={{ height: '400px', width: '100%', objectFit: 'cover' }} src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=400" alt="" />
                   </div>
                   <div className="team-info">
-                    <a href="teachers-single.html" className="team-name">Mellissa Doe</a>
+                    <Link href="teachers-single" className="team-name">Mellissa Doe</Link>
                     <p className="team-leader">Team Leader</p>
                     <ul className="list-unstyled">
-                      <li><a href="#" style={{ backgroundColor: '#28a745' }}><FacebookIcon className="fab fa-facebook-f" style={{ fontSize: 'inherit' }} /></a></li>
-                      <li><a href="#" style={{ backgroundColor: '#28a745' }}><TwitterIcon className="fab fa-twitter" style={{ fontSize: 'inherit' }} /></a></li>
-                      <li><a href="#" style={{ backgroundColor: '#28a745' }}><LinkedInIcon className="fab fa-linkedin-in" style={{ fontSize: 'inherit' }} /></a></li>
-                      <li><a href="#" style={{ backgroundColor: '#28a745' }}><InstagramIcon className="fab fa-instagram" style={{ fontSize: 'inherit' }} /></a></li>
+                      <li><Link href="#" style={{ backgroundColor: '#28a745' }}><FacebookIcon className="fab fa-facebook-f" style={{ fontSize: 'inherit' }} /></Link></li>
+                      <li><Link href="#" style={{ backgroundColor: '#28a745' }}><TwitterIcon className="fab fa-twitter" style={{ fontSize: 'inherit' }} /></Link></li>
+                      <li><Link href="#" style={{ backgroundColor: '#28a745' }}><LinkedInIcon className="fab fa-linkedin-in" style={{ fontSize: 'inherit' }} /></Link></li>
+                      <li><Link href="#" style={{ backgroundColor: '#28a745' }}><InstagramIcon className="fab fa-instagram" style={{ fontSize: 'inherit' }} /></Link></li>
                     </ul>
                   </div>
                 </div>
@@ -1279,13 +1280,13 @@ POTENZA.isSticky = function () {
                     <img className="img-fluid rounded" style={{ height: '400px', width: '100%', objectFit: 'cover' }} src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=400" alt="" />
                   </div>
                   <div className="team-info">
-                    <a href="teachers-single.html" className="team-name">Ora Bryan</a>
+                    <Link href="teachers-single" className="team-name">Ora Bryan</Link>
                     <p className="team-leader">Illustration</p>
                     <ul className="list-unstyled">
-                      <li><a href="#" style={{ backgroundColor: '#28a745' }}><FacebookIcon className="fab fa-facebook-f" style={{ fontSize: 'inherit' }} /></a></li>
-                      <li><a href="#" style={{ backgroundColor: '#28a745' }}><TwitterIcon className="fab fa-twitter" style={{ fontSize: 'inherit' }} /></a></li>
-                      <li><a href="#" style={{ backgroundColor: '#28a745' }}><LinkedInIcon className="fab fa-linkedin-in" style={{ fontSize: 'inherit' }} /></a></li>
-                      <li><a href="#" style={{ backgroundColor: '#28a745' }}><InstagramIcon className="fab fa-instagram" style={{ fontSize: 'inherit' }} /></a></li>
+                      <li><Link href="#" style={{ backgroundColor: '#28a745' }}><FacebookIcon className="fab fa-facebook-f" style={{ fontSize: 'inherit' }} /></Link></li>
+                      <li><Link href="#" style={{ backgroundColor: '#28a745' }}><TwitterIcon className="fab fa-twitter" style={{ fontSize: 'inherit' }} /></Link></li>
+                      <li><Link href="#" style={{ backgroundColor: '#28a745' }}><LinkedInIcon className="fab fa-linkedin-in" style={{ fontSize: 'inherit' }} /></Link></li>
+                      <li><Link href="#" style={{ backgroundColor: '#28a745' }}><InstagramIcon className="fab fa-instagram" style={{ fontSize: 'inherit' }} /></Link></li>
                     </ul>
                   </div>
                 </div>
@@ -1298,13 +1299,13 @@ POTENZA.isSticky = function () {
                     <img className="img-fluid rounded" style={{ height: '400px', width: '100%', objectFit: 'cover' }} src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=400" alt="" />
                   </div>
                   <div className="team-info">
-                    <a href="teachers-single.html" className="team-name">Gwen Bass</a>
+                    <Link href="teachers-single" className="team-name">Gwen Bass</Link>
                     <p className="team-leader">Sales and Marketing</p>
                     <ul className="list-unstyled">
-                      <li><a href="#" style={{ backgroundColor: '#28a745' }}><FacebookIcon className="fab fa-facebook-f" style={{ fontSize: 'inherit' }} /></a></li>
-                      <li><a href="#" style={{ backgroundColor: '#28a745' }}><TwitterIcon className="fab fa-twitter" style={{ fontSize: 'inherit' }} /></a></li>
-                      <li><a href="#" style={{ backgroundColor: '#28a745' }}><LinkedInIcon className="fab fa-linkedin-in" style={{ fontSize: 'inherit' }} /></a></li>
-                      <li><a href="#" style={{ backgroundColor: '#28a745' }}><InstagramIcon className="fab fa-instagram" style={{ fontSize: 'inherit' }} /></a></li>
+                      <li><Link href="#" style={{ backgroundColor: '#28a745' }}><FacebookIcon className="fab fa-facebook-f" style={{ fontSize: 'inherit' }} /></Link></li>
+                      <li><Link href="#" style={{ backgroundColor: '#28a745' }}><TwitterIcon className="fab fa-twitter" style={{ fontSize: 'inherit' }} /></Link></li>
+                      <li><Link href="#" style={{ backgroundColor: '#28a745' }}><LinkedInIcon className="fab fa-linkedin-in" style={{ fontSize: 'inherit' }} /></Link></li>
+                      <li><Link href="#" style={{ backgroundColor: '#28a745' }}><InstagramIcon className="fab fa-instagram" style={{ fontSize: 'inherit' }} /></Link></li>
                     </ul>
                   </div>
                 </div>
@@ -1338,11 +1339,11 @@ POTENZA.isSticky = function () {
                   </div>
 
                   <div className="blog-content pt-4 border-0">
-                    <h5 className="blog-title mb-3"><a href="blog-detail.html">The problem with the push for more college degrees</a></h5>
+                    <h5 className="blog-title mb-3"><Link href="blog-detail">The problem with the push for more college degrees</Link></h5>
                     <div className="blog-meta mb-0">
                       <ul className="list-unstyled mb-0 d-flex">
-                        <li className="mr-3"><a href="#"><CalendarMonthIcon className="fas fa-calendar-alt pr-1" style={{ fontSize: 'inherit' }} /> 15 Oct, 2020</a></li>
-                        <li><a href="#"><AccessTimeIcon className="fas fa-clock pr-1" style={{ fontSize: 'inherit' }} />  10:00 AM - 12:00 PM</a></li>
+                        <li className="mr-3"><Link href="#"><CalendarMonthIcon className="fas fa-calendar-alt pr-1" style={{ fontSize: 'inherit' }} /> 15 Oct, 2020</Link></li>
+                        <li><Link href="#"><AccessTimeIcon className="fas fa-clock pr-1" style={{ fontSize: 'inherit' }} />  10:00 AM - 12:00 PM</Link></li>
                       </ul>
                     </div>
                     <p className="mt-3 mb-0">Imagine reaching deep inside you for all the strength and wisdom that you need to make this decision today.</p>
@@ -1359,11 +1360,11 @@ POTENZA.isSticky = function () {
                   </div>
 
                   <div className="blog-content pt-4 pt-md-0 border-0">
-                    <h5 className="blog-title mb-3"><a href="blog-detail.html">Colleges with the most hispanic students</a></h5>
+                    <h5 className="blog-title mb-3"><Link href="blog-detail">Colleges with the most hispanic students</Link></h5>
                     <div className="blog-meta mb-0">
                       <ul className="list-unstyled mb-0 d-flex">
-                        <li className="mr-3"><a href="#"><CalendarMonthIcon className="fas fa-calendar-alt pr-1" style={{ fontSize: 'inherit' }} /> 20 Sept, 2020</a></li>
-                        <li><a href="#"><AccessTimeIcon className="fas fa-clock pr-1" style={{ fontSize: 'inherit' }} />  12:00 PM - 3:00 PM</a></li>
+                        <li className="mr-3"><Link href="#"><CalendarMonthIcon className="fas fa-calendar-alt pr-1" style={{ fontSize: 'inherit' }} /> 20 Sept, 2020</Link></li>
+                        <li><Link href="#"><AccessTimeIcon className="fas fa-clock pr-1" style={{ fontSize: 'inherit' }} />  12:00 PM - 3:00 PM</Link></li>
                       </ul>
                     </div>
                   </div>
@@ -1377,11 +1378,11 @@ POTENZA.isSticky = function () {
                   </div>
 
                   <div className="blog-content pt-4 pt-md-0 border-0">
-                    <h5 className="blog-title mb-3"><a href="blog-detail.html">Get a job, internship during COVID-19</a></h5>
+                    <h5 className="blog-title mb-3"><Link href="blog-detail">Get a job, internship during COVID-19</Link></h5>
                     <div className="blog-meta mb-0">
                       <ul className="list-unstyled mb-0 d-flex">
-                        <li className="mr-3"><a href="#"><CalendarMonthIcon className="fas fa-calendar-alt pr-1" style={{ fontSize: 'inherit' }} /> 05 Nov, 2020</a></li>
-                        <li><a href="#"><AccessTimeIcon className="fas fa-clock pr-1" style={{ fontSize: 'inherit' }} />  2:00 PM - 4:00 PM</a></li>
+                        <li className="mr-3"><Link href="#"><CalendarMonthIcon className="fas fa-calendar-alt pr-1" style={{ fontSize: 'inherit' }} /> 05 Nov, 2020</Link></li>
+                        <li><Link href="#"><AccessTimeIcon className="fas fa-clock pr-1" style={{ fontSize: 'inherit' }} />  2:00 PM - 4:00 PM</Link></li>
                       </ul>
                     </div>
                   </div>
@@ -1395,11 +1396,11 @@ POTENZA.isSticky = function () {
                   </div>
 
                   <div className="blog-content pt-4 pt-md-0 border-0">
-                    <h5 className="blog-title mb-3"><a href="blog-detail.html">Why student loan default rate matters</a></h5>
+                    <h5 className="blog-title mb-3"><Link href="blog-detail">Why student loan default rate matters</Link></h5>
                     <div className="blog-meta mb-0">
                       <ul className="list-unstyled mb-0 d-flex">
-                        <li className="mr-3"><a href="#"><CalendarMonthIcon className="fas fa-calendar-alt pr-1" style={{ fontSize: 'inherit' }} /> 27 Nov, 2020</a></li>
-                        <li><a href="#"><AccessTimeIcon className="fas fa-clock pr-1" style={{ fontSize: 'inherit' }} />  4:00 PM - 6:00 PM</a></li>
+                        <li className="mr-3"><Link href="#"><CalendarMonthIcon className="fas fa-calendar-alt pr-1" style={{ fontSize: 'inherit' }} /> 27 Nov, 2020</Link></li>
+                        <li><Link href="#"><AccessTimeIcon className="fas fa-clock pr-1" style={{ fontSize: 'inherit' }} />  4:00 PM - 6:00 PM</Link></li>
                       </ul>
                     </div>
                   </div>
@@ -1423,8 +1424,8 @@ POTENZA.isSticky = function () {
               <div className="col-lg-10 text-center">
                 <span className="text-white d-block mb-4 h6 font-weight-normal">Are you ready to start your journey with us?</span>
                 <h2 className="text-white mb-4 display-7">Education for Individual and Social Responsibility</h2>
-                <a className="btn mr-sm-3 mt-3" href="#" style={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', color: '#ffffff', border: 'none', fontWeight: 700, height: '48px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Become A Student</a>
-                <a className="btn mt-3" href="#" style={{ background: '#ffffff', color: '#0056b3', border: 'none', fontWeight: 700, height: '48px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Discover More</a>
+                <Link className="btn mr-sm-3 mt-3" href="#" style={{ background: 'linear-gradient(135deg, #0056b3 0%, #28a745 100%)', color: '#ffffff', border: 'none', fontWeight: 700, height: '48px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Become A Student</Link>
+                <Link className="btn mt-3" href="#" style={{ background: '#ffffff', color: '#0056b3', border: 'none', fontWeight: 700, height: '48px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Discover More</Link>
               </div>
             </div>
           </div>
@@ -1480,15 +1481,15 @@ POTENZA.isSticky = function () {
           <div className="container pt-5">
             <div className="row pb-5 pb-lg-6 mb-lg-3">
               <div className="col-sm-6 col-lg-4 mb-4 mb-lg-0 pr-lg-5">
-                <a href="index.html"><img className="img-fluid mb-3 footer-logo" src={logo.src} alt="" /></a>
+                <Link href="/"><img className="img-fluid mb-3 footer-logo" src={logo.src} alt="" /></Link>
                 <p className="text-white">The best way is to develop and follow a plan. Start with your goals in mind and then work backward to develop the plan.</p>
                 <h5 className="text-white mb-2 mb-sm-4">Follow Us</h5>
                 <div className="social-icon social-icon-style-02">
                   <ul>
-                    <li><a href="#"><FacebookIcon className="fab fa-facebook-f" style={{ fontSize: '20px' }} /></a></li>
-                    <li><a href="#"><TwitterIcon className="fab fa-twitter" style={{ fontSize: '20px' }} /></a></li>
-                    <li><a href="#"><LinkedInIcon className="fab fa-linkedin-in" style={{ fontSize: '20px' }} /></a></li>
-                    <li><a href="#"><InstagramIcon className="fab fa-instagram" style={{ fontSize: '20px' }} /></a></li>
+                    <li><Link href="#"><FacebookIcon className="fab fa-facebook-f" style={{ fontSize: '20px' }} /></Link></li>
+                    <li><Link href="#"><TwitterIcon className="fab fa-twitter" style={{ fontSize: '20px' }} /></Link></li>
+                    <li><Link href="#"><LinkedInIcon className="fab fa-linkedin-in" style={{ fontSize: '20px' }} /></Link></li>
+                    <li><Link href="#"><InstagramIcon className="fab fa-instagram" style={{ fontSize: '20px' }} /></Link></li>
                   </ul>
                 </div>
               </div>
@@ -1496,12 +1497,12 @@ POTENZA.isSticky = function () {
                 <h5 className="text-white mb-2 mb-sm-4">Category</h5>
                 <div className="footer-link">
                   <ul className="list-unstyled mb-0">
-                    <li><a className="text-white" href="#">Economics</a></li>
-                    <li><a className="text-white" href="#">Natural</a></li>
-                    <li><a className="text-white" href="#">Architecture</a></li>
-                    <li><a className="text-white" href="#">Electrical</a></li>
-                    <li><a className="text-white" href="#">Biological</a></li>
-                    <li><a className="text-white" href="#">Psychology</a></li>
+                    <li><Link className="text-white" href="#">Economics</Link></li>
+                    <li><Link className="text-white" href="#">Natural</Link></li>
+                    <li><Link className="text-white" href="#">Architecture</Link></li>
+                    <li><Link className="text-white" href="#">Electrical</Link></li>
+                    <li><Link className="text-white" href="#">Biological</Link></li>
+                    <li><Link className="text-white" href="#">Psychology</Link></li>
                   </ul>
                 </div>
               </div>
@@ -1509,13 +1510,13 @@ POTENZA.isSticky = function () {
                 <h5 className="text-white mb-2 mb-sm-4">Useful Link</h5>
                 <div className="footer-link">
                   <ul className="list-unstyled mb-0">
-                    <li><a className="text-white" href="index.html">Home</a></li>
-                    <li><a className="text-white" href="#">Blogs</a></li>
-                    <li><a className="text-white" href="#">Events</a></li>
-                    <li><a className="text-white" href="course.html">Courses</a></li>
-                    <li><a className="text-white" href="privacy-policy.html">Privacy Policy</a></li>
-                    <li><a className="text-white" href="pricing.html">Pricing</a></li>
-                    <li><a className="text-white" href="faq.html">Faq</a></li>
+                    <li><Link className="text-white" href="/">Home</Link></li>
+                    <li><Link className="text-white" href="#">Blogs</Link></li>
+                    <li><Link className="text-white" href="#">Events</Link></li>
+                    <li><Link className="text-white" href="course">Courses</Link></li>
+                    <li><Link className="text-white" href="privacy-policy">Privacy Policy</Link></li>
+                    <li><Link className="text-white" href="pricing">Pricing</Link></li>
+                    <li><Link className="text-white" href="faq">Faq</Link></li>
                   </ul>
                 </div>
               </div>
@@ -1530,11 +1531,11 @@ POTENZA.isSticky = function () {
                     </div>
                     <div className="contact-item">
                       <PhoneIcon className="fas fa-phone-alt" style={{ fontSize: '24px', color: '#28a745' }} />
-                      <p className="mb-0 font-weight-bold ml-3"><a className="text-white" href="#">+(123) 456-7890</a></p>
+                      <p className="mb-0 font-weight-bold ml-3"><Link className="text-white" href="#">+(123) 456-7890</Link></p>
                     </div>
                     <div className="contact-item mb-0">
                       <EmailIcon className="fas fa-envelope" style={{ fontSize: '24px', color: '#28a745' }} />
-                      <a className="text-white ml-3 text-white" href="#">letstalk@academic.com</a>
+                      <Link className="text-white ml-3 text-white" href="#">letstalk@academic.com</Link>
                     </div>
                   </div>
                 </div>
@@ -1545,7 +1546,7 @@ POTENZA.isSticky = function () {
             <div className="container">
               <div className="row align-items-center">
                 <div className="col-lg-12 text-center">
-                  <p className="mb-0 text-white">©Copyright 2020 <a href="index.html">academic</a> All Rights Reserved</p>
+                  <p className="mb-0 text-white">©Copyright 2020 <Link href="/">academic</Link> All Rights Reserved</p>
                 </div>
               </div>
             </div>

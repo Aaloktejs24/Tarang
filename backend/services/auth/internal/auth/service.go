@@ -861,8 +861,7 @@ func (s *Service) GetActiveAdminToken(ctx context.Context, role string) (string,
 }
 
 func (s *Service) SuperAdminLogin(ctx context.Context, password string) (string, error) {
-	// For now, hardcode super password. In production, this should come from env: s.cfg.SuperAdminPassword
-	superPassword := "tarang_super_123" 
+	superPassword := s.cfg.SuperAdminPassword
 	if password != superPassword {
 		return "", fmt.Errorf("invalid super admin password")
 	}

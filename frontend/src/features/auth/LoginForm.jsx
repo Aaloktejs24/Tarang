@@ -107,6 +107,7 @@ export default function LoginForm({ onClose }) {
     }
 
     setIsHydrated(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const cleanupAuthContext = () => {
@@ -123,7 +124,7 @@ export default function LoginForm({ onClose }) {
 
     sessionStorage.setItem("auth_mode", mode);
     sessionStorage.setItem("auth_step", step.toString());
-    // eslint-disable-next-line no-unused-vars
+     
     const { password, confirmPassword, ...filteredData } = formData;
     sessionStorage.setItem("auth_formData", JSON.stringify(filteredData));
     if (maskedEmail) {
@@ -136,6 +137,7 @@ export default function LoginForm({ onClose }) {
     if (mode === "login" && step === 1) {
       setAuthFlowInProgress(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, step, formData, maskedEmail]);
 
   // Effect to manage OTP resend cooldown and restore masked email
@@ -166,6 +168,7 @@ export default function LoginForm({ onClose }) {
     if (step === 1) {
       setSuccess("");
     }
+   
   }, [step]);
 
   // Handle mode transitions and aggressive cleanup ONLY on fresh starts

@@ -1,9 +1,11 @@
 "use client";
 import React, { useState } from 'react';
+import { FieldContext } from '../../../../../../contexts/FieldContext';
+
 import { apiClient } from '../../../../../../lib/apiClient';
 import { styled } from '@mui/material/styles';
 import { tooltipClasses } from '@mui/material/Tooltip';
-import { Box, Typography, Container, Paper, Button, Grid, Stepper, Step, StepLabel, Divider, Tooltip, Skeleton, Card, CardContent, TextField, MenuItem, Select, InputLabel, FormControl, FormControlLabel, Checkbox, IconButton } from '@mui/material';
+import { Box, Typography, Container, Paper, Button, Grid, Stepper, Step, StepLabel, Divider, Tooltip, Skeleton, Card, CardContent, TextField, MenuItem, Select, InputLabel, FormControl, FormControlLabel, Checkbox, IconButton, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, Backdrop, Alert } from '@mui/material';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useAppRouter as useRouter } from '../../../../../../hooks/useAppRouter';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
@@ -43,29 +45,15 @@ import EventOutlinedIcon from '@mui/icons-material/EventOutlined';
 import EventSeatOutlinedIcon from '@mui/icons-material/EventSeatOutlined';
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { FieldCommentTooltip } from '../../../../../../components/common/FieldCommentTooltip';
 import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import { useBreadcrumbs } from "../../../../../../contexts/BreadcrumbContext";
-import { getApplicationHistory, updateApplicationProgress } from '../../../../../../features/admission/admissionService';
+import { getApplicationHistory, updateApplicationProgress, getUserApplications, applyForProgram } from '../../../../../../features/admission/admissionService';
+import { useAutoSave } from '../../../../../../features/admission/useAutoSave';
 import Loader from '../../../../../../components/common/Loader';
 
-const CustomTooltip = styled(({ className, ...props }) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(() => ({
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: 'rgba(30, 79, 163, 0.65)',
-    backdropFilter: 'blur(12px)',
-    WebkitBackdropFilter: 'blur(12px)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    color: '#ffffff',
-    fontSize: '0.8rem',
-    borderRadius: '12px',
-    padding: '8px 12px',
-  },
-  [`& .${tooltipClasses.arrow}`]: {
-    color: 'rgba(30, 79, 163, 0.65)',
-  },
-}));
+import { CustomTooltip } from '../../../../../../components/common/CustomTooltip';
 
 import { CustomFloatingInput, CustomFloatingSelect, CustomFloatingPhoneInput, CustomFloatingDatePicker, CustomFloatingCountrySelect, CustomFloatingFileInput } from '../../../../../../components/common/CustomFloatingFields';
 
@@ -87,7 +75,7 @@ const maskPhone = (phone) => {
 export default function AdmissionProgramPage() {
   const router = useRouter();
   const { username, programId } = useParams();
-  const { userLocation } = useAccessibility();
+  const { userLocation, language } = useAccessibility();
   const languageOptions = React.useMemo(() => buildSortedLanguages(userLocation), [userLocation]);
   const { profile } = useProfile();
   const cardsRef = React.useRef(null);
@@ -108,10 +96,11 @@ export default function AdmissionProgramPage() {
   const [resendTimer, setResendTimer] = useState(0);
 
   const searchParams = useSearchParams();
-  const appId = searchParams.get('appId');
+  const [appId, setAppId] = useState(searchParams.get('appId'));
+  const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState(false);
   const [application, setApplication] = useState(null);
-  const [, setLoadingApp] = useState(false);
-
+  const [loadingApp, setLoadingApp] = useState(false);
+  const [transactions, setTransactions] = useState([]);
   const [uploadedDocs, setUploadedDocs] = useState({});
   const [uploadingDoc, setUploadingDoc] = useState(null);
   const [savingProgress, setSavingProgress] = useState(false);
@@ -119,6 +108,8 @@ export default function AdmissionProgramPage() {
   const [basicDetails, setBasicDetails] = useState({
     dob: '',
     phone: '',
+    fullName: '',
+    email: '',
     countryCode: '+91',
     gender: '',
     caste: '',
@@ -175,6 +166,73 @@ export default function AdmissionProgramPage() {
   });
   const [basicDetailsErrors, setBasicDetailsErrors] = useState({});
 
+  const { requestedFields, fieldComments } = React.useMemo(() => {
+    let metaSource = application?.metadata;
+
+    // Fallback to the latest UPDATE_REQUESTED transaction if application metadata is stale/missing
+    if (transactions && transactions.length > 0) {
+      const updateTx = [...transactions].reverse().find(t => t.action_type === 'UPDATE_REQUESTED');
+      if (updateTx && updateTx.metadata) {
+        metaSource = updateTx.metadata;
+      }
+    }
+
+    if (!metaSource) return { requestedFields: null, fieldComments: {} };
+    try {
+      const meta = typeof metaSource === 'string' ? JSON.parse(metaSource) : metaSource;
+      return {
+        requestedFields: meta.selectedFields || null,
+        fieldComments: meta.fieldComments || {}
+      };
+    } catch (e) {
+      return { requestedFields: null, fieldComments: {} };
+    }
+  }, [application, transactions]);
+
+
+
+
+  const isFieldDisabled = React.useCallback((id) => {
+    if (application?.status !== 'rejected') return false;
+    if (!requestedFields) return false;
+    return !requestedFields[id];
+  }, [application?.status, requestedFields]);
+
+  const FieldWrapper = React.useCallback(({ id, children }) => {
+    const disabled = isFieldDisabled(id);
+    const comment = fieldComments[id];
+
+    if (application?.status !== 'rejected') return children;
+
+    return (
+      <Box sx={{
+        opacity: disabled ? 0.6 : 1,
+        pointerEvents: disabled ? 'none' : 'auto',
+        position: 'relative',
+        width: '100%',
+        height: '100%'
+      }}>
+        {children}
+        {!disabled && comment && (
+          <Typography variant="caption" sx={{ color: '#d32f2f', mt: 0.5, display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 500 }}>
+            <InfoOutlinedIcon sx={{ fontSize: '14px' }} />
+            {comment}
+          </Typography>
+        )}
+      </Box>
+    );
+  }, [isFieldDisabled, fieldComments, application?.status]);
+
+
+  const { autoSaveStatus } = useAutoSave({
+    appId,
+    activeStep,
+    basicDetails,
+    uploadedDocs,
+    profile,
+    applicationStatus: application?.status
+  });
+
   React.useEffect(() => {
     const parseIncome = (val) => {
       if (!val) return 0;
@@ -197,7 +255,7 @@ export default function AdmissionProgramPage() {
       setBasicDetails(prev => ({ ...prev, familyIncome: totalStr }));
     }
   }, [
-    basicDetails.fatherName, basicDetails.fatherIncome, 
+    basicDetails.fatherName, basicDetails.fatherIncome,
     basicDetails.motherName, basicDetails.motherIncome,
     basicDetails.guardianName, basicDetails.guardianIncome,
     basicDetails.hasSibling, basicDetails.siblings,
@@ -235,10 +293,129 @@ export default function AdmissionProgramPage() {
     }
   }, [programs, programId]);
 
-  const selectedCountry = gazeteer.Countries.find(c => 
+  const selectedCountry = gazeteer.Countries.find(c =>
     (c.nationality || c.name) === basicDetails.nationality || c.name === basicDetails.nationality
   );
   const currencySymbol = selectedCountry?.currencySymbol || '₹';
+
+  const enabledLabels = React.useMemo(() => {
+    if (application?.status !== 'rejected') return null;
+    if (!requestedFields) return [];
+
+    const getExactFormLabels = (key) => {
+      if (key.startsWith('sibling_')) return ["Sibling's Name", 'Age', 'Relation', 'Institute / Company', `Income (${currencySymbol})`, "Sibling's Income Proof"];
+      if (key.startsWith('academic_')) return ['Qualification', 'Passing Year', 'Percentage / CGPA', 'Qualification Document'];
+      if (key.startsWith('criminal_')) return ['Offense Type', 'Status', 'Year', 'Document Proof'];
+
+      const parts = key.split('_');
+      if (parts[0] === 'parents') {
+        const parent = parts[1];
+        const suffix = parts.slice(2).join('_');
+        const prefix = parent === 'father' ? "Father's" : parent === 'mother' ? "Mother's" : "Guardian's";
+        if (suffix === 'Name') return [`${prefix} Name`, `${prefix} Document Proof`];
+        if (suffix === 'Contact') return [`${prefix} Contact Number`];
+        if (suffix === 'Profession') return ["Profession"];
+        if (suffix === 'Income') return [`Income (${currencySymbol})`, `${prefix} Income Proof`];
+        if (suffix === 'Location') return ["Current Location"];
+      }
+
+      if (parts[0] === 'personal') {
+        const field = parts.slice(1).join('_');
+        if (field === 'Date of Birth') return ['Date of Birth', 'Date of Birth Proof'];
+        if (field === 'Phone') return ['Phone Number'];
+        if (field === 'Gender') return ['Gender', 'Gender Proof'];
+        if (field === 'Category') return ['Caste', 'Sub-caste', 'Caste Proof'];
+        if (field === 'Religion') return ['Birth Religion', 'Current Religion'];
+        if (field === 'Nationality') return ['Nationality', 'Nationality Proof'];
+        return [field];
+      }
+
+      if (parts[0] === 'other') {
+        const field = parts.slice(1).join('_');
+        if (field === 'Family Income') return ['Family Income'];
+        if (field === 'Has Sibling') return ['Do you have any siblings?'];
+        if (field === 'Has Criminal Record') return ['Do you have any past criminal records?'];
+        if (field === 'Permanent Address') return ['Country', 'State', 'District', 'Area Type', 'Local Body Type', 'Local Body Name', 'Ward or Sector', 'House No. and Name', 'Landmark', 'Street', 'Pincode / Postal Code', 'Address Proof'];
+        if (field === 'Correspondence Address') return ['Country', 'State', 'District', 'Area Type', 'Local Body Type', 'Local Body Name', 'Ward or Sector', 'House No. and Name', 'Landmark', 'Street', 'Pincode / Postal Code', 'Address Proof'];
+      }
+
+      if (parts.length > 1) {
+        return [parts.slice(1).map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ')];
+      }
+
+      return [key];
+    };
+
+    const labels = [];
+    Object.keys(requestedFields).forEach(key => {
+      if (requestedFields[key]) {
+        labels.push(...getExactFormLabels(key));
+      }
+    });
+    Object.keys(fieldComments).forEach(key => {
+      if (fieldComments[key]) {
+        labels.push(...getExactFormLabels(key));
+      }
+    });
+    return [...new Set(labels)];
+  }, [application?.status, requestedFields, currencySymbol]);
+
+  const commentsByLabel = React.useMemo(() => {
+    if (application?.status !== 'rejected') return {};
+    const map = {};
+
+    const getExactFormLabels = (key) => {
+      if (key.startsWith('sibling_')) return ["Sibling's Name", 'Age', 'Relation', 'Institute / Company', `Income (${currencySymbol})`, "Sibling's Income Proof"];
+      if (key.startsWith('academic_')) return ['Qualification', 'Passing Year', 'Percentage / CGPA', 'Qualification Document'];
+      if (key.startsWith('criminal_')) return ['Offense Type', 'Status', 'Year', 'Document Proof'];
+
+      const parts = key.split('_');
+      if (parts[0] === 'parents') {
+        const parent = parts[1];
+        const suffix = parts.slice(2).join('_');
+        const prefix = parent === 'father' ? "Father's" : parent === 'mother' ? "Mother's" : "Guardian's";
+        if (suffix === 'Name') return [`${prefix} Name`, `${prefix} Document Proof`];
+        if (suffix === 'Contact') return [`${prefix} Contact Number`];
+        if (suffix === 'Profession') return ["Profession"];
+        if (suffix === 'Income') return [`Income (${currencySymbol})`, `${prefix} Income Proof`];
+        if (suffix === 'Location') return ["Current Location"];
+      }
+
+      if (parts[0] === 'personal') {
+        const field = parts.slice(1).join('_');
+        if (field === 'Date of Birth') return ['Date of Birth', 'Date of Birth Proof'];
+        if (field === 'Phone') return ['Phone Number'];
+        if (field === 'Gender') return ['Gender', 'Gender Proof'];
+        if (field === 'Category') return ['Caste', 'Sub-caste', 'Caste Proof'];
+        if (field === 'Religion') return ['Birth Religion', 'Current Religion'];
+        if (field === 'Nationality') return ['Nationality', 'Nationality Proof'];
+        return [field];
+      }
+
+      if (parts[0] === 'other') {
+        const field = parts.slice(1).join('_');
+        if (field === 'Family Income') return ['Family Income'];
+        if (field === 'Has Sibling') return ['Do you have any siblings?'];
+        if (field === 'Has Criminal Record') return ['Do you have any past criminal records?'];
+        if (field === 'Permanent Address') return ['Country', 'State', 'District', 'Area Type', 'Local Body Type', 'Local Body Name', 'Ward or Sector', 'House No. and Name', 'Landmark', 'Street', 'Pincode / Postal Code', 'Address Proof'];
+        if (field === 'Correspondence Address') return ['Country', 'State', 'District', 'Area Type', 'Local Body Type', 'Local Body Name', 'Ward or Sector', 'House No. and Name', 'Landmark', 'Street', 'Pincode / Postal Code', 'Address Proof'];
+      }
+
+      if (parts.length > 1) {
+        return [parts.slice(1).map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ')];
+      }
+
+      return [key];
+    };
+
+    Object.keys(fieldComments).forEach(key => {
+      if (fieldComments[key]) {
+        const exactLabels = getExactFormLabels(key);
+        exactLabels.forEach(l => map[l] = fieldComments[key]);
+      }
+    });
+    return map;
+  }, [application?.status, fieldComments, currencySymbol]);
 
   // Auto-manage breadcrumbs lifecycle for this page
   const rawInstituteName = instituteProfile?.full_name || instituteProfile?.institution_name || instituteProfile?.username || username;
@@ -315,6 +492,31 @@ export default function AdmissionProgramPage() {
   }, [username]);
 
   React.useEffect(() => {
+    const fetchAppIdIfMissing = async () => {
+      if (appId || !profile?.id || !programId) return;
+      try {
+        const res = await getUserApplications(profile.id);
+        const apps = Array.isArray(res?.applications) ? res.applications : (Array.isArray(res) ? res : []);
+        const existing = apps.find(a => (a.program_id === programId || a.program?.id === programId) && a.status !== 'withdrawn');
+        if (existing) {
+          setAppId(existing.id);
+          window.history.replaceState({}, '', `/dashboard/explore/${username}/admission/${programId}?appId=${existing.id}`);
+        } else {
+          // If no application exists, create one so auto-save works!
+          const createRes = await applyForProgram(programId, profile.id, username, { source: 'auto_create_on_form' });
+          if (createRes && createRes.application && createRes.application.id) {
+            setAppId(createRes.application.id);
+            window.history.replaceState({}, '', `/dashboard/explore/${username}/admission/${programId}?appId=${createRes.application.id}`);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to find or create existing application for user:', err);
+      }
+    };
+    fetchAppIdIfMissing();
+  }, [appId, profile?.id, programId, username]);
+
+  React.useEffect(() => {
     const fetchApp = async () => {
       if (!appId) return;
       setLoadingApp(true);
@@ -324,10 +526,32 @@ export default function AdmissionProgramPage() {
           setApplication(data.application);
           setActiveStep(data.application.current_stage_index || 0);
 
-          // Optionally parse metadata from transactions for uploadedDocs if needed
+          if (data.transactions && data.transactions.length > 0) {
+            setTransactions(data.transactions);
+            const validTx = [...data.transactions].reverse().find(t => t.metadata && (t.action_type === 'AUTO_SAVE' || t.action_type === 'STAGE_SUBMITTED' || t.action_type === 'PROCEED_NEXT_STAGE'));
+            if (validTx && validTx.metadata) {
+              try {
+                const parsedMetadata = JSON.parse(validTx.metadata);
+                if (parsedMetadata.uploaded_docs) {
+                  setUploadedDocs(parsedMetadata.uploaded_docs);
+                }
+                if (parsedMetadata.basic_details) {
+                  setBasicDetails(prev => ({
+                    ...prev,
+                    ...parsedMetadata.basic_details
+                  }));
+                }
+              } catch (e) {
+                console.error("Failed to parse draft metadata", e);
+              }
+            }
+          }
         }
       } catch (err) {
         console.error('Failed to fetch application history:', err);
+        // If the application doesn't exist (e.g. it was deleted), clear the ID so a new one can be created
+        setAppId(null);
+        window.history.replaceState({}, '', `/dashboard/explore/${username}/admission/${programId}`);
       } finally {
         setLoadingApp(false);
       }
@@ -335,19 +559,39 @@ export default function AdmissionProgramPage() {
     fetchApp();
   }, [appId]);
 
+  // Pre-fill phone, name, email from profile if they exist (only once)
+  const hasPrefilledProfileInfo = React.useRef(false);
+  React.useEffect(() => {
+    if (profile && !hasPrefilledProfileInfo.current) {
+      setBasicDetails(prev => {
+        if (!prev.phone && !prev.fullName && !prev.email) {
+          hasPrefilledProfileInfo.current = true;
+          return {
+            ...prev,
+            phone: prev.phone || profile.phone_number || '',
+            fullName: prev.fullName || profile.full_name || '',
+            email: prev.email || profile.email || ''
+          };
+        }
+        return prev;
+      });
+    }
+  }, [profile]);
+
   // Program selection is state-only — no URL param persistence so refresh always shows programs list
 
   const steps = selectedProgram && selectedProgram.stages ? selectedProgram.stages.map(stage => stage.title) : [];
 
   const handleDiscardApplication = async () => {
     if (!appId) return;
-    const confirmDiscard = window.confirm("Are you sure you want to discard this application? This action cannot be undone.");
-    if (!confirmDiscard) return;
+    setIsDiscardDialogOpen(true);
+  };
 
+  const executeDiscard = async () => {
+    setIsDiscardDialogOpen(false);
     setSavingProgress(true);
     try {
       await updateApplicationProgress(appId, 'WITHDRAWN', { reason: 'User discarded application' }, profile?.id, activeStep, 'withdrawn');
-      alert("Application discarded successfully.");
       router.push(`/dashboard/explore/${username}`);
     } catch (err) {
       console.error('Failed to discard application:', err);
@@ -358,95 +602,122 @@ export default function AdmissionProgramPage() {
   };
 
   const handleNext = async () => {
-    if (!appId) {
-      setActiveStep(prev => prev + 1);
+    if (!appId || ['pending_final_review', 'approved', 'enrolled'].includes(application?.status)) {
+      if (activeStep < steps.length - 1) setActiveStep(prev => prev + 1);
       return;
     }
 
     if (activeStep === 0) {
       // Validate basic details
       const errors = {};
-      if (!basicDetails.dob) errors.dob = 'Required';
-      if (!basicDetails.gender) errors.gender = 'Required';
-      if (!basicDetails.category) errors.category = 'Required';
-      if (!basicDetails.nationality) errors.nationality = 'Required';
-      if (!basicDetails.fatherName) errors.fatherName = 'Required';
-      if (!basicDetails.fatherContact) errors.fatherContact = 'Required';
-      if (!basicDetails.fatherProfession) errors.fatherProfession = 'Required';
-      if (!basicDetails.fatherIncome) errors.fatherIncome = 'Required';
-      if (!basicDetails.fatherLocation) errors.fatherLocation = 'Required';
-      if (!basicDetails.fatherIncomeDoc) errors.fatherIncomeDoc = 'Required';
 
-      if (!basicDetails.fatherRelationDoc) errors.fatherRelationDoc = 'Required';
-      if (!basicDetails.motherName) errors.motherName = 'Required';
-      if (!basicDetails.motherContact) errors.motherContact = 'Required';
-      if (!basicDetails.motherProfession) errors.motherProfession = 'Required';
-      if (!basicDetails.motherIncome) errors.motherIncome = 'Required';
-      if (!basicDetails.motherLocation) errors.motherLocation = 'Required';
-      if (!basicDetails.motherIncomeDoc) errors.motherIncomeDoc = 'Required';
+      // Personal Info
+      if (sf('dob') && !basicDetails.dob) errors.dob = 'Required';
+      if (sf('phone') && !basicDetails.phone) errors.phone = 'Required';
+      if (sf('gender') && !basicDetails.gender) errors.gender = 'Required';
+      if (sf('nationality') && !basicDetails.nationality) errors.nationality = 'Required';
+      if (sf('caste') && basicDetails.nationality === 'Indian' && !basicDetails.caste) errors.caste = 'Required';
+      if (sf('subcaste') && basicDetails.nationality === 'Indian' && basicDetails.caste && !basicDetails.subcaste) errors.subcaste = 'Required';
+      if (sf('birth_religion') && !basicDetails.birthReligion) errors.birthReligion = 'Required';
+      if (sf('current_religion') && !basicDetails.currentReligion) errors.currentReligion = 'Required';
+      if (sf('race_ethnicity') && !basicDetails.raceEthnicity) errors.raceEthnicity = 'Required';
+      if (sf('language') && !basicDetails.language) errors.language = 'Required';
 
-      if (!basicDetails.motherRelationDoc) errors.motherRelationDoc = 'Required';
+      // Proofs
+      if (sf('full_name_proof') && !basicDetails.nameProof) errors.nameProof = 'Required';
+      if (sf('dob_proof') && !basicDetails.dobProof) errors.dobProof = 'Required';
+      if (sf('gender_proof') && !basicDetails.genderProof) errors.genderProof = 'Required';
+      if (sf('caste_proof') && !basicDetails.casteProof) errors.casteProof = 'Required';
+      if (sf('nationality_proof') && !basicDetails.nationalityProof) errors.nationalityProof = 'Required';
+
+      // Father Details
+      if (sf('father_name') && !basicDetails.fatherName) errors.fatherName = 'Required';
+      if (sf('father_contact') && !basicDetails.fatherContact) errors.fatherContact = 'Required';
+      if (sf('father_doc_proof') && !basicDetails.fatherRelationDoc) errors.fatherRelationDoc = 'Required';
+      if (sf('family_income', 'individual_family_details')) {
+        if (!basicDetails.fatherProfession) errors.fatherProfession = 'Required';
+        if (!basicDetails.fatherIncome) errors.fatherIncome = 'Required';
+        if (!basicDetails.fatherLocation) errors.fatherLocation = 'Required';
+        if (!basicDetails.fatherIncomeDoc) errors.fatherIncomeDoc = 'Required';
+      }
+
+      // Mother Details
+      if (sf('mother_name') && !basicDetails.motherName) errors.motherName = 'Required';
+      if (sf('mother_contact') && !basicDetails.motherContact) errors.motherContact = 'Required';
+      if (sf('mother_doc_proof') && !basicDetails.motherRelationDoc) errors.motherRelationDoc = 'Required';
+      if (sf('family_income', 'individual_family_details')) {
+        if (!basicDetails.motherProfession) errors.motherProfession = 'Required';
+        if (!basicDetails.motherIncome) errors.motherIncome = 'Required';
+        if (!basicDetails.motherLocation) errors.motherLocation = 'Required';
+        if (!basicDetails.motherIncomeDoc) errors.motherIncomeDoc = 'Required';
+      }
+
+      // Guardian Details
       if (!basicDetails.guardianRelation) errors.guardianRelation = 'Required';
       if (basicDetails.guardianRelation === 'Other') {
         if (!basicDetails.guardianRelationOther) errors.guardianRelationOther = 'Required';
         if (!basicDetails.guardianName) errors.guardianName = 'Required';
         if (!basicDetails.guardianContact) errors.guardianContact = 'Required';
-        if (!basicDetails.guardianProfession) errors.guardianProfession = 'Required';
-        if (!basicDetails.guardianIncome) errors.guardianIncome = 'Required';
-        if (!basicDetails.guardianLocation) errors.guardianLocation = 'Required';
-        if (!basicDetails.guardianIncomeDoc) errors.guardianIncomeDoc = 'Required';
-
         if (!basicDetails.guardianRelationDoc) errors.guardianRelationDoc = 'Required';
+        if (sf('family_income', 'individual_family_details')) {
+          if (!basicDetails.guardianProfession) errors.guardianProfession = 'Required';
+          if (!basicDetails.guardianIncome) errors.guardianIncome = 'Required';
+          if (!basicDetails.guardianLocation) errors.guardianLocation = 'Required';
+          if (!basicDetails.guardianIncomeDoc) errors.guardianIncomeDoc = 'Required';
+        }
       }
+
+      // Siblings
+      if (sf('has_sibling') && !basicDetails.hasSibling) errors.hasSibling = 'Required';
       if (basicDetails.hasSibling === 'Yes') {
         basicDetails.siblings.forEach((sib, index) => {
           if (!sib.name) errors[`sibling_${index}_name`] = 'Required';
           if (!sib.relation) errors[`sibling_${index}_relation`] = 'Required';
-          if (!sib.profession) errors[`sibling_${index}_profession`] = 'Required';
-          if (!sib.income) errors[`sibling_${index}_income`] = 'Required';
-          if (!sib.location) errors[`sibling_${index}_location`] = 'Required';
-          if (!sib.incomeDoc) errors[`sibling_${index}_incomeDoc`] = 'Required';
-
           if (!sib.relationDoc) errors[`sibling_${index}_relationDoc`] = 'Required';
+          if (sf('family_income', 'individual_family_details')) {
+            if (!sib.profession) errors[`sibling_${index}_profession`] = 'Required';
+            if (!sib.income) errors[`sibling_${index}_income`] = 'Required';
+            if (!sib.location) errors[`sibling_${index}_location`] = 'Required';
+            if (!sib.incomeDoc) errors[`sibling_${index}_incomeDoc`] = 'Required';
+          }
         });
-      }
-      basicDetails.academicRecords.forEach((rec, index) => {
-        if (!rec.qualification) errors[`academic_${index}_qualification`] = 'Required';
-        if (!rec.passingYear) errors[`academic_${index}_passingYear`] = 'Required';
-        if (!rec.percentageCgpa) errors[`academic_${index}_percentageCgpa`] = 'Required';
-        if (!rec.academicDoc) errors[`academic_${index}_academicDoc`] = 'Required';
-        rec.achievements.forEach((ach, achIndex) => {
-          if (!ach.type) errors[`academic_${index}_achievement_${achIndex}_type`] = 'Required';
-          if (!ach.details) errors[`academic_${index}_achievement_${achIndex}_details`] = 'Required';
-          if (!ach.recognizedBy) errors[`academic_${index}_achievement_${achIndex}_recognizedBy`] = 'Required';
-          if (!ach.doc) errors[`academic_${index}_achievement_${achIndex}_doc`] = 'Required';
-        });
-      });
-      if (!basicDetails.familyIncome) errors.familyIncome = 'Required';
-      if (!basicDetails.incomeDoc) errors.incomeDoc = 'Required';
-      if (!basicDetails.permanentAddressProof) errors.permanentAddressProof = 'Required';
-      
-      if (!basicDetails.hasCriminalRecord) errors.hasCriminalRecord = 'Required';
-      if (basicDetails.hasCriminalRecord === 'Yes') {
-        basicDetails.criminalRecords.forEach((record, index) => {
-          if (!record.type) errors[`criminalRecord_${index}_type`] = 'Required';
-          if (!record.punishment) errors[`criminalRecord_${index}_punishment`] = 'Required';
-          if (!record.date) errors[`criminalRecord_${index}_date`] = 'Required';
-        });
-      }
-      if (!basicDetails.policeVerificationDoc) errors.policeVerificationDoc = 'Required';
-      
-      const requiredAddressFields = ['country', 'state', 'district', 'areaType', 'wardOrSector', 'houseNoAndName', 'street', 'pincode'];
-      requiredAddressFields.forEach(field => {
-        if (!basicDetails.permanentAddress[field]) errors[`permanentAddress_${field}`] = 'Required';
-      });
-      if (basicDetails.permanentAddress.areaType) {
-        if (!basicDetails.permanentAddress.localBodyType) errors[`permanentAddress_localBodyType`] = 'Required';
-        if (!basicDetails.permanentAddress.localBodyName) errors[`permanentAddress_localBodyName`] = 'Required';
       }
 
-      if (!basicDetails.sameAsPermanent) {
-        if (!basicDetails.correspondenceAddressProof) errors.correspondenceAddressProof = 'Required';
+      // Academic Records
+      if (basicDetails.academicRecords && basicDetails.academicRecords.length > 0 && basicDetails.academicRecords[0].qualification !== '') {
+        basicDetails.academicRecords.forEach((rec, index) => {
+          if (!rec.qualification) errors[`academic_${index}_qualification`] = 'Required';
+          if (!rec.passingYear) errors[`academic_${index}_passingYear`] = 'Required';
+          if (!rec.percentageCgpa) errors[`academic_${index}_percentageCgpa`] = 'Required';
+          if (!rec.academicDoc) errors[`academic_${index}_academicDoc`] = 'Required';
+          rec.achievements.forEach((ach, achIndex) => {
+            if (!ach.type) errors[`academic_${index}_achievement_${achIndex}_type`] = 'Required';
+            if (!ach.details) errors[`academic_${index}_achievement_${achIndex}_details`] = 'Required';
+            if (!ach.recognizedBy) errors[`academic_${index}_achievement_${achIndex}_recognizedBy`] = 'Required';
+            if (!ach.doc) errors[`academic_${index}_achievement_${achIndex}_doc`] = 'Required';
+          });
+        });
+      }
+
+      if (sf('family_income') && !basicDetails.familyIncome) errors.familyIncome = 'Required';
+      if (sf('family_income') && !basicDetails.incomeDoc) errors.incomeDoc = 'Required';
+
+      // Addresses
+      if (sf('perm_address', 'perm_country', 'perm_state')) {
+        if (sf('perm_address_proof') && !basicDetails.permanentAddressProof) errors.permanentAddressProof = 'Required';
+        const requiredAddressFields = ['country', 'state', 'district', 'areaType', 'wardOrSector', 'houseNoAndName', 'landmark', 'pincode'];
+        requiredAddressFields.forEach(field => {
+          if (!basicDetails.permanentAddress[field]) errors[`permanentAddress_${field}`] = 'Required';
+        });
+        if (basicDetails.permanentAddress.areaType) {
+          if (!basicDetails.permanentAddress.localBodyType) errors[`permanentAddress_localBodyType`] = 'Required';
+          if (!basicDetails.permanentAddress.localBodyName) errors[`permanentAddress_localBodyName`] = 'Required';
+        }
+      }
+
+      if (sf('corr_address', 'corr_country', 'corr_state') && !basicDetails.sameAsPermanent) {
+        if (sf('corr_address_proof') && !basicDetails.correspondenceAddressProof) errors.correspondenceAddressProof = 'Required';
+        const requiredAddressFields = ['country', 'state', 'district', 'areaType', 'wardOrSector', 'houseNoAndName', 'landmark', 'pincode'];
         requiredAddressFields.forEach(field => {
           if (!basicDetails.correspondenceAddress[field]) errors[`correspondenceAddress_${field}`] = 'Required';
         });
@@ -456,9 +727,20 @@ export default function AdmissionProgramPage() {
         }
       }
 
+      if (sf('criminal_record')) {
+        if (!basicDetails.hasCriminalRecord) errors.hasCriminalRecord = 'Required';
+        if (basicDetails.hasCriminalRecord === 'Yes') {
+          basicDetails.criminalRecords.forEach((record, index) => {
+            if (!record.type) errors[`criminalRecord_${index}_type`] = 'Required';
+            if (!record.punishment) errors[`criminalRecord_${index}_punishment`] = 'Required';
+            if (!record.date) errors[`criminalRecord_${index}_date`] = 'Required';
+          });
+          if (!basicDetails.policeVerificationDoc) errors.policeVerificationDoc = 'Required';
+        }
+      }
+
       if (Object.keys(errors).length > 0) {
         setBasicDetailsErrors(errors);
-        alert('Please fill all required basic details fields.');
         return;
       }
       setBasicDetailsErrors({});
@@ -474,16 +756,61 @@ export default function AdmissionProgramPage() {
       };
 
       if (activeStep === 0) {
+        let newUploadedDocs = { ...uploadedDocs };
+
+        const uploadFile = async (file) => {
+          let mimeType = file.type;
+          if (!mimeType) {
+            if (file.name.toLowerCase().endsWith('.pdf')) mimeType = 'application/pdf';
+            else if (file.name.toLowerCase().match(/\.jpe?g$/)) mimeType = 'image/jpeg';
+            else if (file.name.toLowerCase().endsWith('.png')) mimeType = 'image/png';
+          }
+          const { data } = await apiClient.get(`/s3/sign`, {
+            params: { user_id: profile.id, type: 'document', mime: mimeType }
+          });
+          await fetch(data.upload_url, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+          return data.file_url;
+        };
+
+        const processFiles = async (obj, path = '') => {
+          if (!obj) return;
+          for (const key of Object.keys(obj)) {
+            if (obj[key] instanceof File) {
+              const url = await uploadFile(obj[key]);
+              obj[key] = url;
+              let readableName = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+              newUploadedDocs[`${path ? path + ' - ' : ''}${readableName}`] = url;
+            } else if (Array.isArray(obj[key])) {
+              obj[key] = [...obj[key]];
+              for (let i = 0; i < obj[key].length; i++) {
+                if (typeof obj[key][i] === 'object' && obj[key][i] !== null && !(obj[key][i] instanceof File)) {
+                  obj[key][i] = { ...obj[key][i] };
+                  await processFiles(obj[key][i], `${key} ${i + 1}`);
+                }
+              }
+            } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+              obj[key] = { ...obj[key] };
+              await processFiles(obj[key], key);
+            }
+          }
+        };
+
+        const basicDetailsClone = { ...basicDetails };
+        await processFiles(basicDetailsClone);
+
+        payloadMetadata.uploaded_docs = newUploadedDocs;
+        setUploadedDocs(newUploadedDocs);
+
         payloadMetadata.basic_details = {
-          ...basicDetails,
-          correspondenceAddress: basicDetails.sameAsPermanent ? basicDetails.permanentAddress : basicDetails.correspondenceAddress,
-          fullName: profile?.full_name || '',
-          email: profile?.email || '',
-          phone: profile?.phone_number || ''
+          ...basicDetailsClone,
+          correspondenceAddress: basicDetailsClone.sameAsPermanent ? basicDetailsClone.permanentAddress : basicDetailsClone.correspondenceAddress,
+          fullName: basicDetailsClone.fullName || profile?.full_name || '',
+          email: basicDetailsClone.email || profile?.email || '',
+          phone: basicDetailsClone.phone
         };
       }
 
-      const res = await updateApplicationProgress(appId, 'STAGE_SUBMITTED', payloadMetadata, profile.id, activeStep, isCompleted ? 'pending_final_review' : 'pending_review');
+      const res = await updateApplicationProgress(appId, 'STAGE_SUBMITTED', payloadMetadata, profile.id, activeStep, isCompleted ? 'pending_final_review' : 'in_progress');
 
       if (res.application) {
         setApplication(res.application);
@@ -565,12 +892,22 @@ export default function AdmissionProgramPage() {
     }
   };
 
+  // Derive which fields the institute admin enabled for the document stage
+  const docStage = selectedProgram?.stages?.find(s => s.type === 'document');
+  // Prefer snake_case from API, fall back to camelCase (local state)
+  const _rawSelectedFields = docStage?.selected_fields ?? docStage?.selectedFields;
+  // If the property is null/undefined (no config yet), default to undefined (show all).
+  // If it's an explicit array (even empty), use it as-is so admin's choices are respected.
+  const selectedFields = Array.isArray(_rawSelectedFields) ? _rawSelectedFields : undefined;
+  // sf(...keys): returns true if any of the given keys is in the admin's selection.
+  const sf = (...keys) => selectedFields === undefined || keys.some(k => selectedFields.includes(k));
+
   const renderAddressBlock = (type, title, disabled = false) => {
     // If sameAsPermanent is true and this is correspondenceAddress, we use permanentAddress values
-    const sourceData = (type === 'correspondenceAddress' && basicDetails.sameAsPermanent) 
-      ? basicDetails.permanentAddress 
+    const sourceData = (type === 'correspondenceAddress' && basicDetails.sameAsPermanent)
+      ? basicDetails.permanentAddress
       : (basicDetails[type] || {});
-    
+
     const errPrefix = type;
 
     // Calculate distances based on user location or default to India's center if unavailable
@@ -580,15 +917,15 @@ export default function AdmissionProgramPage() {
     // Derived options from gazeteer
     const sortedCountries = sortLocationsByDistance(gazeteer.Countries, uLat, uLon, 'countries');
     const countryOptions = sortedCountries.map(c => ({ value: c.name, label: c.name, flagUrl: c.flagUrl }));
-    
+
     const selectedCountryData = gazeteer.Countries.find(c => c.name === sourceData.country);
-    
+
     let stateOptions = [];
     if (selectedCountryData?.states) {
       const sortedStates = sortLocationsByDistance(selectedCountryData.states, uLat, uLon, 'states');
       stateOptions = sortedStates.map(s => ({ value: s.name, label: s.name }));
     }
-      
+
     let districtOptions = [];
     const selectedStateData = selectedCountryData?.states?.find(s => s.name === sourceData.state);
     if (selectedStateData?.districts) {
@@ -605,7 +942,7 @@ export default function AdmissionProgramPage() {
           <CustomFloatingSelect label="Country" value={sourceData.country} onChange={handleAddressChange(type, 'country')} error={!!basicDetailsErrors[`${errPrefix}_country`]} disabled={disabled} options={countryOptions} />
           <CustomFloatingSelect label="State" value={sourceData.state} onChange={handleAddressChange(type, 'state')} error={!!basicDetailsErrors[`${errPrefix}_state`]} disabled={disabled || stateOptions.length === 0} options={stateOptions} />
           <CustomFloatingSelect label="District" value={sourceData.district} onChange={handleAddressChange(type, 'district')} error={!!basicDetailsErrors[`${errPrefix}_district`]} disabled={disabled || districtOptions.length === 0} options={districtOptions} />
-          
+
           <CustomFloatingSelect
             label="Area Type"
             value={sourceData.areaType}
@@ -614,7 +951,7 @@ export default function AdmissionProgramPage() {
             disabled={disabled}
             options={AREA_TYPE_OPTIONS}
           />
-          
+
           {sourceData.areaType === 'Rural Areas' && (
             <CustomFloatingSelect
               label="Local Body Type"
@@ -625,7 +962,7 @@ export default function AdmissionProgramPage() {
               options={RURAL_LOCAL_BODY_OPTIONS}
             />
           )}
-          
+
           {sourceData.areaType === 'Urban Areas' && (
             <CustomFloatingSelect
               label="Local Body Type"
@@ -638,12 +975,12 @@ export default function AdmissionProgramPage() {
           )}
 
           {(sourceData.areaType === 'Rural Areas' || sourceData.areaType === 'Urban Areas') && (
-            <CustomFloatingInput 
-              label="Local Body Name" 
-              value={sourceData.localBodyName} 
-              onChange={handleAddressChange(type, 'localBodyName')} 
-              error={!!basicDetailsErrors[`${errPrefix}_localBodyName`]} 
-              disabled={disabled} 
+            <CustomFloatingInput
+              label="Local Body Name"
+              value={sourceData.localBodyName}
+              onChange={handleAddressChange(type, 'localBodyName')}
+              error={!!basicDetailsErrors[`${errPrefix}_localBodyName`]}
+              disabled={disabled}
             />
           )}
 
@@ -652,9 +989,9 @@ export default function AdmissionProgramPage() {
           <CustomFloatingInput label="Landmark" value={sourceData.landmark} onChange={handleAddressChange(type, 'landmark')} disabled={disabled} />
           <CustomFloatingInput label="Street" value={sourceData.street} onChange={handleAddressChange(type, 'street')} error={!!basicDetailsErrors[`${errPrefix}_street`]} disabled={disabled} />
           <CustomFloatingInput label="Pincode / Postal Code" value={sourceData.pincode} onChange={handleAddressChange(type, 'pincode')} error={!!basicDetailsErrors[`${errPrefix}_pincode`]} disabled={disabled} type="number" />
-          
+
           {/* Address Proof Upload */}
-          {!disabled && (
+          {!disabled && (type === 'permanentAddress' ? sf('perm_address_proof') : sf('corr_address_proof')) && (
             <Box sx={{ gridColumn: 'auto' }}>
               <CustomFloatingFileInput
                 label="Address Proof"
@@ -670,19 +1007,6 @@ export default function AdmissionProgramPage() {
     );
   };
 
-  // Derive which fields the institute admin enabled for the document stage
-  const docStage = selectedProgram?.stages?.find(s => s.type === 'document');
-  // Prefer snake_case from API, fall back to camelCase (local state)
-  const _rawSelectedFields = docStage?.selected_fields ?? docStage?.selectedFields;
-  // If the property is null/undefined (no config yet), default to undefined (show all).
-  // If it's an explicit array (even empty), use it as-is so admin's choices are respected.
-  const selectedFields = Array.isArray(_rawSelectedFields) ? _rawSelectedFields : undefined;
-  // sf(...keys): returns true if any of the given keys is in the admin's selection.
-  //   - selectedFields === undefined  → no config yet, show everything (safe fallback)
-  //   - selectedFields = []           → admin saved with nothing checked, hide everything
-  //   - selectedFields = ['x','y']    → show only those keys
-  const sf = (...keys) => selectedFields === undefined || keys.some(k => selectedFields.includes(k));
-
   const renderBasicDetailsForm = () => (
     <Box sx={{ width: '100%' }}>
       <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a', mb: 4 }}>
@@ -690,300 +1014,301 @@ export default function AdmissionProgramPage() {
       </Typography>
 
       {/* Section: Personal Information */}
-      {sf('full_name','email','phone','dob','gender','nationality','caste','subcaste','birth_religion','current_religion','race_ethnicity','language') && (
-      <>
-      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#475569', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-        Personal Information
-      </Typography>
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(12, 1fr)' }, gap: 3, mb: 4, width: '100%' }}>
-        {sf('full_name') && <Box sx={{ gridColumn: { md: 'span 6' } }}>
-          <CustomFloatingInput label="Full Name" value={profile?.full_name || ''} disabled />
-        </Box>}
-        {sf('email') && <Box sx={{ gridColumn: { md: 'span 6' }, position: 'relative' }}>
-          <CustomFloatingInput 
-            label="Email" 
-            value={profile?.email || ''} 
-            disabled 
-            InputProps={{
-              endAdornment: (isEmailVerified || !!profile?.email) ? (
-                <Typography sx={{ color: '#16a34a', fontSize: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Verified
-                </Typography>
-              ) : (
-                <Button 
-                  size="small" 
-                  onClick={() => { setOtpTarget('email'); setOtp(''); }}
-                  sx={{ minWidth: 'unset', px: 1.5, py: 0.5, fontSize: '12px', fontWeight: 600, borderRadius: '6px', color: '#0056b3', bgcolor: 'transparent', textTransform: 'none', '&:hover': { bgcolor: 'transparent' } }}
-                >
-                  Verify
-                </Button>
-              )
-            }}
-          />
-          {otpTarget === 'email' && (
-            <Box sx={{
-              position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 10,
-              p: 2.5, bgcolor: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)',
-              border: '1px solid #cbd5e1', borderRadius: '16px',
-              display: 'flex', gap: 2, alignItems: 'flex-start', flexDirection: 'column'
-            }}>
-              <Typography sx={{ fontSize: '12px', color: '#475569', fontWeight: 500 }}>
-                Enter OTP sent to <strong>{maskEmail(profile?.email)}</strong>
-              </Typography>
+      {sf('full_name', 'email', 'phone', 'dob', 'gender', 'nationality', 'caste', 'subcaste', 'birth_religion', 'current_religion', 'race_ethnicity', 'language') && (
+        <>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#475569', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Personal Information
+          </Typography>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(12, 1fr)' }, gap: 3, mb: 4, width: '100%' }}>
+            {sf('full_name') && <Box sx={{ gridColumn: { md: 'span 6' } }}>
               <CustomFloatingInput
-                label="Enter OTP"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
+                label="Full Name"
+                value={basicDetails.fullName}
+                onChange={handleBasicDetailsChange('fullName')}
+                error={!!basicDetailsErrors.fullName}
               />
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                <Typography sx={{ fontSize: '12px', color: '#94a3b8' }}>
-                  {resendTimer > 0 ? (
-                    <>Resend in <strong style={{ color: '#64748b' }}>{resendTimer}s</strong></>
+            </Box>}
+            {sf('email') && <Box sx={{ gridColumn: { md: 'span 6' }, position: 'relative' }}>
+              <CustomFloatingInput
+                label="Email"
+                value={basicDetails.email}
+                onChange={handleBasicDetailsChange('email')}
+                error={!!basicDetailsErrors.email}
+                InputProps={{
+                  endAdornment: (isEmailVerified || !!profile?.email) ? (
+                    <Typography sx={{ color: '#16a34a', fontSize: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Verified
+                    </Typography>
                   ) : (
                     <Button
                       size="small"
-                      onClick={handleResendOtp}
-                      sx={{ px: 2, py: 0.5, borderRadius: '7px', color: '#0056b3', border: '1px solid #0056b3', textTransform: 'none', fontWeight: 600, fontSize: '12px', bgcolor: 'transparent', '&:hover': { bgcolor: 'rgba(0,86,179,0.07)' } }}
+                      onClick={() => { setOtpTarget('email'); setOtp(''); }}
+                      sx={{ minWidth: 'unset', px: 1.5, py: 0.5, fontSize: '12px', fontWeight: 600, borderRadius: '6px', color: '#0056b3', bgcolor: 'transparent', textTransform: 'none', '&:hover': { bgcolor: 'transparent' } }}
                     >
-                      Resend
+                      Verify
                     </Button>
-                  )}
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 1.5 }}>
-                  <Button
-                    onClick={() => { setOtpTarget(null); setOtp(''); }}
-                    sx={{ height: '38px', px: 2.5, borderRadius: '8px', color: '#64748b', border: '1px solid #cbd5e1', textTransform: 'none', fontWeight: 500, fontSize: '13px', bgcolor: 'transparent', '&:hover': { bgcolor: '#f8fafc', borderColor: '#94a3b8' } }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button variant="contained" onClick={handleVerifyOtp} disableElevation
-                    sx={{ height: '38px', px: 3, borderRadius: '8px', bgcolor: '#0056b3', textTransform: 'none', fontWeight: 600, fontSize: '13px', '&:hover': { bgcolor: '#004085' } }}
-                  >
-                    Submit
-                  </Button>
-                </Box>
-              </Box>
-            </Box>
-          )}
-        </Box>}
-        {sf('phone') && <Box sx={{ gridColumn: { md: 'span 6' }, position: 'relative' }}>
-          <CustomFloatingPhoneInput 
-            label="Phone Number" 
-            countryCode={basicDetails.countryCode}
-            onCountryCodeChange={(e) => setBasicDetails(prev => ({ ...prev, countryCode: e.target.value }))}
-            value={basicDetails.phone} 
-            onChange={handleBasicDetailsChange('phone')}
-            error={!!basicDetailsErrors.phone}
-            helperText={basicDetailsErrors.phone}
-            endAdornment={(isPhoneVerified || (!!profile?.phone_number && profile?.phone_number === basicDetails.phone)) ? (
-              <Typography sx={{ color: '#16a34a', fontSize: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Verified
-              </Typography>
-            ) : (((basicDetails.countryCode || '+91') === '+91' ? ((basicDetails.phone || '').replace(/\D/g, '').length === 10) : ((basicDetails.phone || '').replace(/\D/g, '').length >= 7)) ? (
-              <Button 
-                size="small" 
-                onClick={() => { setOtpTarget('phone'); setOtp(''); }}
-                sx={{ minWidth: 'unset', px: 1.5, py: 0.5, fontSize: '12px', fontWeight: 600, borderRadius: '6px', color: '#0056b3', bgcolor: 'transparent', textTransform: 'none', '&:hover': { bgcolor: 'transparent' } }}
-              >
-                Verify
-              </Button>
-            ) : null)}
-          />
-          {otpTarget === 'phone' && (
-            <Box sx={{
-              position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 10,
-              p: 2.5, bgcolor: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)',
-              border: '1px solid #cbd5e1', borderRadius: '16px',
-              display: 'flex', gap: 2, alignItems: 'flex-start', flexDirection: 'column'
-            }}>
-              <Typography sx={{ fontSize: '12px', color: '#475569', fontWeight: 500 }}>
-                Enter OTP sent to <strong>{basicDetails.countryCode || '+91'} {maskPhone(basicDetails.phone)}</strong>
-              </Typography>
-              <CustomFloatingInput
-                label="Enter OTP"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
+                  )
+                }}
               />
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                <Typography sx={{ fontSize: '12px', color: '#94a3b8' }}>
-                  {resendTimer > 0 ? (
-                    <>Resend in <strong style={{ color: '#64748b' }}>{resendTimer}s</strong></>
-                  ) : (
-                    <Button
-                      size="small"
-                      onClick={handleResendOtp}
-                      sx={{ px: 2, py: 0.5, borderRadius: '7px', color: '#0056b3', border: '1px solid #0056b3', textTransform: 'none', fontWeight: 600, fontSize: '12px', bgcolor: 'transparent', '&:hover': { bgcolor: 'rgba(0,86,179,0.07)' } }}
-                    >
-                      Resend
-                    </Button>
-                  )}
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 1.5 }}>
-                  <Button
-                    onClick={() => { setOtpTarget(null); setOtp(''); }}
-                    sx={{ height: '38px', px: 2.5, borderRadius: '8px', color: '#64748b', border: '1px solid #cbd5e1', textTransform: 'none', fontWeight: 500, fontSize: '13px', bgcolor: 'transparent', '&:hover': { bgcolor: '#f8fafc', borderColor: '#94a3b8' } }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button variant="contained" onClick={handleVerifyOtp} disableElevation
-                    sx={{ height: '38px', px: 3, borderRadius: '8px', bgcolor: '#0056b3', textTransform: 'none', fontWeight: 600, fontSize: '13px', '&:hover': { bgcolor: '#004085' } }}
-                  >
-                    Submit
-                  </Button>
+              {otpTarget === 'email' && (
+                <Box sx={{
+                  position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 10,
+                  p: 2.5, bgcolor: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)',
+                  border: '1px solid #cbd5e1', borderRadius: '16px',
+                  display: 'flex', gap: 2, alignItems: 'flex-start', flexDirection: 'column'
+                }}>
+                  <Typography sx={{ fontSize: '12px', color: '#475569', fontWeight: 500 }}>
+                    Enter OTP sent to <strong>{maskEmail(profile?.email)}</strong>
+                  </Typography>
+                  <CustomFloatingInput
+                    label="Enter OTP"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                  />
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                    <Typography sx={{ fontSize: '12px', color: '#94a3b8' }}>
+                      {resendTimer > 0 ? (
+                        <>Resend in <strong style={{ color: '#64748b' }}>{resendTimer}s</strong></>
+                      ) : (
+                        <Button
+                          size="small"
+                          onClick={handleResendOtp}
+                          sx={{ px: 2, py: 0.5, borderRadius: '7px', color: '#0056b3', border: '1px solid #0056b3', textTransform: 'none', fontWeight: 600, fontSize: '12px', bgcolor: 'transparent', '&:hover': { bgcolor: 'rgba(0,86,179,0.07)' } }}
+                        >
+                          Resend
+                        </Button>
+                      )}
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1.5 }}>
+                      <Button
+                        onClick={() => { setOtpTarget(null); setOtp(''); }}
+                        sx={{ height: '38px', px: 2.5, borderRadius: '8px', color: '#64748b', border: '1px solid #cbd5e1', textTransform: 'none', fontWeight: 500, fontSize: '13px', bgcolor: 'transparent', '&:hover': { bgcolor: '#f8fafc', borderColor: '#94a3b8' } }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button variant="contained" onClick={handleVerifyOtp} disableElevation
+                        sx={{ height: '38px', px: 3, borderRadius: '8px', bgcolor: '#0056b3', textTransform: 'none', fontWeight: 600, fontSize: '13px', '&:hover': { bgcolor: '#004085' } }}
+                      >
+                        Submit
+                      </Button>
+                    </Box>
+                  </Box>
                 </Box>
-              </Box>
-            </Box>
-          )}
-        </Box>}
-        {sf('dob') && <Box sx={{ gridColumn: { md: 'span 6' } }}>
-          <CustomFloatingDatePicker
-            label="Date of Birth"
-            value={basicDetails.dob}
-            onChange={(e) => setBasicDetails(prev => ({ ...prev, dob: e.target.value }))}
-            error={!!basicDetailsErrors.dob}
-            helperText={basicDetailsErrors.dob}
-            disableFuture={true}
-          />
-        </Box>}
-
-        {sf('nationality') && <Box sx={{ gridColumn: { md: 'span 4' } }}>
-          <CustomFloatingCountrySelect
-            label="Nationality"
-            value={basicDetails.nationality}
-            onChange={handleBasicDetailsChange('nationality')}
-            error={!!basicDetailsErrors.nationality}
-          />
-        </Box>}
-        {sf('gender') && <Box sx={{ gridColumn: { md: 'span 4' } }}>
-          <CustomFloatingSelect
-            label="Gender"
-            value={basicDetails.gender}
-            onChange={handleBasicDetailsChange('gender')}
-            error={!!basicDetailsErrors.gender}
-            options={GENDER_OPTIONS}
-          />
-        </Box>}
-        {sf('caste') && basicDetails.nationality === 'Indian' && (
-          <Box sx={{ gridColumn: { md: 'span 4' } }}>
-            <CustomFloatingSelect
-              label="Caste"
-              value={basicDetails.caste}
-              onChange={handleBasicDetailsChange('caste')}
-              error={!!basicDetailsErrors.caste}
-              options={CASTE_OPTIONS}
-            />
-          </Box>
-        )}
-        {sf('subcaste') && basicDetails.nationality === 'Indian' && basicDetails.caste && (
-          <Box sx={{ gridColumn: { md: 'span 4' } }}>
-            <CustomFloatingSelect
-              label="Sub-caste"
-              value={basicDetails.subcaste}
-              onChange={handleBasicDetailsChange('subcaste')}
-              error={!!basicDetailsErrors.subcaste}
-              options={getSubcasteOptions(
-                basicDetails.caste, 
-                basicDetails.permanentAddress?.state,
-                userLocation?.lat || 20.5937,
-                userLocation?.lon || 78.9629
               )}
-              disabled={!basicDetails.caste}
-            />
+            </Box>}
+            {sf('phone') && <Box sx={{ gridColumn: { md: 'span 6' }, position: 'relative' }}>
+              <CustomFloatingPhoneInput
+                label="Phone Number"
+                countryCode={basicDetails.countryCode}
+                onCountryCodeChange={(e) => setBasicDetails(prev => ({ ...prev, countryCode: e.target.value }))}
+                value={basicDetails.phone}
+                onChange={handleBasicDetailsChange('phone')}
+                error={!!basicDetailsErrors.phone}
+                helperText={basicDetailsErrors.phone}
+                endAdornment={(isPhoneVerified || (!!profile?.phone_number && profile?.phone_number === basicDetails.phone)) ? (
+                  <Typography sx={{ color: '#16a34a', fontSize: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Verified
+                  </Typography>
+                ) : (((basicDetails.countryCode || '+91') === '+91' ? ((basicDetails.phone || '').replace(/\D/g, '').length === 10) : ((basicDetails.phone || '').replace(/\D/g, '').length >= 7)) ? (
+                  <Button
+                    size="small"
+                    onClick={() => { setOtpTarget('phone'); setOtp(''); }}
+                    sx={{ minWidth: 'unset', px: 1.5, py: 0.5, fontSize: '12px', fontWeight: 600, borderRadius: '6px', color: '#0056b3', bgcolor: 'transparent', textTransform: 'none', '&:hover': { bgcolor: 'transparent' } }}
+                  >
+                    Verify
+                  </Button>
+                ) : null)}
+              />
+              {otpTarget === 'phone' && (
+                <Box sx={{
+                  position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 10,
+                  p: 2.5, bgcolor: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)',
+                  border: '1px solid #cbd5e1', borderRadius: '16px',
+                  display: 'flex', gap: 2, alignItems: 'flex-start', flexDirection: 'column'
+                }}>
+                  <Typography sx={{ fontSize: '12px', color: '#475569', fontWeight: 500 }}>
+                    Enter OTP sent to <strong>{basicDetails.countryCode || '+91'} {maskPhone(basicDetails.phone)}</strong>
+                  </Typography>
+                  <CustomFloatingInput
+                    label="Enter OTP"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                  />
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                    <Typography sx={{ fontSize: '12px', color: '#94a3b8' }}>
+                      {resendTimer > 0 ? (
+                        <>Resend in <strong style={{ color: '#64748b' }}>{resendTimer}s</strong></>
+                      ) : (
+                        <Button
+                          size="small"
+                          onClick={handleResendOtp}
+                          sx={{ px: 2, py: 0.5, borderRadius: '7px', color: '#0056b3', border: '1px solid #0056b3', textTransform: 'none', fontWeight: 600, fontSize: '12px', bgcolor: 'transparent', '&:hover': { bgcolor: 'rgba(0,86,179,0.07)' } }}
+                        >
+                          Resend
+                        </Button>
+                      )}
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1.5 }}>
+                      <Button
+                        onClick={() => { setOtpTarget(null); setOtp(''); }}
+                        sx={{ height: '38px', px: 2.5, borderRadius: '8px', color: '#64748b', border: '1px solid #cbd5e1', textTransform: 'none', fontWeight: 500, fontSize: '13px', bgcolor: 'transparent', '&:hover': { bgcolor: '#f8fafc', borderColor: '#94a3b8' } }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button variant="contained" onClick={handleVerifyOtp} disableElevation
+                        sx={{ height: '38px', px: 3, borderRadius: '8px', bgcolor: '#0056b3', textTransform: 'none', fontWeight: 600, fontSize: '13px', '&:hover': { bgcolor: '#004085' } }}
+                      >
+                        Submit
+                      </Button>
+                    </Box>
+                  </Box>
+                </Box>
+              )}
+            </Box>}
+            {sf('dob') && <Box sx={{ gridColumn: { md: 'span 6' } }}>
+              <CustomFloatingDatePicker
+                label="Date of Birth"
+                value={basicDetails.dob}
+                onChange={(e) => setBasicDetails(prev => ({ ...prev, dob: e.target.value }))}
+                error={!!basicDetailsErrors.dob}
+                helperText={basicDetailsErrors.dob}
+                disableFuture={true}
+              />
+            </Box>}
+
+            {sf('nationality') && <Box sx={{ gridColumn: { md: 'span 4' } }}>
+              <CustomFloatingCountrySelect
+                label="Nationality"
+                value={basicDetails.nationality}
+                onChange={handleBasicDetailsChange('nationality')}
+                error={!!basicDetailsErrors.nationality}
+              />
+            </Box>}
+            {sf('gender') && <Box sx={{ gridColumn: { md: 'span 4' } }}>
+              <CustomFloatingSelect
+                label="Gender"
+                value={basicDetails.gender}
+                onChange={handleBasicDetailsChange('gender')}
+                error={!!basicDetailsErrors.gender}
+                options={GENDER_OPTIONS}
+              />
+            </Box>}
+            {sf('caste') && basicDetails.nationality === 'Indian' && (
+              <Box sx={{ gridColumn: { md: 'span 4' } }}>
+                <CustomFloatingSelect
+                  label="Caste"
+                  value={basicDetails.caste}
+                  onChange={handleBasicDetailsChange('caste')}
+                  error={!!basicDetailsErrors.caste}
+                  options={CASTE_OPTIONS}
+                />
+              </Box>
+            )}
+            {sf('subcaste') && basicDetails.nationality === 'Indian' && basicDetails.caste && (
+              <Box sx={{ gridColumn: { md: 'span 4' } }}>
+                <CustomFloatingSelect
+                  label="Sub-caste"
+                  value={basicDetails.subcaste}
+                  onChange={handleBasicDetailsChange('subcaste')}
+                  error={!!basicDetailsErrors.subcaste}
+                  options={getSubcasteOptions(
+                    basicDetails.caste,
+                    basicDetails.permanentAddress?.state,
+                    userLocation?.lat || 20.5937,
+                    userLocation?.lon || 78.9629
+                  )}
+                  disabled={!basicDetails.caste}
+                />
+              </Box>
+            )}
+            {sf('birth_religion') && <Box sx={{ gridColumn: { md: 'span 4' } }}>
+              <CustomFloatingSelect
+                label="Birth Religion"
+                value={basicDetails.birthReligion}
+                onChange={handleBasicDetailsChange('birthReligion')}
+                error={!!basicDetailsErrors.birthReligion}
+                options={RELIGION_OPTIONS.map(v => ({ value: v, label: v }))}
+              />
+            </Box>}
+            {sf('current_religion') && <Box sx={{ gridColumn: { md: 'span 4' } }}>
+              <CustomFloatingSelect
+                label="Current Religion"
+                value={basicDetails.currentReligion}
+                onChange={handleBasicDetailsChange('currentReligion')}
+                error={!!basicDetailsErrors.currentReligion}
+                options={RELIGION_OPTIONS.map(v => ({ value: v, label: v }))}
+              />
+            </Box>}
+            {sf('race_ethnicity') && <Box sx={{ gridColumn: { md: 'span 4' } }}>
+              <CustomFloatingSelect
+                label="Race/Ethnicity"
+                value={basicDetails.raceEthnicity}
+                onChange={handleBasicDetailsChange('raceEthnicity')}
+                error={!!basicDetailsErrors.raceEthnicity}
+                options={RACE_ETHNICITY_OPTIONS.map(v => ({ value: v, label: v }))}
+              />
+            </Box>}
+            {sf('language') && <Box sx={{ gridColumn: { md: 'span 4' } }}>
+              <CustomFloatingSelect
+                label="Language"
+                value={basicDetails.language}
+                onChange={handleBasicDetailsChange('language')}
+                error={!!basicDetailsErrors.language}
+                options={languageOptions}
+              />
+            </Box>}
           </Box>
-        )}
-        {sf('birth_religion') && <Box sx={{ gridColumn: { md: 'span 4' } }}>
-          <CustomFloatingSelect
-            label="Birth Religion"
-            value={basicDetails.birthReligion}
-            onChange={handleBasicDetailsChange('birthReligion')}
-            error={!!basicDetailsErrors.birthReligion}
-            options={RELIGION_OPTIONS.map(v => ({ value: v, label: v }))}
-          />
-        </Box>}
-        {sf('current_religion') && <Box sx={{ gridColumn: { md: 'span 4' } }}>
-          <CustomFloatingSelect
-            label="Current Religion"
-            value={basicDetails.currentReligion}
-            onChange={handleBasicDetailsChange('currentReligion')}
-            error={!!basicDetailsErrors.currentReligion}
-            options={RELIGION_OPTIONS.map(v => ({ value: v, label: v }))}
-          />
-        </Box>}
-        {sf('race_ethnicity') && <Box sx={{ gridColumn: { md: 'span 4' } }}>
-          <CustomFloatingSelect
-            label="Race/Ethnicity"
-            value={basicDetails.raceEthnicity}
-            onChange={handleBasicDetailsChange('raceEthnicity')}
-            error={!!basicDetailsErrors.raceEthnicity}
-            options={RACE_ETHNICITY_OPTIONS.map(v => ({ value: v, label: v }))}
-          />
-        </Box>}
-        {sf('language') && <Box sx={{ gridColumn: { md: 'span 4' } }}>
-          <CustomFloatingSelect
-            label="Language"
-            value={basicDetails.language}
-            onChange={handleBasicDetailsChange('language')}
-            error={!!basicDetailsErrors.language}
-            options={languageOptions}
-          />
-        </Box>}
-      </Box>
 
-      {/* Section: Identity & Basic Proofs */}
-      {sf('full_name_proof','dob_proof','gender_proof','caste_proof','nationality_proof') && (
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4, width: '100%' }}>
-        {sf('full_name_proof') && <Box sx={{ gridColumn: 'auto' }}>
-          <CustomFloatingFileInput
-            label="Full Name Proof"
-            accept=".pdf,.png,.jpg,.jpeg"
-            onChange={handleBasicDetailsFile('nameProof')}
-            error={!!basicDetailsErrors.nameProof }
-            helperText={basicDetailsErrors.nameProof }
-          />
-        </Box>}
-        {sf('dob_proof') && <Box sx={{ gridColumn: 'auto' }}>
-          <CustomFloatingFileInput
-            label="Date of Birth Proof"
-            accept=".pdf,.png,.jpg,.jpeg"
-            onChange={handleBasicDetailsFile('dobProof')}
-            error={!!basicDetailsErrors.dobProof }
-            helperText={basicDetailsErrors.dobProof }
-          />
-        </Box>}
-        {sf('gender_proof') && <Box sx={{ gridColumn: 'auto' }}>
-          <CustomFloatingFileInput
-            label="Gender Proof"
-            accept=".pdf,.png,.jpg,.jpeg"
-            onChange={handleBasicDetailsFile('genderProof')}
-            error={!!basicDetailsErrors.genderProof }
-            helperText={basicDetailsErrors.genderProof }
-          />
-        </Box>}
-        {sf('caste_proof') && <Box sx={{ gridColumn: 'auto' }}>
-          <CustomFloatingFileInput
-            label="Caste Proof"
-            accept=".pdf,.png,.jpg,.jpeg"
-            onChange={handleBasicDetailsFile('casteProof')}
-            error={!!basicDetailsErrors.casteProof }
-            helperText={basicDetailsErrors.casteProof }
-          />
-        </Box>}
-        {sf('nationality_proof') && <Box sx={{ gridColumn: 'auto' }}>
-          <CustomFloatingFileInput
-            label="Nationality Proof"
-            accept=".pdf,.png,.jpg,.jpeg"
-            onChange={handleBasicDetailsFile('nationalityProof')}
-            error={!!basicDetailsErrors.nationalityProof}
-            helperText={basicDetailsErrors.nationalityProof}
-          />
-        </Box>}
-      </Box>
+          {/* Section: Identity & Basic Proofs */}
+          {sf('full_name_proof', 'dob_proof', 'gender_proof', 'caste_proof', 'nationality_proof') && (
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4, width: '100%' }}>
+              {sf('full_name_proof') && <Box sx={{ gridColumn: 'auto' }}>
+                <CustomFloatingFileInput
+                  label="Full Name Proof"
+                  accept=".pdf,.png,.jpg,.jpeg"
+                  onChange={handleBasicDetailsFile('nameProof')}
+                  error={!!basicDetailsErrors.nameProof}
+                />
+              </Box>}
+              {sf('dob_proof') && <Box sx={{ gridColumn: 'auto' }}>
+                <CustomFloatingFileInput
+                  label="Date of Birth Proof"
+                  accept=".pdf,.png,.jpg,.jpeg"
+                  onChange={handleBasicDetailsFile('dobProof')}
+                  error={!!basicDetailsErrors.dobProof}
+                />
+              </Box>}
+              {sf('gender_proof') && <Box sx={{ gridColumn: 'auto' }}>
+                <CustomFloatingFileInput
+                  label="Gender Proof"
+                  accept=".pdf,.png,.jpg,.jpeg"
+                  onChange={handleBasicDetailsFile('genderProof')}
+                  error={!!basicDetailsErrors.genderProof}
+                />
+              </Box>}
+              {sf('caste_proof') && <Box sx={{ gridColumn: 'auto' }}>
+                <CustomFloatingFileInput
+                  label="Caste Proof"
+                  accept=".pdf,.png,.jpg,.jpeg"
+                  onChange={handleBasicDetailsFile('casteProof')}
+                  error={!!basicDetailsErrors.casteProof}
+                />
+              </Box>}
+              {sf('nationality_proof') && <Box sx={{ gridColumn: 'auto' }}>
+                <CustomFloatingFileInput
+                  label="Nationality Proof"
+                  accept=".pdf,.png,.jpg,.jpeg"
+                  onChange={handleBasicDetailsFile('nationalityProof')}
+                  error={!!basicDetailsErrors.nationalityProof}
+                />
+              </Box>}
+            </Box>
+          )}
+
+        </>
       )}
 
-      </>
-      )}
-
-      {sf('full_name','email','phone','dob','gender','nationality','caste','subcaste','birth_religion','current_religion','race_ethnicity','language') && basicDetails.academicRecords.length > 0 && (
+      {sf('full_name', 'email', 'phone', 'dob', 'gender', 'nationality', 'caste', 'subcaste', 'birth_religion', 'current_religion', 'race_ethnicity', 'language') && basicDetails.academicRecords.length > 0 && (
         <Divider sx={{ mb: 4, opacity: 0.5 }} />
       )}
 
@@ -993,14 +1318,14 @@ export default function AdmissionProgramPage() {
       </Typography>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mb: 4 }}>
         {basicDetails.academicRecords.map((rec, index) => (
-          <Box key={index} sx={{ 
-            display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, 
+          <Box key={index} sx={{
+            display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
             gap: 3, p: 3, border: '1px solid #cbd5e1', borderRadius: '12px', position: 'relative',
             bgcolor: '#f8fafc'
           }}>
             {/* Only show delete button for user-added (non-config) records */}
             {!rec.isRequired && basicDetails.academicRecords.filter(r => !r.isRequired).length > 0 && (
-              <IconButton 
+              <IconButton
                 onClick={() => removeAcademicRecord(index)}
                 sx={{ position: 'absolute', top: 8, right: 8, color: '#ef4444' }}
                 size="small"
@@ -1008,15 +1333,10 @@ export default function AdmissionProgramPage() {
                 <DeleteOutlineIcon fontSize="small" />
               </IconButton>
             )}
-            <Typography variant="subtitle2" sx={{ gridColumn: { sm: 'span 2' }, fontWeight: 600, color: rec.isRequired ? '#1d4ed8' : '#334155', display: 'flex', alignItems: 'center', gap: 1 }}>
-              {rec.isRequired ? rec.qualification || `Qualification ${index + 1}` : `Qualification ${index + 1}`}
-              {rec.isRequired && (
-                <Box component="span" sx={{ fontSize: '10px', fontWeight: 700, color: '#1d4ed8', bgcolor: '#dbeafe', px: 1, py: 0.25, borderRadius: '4px', letterSpacing: '0.05em' }}>
-                  REQUIRED
-                </Box>
-              )}
+            <Typography variant="subtitle2" sx={{ gridColumn: { sm: 'span 2' }, fontWeight: 600, color: '#334155' }}>
+              Qualification {index + 1}
             </Typography>
-            
+
             {/* For config records: qualification field is read-only; for user-added: editable */}
             <CustomFloatingInput
               label="Qualification"
@@ -1025,41 +1345,35 @@ export default function AdmissionProgramPage() {
               disabled={rec.isRequired}
               error={!!basicDetailsErrors[`academic_${index}_qualification`]}
             />
-            {(!rec.configFlags || rec.configFlags.passingYear) && (
-              <CustomFloatingInput
-                label="Passing Year"
-                type="number"
-                value={rec.passingYear}
-                onChange={handleAcademicChange(index, 'passingYear')}
-                error={!!basicDetailsErrors[`academic_${index}_passingYear`]}
+            <CustomFloatingInput
+              label="Passing Year"
+              type="number"
+              value={rec.passingYear}
+              onChange={handleAcademicChange(index, 'passingYear')}
+              error={!!basicDetailsErrors[`academic_${index}_passingYear`]}
+            />
+            <CustomFloatingInput
+              label="Percentage / CGPA"
+              value={rec.percentageCgpa}
+              onChange={handleAcademicChange(index, 'percentageCgpa')}
+              error={!!basicDetailsErrors[`academic_${index}_percentageCgpa`]}
+            />
+            <Box sx={{ gridColumn: 'auto' }}>
+              <CustomFloatingFileInput
+                label="Qualification Document"
+                accept=".pdf,.png,.jpg,.jpeg"
+                onChange={(e) => handleAcademicFile(index, 'academicDoc', e.target.files[0])}
+                error={!!basicDetailsErrors[`academic_${index}_academicDoc`]}
+                helperText={basicDetailsErrors[`academic_${index}_academicDoc`]}
               />
-            )}
-            {(!rec.configFlags || rec.configFlags.percentage) && (
-              <CustomFloatingInput
-                label="Percentage / CGPA"
-                value={rec.percentageCgpa}
-                onChange={handleAcademicChange(index, 'percentageCgpa')}
-                error={!!basicDetailsErrors[`academic_${index}_percentageCgpa`]}
-              />
-            )}
-            {(!rec.configFlags || rec.configFlags.qualification) && (
-              <Box sx={{ gridColumn: 'auto' }}>
-                <CustomFloatingFileInput
-                  label="Qualification Document"
-                  accept=".pdf,.png,.jpg,.jpeg"
-                  onChange={(e) => handleAcademicFile(index, 'academicDoc', e.target.files[0])}
-                  error={!!basicDetailsErrors[`academic_${index}_academicDoc`]}
-                  helperText={basicDetailsErrors[`academic_${index}_academicDoc`]}
-                />
-              </Box>
-            )}
+            </Box>
 
             {/* Achievements Section */}
             {rec.achievements && rec.achievements.length > 0 && (
               <Box sx={{ gridColumn: { xs: '1fr', sm: 'span 2' }, display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {rec.achievements.map((ach, achIndex) => (
                   <Box key={achIndex} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 2, p: 2, border: '1px dashed #cbd5e1', borderRadius: '8px', position: 'relative', bgcolor: '#ffffff' }}>
-                    <IconButton 
+                    <IconButton
                       onClick={() => removeAchievement(index, achIndex)}
                       sx={{ position: 'absolute', top: 4, right: 4, color: '#ef4444' }}
                       size="small"
@@ -1069,7 +1383,7 @@ export default function AdmissionProgramPage() {
                     <Typography variant="subtitle2" sx={{ gridColumn: { sm: 'span 2' }, fontWeight: 600, color: '#475569' }}>
                       Achievement {achIndex + 1}
                     </Typography>
-                    
+
                     <CustomFloatingSelect
                       label="Achievement Type"
                       value={ach.type}
@@ -1102,7 +1416,7 @@ export default function AdmissionProgramPage() {
                 ))}
               </Box>
             )}
-            
+
             <Box sx={{ gridColumn: { xs: '1fr', sm: 'span 2' } }}>
               <Button
                 variant="outlined"
@@ -1126,403 +1440,394 @@ export default function AdmissionProgramPage() {
         </Button>
       </Box>
 
-      {sf('father_name','father_contact','mother_name','mother_contact','has_sibling') && (
+      {sf('father_name', 'father_contact', 'mother_name', 'mother_contact', 'has_sibling') && (
         <Divider sx={{ mb: 4, opacity: 0.5 }} />
       )}
 
       {/* Section: Family Details */}
-      {sf('father_name','father_contact','mother_name','mother_contact','has_sibling') && (
-      <>
-      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#475569', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-        Family Details
-      </Typography>
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3, mb: 4, width: '100%' }}>
-        {sf('father_name') && <CustomFloatingInput
-          label="Father's Name"
-          value={basicDetails.fatherName}
-          onChange={handleBasicDetailsChange('fatherName')}
-          error={!!basicDetailsErrors.fatherName}
-        />}
-        {sf('father_contact') && <CustomFloatingInput
-          label="Father's Contact Number"
-          type="tel"
-          value={basicDetails.fatherContact}
-          onChange={handleBasicDetailsChange('fatherContact')}
-          error={!!basicDetailsErrors.fatherContact}
-        />}
-
-        {sf('father_doc_proof') && <Box sx={{ gridColumn: 'auto' }}>
-          <CustomFloatingFileInput
-            label="Father's Document Proof"
-            accept=".pdf,.png,.jpg,.jpeg"
-            onChange={(e) => {
-              const file = e.target.files[0];
-              if (file) {
-                setBasicDetails(prev => ({ ...prev, fatherRelationDoc: file }));
-              }
-            }}
-            error={!!basicDetailsErrors.fatherRelationDoc}
-            helperText={basicDetailsErrors.fatherRelationDoc}
-          />
-        </Box>}
-        
-        {sf('mother_name') && <CustomFloatingInput
-          label="Mother's Name"
-          value={basicDetails.motherName}
-          onChange={handleBasicDetailsChange('motherName')}
-          error={!!basicDetailsErrors.motherName}
-        />}
-        {sf('mother_contact') && <CustomFloatingInput
-          label="Mother's Contact Number"
-          type="tel"
-          value={basicDetails.motherContact}
-          onChange={handleBasicDetailsChange('motherContact')}
-          error={!!basicDetailsErrors.motherContact}
-        />}
-
-        {sf('mother_doc_proof') && <Box sx={{ gridColumn: 'auto' }}>
-          <CustomFloatingFileInput
-            label="Mother's Document Proof"
-            accept=".pdf,.png,.jpg,.jpeg"
-            onChange={(e) => {
-              const file = e.target.files[0];
-              if (file) {
-                setBasicDetails(prev => ({ ...prev, motherRelationDoc: file }));
-              }
-            }}
-            error={!!basicDetailsErrors.motherRelationDoc}
-            helperText={basicDetailsErrors.motherRelationDoc}
-          />
-        </Box>}
-        <CustomFloatingSelect
-          label="Relation with Guardian"
-          value={basicDetails.guardianRelation}
-          onChange={handleBasicDetailsChange('guardianRelation')}
-          error={!!basicDetailsErrors.guardianRelation}
-          options={GUARDIAN_RELATION_OPTIONS}
-        />
-        {basicDetails.guardianRelation === 'Other' && (
-          <>
-            <CustomFloatingInput
-              label="Specify Relation"
-              value={basicDetails.guardianRelationOther}
-              onChange={handleBasicDetailsChange('guardianRelationOther')}
-              error={!!basicDetailsErrors.guardianRelationOther}
-            />
-            <CustomFloatingInput
-              label="Guardian's Name"
-              value={basicDetails.guardianName}
-              onChange={handleBasicDetailsChange('guardianName')}
-              error={!!basicDetailsErrors.guardianName}
-            />
-            <CustomFloatingInput
-              label="Guardian's Contact Number"
+      {sf('father_name', 'father_contact', 'mother_name', 'mother_contact', 'has_sibling') && (
+        <>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#475569', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Family Details
+          </Typography>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3, mb: 4, width: '100%' }}>
+            {sf('father_name') && <CustomFloatingInput
+              label="Father&apos;s Name"
+              value={basicDetails.fatherName}
+              onChange={handleBasicDetailsChange('fatherName')}
+              error={!!basicDetailsErrors.fatherName}
+            />}
+            {sf('father_contact') && <CustomFloatingInput
+              label="Father&apos;s Contact Number"
               type="tel"
-              value={basicDetails.guardianContact}
-              onChange={handleBasicDetailsChange('guardianContact')}
-              error={!!basicDetailsErrors.guardianContact}
-            />
+              value={basicDetails.fatherContact}
+              onChange={handleBasicDetailsChange('fatherContact')}
+              error={!!basicDetailsErrors.fatherContact}
+            />}
 
-            <Box sx={{ gridColumn: 'auto' }}>
+            {sf('father_doc_proof') && <Box sx={{ gridColumn: 'auto' }}>
               <CustomFloatingFileInput
-                label="Guardian's Document Proof"
+                label="Father&apos;s Document Proof"
                 accept=".pdf,.png,.jpg,.jpeg"
                 onChange={(e) => {
                   const file = e.target.files[0];
                   if (file) {
-                    setBasicDetails(prev => ({ ...prev, guardianRelationDoc: file }));
+                    setBasicDetails(prev => ({ ...prev, fatherRelationDoc: file }));
                   }
                 }}
-                error={!!basicDetailsErrors.guardianRelationDoc}
-                helperText={basicDetailsErrors.guardianRelationDoc}
+                error={!!basicDetailsErrors.fatherRelationDoc}
               />
-            </Box>
-          </>
-        )}
-        {sf('has_sibling') && <CustomFloatingSelect
-          label="Do you have a Sibling?"
-          value={basicDetails.hasSibling}
-          onChange={handleBasicDetailsChange('hasSibling')}
-          options={YES_NO_OPTIONS}
-        />}
-        {basicDetails.hasSibling === 'Yes' && (
-          <Box sx={{ gridColumn: { sm: 'span 3' }, display: 'flex', flexDirection: 'column', gap: 3 }}>
-            {basicDetails.siblings.map((sib, index) => (
-              <Box key={index} sx={{ 
-                display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, 
-                gap: 3, p: 3, border: '1px solid #cbd5e1', borderRadius: '12px', position: 'relative',
-                bgcolor: '#f8fafc'
-              }}>
-                {basicDetails.siblings.length > 1 && (
-                  <IconButton 
-                    onClick={() => removeSibling(index)}
-                    sx={{ position: 'absolute', top: 8, right: 8, color: '#ef4444' }}
-                    size="small"
-                  >
-                    <DeleteOutlineIcon fontSize="small" />
-                  </IconButton>
-                )}
-                <Typography variant="subtitle2" sx={{ gridColumn: { sm: 'span 3' }, fontWeight: 600, color: '#334155' }}>
-                  Sibling {index + 1}
-                </Typography>
-                
+            </Box>}
+
+            {sf('mother_name') && <CustomFloatingInput
+              label="Mother&apos;s Name"
+              value={basicDetails.motherName}
+              onChange={handleBasicDetailsChange('motherName')}
+              error={!!basicDetailsErrors.motherName}
+            />}
+            {sf('mother_contact') && <CustomFloatingInput
+              label="Mother&apos;s Contact Number"
+              type="tel"
+              value={basicDetails.motherContact}
+              onChange={handleBasicDetailsChange('motherContact')}
+              error={!!basicDetailsErrors.motherContact}
+            />}
+
+            {sf('mother_doc_proof') && <Box sx={{ gridColumn: 'auto' }}>
+              <CustomFloatingFileInput
+                label="Mother&apos;s Document Proof"
+                accept=".pdf,.png,.jpg,.jpeg"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    setBasicDetails(prev => ({ ...prev, motherRelationDoc: file }));
+                  }
+                }}
+                error={!!basicDetailsErrors.motherRelationDoc}
+              />
+            </Box>}
+            <CustomFloatingSelect
+              label="Relation with Guardian"
+              value={basicDetails.guardianRelation}
+              onChange={handleBasicDetailsChange('guardianRelation')}
+              error={!!basicDetailsErrors.guardianRelation}
+              options={GUARDIAN_RELATION_OPTIONS}
+            />
+            {basicDetails.guardianRelation === 'Other' && (
+              <>
                 <CustomFloatingInput
-                  label="Sibling's Name"
-                  value={sib.name}
-                  onChange={handleSiblingChange(index, 'name')}
-                  error={!!basicDetailsErrors[`sibling_${index}_name`]}
+                  label="Specify Relation"
+                  value={basicDetails.guardianRelationOther}
+                  onChange={handleBasicDetailsChange('guardianRelationOther')}
+                  error={!!basicDetailsErrors.guardianRelationOther}
                 />
-                <CustomFloatingSelect
-                  label="Relation with Sibling"
-                  value={sib.relation}
-                  onChange={handleSiblingChange(index, 'relation')}
-                  error={!!basicDetailsErrors[`sibling_${index}_relation`]}
-                  options={relationData.options.map(v => ({ value: v, label: v }))}
+                <CustomFloatingInput
+                  label="Guardian&apos;s Name"
+                  value={basicDetails.guardianName}
+                  onChange={handleBasicDetailsChange('guardianName')}
+                  error={!!basicDetailsErrors.guardianName}
+                />
+                <CustomFloatingInput
+                  label="Guardian&apos;s Contact Number"
+                  type="tel"
+                  value={basicDetails.guardianContact}
+                  onChange={handleBasicDetailsChange('guardianContact')}
+                  error={!!basicDetailsErrors.guardianContact}
                 />
 
                 <Box sx={{ gridColumn: 'auto' }}>
                   <CustomFloatingFileInput
-                    label="Sibling's Document Proof"
+                    label="Guardian&apos;s Document Proof"
                     accept=".pdf,.png,.jpg,.jpeg"
-                    onChange={(e) => handleSiblingFile(index, e.target.files[0])}
-                    error={!!basicDetailsErrors[`sibling_${index}_relationDoc`]}
-                    helperText={basicDetailsErrors[`sibling_${index}_relationDoc`]}
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        setBasicDetails(prev => ({ ...prev, guardianRelationDoc: file }));
+                      }
+                    }}
+                    error={!!basicDetailsErrors.guardianRelationDoc}
                   />
                 </Box>
+              </>
+            )}
+            {sf('has_sibling') && <CustomFloatingSelect
+              label="Do you have a Sibling?"
+              value={basicDetails.hasSibling}
+              onChange={handleBasicDetailsChange('hasSibling')}
+              options={YES_NO_OPTIONS}
+            />}
+            {basicDetails.hasSibling === 'Yes' && (
+              <Box sx={{ gridColumn: { sm: 'span 3' }, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                {basicDetails.siblings.map((sib, index) => (
+                  <Box key={index} sx={{
+                    display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' },
+                    gap: 3, p: 3, border: '1px solid #cbd5e1', borderRadius: '12px', position: 'relative',
+                    bgcolor: '#f8fafc'
+                  }}>
+                    {basicDetails.siblings.length > 1 && (
+                      <IconButton
+                        onClick={() => removeSibling(index)}
+                        sx={{ position: 'absolute', top: 8, right: 8, color: '#ef4444' }}
+                        size="small"
+                      >
+                        <DeleteOutlineIcon fontSize="small" />
+                      </IconButton>
+                    )}
+                    <Typography variant="subtitle2" sx={{ gridColumn: { sm: 'span 3' }, fontWeight: 600, color: '#334155' }}>
+                      Sibling {index + 1}
+                    </Typography>
+
+                    <CustomFloatingInput
+                      label="Sibling's Name"
+                      value={sib.name}
+                      onChange={handleSiblingChange(index, 'name')}
+                      error={!!basicDetailsErrors[`sibling_${index}_name`]}
+                    />
+                    <CustomFloatingSelect
+                      label="Relation with Sibling"
+                      value={sib.relation}
+                      onChange={handleSiblingChange(index, 'relation')}
+                      error={!!basicDetailsErrors[`sibling_${index}_relation`]}
+                      options={relationData.options.map(v => ({ value: v, label: v }))}
+                    />
+
+                    <Box sx={{ gridColumn: 'auto' }}>
+                      <CustomFloatingFileInput
+                        label="Sibling's Document Proof"
+                        accept=".pdf,.png,.jpg,.jpeg"
+                        onChange={(e) => handleSiblingFile(index, e.target.files[0])}
+                        error={!!basicDetailsErrors[`sibling_${index}_relationDoc`]}
+                      />
+                    </Box>
+                  </Box>
+                ))}
+
+                <Button
+                  variant="outlined"
+                  onClick={addSibling}
+                  startIcon={<AddIcon />}
+                  sx={{ alignSelf: 'flex-start', textTransform: 'none', borderRadius: '8px' }}
+                >
+                  Add Another Sibling
+                </Button>
               </Box>
-            ))}
-            
-            <Button
-              variant="outlined"
-              onClick={addSibling}
-              startIcon={<AddIcon />}
-              sx={{ alignSelf: 'flex-start', textTransform: 'none', borderRadius: '8px' }}
-            >
-              Add Another Sibling
-            </Button>
+            )}
           </Box>
-        )}
-      </Box>
-      </>
+        </>
       )}
 
-      {sf('family_income','individual_family_details') && (
+      {sf('family_income', 'individual_family_details') && (
         <Divider sx={{ mb: 4, opacity: 0.5 }} />
       )}
 
       {/* Section: Family Income */}
-      {sf('family_income','individual_family_details') && (
-      <>
-      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#475569', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-        Family Income & Details
-      </Typography>
-
-      {/* Individual Member Incomes */}
-      {basicDetails.fatherName && (
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#334155', mb: 2 }}>
-            Father's Details ({basicDetails.fatherName})
+      {sf('family_income', 'individual_family_details') && (
+        <>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#475569', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Family Income & Details
           </Typography>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3 }}>
-            <CustomFloatingInput
-              label="Profession"
-              value={basicDetails.fatherProfession}
-              onChange={handleBasicDetailsChange('fatherProfession')}
-              error={!!basicDetailsErrors.fatherProfession}
-            />
-            <CustomFloatingInput
-              label={`Income (${currencySymbol})`}
-              type="number"
-              value={basicDetails.fatherIncome}
-              onChange={handleBasicDetailsChange('fatherIncome')}
-              error={!!basicDetailsErrors.fatherIncome}
-            />
-            <CustomFloatingInput
-              label="Current Location"
-              value={basicDetails.fatherLocation}
-              onChange={handleBasicDetailsChange('fatherLocation')}
-              error={!!basicDetailsErrors.fatherLocation}
-            />
-            <Box sx={{ gridColumn: 'auto' }}>
-              <CustomFloatingFileInput
-                label="Father's Income Proof"
-                accept=".pdf,.png,.jpg,.jpeg"
-                onChange={handleBasicDetailsFile('fatherIncomeDoc')}
-                error={!!basicDetailsErrors.fatherIncomeDoc}
-                helperText={basicDetailsErrors.fatherIncomeDoc}
-              />
-            </Box>
-          </Box>
-        </Box>
-      )}
 
-      {basicDetails.motherName && (
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#334155', mb: 2 }}>
-            Mother's Details ({basicDetails.motherName})
-          </Typography>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3 }}>
-            <CustomFloatingInput
-              label="Profession"
-              value={basicDetails.motherProfession}
-              onChange={handleBasicDetailsChange('motherProfession')}
-              error={!!basicDetailsErrors.motherProfession}
-            />
-            <CustomFloatingInput
-              label={`Income (${currencySymbol})`}
-              type="number"
-              value={basicDetails.motherIncome}
-              onChange={handleBasicDetailsChange('motherIncome')}
-              error={!!basicDetailsErrors.motherIncome}
-            />
-            <CustomFloatingInput
-              label="Current Location"
-              value={basicDetails.motherLocation}
-              onChange={handleBasicDetailsChange('motherLocation')}
-              error={!!basicDetailsErrors.motherLocation}
-            />
-            <Box sx={{ gridColumn: 'auto' }}>
-              <CustomFloatingFileInput
-                label="Mother's Income Proof"
-                accept=".pdf,.png,.jpg,.jpeg"
-                onChange={handleBasicDetailsFile('motherIncomeDoc')}
-                error={!!basicDetailsErrors.motherIncomeDoc}
-                helperText={basicDetailsErrors.motherIncomeDoc}
-              />
-            </Box>
-          </Box>
-        </Box>
-      )}
-
-      {basicDetails.guardianName && (
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#334155', mb: 2 }}>
-            Guardian's Details ({basicDetails.guardianName})
-          </Typography>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3 }}>
-            <CustomFloatingInput
-              label="Profession"
-              value={basicDetails.guardianProfession}
-              onChange={handleBasicDetailsChange('guardianProfession')}
-              error={!!basicDetailsErrors.guardianProfession}
-            />
-            <CustomFloatingInput
-              label={`Income (${currencySymbol})`}
-              type="number"
-              value={basicDetails.guardianIncome}
-              onChange={handleBasicDetailsChange('guardianIncome')}
-              error={!!basicDetailsErrors.guardianIncome}
-            />
-            <CustomFloatingInput
-              label="Current Location"
-              value={basicDetails.guardianLocation}
-              onChange={handleBasicDetailsChange('guardianLocation')}
-              error={!!basicDetailsErrors.guardianLocation}
-            />
-            <Box sx={{ gridColumn: 'auto' }}>
-              <CustomFloatingFileInput
-                label="Guardian's Income Proof"
-                accept=".pdf,.png,.jpg,.jpeg"
-                onChange={handleBasicDetailsFile('guardianIncomeDoc')}
-                error={!!basicDetailsErrors.guardianIncomeDoc}
-                helperText={basicDetailsErrors.guardianIncomeDoc}
-              />
-            </Box>
-          </Box>
-        </Box>
-      )}
-
-      {basicDetails.hasSibling === 'Yes' && basicDetails.siblings.map((sib, index) => (
-        sib.name && (
-          <Box key={index} sx={{ mb: 3 }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#334155', mb: 2 }}>
-              Sibling {index + 1}'s Details ({sib.name})
-            </Typography>
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3 }}>
-              <CustomFloatingInput
-                label="Profession"
-                value={sib.profession}
-                onChange={handleSiblingChange(index, 'profession')}
-                error={!!basicDetailsErrors[`sibling_${index}_profession`]}
-              />
-              <CustomFloatingInput
-                label={`Income (${currencySymbol})`}
-                type="number"
-                value={sib.income}
-                onChange={handleSiblingChange(index, 'income')}
-                error={!!basicDetailsErrors[`sibling_${index}_income`]}
-              />
-              <CustomFloatingInput
-                label="Current Location"
-                value={sib.location}
-                onChange={handleSiblingChange(index, 'location')}
-                error={!!basicDetailsErrors[`sibling_${index}_location`]}
-              />
-              <Box sx={{ gridColumn: 'auto' }}>
-                <CustomFloatingFileInput
-                  label="Sibling's Income Proof"
-                  accept=".pdf,.png,.jpg,.jpeg"
-                  onChange={(e) => handleSiblingFile(index, e.target.files[0], 'incomeDoc')}
-                  error={!!basicDetailsErrors[`sibling_${index}_incomeDoc`]}
-                  helperText={basicDetailsErrors[`sibling_${index}_incomeDoc`]}
+          {/* Individual Member Incomes */}
+          {basicDetails.fatherName && (
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#334155', mb: 2 }}>
+                Father&apos;s Details ({basicDetails.fatherName})
+              </Typography>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3 }}>
+                <CustomFloatingInput
+                  label="Profession"
+                  value={basicDetails.fatherProfession}
+                  onChange={handleBasicDetailsChange('fatherProfession')}
+                  error={!!basicDetailsErrors.fatherProfession}
                 />
+                <CustomFloatingInput
+                  label={`Income (${currencySymbol})`}
+                  type="number"
+                  value={basicDetails.fatherIncome}
+                  onChange={handleBasicDetailsChange('fatherIncome')}
+                  error={!!basicDetailsErrors.fatherIncome}
+                />
+                <CustomFloatingInput
+                  label="Current Location"
+                  value={basicDetails.fatherLocation}
+                  onChange={handleBasicDetailsChange('fatherLocation')}
+                  error={!!basicDetailsErrors.fatherLocation}
+                />
+                <Box sx={{ gridColumn: 'auto' }}>
+                  <CustomFloatingFileInput
+                    label="Father&apos;s Income Proof"
+                    accept=".pdf,.png,.jpg,.jpeg"
+                    onChange={handleBasicDetailsFile('fatherIncomeDoc')}
+                    error={!!basicDetailsErrors.fatherIncomeDoc}
+                  />
+                </Box>
               </Box>
             </Box>
-          </Box>
-        )
-      ))}
+          )}
 
-      <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#334155', mb: 2, mt: 4 }}>
-        Overall Family Income
-      </Typography>
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 3, mb: 4, width: '100%' }}>
-        <CustomFloatingInput
-          label="Annual Family Income (Auto-calculated)"
-          disabled={true}
-          value={basicDetails.familyIncome}
-          error={!!basicDetailsErrors.familyIncome}
-        />
-        <Box sx={{ gridColumn: 'auto' }}>
-          <CustomFloatingFileInput
-            label="Family Income Proof"
-            accept=".pdf,.png,.jpg,.jpeg"
-            onChange={handleBasicDetailsFile('incomeDoc')}
-            error={!!basicDetailsErrors.incomeDoc}
-            helperText={basicDetailsErrors.incomeDoc}
-          />
-        </Box>
-      </Box>
-      </>
+          {basicDetails.motherName && (
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#334155', mb: 2 }}>
+                Mother&apos;s Details ({basicDetails.motherName})
+              </Typography>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3 }}>
+                <CustomFloatingInput
+                  label="Profession"
+                  value={basicDetails.motherProfession}
+                  onChange={handleBasicDetailsChange('motherProfession')}
+                  error={!!basicDetailsErrors.motherProfession}
+                />
+                <CustomFloatingInput
+                  label={`Income (${currencySymbol})`}
+                  type="number"
+                  value={basicDetails.motherIncome}
+                  onChange={handleBasicDetailsChange('motherIncome')}
+                  error={!!basicDetailsErrors.motherIncome}
+                />
+                <CustomFloatingInput
+                  label="Current Location"
+                  value={basicDetails.motherLocation}
+                  onChange={handleBasicDetailsChange('motherLocation')}
+                  error={!!basicDetailsErrors.motherLocation}
+                />
+                <Box sx={{ gridColumn: 'auto' }}>
+                  <CustomFloatingFileInput
+                    label="Mother&apos;s Income Proof"
+                    accept=".pdf,.png,.jpg,.jpeg"
+                    onChange={handleBasicDetailsFile('motherIncomeDoc')}
+                    error={!!basicDetailsErrors.motherIncomeDoc}
+                  />
+                </Box>
+              </Box>
+            </Box>
+          )}
+
+          {basicDetails.guardianName && (
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#334155', mb: 2 }}>
+                Guardian&apos;s Details ({basicDetails.guardianName})
+              </Typography>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3 }}>
+                <CustomFloatingInput
+                  label="Profession"
+                  value={basicDetails.guardianProfession}
+                  onChange={handleBasicDetailsChange('guardianProfession')}
+                  error={!!basicDetailsErrors.guardianProfession}
+                />
+                <CustomFloatingInput
+                  label={`Income (${currencySymbol})`}
+                  type="number"
+                  value={basicDetails.guardianIncome}
+                  onChange={handleBasicDetailsChange('guardianIncome')}
+                  error={!!basicDetailsErrors.guardianIncome}
+                />
+                <CustomFloatingInput
+                  label="Current Location"
+                  value={basicDetails.guardianLocation}
+                  onChange={handleBasicDetailsChange('guardianLocation')}
+                  error={!!basicDetailsErrors.guardianLocation}
+                />
+                <Box sx={{ gridColumn: 'auto' }}>
+                  <CustomFloatingFileInput
+                    label="Guardian&apos;s Income Proof"
+                    accept=".pdf,.png,.jpg,.jpeg"
+                    onChange={handleBasicDetailsFile('guardianIncomeDoc')}
+                    error={!!basicDetailsErrors.guardianIncomeDoc}
+                  />
+                </Box>
+              </Box>
+            </Box>
+          )}
+
+          {basicDetails.hasSibling === 'Yes' && basicDetails.siblings.map((sib, index) => (
+            sib.name && (
+              <Box key={index} sx={{ mb: 3 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#334155', mb: 2 }}>
+                  Sibling {index + 1}&apos;s Details ({sib.name})
+                </Typography>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3 }}>
+                  <CustomFloatingInput
+                    label="Profession"
+                    value={sib.profession}
+                    onChange={handleSiblingChange(index, 'profession')}
+                    error={!!basicDetailsErrors[`sibling_${index}_profession`]}
+                  />
+                  <CustomFloatingInput
+                    label={`Income (${currencySymbol})`}
+                    type="number"
+                    value={sib.income}
+                    onChange={handleSiblingChange(index, 'income')}
+                    error={!!basicDetailsErrors[`sibling_${index}_income`]}
+                  />
+                  <CustomFloatingInput
+                    label="Current Location"
+                    value={sib.location}
+                    onChange={handleSiblingChange(index, 'location')}
+                    error={!!basicDetailsErrors[`sibling_${index}_location`]}
+                  />
+                  <Box sx={{ gridColumn: 'auto' }}>
+                    <CustomFloatingFileInput
+                      label="Sibling's Income Proof"
+                      accept=".pdf,.png,.jpg,.jpeg"
+                      onChange={(e) => handleSiblingFile(index, e.target.files[0], 'incomeDoc')}
+                      error={!!basicDetailsErrors[`sibling_${index}_incomeDoc`]}
+                    />
+                  </Box>
+                </Box>
+              </Box>
+            )
+          ))}
+
+          <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#334155', mb: 2, mt: 4 }}>
+            Overall Family Income
+          </Typography>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 3, mb: 4, width: '100%' }}>
+            <CustomFloatingInput
+              label="Annual Family Income (Auto-calculated)"
+              disabled={true}
+              value={basicDetails.familyIncome}
+              error={!!basicDetailsErrors.familyIncome}
+            />
+            <Box sx={{ gridColumn: 'auto' }}>
+              <CustomFloatingFileInput
+                label="Family Income Proof"
+                accept=".pdf,.png,.jpg,.jpeg"
+                onChange={handleBasicDetailsFile('incomeDoc')}
+                error={!!basicDetailsErrors.incomeDoc}
+              />
+            </Box>
+          </Box>
+        </>
       )}
 
-      {sf('perm_country','perm_state','perm_district','perm_area_type','perm_ward','perm_house','perm_landmark','perm_street','perm_pincode','perm_address','corr_country','corr_state','corr_district','corr_area_type','corr_ward','corr_house','corr_landmark','corr_street','corr_pincode','corr_address') && (
+      {sf('perm_country', 'perm_state', 'perm_district', 'perm_area_type', 'perm_ward', 'perm_house', 'perm_landmark', 'perm_street', 'perm_pincode', 'perm_address', 'corr_country', 'corr_state', 'corr_district', 'corr_area_type', 'corr_ward', 'corr_house', 'corr_landmark', 'corr_street', 'corr_pincode', 'corr_address') && (
         <Divider sx={{ mb: 4, opacity: 0.5 }} />
       )}
 
       {/* Section: Contact Address */}
-      {sf('perm_country','perm_state','perm_district','perm_area_type','perm_ward','perm_house','perm_landmark','perm_street','perm_pincode','perm_address','corr_country','corr_state','corr_district','corr_area_type','corr_ward','corr_house','corr_landmark','corr_street','corr_pincode','corr_address') && (
-      <>
-      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#475569', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-        Contact Address
-      </Typography>
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={basicDetails.sameAsPermanent}
-            onChange={(e) => {
-              setBasicDetails(prev => ({ ...prev, sameAsPermanent: e.target.checked }));
-              if (e.target.checked && basicDetailsErrors.correspondenceAddress) {
-                setBasicDetailsErrors(prev => ({ ...prev, correspondenceAddress: undefined }));
-              }
-            }}
+      {sf('perm_country', 'perm_state', 'perm_district', 'perm_area_type', 'perm_ward', 'perm_house', 'perm_landmark', 'perm_street', 'perm_pincode', 'perm_address', 'corr_country', 'corr_state', 'corr_district', 'corr_area_type', 'corr_ward', 'corr_house', 'corr_landmark', 'corr_street', 'corr_pincode', 'corr_address') && (
+        <>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#475569', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Contact Address
+          </Typography>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={basicDetails.sameAsPermanent}
+                onChange={(e) => {
+                  setBasicDetails(prev => ({ ...prev, sameAsPermanent: e.target.checked }));
+                  if (e.target.checked && basicDetailsErrors.correspondenceAddress) {
+                    setBasicDetailsErrors(prev => ({ ...prev, correspondenceAddress: undefined }));
+                  }
+                }}
+              />
+            }
+            label={<Typography variant="body2" sx={{ fontWeight: 500 }}>Correspondence Address is same as Permanent Address</Typography>}
+            sx={{ mb: 2, ml: 1 }}
           />
-        }
-        label={<Typography variant="body2" sx={{ fontWeight: 500 }}>Correspondence Address is same as Permanent Address</Typography>}
-        sx={{ mb: 2, ml: 1 }}
-      />
-      {renderAddressBlock('permanentAddress', 'Permanent Address', false)}
-      {renderAddressBlock('correspondenceAddress', 'Correspondence Address', basicDetails.sameAsPermanent)}
-      </>
+          {renderAddressBlock('permanentAddress', 'Permanent Address', false)}
+          {renderAddressBlock('correspondenceAddress', 'Correspondence Address', basicDetails.sameAsPermanent)}
+        </>
       )}
       {sf('criminal_record') && (
         <Divider sx={{ mb: 4, opacity: 0.5 }} />
@@ -1530,86 +1835,168 @@ export default function AdmissionProgramPage() {
 
       {/* Section: Criminal and Character Record */}
       {sf('criminal_record') && (
-      <>
-      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#475569', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-        Criminal and Character Record
-      </Typography>
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 3, mb: 3 }}>
-        <CustomFloatingSelect
-          label="Any criminal record"
-          value={basicDetails.hasCriminalRecord}
-          onChange={handleBasicDetailsChange('hasCriminalRecord')}
-          options={[
-            { value: 'Yes', label: 'Yes' },
-            { value: 'No', label: 'No' }
-          ]}
-          error={!!basicDetailsErrors.hasCriminalRecord}
-        />
-        
-        <CustomFloatingFileInput
-          label="Police Verification Proof"
-          accept=".pdf,.png,.jpg,.jpeg"
-          onChange={handleBasicDetailsFile('policeVerificationDoc')}
-          error={!!basicDetailsErrors.policeVerificationDoc}
-          helperText={basicDetailsErrors.policeVerificationDoc}
-        />
-      </Box>
+        <>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#475569', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Criminal and Character Record
+          </Typography>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 3, mb: 3 }}>
+            <CustomFloatingSelect
+              label="Any criminal record"
+              value={basicDetails.hasCriminalRecord}
+              onChange={handleBasicDetailsChange('hasCriminalRecord')}
+              options={[
+                { value: 'Yes', label: 'Yes' },
+                { value: 'No', label: 'No' }
+              ]}
+              error={!!basicDetailsErrors.hasCriminalRecord}
+            />
 
-      {basicDetails.hasCriminalRecord === 'Yes' && (
-        <Box sx={{ mb: 4 }}>
-          {basicDetails.criminalRecords.map((record, index) => (
-            <Box key={index} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3, mb: 2, position: 'relative' }}>
-              <CustomFloatingInput
-                label="Type of Offence"
-                value={record.type}
-                onChange={handleCriminalRecordChange(index, 'type')}
-                error={!!basicDetailsErrors[`criminalRecord_${index}_type`]}
-              />
-              <CustomFloatingInput
-                label="Punishment Received"
-                value={record.punishment}
-                onChange={handleCriminalRecordChange(index, 'punishment')}
-                error={!!basicDetailsErrors[`criminalRecord_${index}_punishment`]}
-              />
-              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                <Box sx={{ flex: 1 }}>
-                  <CustomFloatingDatePicker
-                    label="Date of Incident"
-                    value={record.date}
-                    onChange={(e) => handleCriminalRecordDateChange(index, e.target.value)}
-                    error={!!basicDetailsErrors[`criminalRecord_${index}_date`]}
+            <CustomFloatingFileInput
+              label="Police Verification Proof"
+              accept=".pdf,.png,.jpg,.jpeg"
+              onChange={handleBasicDetailsFile('policeVerificationDoc')}
+              error={!!basicDetailsErrors.policeVerificationDoc}
+            />
+          </Box>
+
+          {basicDetails.hasCriminalRecord === 'Yes' && (
+            <Box sx={{ mb: 4 }}>
+              {basicDetails.criminalRecords.map((record, index) => (
+                <Box key={index} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3, mb: 2, position: 'relative' }}>
+                  <CustomFloatingInput
+                    label="Type of Offence"
+                    value={record.type}
+                    onChange={handleCriminalRecordChange(index, 'type')}
+                    error={!!basicDetailsErrors[`criminalRecord_${index}_type`]}
                   />
+                  <CustomFloatingInput
+                    label="Punishment Received"
+                    value={record.punishment}
+                    onChange={handleCriminalRecordChange(index, 'punishment')}
+                    error={!!basicDetailsErrors[`criminalRecord_${index}_punishment`]}
+                  />
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <Box sx={{ flex: 1 }}>
+                      <CustomFloatingDatePicker
+                        label="Date of Incident"
+                        value={record.date}
+                        onChange={(e) => handleCriminalRecordDateChange(index, e.target.value)}
+                        error={!!basicDetailsErrors[`criminalRecord_${index}_date`]}
+                      />
+                    </Box>
+                    <IconButton onClick={() => removeCriminalRecord(index)} color="error" size="small" sx={{ p: 1 }}>
+                      <DeleteOutlineIcon />
+                    </IconButton>
+                  </Box>
                 </Box>
-                <IconButton onClick={() => removeCriminalRecord(index)} color="error" size="small" sx={{ p: 1 }}>
-                  <DeleteOutlineIcon />
-                </IconButton>
-              </Box>
+              ))}
+              <Button
+                variant="outlined"
+                onClick={addCriminalRecord}
+                startIcon={<AddIcon />}
+                sx={{
+                  mt: 1,
+                  borderRadius: '8px',
+                  textTransform: 'none'
+                }}
+              >
+                Add Another Record
+              </Button>
             </Box>
-          ))}
+          )}
+        </>
+      )}
+
+      <Dialog
+        open={isDiscardDialogOpen}
+        onClose={() => setIsDiscardDialogOpen(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: '16px',
+            p: 1,
+            maxWidth: 400,
+            width: '90%',
+            background: 'rgba(255, 255, 255, 0.98)',
+            backdropFilter: 'blur(20px)',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
+          }
+        }}
+        BackdropProps={{
+          sx: { backdropFilter: 'blur(6px)', backgroundColor: 'rgba(15,23,42,0.4)' }
+        }}
+      >
+        <DialogTitle sx={{ pb: 1, pt: 2.5, px: 3, fontWeight: 800, color: '#0f172a', fontSize: '1.15rem', fontFamily: '"Inter", sans-serif' }}>
+          {language === 'en' ? 'Discard Application?' : 'एप्लीकेशन हटाएँ?'}
+        </DialogTitle>
+        <DialogContent sx={{ px: 3, pb: 1 }}>
+          <Typography sx={{ color: '#475569', fontSize: '0.95rem', lineHeight: 1.6, fontFamily: '"Inter", sans-serif' }}>
+            {language === 'en'
+              ? 'Are you sure you want to discard this application? This action cannot be undone.'
+              : 'क्या आप वाकई इस एप्लीकेशन को हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।'}
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5, pt: 1.5, gap: 1 }}>
           <Button
+            onClick={() => setIsDiscardDialogOpen(false)}
             variant="outlined"
-            onClick={addCriminalRecord}
-            startIcon={<AddIcon />}
             sx={{
-              mt: 1,
-              borderRadius: '8px',
-              textTransform: 'none'
+              borderRadius: '8px', fontWeight: 600, textTransform: 'none',
+              borderColor: '#e2e8f0', color: '#64748b', px: 2.5,
+              '&:hover': { borderColor: '#94a3b8', bgcolor: '#f8fafc' }
             }}
           >
-            Add Another Record
+            {language === 'en' ? 'Cancel' : 'रद्द करें'}
           </Button>
-        </Box>
-      )}
-      </>
-      )}
-
+          <Button
+            onClick={executeDiscard}
+            variant="contained"
+            disableElevation
+            sx={{
+              borderRadius: '8px', fontWeight: 700, textTransform: 'none',
+              bgcolor: '#ef4444', color: 'white', px: 2.5,
+              '&:hover': { bgcolor: '#dc2626' }
+            }}
+          >
+            {language === 'en' ? 'Discard' : 'हटाएँ'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 
-  const handleBasicDetailsFile = (field) => (e) => {
+  const uploadFileToS3 = async (file, fieldName) => {
+    if (!file || !profile?.id) return null;
+    let mimeType = file.type;
+    if (!mimeType) {
+      if (file.name.toLowerCase().endsWith('.pdf')) mimeType = 'application/pdf';
+      else if (file.name.toLowerCase().match(/\.jpe?g$/)) mimeType = 'image/jpeg';
+      else if (file.name.toLowerCase().endsWith('.png')) mimeType = 'image/png';
+    }
+    try {
+      setUploadingDoc(fieldName);
+      const { data } = await apiClient.get(`/s3/sign`, {
+        params: { user_id: profile.id, type: 'document', mime: mimeType }
+      });
+      await fetch(data.upload_url, {
+        method: "PUT",
+        body: file,
+        headers: { "Content-Type": file.type }
+      });
+      return data.file_url;
+    } catch (err) {
+      console.error(`Upload failed for ${fieldName}:`, err);
+      alert("File upload failed.");
+      return null;
+    } finally {
+      setUploadingDoc(null);
+    }
+  };
+
+  const handleBasicDetailsFile = (field) => async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setBasicDetails(prev => ({ ...prev, [field]: file }));
+    const url = await uploadFileToS3(file, field);
+    if (url) {
+      setBasicDetails(prev => ({ ...prev, [field]: url }));
       setBasicDetailsErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
@@ -1660,13 +2047,16 @@ export default function AdmissionProgramPage() {
     setBasicDetailsErrors(prev => ({ ...prev, [`sibling_${index}_${field}`]: '' }));
   };
 
-  const handleSiblingFile = (index, file, field = 'relationDoc') => {
-    setBasicDetails(prev => {
-      const newSiblings = [...prev.siblings];
-      newSiblings[index] = { ...newSiblings[index], [field]: file };
-      return { ...prev, siblings: newSiblings };
-    });
-    setBasicDetailsErrors(prev => ({ ...prev, [`sibling_${index}_${field}`]: '' }));
+  const handleSiblingFile = async (index, file, field = 'relationDoc') => {
+    const url = await uploadFileToS3(file, `sibling_${index}_${field}`);
+    if (url) {
+      setBasicDetails(prev => {
+        const newSiblings = [...prev.siblings];
+        newSiblings[index] = { ...newSiblings[index], [field]: url };
+        return { ...prev, siblings: newSiblings };
+      });
+      setBasicDetailsErrors(prev => ({ ...prev, [`sibling_${index}_${field}`]: '' }));
+    }
   };
 
   const addSibling = () => {
@@ -1693,13 +2083,16 @@ export default function AdmissionProgramPage() {
     setBasicDetailsErrors(prev => ({ ...prev, [`academic_${index}_${field}`]: '' }));
   };
 
-  const handleAcademicFile = (index, field, file) => {
-    setBasicDetails(prev => {
-      const newRecords = [...prev.academicRecords];
-      newRecords[index] = { ...newRecords[index], [field]: file };
-      return { ...prev, academicRecords: newRecords };
-    });
-    setBasicDetailsErrors(prev => ({ ...prev, [`academic_${index}_${field}`]: '' }));
+  const handleAcademicFile = async (index, field, file) => {
+    const url = await uploadFileToS3(file, `academic_${index}_${field}`);
+    if (url) {
+      setBasicDetails(prev => {
+        const newRecords = [...prev.academicRecords];
+        newRecords[index] = { ...newRecords[index], [field]: url };
+        return { ...prev, academicRecords: newRecords };
+      });
+      setBasicDetailsErrors(prev => ({ ...prev, [`academic_${index}_${field}`]: '' }));
+    }
   };
 
   const addAcademicRecord = () => {
@@ -1715,7 +2108,7 @@ export default function AdmissionProgramPage() {
       newRecords[academicIndex] = {
         ...newRecords[academicIndex],
         achievements: [
-          ...(newRecords[academicIndex].achievements || []), 
+          ...(newRecords[academicIndex].achievements || []),
           { type: '', details: '', recognizedBy: '', doc: null }
         ]
       };
@@ -1748,17 +2141,20 @@ export default function AdmissionProgramPage() {
     setBasicDetailsErrors(prev => ({ ...prev, [`academic_${academicIndex}_achievement_${achIndex}_${field}`]: '' }));
   };
 
-  const handleAchievementFile = (academicIndex, achIndex, file) => {
-    setBasicDetails(prev => {
-      const newRecords = [...prev.academicRecords];
-      const academicRecord = { ...newRecords[academicIndex] };
-      const newAchievements = [...(academicRecord.achievements || [])];
-      newAchievements[achIndex] = { ...newAchievements[achIndex], doc: file };
-      academicRecord.achievements = newAchievements;
-      newRecords[academicIndex] = academicRecord;
-      return { ...prev, academicRecords: newRecords };
-    });
-    setBasicDetailsErrors(prev => ({ ...prev, [`academic_${academicIndex}_achievement_${achIndex}_doc`]: '' }));
+  const handleAchievementFile = async (academicIndex, achIndex, file) => {
+    const url = await uploadFileToS3(file, `academic_${academicIndex}_achievement_${achIndex}_doc`);
+    if (url) {
+      setBasicDetails(prev => {
+        const newRecords = [...prev.academicRecords];
+        const academicRecord = { ...newRecords[academicIndex] };
+        const newAchievements = [...(academicRecord.achievements || [])];
+        newAchievements[achIndex] = { ...newAchievements[achIndex], doc: url };
+        academicRecord.achievements = newAchievements;
+        newRecords[academicIndex] = academicRecord;
+        return { ...prev, academicRecords: newRecords };
+      });
+      setBasicDetailsErrors(prev => ({ ...prev, [`academic_${academicIndex}_achievement_${achIndex}_doc`]: '' }));
+    }
   };
 
   const removeAcademicRecord = (index) => {
@@ -1809,7 +2205,9 @@ export default function AdmissionProgramPage() {
       case 'document':
         return (
           <Box sx={{ pb: 1, width: '100%' }}>
-            {activeStep === 0 && renderBasicDetailsForm()}
+            <FieldContext.Provider value={{ isRejected: application?.status === 'rejected', enabledLabels, commentsByLabel }}>
+              {activeStep === 0 && renderBasicDetailsForm()}
+            </FieldContext.Provider>
 
             {stage.requirements && stage.requirements.length > 0 && (
               <>
@@ -1826,41 +2224,50 @@ export default function AdmissionProgramPage() {
                 {(stage.requirements || []).map((req, index) => {
                   const isUploaded = !!uploadedDocs[req];
                   const isUploading = uploadingDoc === req;
+                  const comment = commentsByLabel[req];
                   return (
                     <Grid size={{ xs: 12, sm: 6 }} key={index}>
-                      <Paper
-                        component="label"
-                        elevation={0}
-                        sx={{
-                          p: 2,
-                          textAlign: 'center',
-                          borderRadius: '12px',
-                          border: isUploaded ? '2px solid #10b981' : '2px dashed #cbd5e1',
-                          bgcolor: isUploaded ? '#ecfdf5' : '#f8fafc',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                          display: 'block',
-                          '&:hover': { borderColor: isUploaded ? '#10b981' : '#0056b3', bgcolor: isUploaded ? '#ecfdf5' : '#f1f5f9' }
-                        }}
-                      >
-                        <input
-                          type="file"
-                          hidden
-                          accept="image/*,.pdf"
-                          onChange={(e) => handleFileUpload(e, req)}
-                        />
-                        {isUploading ? (
-                          <Box sx={{ mb: 1 }}><Loader mini size={28} /></Box>
-                        ) : isUploaded ? (
-                          <CheckCircleOutlineIcon sx={{ fontSize: 28, color: '#10b981', mb: 0.5 }} />
-                        ) : (
-                          <CloudUploadIcon sx={{ fontSize: 28, color: '#0056b3', mb: 0.5 }} />
-                        )}
-                        <Typography sx={{ fontWeight: 600, color: isUploaded ? '#047857' : '#0f172a', fontSize: '0.9rem', mb: 0.25 }}>{req}</Typography>
-                        <Typography variant="caption" sx={{ color: isUploaded ? '#10b981' : '#475569', fontSize: '0.75rem' }}>
-                          {isUploaded ? 'Uploaded successfully' : 'Browse or drag & drop'}
-                        </Typography>
-                      </Paper>
+                      <Box sx={{
+                        position: 'relative',
+                        width: '100%',
+                        '& .comment-icon': { opacity: 0, transition: 'opacity 0.2s', pointerEvents: 'none' },
+                        '&:hover .comment-icon': { opacity: 1, pointerEvents: 'auto' }
+                      }}>
+                        <FieldCommentTooltip comment={comment} />
+                        <Paper
+                          component="label"
+                          elevation={0}
+                          sx={{
+                            p: 2,
+                            textAlign: 'center',
+                            borderRadius: '12px',
+                            border: isUploaded ? '2px solid #10b981' : comment ? '2px dashed #ffc107' : '2px dashed #cbd5e1',
+                            bgcolor: isUploaded ? '#ecfdf5' : '#f8fafc',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            display: 'block',
+                            '&:hover': { borderColor: isUploaded ? '#10b981' : comment ? '#e0a800' : '#0056b3', bgcolor: isUploaded ? '#ecfdf5' : '#f1f5f9' }
+                          }}
+                        >
+                          <input
+                            type="file"
+                            hidden
+                            accept="image/*,.pdf"
+                            onChange={(e) => handleFileUpload(e, req)}
+                          />
+                          {isUploading ? (
+                            <Box sx={{ mb: 1 }}><Loader mini size={28} /></Box>
+                          ) : isUploaded ? (
+                            <CheckCircleOutlineIcon sx={{ fontSize: 28, color: '#10b981', mb: 0.5 }} />
+                          ) : (
+                            <CloudUploadIcon sx={{ fontSize: 28, color: '#0056b3', mb: 0.5 }} />
+                          )}
+                          <Typography sx={{ fontWeight: 600, color: isUploaded ? '#047857' : '#0f172a', fontSize: '0.9rem', mb: 0.25 }}>{req}</Typography>
+                          <Typography variant="caption" sx={{ color: isUploaded ? '#10b981' : '#475569', fontSize: '0.75rem' }}>
+                            {isUploaded ? 'Uploaded successfully' : 'Browse or drag & drop'}
+                          </Typography>
+                        </Paper>
+                      </Box>
                     </Grid>
                   );
                 })}
@@ -1881,7 +2288,7 @@ export default function AdmissionProgramPage() {
                 No Quizzes Available
               </Typography>
               <Typography variant="body2" sx={{ color: '#64748b', mb: 3, fontSize: '0.85rem' }}>
-                There are currently no entrance quizzes scheduled for this stage.
+                There are currently no entrance quizzes scheduled for this step.
               </Typography>
             </Box>
           );
@@ -1894,7 +2301,7 @@ export default function AdmissionProgramPage() {
             </Typography>
             <Grid container spacing={3}>
               {quizzes.map((quiz, idx) => (
-                <Grid item xs={12} sm={6} key={idx}>
+                <Grid key={idx} size={{xs: 12, sm: 6}}>
                   <Card sx={{
                     borderRadius: '12px',
                     border: '1px solid #cbd5e1',
@@ -1960,7 +2367,7 @@ export default function AdmissionProgramPage() {
             </Box>
             <Divider sx={{ my: 2 }} />
             <Typography variant="body2" sx={{ color: '#475569', lineHeight: 1.5, fontSize: '0.85rem' }}>
-              Once you complete the previous stages, the institute will review your profile and assign you an interview slot. You will receive an email notification with the meeting link and passcode.
+              Once you complete the previous steps, the institute will review your profile and assign you an interview slot. You will receive an email notification with the meeting link and passcode.
             </Typography>
           </Box>
         );
@@ -1975,238 +2382,305 @@ export default function AdmissionProgramPage() {
     <>
       <Box sx={{ position: "relative", minHeight: "calc(100vh - 72px)", overflowX: "hidden", bgcolor: "transparent", mt: "-1px" }}>
 
-      {/* ─── MAIN CONTENT CONTAINER ─── */}
-      <Container ref={cardsRef} maxWidth="xl" sx={{
-        position: "relative",
-        zIndex: 1,
-        px: { xs: 2, md: 4 },
-        pb: showEmptyState || !!selectedProgram ? 0 : 10,
-        minHeight: "calc(100vh - 72px)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}>
-        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
-          {!selectedProgram ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
-              {loadingPrograms ? <Typography>Loading program...</Typography> : <Typography>Program not found</Typography>}
-            </Box>
-          ) : (
-            <Paper elevation={0} sx={{
-              borderRadius: "24px",
-              background: 'transparent',
-              border: 'none',
-              boxShadow: 'none',
-              display: 'flex',
-              flexDirection: { xs: 'column', md: 'row' },
-              alignItems: 'stretch',
-              width: '100%',
-              height: { xs: 'auto', md: '82vh' },
-              maxHeight: { xs: 'none', md: '820px' },
-              minHeight: { xs: 'auto', md: '600px' },
-              overflow: 'hidden'
-            }}>
-              {/* Left Sidebar (Progress) */}
-              <Box sx={{
-                width: { xs: '100%', md: '350px' },
-                flexShrink: 0,
+        {/* ─── MAIN CONTENT CONTAINER ─── */}
+        <Container ref={cardsRef} maxWidth="xl" sx={{
+          position: "relative",
+          zIndex: 1,
+          px: { xs: 2, md: 4 },
+          pb: showEmptyState || !!selectedProgram ? 0 : 10,
+          minHeight: "calc(100vh - 72px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}>
+          <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
+            {!selectedProgram ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
+                {loadingPrograms ? <Typography>Loading program...</Typography> : <Typography>Program not found</Typography>}
+              </Box>
+            ) : (
+              <Paper elevation={0} sx={{
+                borderRadius: "24px",
                 background: 'transparent',
                 border: 'none',
-                p: { xs: 3, md: 5 },
-                display: 'flex',
-                flexDirection: 'column',
-                overflowY: 'auto'
-              }}>
-                <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a', mb: 0.5, letterSpacing: '-0.02em' }}>
-                  {selectedProgram.workflowTitle}
-                </Typography>
-                <Typography variant="body2" sx={{ color: '#64748b', mb: 5, fontSize: '0.9rem', lineHeight: 1.6 }}>
-                  {selectedProgram.workflowDesc}
-                </Typography>
-
-                <Stepper activeStep={activeStep} orientation="vertical" sx={{
-                  mb: 0,
-                  '.MuiStepConnector-line': { minHeight: '32px', borderLeftWidth: '2px', borderColor: '#e2e8f0' },
-                  '.MuiStepConnector-root.Mui-active .MuiStepConnector-line': { borderColor: '#0056b3' },
-                  '.MuiStepConnector-root.Mui-completed .MuiStepConnector-line': { borderColor: '#0056b3' }
-                }}>
-                  {steps.map((label, index) => {
-                    const stage = selectedProgram.stages[index];
-                    const getIcon = () => {
-                      if (stage.type === 'document') return <FileUploadOutlinedIcon />;
-                      if (stage.type === 'quiz') return <QuizOutlinedIcon />;
-                      return <VideoCameraFrontOutlinedIcon />;
-                    };
-
-                    return (
-                      <Step key={label}>
-                        <StepLabel StepIconComponent={() => (
-                          <Box sx={{
-                            width: 36, height: 36, borderRadius: '8px',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            bgcolor: activeStep >= index ? '#0056b3' : '#f1f5f9',
-                            color: activeStep >= index ? '#ffffff' : '#94a3b8',
-                            transition: 'all 0.3s ease'
-                          }}>
-                            {React.cloneElement(getIcon(), { sx: { fontSize: 20 } })}
-                          </Box>
-                        )}>
-                          <Typography sx={{
-                            fontWeight: activeStep === index ? 700 : 500,
-                            color: activeStep === index ? '#0f172a' : '#64748b',
-                            fontSize: '0.95rem',
-                            letterSpacing: '-0.01em'
-                          }}>
-                            {label}
-                          </Typography>
-                        </StepLabel>
-                      </Step>
-                    );
-                  })}
-                </Stepper>
-
-                <Box sx={{ flexGrow: 1 }} />
-
-                {application?.status !== 'pending_review' && application?.status !== 'pending_final_review' && (
-                  <Box sx={{ mt: 5, display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
-                    <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
-                      <Button
-                        variant="outlined"
-                        size="large"
-                        fullWidth
-                        disabled={activeStep === 0 || savingProgress}
-                        onClick={handleBack}
-                        sx={{
-                          borderColor: 'rgba(30, 41, 59, 0.2)',
-                          color: '#334155',
-                          py: 1.2,
-                          textTransform: 'none',
-                          fontWeight: 600,
-                          borderRadius: '12px',
-                          '&:hover': {
-                            borderColor: 'rgba(30, 41, 59, 0.5)',
-                            bgcolor: 'rgba(30, 41, 59, 0.04)'
-                          }
-                        }}
-                      >
-                        Back
-                      </Button>
-                      <Button
-                        variant="contained"
-                        size="large"
-                        fullWidth
-                        onClick={handleNext}
-                        disabled={savingProgress || uploadingDoc !== null}
-                        disableRipple
-                        disableElevation
-                        sx={{
-                          background: 'linear-gradient(135deg, #0056b3 0%, #004494 100%) !important',
-                          color: '#ffffff !important',
-                          border: 'none',
-                          py: 1.2,
-                          textTransform: 'none',
-                          fontWeight: 600,
-                          borderRadius: '12px'
-                        }}
-                      >
-                        {savingProgress ? <Loader size={20} color="#fff" /> : (activeStep === steps.length - 1 ? 'Finish' : 'Submit')}
-                      </Button>
-                    </Box>
-                    {appId && (
-                      <Button
-                        variant="outlined"
-                        size="large"
-                        fullWidth
-                        color="error"
-                        onClick={handleDiscardApplication}
-                        disabled={savingProgress}
-                        sx={{
-                          py: 1.2,
-                          textTransform: 'none',
-                          fontWeight: 600,
-                          borderRadius: '12px'
-                        }}
-                      >
-                        Discard
-                      </Button>
-                    )}
-                  </Box>
-                )}
-              </Box>
-
-              {/* Right Content Area */}
-              <Box sx={{
-                flexGrow: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center', // Center inner container
-                py: { xs: 6, md: 8 },
-                px: { xs: 3, md: 8 },
-                background: "rgba(255, 255, 255, 0.3)",
-                backdropFilter: "blur(30px)",
-                WebkitBackdropFilter: "blur(30px)",
-                border: "1px solid rgba(30, 79, 163, 0.2)",
-                borderRadius: '24px',
                 boxShadow: 'none',
-                m: { xs: 0, md: 1 }, // Small margin so it floats slightly like Google Drive
-                mr: { xs: 0, md: 2 }
+                display: 'flex',
+                flexDirection: { xs: 'column', md: 'row' },
+                alignItems: 'stretch',
+                width: '100%',
+                height: { xs: 'auto', md: '82vh' },
+                maxHeight: { xs: 'none', md: '820px' },
+                minHeight: { xs: 'auto', md: '600px' },
+                overflow: 'hidden'
               }}>
-                <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'hidden' }}>
-                  {activeStep === steps.length ? (
-                    <Box sx={{ textAlign: 'center', py: 5, flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                      <CheckCircleOutlineIcon sx={{ fontSize: 80, color: '#10b981', mb: 2 }} />
-                      <Typography variant="h4" sx={{ fontWeight: 800, color: '#0f172a', mb: 1, letterSpacing: '-0.02em' }}>
-                        Process Completed
-                      </Typography>
-                      <Typography variant="body1" sx={{ color: '#475569', mb: 5, maxWidth: '400px', lineHeight: 1.6 }}>
-                        You have successfully completed all the required stages for this admission process. The institute will review your profile.
-                      </Typography>
-                      <Button
-                        variant="contained"
-                        onClick={() => router.push(`/dashboard/explore/${username}`)}
-                        disableRipple
-                        sx={{
-                          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important',
-                          color: '#ffffff !important',
-                          px: 4, py: 1.5,
-                          textTransform: 'none',
-                          fontWeight: 600,
-                          transition: 'all 0.2s'
-                        }}
-                      >
-                        Return to Institute
-                      </Button>
-                    </Box>
-                  ) : (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'hidden' }}>
-                      <Box sx={{ flexGrow: 1, overflowY: 'auto', pr: { md: 2 } }}>
-                        {application?.status === 'rejected' && (
-                          <Box sx={{ p: 2, mb: 3, bgcolor: '#fef2f2', borderRadius: '8px', border: '1px solid #fecaca' }}>
-                            <Typography sx={{ color: '#dc2626', fontWeight: 600 }}>Your submission was rejected by the institute. Please re-submit.</Typography>
-                          </Box>
-                        )}
+                {/* Left Sidebar (Progress) */}
+                <Box sx={{
+                  width: { xs: '100%', md: '350px' },
+                  flexShrink: 0,
+                  background: 'transparent',
+                  border: 'none',
+                  p: { xs: 3, md: 5 },
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflowY: 'auto'
+                }}>
+                  <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a', mb: 0.5, letterSpacing: '-0.02em' }}>
+                    {selectedProgram.workflowTitle}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#64748b', mb: 5, fontSize: '0.9rem', lineHeight: 1.6 }}>
+                    {selectedProgram.workflowDesc}
+                  </Typography>
 
-                        {application?.status === 'pending_review' || application?.status === 'pending_final_review' ? (
-                          <Box sx={{ textAlign: 'center', py: 8 }}>
-                            <Loader size={40} color="#0056b3" />
-                            <Typography variant="h6" sx={{ mt: 3, fontWeight: 700, color: '#0f172a' }}>Waiting for Institute Approval</Typography>
-                            <Typography variant="body2" sx={{ color: '#64748b', mt: 1, maxWidth: '400px', mx: 'auto' }}>
-                              The institute is reviewing your submission for this stage. You will be able to proceed once it is approved.
+                  <Stepper activeStep={activeStep} orientation="vertical" sx={{
+                    mb: 0,
+                    '.MuiStepConnector-line': { minHeight: '32px', borderLeftWidth: '2px', borderColor: '#e2e8f0' },
+                    '.MuiStepConnector-root.Mui-active .MuiStepConnector-line': { borderColor: '#0056b3' },
+                    '.MuiStepConnector-root.Mui-completed .MuiStepConnector-line': { borderColor: '#0056b3' }
+                  }}>
+                    {steps.map((label, index) => {
+                      const stage = selectedProgram.stages[index];
+                      const getIcon = () => {
+                        if (stage.type === 'document') return <FileUploadOutlinedIcon />;
+                        if (stage.type === 'quiz') return <QuizOutlinedIcon />;
+                        return <VideoCameraFrontOutlinedIcon />;
+                      };
+
+                      return (
+                        <Step key={label}>
+                          <StepLabel StepIconComponent={() => (
+                            <Box sx={{
+                              width: 36, height: 36, borderRadius: '8px',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              bgcolor: activeStep >= index ? '#0056b3' : '#f1f5f9',
+                              color: activeStep >= index ? '#ffffff' : '#94a3b8',
+                              transition: 'all 0.3s ease'
+                            }}>
+                              {React.cloneElement(getIcon(), { sx: { fontSize: 20 } })}
+                            </Box>
+                          )}>
+                            <Typography sx={{
+                              fontWeight: activeStep === index ? 700 : 500,
+                              color: activeStep === index ? '#0f172a' : '#64748b',
+                              fontSize: '0.95rem',
+                              letterSpacing: '-0.01em'
+                            }}>
+                              {typeof label === 'string' ? label.replace(/^Stage/i, 'Step') : label}
                             </Typography>
-                          </Box>
-                        ) : (
-                          renderStageContent(selectedProgram.stages[activeStep])
+                          </StepLabel>
+                        </Step>
+                      );
+                    })}
+                  </Stepper>
+
+                  <Box sx={{ flexGrow: 1 }} />
+
+                  {application?.status !== 'pending_review' && application?.status !== 'pending_final_review' && (
+                    <Box sx={{ mt: 5, display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
+                      <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
+                        <Button
+                          variant="outlined"
+                          size="large"
+                          fullWidth
+                          disabled={activeStep === 0 || savingProgress}
+                          onClick={handleBack}
+                          sx={{
+                            borderColor: 'rgba(30, 41, 59, 0.2)',
+                            color: '#334155',
+                            py: 1.2,
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            borderRadius: '12px',
+                            '&:hover': {
+                              borderColor: 'rgba(30, 41, 59, 0.5)',
+                              bgcolor: 'rgba(30, 41, 59, 0.04)'
+                            }
+                          }}
+                        >
+                          Back
+                        </Button>
+                        {(!['pending_final_review', 'approved', 'enrolled'].includes(application?.status) || activeStep < steps.length - 1) && (
+                          <Button
+                            variant="contained"
+                            size="large"
+                            fullWidth
+                            onClick={handleNext}
+                            disabled={savingProgress || uploadingDoc !== null}
+                            disableRipple
+                            disableElevation
+                            sx={{
+                              background: 'linear-gradient(135deg, #0056b3 0%, #004494 100%) !important',
+                              color: '#ffffff !important',
+                              border: 'none',
+                              py: 1.2,
+                              textTransform: 'none',
+                              fontWeight: 600,
+                              borderRadius: '12px'
+                            }}
+                          >
+                            {savingProgress ? <Loader size={20} color="#fff" /> :
+                              (['pending_final_review', 'approved', 'enrolled'].includes(application?.status) ? 'Next' :
+                                (activeStep === steps.length - 1 ? 'Finish' : 'Submit'))}
+                          </Button>
                         )}
                       </Box>
+                      {appId && (
+                        <Button
+                          variant="outlined"
+                          size="large"
+                          fullWidth
+                          color="error"
+                          onClick={handleDiscardApplication}
+                          disabled={savingProgress}
+                          sx={{
+                            py: 1.2,
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            borderRadius: '12px'
+                          }}
+                        >
+                          Discard
+                        </Button>
+                      )}
                     </Box>
                   )}
+
                 </Box>
-              </Box>
-            </Paper>
-          )}
-        </Box>
-      </Container>
-    </Box>
+
+                {/* Right Content Area */}
+                <Box sx={{
+                  flexGrow: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center', // Center inner container
+                  py: { xs: 6, md: 8 },
+                  px: { xs: 3, md: 8 },
+                  background: "rgba(255, 255, 255, 0.3)",
+                  backdropFilter: "blur(30px)",
+                  WebkitBackdropFilter: "blur(30px)",
+                  border: "1px solid rgba(30, 79, 163, 0.2)",
+                  borderRadius: '24px',
+                  boxShadow: 'none',
+                  m: { xs: 0, md: 1 }, // Small margin so it floats slightly like Google Drive
+                  mr: { xs: 0, md: 2 },
+                  position: 'relative' // Added for absolute positioning of save indicator
+                }}>
+                  {/* Auto-Save Indicator - Standard Top Right Placement */}
+                  {appId && activeStep !== steps.length && (
+                    <Box sx={{ position: 'absolute', top: { xs: 16, md: 24 }, right: { xs: 16, md: 32 }, display: 'flex', alignItems: 'center', zIndex: 10 }}>
+                      {(autoSaveStatus === 'saving' || autoSaveStatus === 'waiting') && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 0.75, borderRadius: '20px', bgcolor: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(10px)', border: '1px solid rgba(0,0,0,0.05)' }}>
+                          <CircularProgress size={14} sx={{ color: '#64748b' }} />
+                          <Typography variant="caption" sx={{ color: '#475569', fontWeight: 600 }}>Saving...</Typography>
+                        </Box>
+                      )}
+                      {autoSaveStatus === 'saved' && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 0.75, borderRadius: '20px', bgcolor: 'rgba(16, 185, 129, 0.1)', backdropFilter: 'blur(10px)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                          <CloudUploadIcon sx={{ fontSize: 16, color: '#059669' }} />
+                          <Typography variant="caption" sx={{ color: '#059669', fontWeight: 600 }}>Saved to Drafts</Typography>
+                        </Box>
+                      )}
+                    </Box>
+                  )}
+
+                  <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'hidden' }}>
+                    {activeStep === steps.length ? (
+                      <Box sx={{ textAlign: 'center', py: 5, flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                        <CheckCircleOutlineIcon sx={{ fontSize: 80, color: '#10b981', mb: 2 }} />
+                        <Typography variant="h4" sx={{ fontWeight: 800, color: '#0f172a', mb: 1, letterSpacing: '-0.02em' }}>
+                          Process Completed
+                        </Typography>
+                        <Typography variant="body1" sx={{ color: '#475569', mb: 5, maxWidth: '400px', lineHeight: 1.6 }}>
+                          You have successfully completed all the required steps for this admission process. The institute will review your profile.
+                        </Typography>
+                        <Button
+                          variant="contained"
+                          onClick={() => router.push(`/dashboard/explore/${username}`)}
+                          disableRipple
+                          sx={{
+                            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important',
+                            color: '#ffffff !important',
+                            px: 4, py: 1.5,
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          Return to Institute
+                        </Button>
+                      </Box>
+                    ) : (
+                      <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'hidden' }}>
+                        <Box sx={{ flexGrow: 1, overflowY: 'auto', pr: { md: 2 } }}>
+                          {application?.status === 'rejected' && (
+                            <Box sx={{
+                              p: 2, mb: 3,
+                              background: 'rgba(245, 158, 11, 0.05)',
+                              backdropFilter: 'blur(10px)',
+                              WebkitBackdropFilter: 'blur(10px)',
+                              borderRadius: '16px',
+                              border: '1px solid rgba(245, 158, 11, 0.3)'
+                            }}>
+                              <Typography sx={{ color: '#b45309', fontWeight: 600 }}>
+                                The institute has requested updates to your application. Please review the highlighted fields, make the necessary changes, and re-submit.
+                              </Typography>
+                            </Box>
+                          )}
+
+                          {['pending_final_review', 'approved', 'enrolled'].includes(application?.status) && (
+                            <Box sx={{
+                              p: 2.5, mb: 3,
+                              background: 'rgba(16, 185, 129, 0.05)',
+                              backdropFilter: 'blur(10px)',
+                              WebkitBackdropFilter: 'blur(10px)',
+                              borderRadius: '16px',
+                              border: '1px solid rgba(16, 185, 129, 0.2)',
+                              display: 'flex', alignItems: 'center', gap: 2.5, flexWrap: 'wrap'
+                            }}>
+                              <Box sx={{
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                color: '#059669',
+                                flexShrink: 0
+                              }}>
+                                <CheckCircleOutlineIcon sx={{ fontSize: 28 }} />
+                              </Box>
+                              <Box sx={{ flexGrow: 1 }}>
+                                <Typography sx={{ color: '#064e3b', fontWeight: 700, fontSize: '1rem', mb: 0.5 }}>
+                                  {application?.status === 'pending_final_review' ? 'Application Submitted!' : (application?.status === 'approved' ? 'Application Approved!' : 'Application Enrolled!')}
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: '#047857', opacity: 0.9 }}>
+                                  {application?.status === 'pending_final_review' ? 'Your application has been successfully submitted and is under review.' : 'You can track further updates from your dashboard.'}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          )}
+                          <fieldset
+                            disabled={['pending_final_review', 'approved', 'enrolled'].includes(application?.status)}
+                            style={{
+                              border: 'none', margin: 0, padding: 0,
+                              opacity: ['pending_final_review', 'approved', 'enrolled'].includes(application?.status) ? 0.6 : 1,
+                              pointerEvents: ['pending_final_review', 'approved', 'enrolled'].includes(application?.status) ? 'none' : 'auto',
+                              '--floating-bg': ['pending_final_review', 'approved', 'enrolled'].includes(application?.status) ? '#f1f5f9' : '#ffffff'
+                            }}
+                          >
+                            {renderStageContent(selectedProgram.stages[activeStep])}
+                          </fieldset>
+                        </Box>
+                      </Box>
+                    )}
+                  </Box>
+                </Box>
+              </Paper>
+            )}
+          </Box>
+        </Container>
+        <Backdrop
+          sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1, flexDirection: 'column', gap: 2 }}
+          open={savingProgress}
+        >
+          <CircularProgress color="inherit" />
+          <Typography variant="h6">Processing...</Typography>
+        </Backdrop>
+      </Box>
 
     </>
   );

@@ -128,31 +128,31 @@ export default function CreateAdmissionProgram() {
         <Paper elevation={0} sx={{ p: 4, mb: 4, border: '1px solid #e2e8f0', borderRadius: '16px' }}>
           <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Program Details</Typography>
           <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{xs: 12, sm: 6}}>
               <TextField fullWidth label="Workflow Title" name="workflow_title" value={formData.workflow_title} onChange={handleChange} required />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{xs: 12, sm: 6}}>
               <TextField fullWidth label="Academic Year" name="academic_year" placeholder="e.g. 2026-2030" value={formData.academic_year} onChange={handleChange} required />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{xs: 12}}>
               <TextField fullWidth multiline rows={3} label="Workflow Description" name="workflow_desc" value={formData.workflow_desc} onChange={handleChange} required />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{xs: 12, sm: 6}}>
               <TextField fullWidth label="Last Date to Apply" name="last_date" placeholder="e.g. 15 August 2026" value={formData.last_date} onChange={handleChange} required />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{xs: 12, sm: 6}}>
               <TextField fullWidth type="number" label="Number of Seats" name="seats" value={formData.seats} onChange={handleChange} required />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{xs: 12, sm: 6}}>
               <TextField fullWidth label="Eligibility Criteria" name="eligibility" placeholder="e.g. 75% in 12th PCM" value={formData.eligibility} onChange={handleChange} required />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{xs: 12, sm: 6}}>
               <TextField fullWidth label="Fees" name="fees" placeholder="e.g. ₹1.5L / Semester" value={formData.fees} onChange={handleChange} required />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{xs: 12, sm: 6}}>
               <TextField fullWidth label="Duration" name="duration" placeholder="e.g. 4 Years" value={formData.duration} onChange={handleChange} required />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{xs: 12, sm: 6}}>
               <TextField fullWidth label="Cover Image URL" name="image_url" placeholder="https://..." value={formData.image_url} onChange={handleChange} />
             </Grid>
           </Grid>
@@ -174,10 +174,10 @@ export default function CreateAdmissionProgram() {
             </Box>
             
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={8}>
+              <Grid size={{xs: 12, sm: 8}}>
                 <TextField fullWidth label="Stage Title" value={stage.title} onChange={(e) => handleStageChange(sIndex, 'title', e.target.value)} required />
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid size={{xs: 12, sm: 4}}>
                 <FormControl fullWidth>
                   <InputLabel>Stage Type</InputLabel>
                   <Select
@@ -194,7 +194,7 @@ export default function CreateAdmissionProgram() {
 
               {stage.type === 'document' && (
                 <>
-                  <Grid item xs={12}>
+                  <Grid size={{xs: 12}}>
                     <Typography variant="body2" sx={{ mb: 1, fontWeight: 500, color: '#64748b' }}>Required Documents</Typography>
                     {(stage.requirements || []).map((req, rIndex) => (
                       <Box key={rIndex} sx={{ display: 'flex', gap: 1, mb: 1 }}>
@@ -209,7 +209,7 @@ export default function CreateAdmissionProgram() {
                     </Button>
                   </Grid>
 
-                  <Grid item xs={12}>
+                  <Grid size={{xs: 12}}>
                     <Divider sx={{ my: 1 }} />
                     <Typography variant="body2" sx={{ mb: 1, fontWeight: 500, color: '#64748b' }}>Required Academic Records</Typography>
                     <Typography variant="caption" sx={{ color: '#64748b', display: 'block', mb: 2 }}>

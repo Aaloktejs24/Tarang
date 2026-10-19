@@ -384,7 +384,7 @@ export default function FlowPage() {
                                   <span>{item.date}</span>
                                   <Box component="span" sx={{ mx: 0.8, color: "#cbd5e1" }}>•</Box>
                                   <Box component="span">
-                                    <StarIcon sx={{ fontSize: 12, color: "#f59e0b", verticalAlign: "middle", mr: 0.3, mb: "1px" }} />
+                                    <StarIcon sx={{ fontSize: 12, color: "#ffc107", verticalAlign: "middle", mr: 0.3, mb: "1px" }} />
                                     {item.rating}
                                   </Box>
                                 </Typography>

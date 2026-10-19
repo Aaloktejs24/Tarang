@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v7.34.1
-// source: admission.proto
+// source: proto/admissionpb/admission.proto
 
 package admissionpb
 
@@ -46,7 +46,7 @@ type Stage struct {
 
 func (x *Stage) Reset() {
 	*x = Stage{}
-	mi := &file_admission_proto_msgTypes[0]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -58,7 +58,7 @@ func (x *Stage) String() string {
 func (*Stage) ProtoMessage() {}
 
 func (x *Stage) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[0]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -71,7 +71,7 @@ func (x *Stage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Stage.ProtoReflect.Descriptor instead.
 func (*Stage) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{0}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Stage) GetId() int32 {
@@ -188,7 +188,7 @@ type AcademicRecordConfig struct {
 
 func (x *AcademicRecordConfig) Reset() {
 	*x = AcademicRecordConfig{}
-	mi := &file_admission_proto_msgTypes[1]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -200,7 +200,7 @@ func (x *AcademicRecordConfig) String() string {
 func (*AcademicRecordConfig) ProtoMessage() {}
 
 func (x *AcademicRecordConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[1]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -213,7 +213,7 @@ func (x *AcademicRecordConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AcademicRecordConfig.ProtoReflect.Descriptor instead.
 func (*AcademicRecordConfig) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{1}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *AcademicRecordConfig) GetName() string {
@@ -233,7 +233,7 @@ type PaymentDetails struct {
 
 func (x *PaymentDetails) Reset() {
 	*x = PaymentDetails{}
-	mi := &file_admission_proto_msgTypes[2]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -245,7 +245,7 @@ func (x *PaymentDetails) String() string {
 func (*PaymentDetails) ProtoMessage() {}
 
 func (x *PaymentDetails) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[2]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -258,7 +258,7 @@ func (x *PaymentDetails) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PaymentDetails.ProtoReflect.Descriptor instead.
 func (*PaymentDetails) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{2}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *PaymentDetails) GetAmount() float64 {
@@ -285,7 +285,7 @@ type InterviewDetails struct {
 
 func (x *InterviewDetails) Reset() {
 	*x = InterviewDetails{}
-	mi := &file_admission_proto_msgTypes[3]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -297,7 +297,7 @@ func (x *InterviewDetails) String() string {
 func (*InterviewDetails) ProtoMessage() {}
 
 func (x *InterviewDetails) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[3]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -310,7 +310,7 @@ func (x *InterviewDetails) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InterviewDetails.ProtoReflect.Descriptor instead.
 func (*InterviewDetails) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{3}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *InterviewDetails) GetMeetingLink() string {
@@ -337,7 +337,7 @@ type Attachment struct {
 
 func (x *Attachment) Reset() {
 	*x = Attachment{}
-	mi := &file_admission_proto_msgTypes[4]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -349,7 +349,7 @@ func (x *Attachment) String() string {
 func (*Attachment) ProtoMessage() {}
 
 func (x *Attachment) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[4]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -362,7 +362,7 @@ func (x *Attachment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Attachment.ProtoReflect.Descriptor instead.
 func (*Attachment) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{4}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Attachment) GetName() string {
@@ -401,7 +401,7 @@ type Program struct {
 
 func (x *Program) Reset() {
 	*x = Program{}
-	mi := &file_admission_proto_msgTypes[5]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -413,7 +413,7 @@ func (x *Program) String() string {
 func (*Program) ProtoMessage() {}
 
 func (x *Program) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[5]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -426,7 +426,7 @@ func (x *Program) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Program.ProtoReflect.Descriptor instead.
 func (*Program) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{5}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Program) GetId() string {
@@ -530,7 +530,7 @@ type DeleteProgramRequest struct {
 
 func (x *DeleteProgramRequest) Reset() {
 	*x = DeleteProgramRequest{}
-	mi := &file_admission_proto_msgTypes[6]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -542,7 +542,7 @@ func (x *DeleteProgramRequest) String() string {
 func (*DeleteProgramRequest) ProtoMessage() {}
 
 func (x *DeleteProgramRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[6]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -555,7 +555,7 @@ func (x *DeleteProgramRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteProgramRequest.ProtoReflect.Descriptor instead.
 func (*DeleteProgramRequest) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{6}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *DeleteProgramRequest) GetId() string {
@@ -585,7 +585,7 @@ type CreateProgramRequest struct {
 
 func (x *CreateProgramRequest) Reset() {
 	*x = CreateProgramRequest{}
-	mi := &file_admission_proto_msgTypes[7]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -597,7 +597,7 @@ func (x *CreateProgramRequest) String() string {
 func (*CreateProgramRequest) ProtoMessage() {}
 
 func (x *CreateProgramRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[7]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -610,7 +610,7 @@ func (x *CreateProgramRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateProgramRequest.ProtoReflect.Descriptor instead.
 func (*CreateProgramRequest) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{7}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *CreateProgramRequest) GetInstituteId() string {
@@ -718,7 +718,7 @@ type UpdateProgramRequest struct {
 
 func (x *UpdateProgramRequest) Reset() {
 	*x = UpdateProgramRequest{}
-	mi := &file_admission_proto_msgTypes[8]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -730,7 +730,7 @@ func (x *UpdateProgramRequest) String() string {
 func (*UpdateProgramRequest) ProtoMessage() {}
 
 func (x *UpdateProgramRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[8]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -743,7 +743,7 @@ func (x *UpdateProgramRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateProgramRequest.ProtoReflect.Descriptor instead.
 func (*UpdateProgramRequest) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{8}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *UpdateProgramRequest) GetId() string {
@@ -846,7 +846,7 @@ type ProgramIDRequest struct {
 
 func (x *ProgramIDRequest) Reset() {
 	*x = ProgramIDRequest{}
-	mi := &file_admission_proto_msgTypes[9]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -858,7 +858,7 @@ func (x *ProgramIDRequest) String() string {
 func (*ProgramIDRequest) ProtoMessage() {}
 
 func (x *ProgramIDRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[9]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -871,7 +871,7 @@ func (x *ProgramIDRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProgramIDRequest.ProtoReflect.Descriptor instead.
 func (*ProgramIDRequest) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{9}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ProgramIDRequest) GetId() string {
@@ -890,7 +890,7 @@ type InstituteIDRequest struct {
 
 func (x *InstituteIDRequest) Reset() {
 	*x = InstituteIDRequest{}
-	mi := &file_admission_proto_msgTypes[10]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -902,7 +902,7 @@ func (x *InstituteIDRequest) String() string {
 func (*InstituteIDRequest) ProtoMessage() {}
 
 func (x *InstituteIDRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[10]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -915,7 +915,7 @@ func (x *InstituteIDRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InstituteIDRequest.ProtoReflect.Descriptor instead.
 func (*InstituteIDRequest) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{10}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *InstituteIDRequest) GetInstituteId() string {
@@ -934,7 +934,7 @@ type ProgramResponse struct {
 
 func (x *ProgramResponse) Reset() {
 	*x = ProgramResponse{}
-	mi := &file_admission_proto_msgTypes[11]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -946,7 +946,7 @@ func (x *ProgramResponse) String() string {
 func (*ProgramResponse) ProtoMessage() {}
 
 func (x *ProgramResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[11]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -959,7 +959,7 @@ func (x *ProgramResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProgramResponse.ProtoReflect.Descriptor instead.
 func (*ProgramResponse) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{11}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ProgramResponse) GetProgram() *Program {
@@ -978,7 +978,7 @@ type ProgramListResponse struct {
 
 func (x *ProgramListResponse) Reset() {
 	*x = ProgramListResponse{}
-	mi := &file_admission_proto_msgTypes[12]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -990,7 +990,7 @@ func (x *ProgramListResponse) String() string {
 func (*ProgramListResponse) ProtoMessage() {}
 
 func (x *ProgramListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[12]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1003,7 +1003,7 @@ func (x *ProgramListResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProgramListResponse.ProtoReflect.Descriptor instead.
 func (*ProgramListResponse) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{12}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ProgramListResponse) GetPrograms() []*Program {
@@ -1028,7 +1028,7 @@ type Draft struct {
 
 func (x *Draft) Reset() {
 	*x = Draft{}
-	mi := &file_admission_proto_msgTypes[13]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1040,7 +1040,7 @@ func (x *Draft) String() string {
 func (*Draft) ProtoMessage() {}
 
 func (x *Draft) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[13]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1053,7 +1053,7 @@ func (x *Draft) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Draft.ProtoReflect.Descriptor instead.
 func (*Draft) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{13}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *Draft) GetId() string {
@@ -1110,7 +1110,7 @@ type SaveDraftRequest struct {
 
 func (x *SaveDraftRequest) Reset() {
 	*x = SaveDraftRequest{}
-	mi := &file_admission_proto_msgTypes[14]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1122,7 +1122,7 @@ func (x *SaveDraftRequest) String() string {
 func (*SaveDraftRequest) ProtoMessage() {}
 
 func (x *SaveDraftRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[14]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1135,7 +1135,7 @@ func (x *SaveDraftRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveDraftRequest.ProtoReflect.Descriptor instead.
 func (*SaveDraftRequest) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{14}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *SaveDraftRequest) GetInstituteId() string {
@@ -1175,7 +1175,7 @@ type GetDraftsRequest struct {
 
 func (x *GetDraftsRequest) Reset() {
 	*x = GetDraftsRequest{}
-	mi := &file_admission_proto_msgTypes[15]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1187,7 +1187,7 @@ func (x *GetDraftsRequest) String() string {
 func (*GetDraftsRequest) ProtoMessage() {}
 
 func (x *GetDraftsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[15]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1200,7 +1200,7 @@ func (x *GetDraftsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDraftsRequest.ProtoReflect.Descriptor instead.
 func (*GetDraftsRequest) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{15}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetDraftsRequest) GetInstituteId() string {
@@ -1220,7 +1220,7 @@ type DeleteDraftRequest struct {
 
 func (x *DeleteDraftRequest) Reset() {
 	*x = DeleteDraftRequest{}
-	mi := &file_admission_proto_msgTypes[16]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1232,7 +1232,7 @@ func (x *DeleteDraftRequest) String() string {
 func (*DeleteDraftRequest) ProtoMessage() {}
 
 func (x *DeleteDraftRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[16]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1245,7 +1245,7 @@ func (x *DeleteDraftRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteDraftRequest.ProtoReflect.Descriptor instead.
 func (*DeleteDraftRequest) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{16}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *DeleteDraftRequest) GetInstituteId() string {
@@ -1271,7 +1271,7 @@ type DraftResponse struct {
 
 func (x *DraftResponse) Reset() {
 	*x = DraftResponse{}
-	mi := &file_admission_proto_msgTypes[17]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1283,7 +1283,7 @@ func (x *DraftResponse) String() string {
 func (*DraftResponse) ProtoMessage() {}
 
 func (x *DraftResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[17]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1296,7 +1296,7 @@ func (x *DraftResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DraftResponse.ProtoReflect.Descriptor instead.
 func (*DraftResponse) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{17}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *DraftResponse) GetDraft() *Draft {
@@ -1315,7 +1315,7 @@ type DraftListResponse struct {
 
 func (x *DraftListResponse) Reset() {
 	*x = DraftListResponse{}
-	mi := &file_admission_proto_msgTypes[18]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1327,7 +1327,7 @@ func (x *DraftListResponse) String() string {
 func (*DraftListResponse) ProtoMessage() {}
 
 func (x *DraftListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[18]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1340,7 +1340,7 @@ func (x *DraftListResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DraftListResponse.ProtoReflect.Descriptor instead.
 func (*DraftListResponse) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{18}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *DraftListResponse) GetDrafts() []*Draft {
@@ -1361,14 +1361,15 @@ type Application struct {
 	Status            string                 `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
 	CreatedAt         string                 `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt         string                 `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	Program           *Program               `protobuf:"bytes,9,opt,name=program,proto3" json:"program,omitempty"` // Optional nested program details
+	Program           *Program               `protobuf:"bytes,9,opt,name=program,proto3" json:"program,omitempty"`                                   // Optional nested program details
+	SubmittedData     string                 `protobuf:"bytes,10,opt,name=submitted_data,json=submittedData,proto3" json:"submitted_data,omitempty"` // Applicant's submitted data
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
 
 func (x *Application) Reset() {
 	*x = Application{}
-	mi := &file_admission_proto_msgTypes[19]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1380,7 +1381,7 @@ func (x *Application) String() string {
 func (*Application) ProtoMessage() {}
 
 func (x *Application) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[19]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1393,7 +1394,7 @@ func (x *Application) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Application.ProtoReflect.Descriptor instead.
 func (*Application) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{19}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *Application) GetId() string {
@@ -1459,6 +1460,13 @@ func (x *Application) GetProgram() *Program {
 	return nil
 }
 
+func (x *Application) GetSubmittedData() string {
+	if x != nil {
+		return x.SubmittedData
+	}
+	return ""
+}
+
 // Transactions (Progress Log)
 type Transaction struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1474,7 +1482,7 @@ type Transaction struct {
 
 func (x *Transaction) Reset() {
 	*x = Transaction{}
-	mi := &file_admission_proto_msgTypes[20]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1486,7 +1494,7 @@ func (x *Transaction) String() string {
 func (*Transaction) ProtoMessage() {}
 
 func (x *Transaction) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[20]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1499,7 +1507,7 @@ func (x *Transaction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Transaction.ProtoReflect.Descriptor instead.
 func (*Transaction) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{20}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *Transaction) GetId() string {
@@ -1557,7 +1565,7 @@ type ApplyRequest struct {
 
 func (x *ApplyRequest) Reset() {
 	*x = ApplyRequest{}
-	mi := &file_admission_proto_msgTypes[21]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1569,7 +1577,7 @@ func (x *ApplyRequest) String() string {
 func (*ApplyRequest) ProtoMessage() {}
 
 func (x *ApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[21]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1582,7 +1590,7 @@ func (x *ApplyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApplyRequest.ProtoReflect.Descriptor instead.
 func (*ApplyRequest) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{21}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ApplyRequest) GetUserId() string {
@@ -1627,7 +1635,7 @@ type UpdateProgressRequest struct {
 
 func (x *UpdateProgressRequest) Reset() {
 	*x = UpdateProgressRequest{}
-	mi := &file_admission_proto_msgTypes[22]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1639,7 +1647,7 @@ func (x *UpdateProgressRequest) String() string {
 func (*UpdateProgressRequest) ProtoMessage() {}
 
 func (x *UpdateProgressRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[22]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1652,7 +1660,7 @@ func (x *UpdateProgressRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateProgressRequest.ProtoReflect.Descriptor instead.
 func (*UpdateProgressRequest) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{22}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *UpdateProgressRequest) GetApplicationId() string {
@@ -1706,7 +1714,7 @@ type HistoryRequest struct {
 
 func (x *HistoryRequest) Reset() {
 	*x = HistoryRequest{}
-	mi := &file_admission_proto_msgTypes[23]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1718,7 +1726,7 @@ func (x *HistoryRequest) String() string {
 func (*HistoryRequest) ProtoMessage() {}
 
 func (x *HistoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[23]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1731,7 +1739,7 @@ func (x *HistoryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HistoryRequest.ProtoReflect.Descriptor instead.
 func (*HistoryRequest) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{23}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *HistoryRequest) GetApplicationId() string {
@@ -1750,7 +1758,7 @@ type UserApplicationsRequest struct {
 
 func (x *UserApplicationsRequest) Reset() {
 	*x = UserApplicationsRequest{}
-	mi := &file_admission_proto_msgTypes[24]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1762,7 +1770,7 @@ func (x *UserApplicationsRequest) String() string {
 func (*UserApplicationsRequest) ProtoMessage() {}
 
 func (x *UserApplicationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[24]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1775,7 +1783,7 @@ func (x *UserApplicationsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserApplicationsRequest.ProtoReflect.Descriptor instead.
 func (*UserApplicationsRequest) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{24}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *UserApplicationsRequest) GetUserId() string {
@@ -1794,7 +1802,7 @@ type InstituteApplicationsRequest struct {
 
 func (x *InstituteApplicationsRequest) Reset() {
 	*x = InstituteApplicationsRequest{}
-	mi := &file_admission_proto_msgTypes[25]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1806,7 +1814,7 @@ func (x *InstituteApplicationsRequest) String() string {
 func (*InstituteApplicationsRequest) ProtoMessage() {}
 
 func (x *InstituteApplicationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[25]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1819,7 +1827,7 @@ func (x *InstituteApplicationsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InstituteApplicationsRequest.ProtoReflect.Descriptor instead.
 func (*InstituteApplicationsRequest) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{25}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *InstituteApplicationsRequest) GetInstituteId() string {
@@ -1839,7 +1847,7 @@ type TransactionResponse struct {
 
 func (x *TransactionResponse) Reset() {
 	*x = TransactionResponse{}
-	mi := &file_admission_proto_msgTypes[26]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1851,7 +1859,7 @@ func (x *TransactionResponse) String() string {
 func (*TransactionResponse) ProtoMessage() {}
 
 func (x *TransactionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[26]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1864,7 +1872,7 @@ func (x *TransactionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TransactionResponse.ProtoReflect.Descriptor instead.
 func (*TransactionResponse) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{26}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *TransactionResponse) GetTransaction() *Transaction {
@@ -1891,7 +1899,7 @@ type HistoryResponse struct {
 
 func (x *HistoryResponse) Reset() {
 	*x = HistoryResponse{}
-	mi := &file_admission_proto_msgTypes[27]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1903,7 +1911,7 @@ func (x *HistoryResponse) String() string {
 func (*HistoryResponse) ProtoMessage() {}
 
 func (x *HistoryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[27]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1916,7 +1924,7 @@ func (x *HistoryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HistoryResponse.ProtoReflect.Descriptor instead.
 func (*HistoryResponse) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{27}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *HistoryResponse) GetTransactions() []*Transaction {
@@ -1942,7 +1950,7 @@ type ApplicationListResponse struct {
 
 func (x *ApplicationListResponse) Reset() {
 	*x = ApplicationListResponse{}
-	mi := &file_admission_proto_msgTypes[28]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1954,7 +1962,7 @@ func (x *ApplicationListResponse) String() string {
 func (*ApplicationListResponse) ProtoMessage() {}
 
 func (x *ApplicationListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admission_proto_msgTypes[28]
+	mi := &file_proto_admissionpb_admission_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1967,7 +1975,7 @@ func (x *ApplicationListResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApplicationListResponse.ProtoReflect.Descriptor instead.
 func (*ApplicationListResponse) Descriptor() ([]byte, []int) {
-	return file_admission_proto_rawDescGZIP(), []int{28}
+	return file_proto_admissionpb_admission_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *ApplicationListResponse) GetApplications() []*Application {
@@ -1977,11 +1985,11 @@ func (x *ApplicationListResponse) GetApplications() []*Application {
 	return nil
 }
 
-var File_admission_proto protoreflect.FileDescriptor
+var File_proto_admissionpb_admission_proto protoreflect.FileDescriptor
 
-const file_admission_proto_rawDesc = "" +
+const file_proto_admissionpb_admission_proto_rawDesc = "" +
 	"\n" +
-	"\x0fadmission.proto\x12\tadmission\x1a\x1bgoogle/protobuf/empty.proto\"\x89\x05\n" +
+	"!proto/admissionpb/admission.proto\x12\tadmission\x1a\x1bgoogle/protobuf/empty.proto\"\x89\x05\n" +
 	"\x05Stage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x12\n" +
@@ -2092,7 +2100,7 @@ const file_admission_proto_rawDesc = "" +
 	"\rDraftResponse\x12&\n" +
 	"\x05draft\x18\x01 \x01(\v2\x10.admission.DraftR\x05draft\"=\n" +
 	"\x11DraftListResponse\x12(\n" +
-	"\x06drafts\x18\x01 \x03(\v2\x10.admission.DraftR\x06drafts\"\xac\x02\n" +
+	"\x06drafts\x18\x01 \x03(\v2\x10.admission.DraftR\x06drafts\"\xd3\x02\n" +
 	"\vApplication\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12!\n" +
@@ -2105,7 +2113,9 @@ const file_admission_proto_rawDesc = "" +
 	"created_at\x18\a \x01(\tR\tcreatedAt\x12\x1d\n" +
 	"\n" +
 	"updated_at\x18\b \x01(\tR\tupdatedAt\x12,\n" +
-	"\aprogram\x18\t \x01(\v2\x12.admission.ProgramR\aprogram\"\xbb\x01\n" +
+	"\aprogram\x18\t \x01(\v2\x12.admission.ProgramR\aprogram\x12%\n" +
+	"\x0esubmitted_data\x18\n" +
+	" \x01(\tR\rsubmittedData\"\xbb\x01\n" +
 	"\vTransaction\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\x0eapplication_id\x18\x02 \x01(\tR\rapplicationId\x12\x19\n" +
@@ -2160,19 +2170,19 @@ const file_admission_proto_rawDesc = "" +
 	"\x18GetInstituteApplications\x12'.admission.InstituteApplicationsRequest\x1a\".admission.ApplicationListResponseB\x1bZ\x19backend/proto/admissionpbb\x06proto3"
 
 var (
-	file_admission_proto_rawDescOnce sync.Once
-	file_admission_proto_rawDescData []byte
+	file_proto_admissionpb_admission_proto_rawDescOnce sync.Once
+	file_proto_admissionpb_admission_proto_rawDescData []byte
 )
 
-func file_admission_proto_rawDescGZIP() []byte {
-	file_admission_proto_rawDescOnce.Do(func() {
-		file_admission_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_admission_proto_rawDesc), len(file_admission_proto_rawDesc)))
+func file_proto_admissionpb_admission_proto_rawDescGZIP() []byte {
+	file_proto_admissionpb_admission_proto_rawDescOnce.Do(func() {
+		file_proto_admissionpb_admission_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_admissionpb_admission_proto_rawDesc), len(file_proto_admissionpb_admission_proto_rawDesc)))
 	})
-	return file_admission_proto_rawDescData
+	return file_proto_admissionpb_admission_proto_rawDescData
 }
 
-var file_admission_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
-var file_admission_proto_goTypes = []any{
+var file_proto_admissionpb_admission_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
+var file_proto_admissionpb_admission_proto_goTypes = []any{
 	(*Stage)(nil),                        // 0: admission.Stage
 	(*AcademicRecordConfig)(nil),         // 1: admission.AcademicRecordConfig
 	(*PaymentDetails)(nil),               // 2: admission.PaymentDetails
@@ -2204,7 +2214,7 @@ var file_admission_proto_goTypes = []any{
 	(*ApplicationListResponse)(nil),      // 28: admission.ApplicationListResponse
 	(*emptypb.Empty)(nil),                // 29: google.protobuf.Empty
 }
-var file_admission_proto_depIdxs = []int32{
+var file_proto_admissionpb_admission_proto_depIdxs = []int32{
 	4,  // 0: admission.Stage.quiz_attachments:type_name -> admission.Attachment
 	3,  // 1: admission.Stage.interview_details:type_name -> admission.InterviewDetails
 	2,  // 2: admission.Stage.payment_details:type_name -> admission.PaymentDetails
@@ -2255,26 +2265,26 @@ var file_admission_proto_depIdxs = []int32{
 	0,  // [0:17] is the sub-list for field type_name
 }
 
-func init() { file_admission_proto_init() }
-func file_admission_proto_init() {
-	if File_admission_proto != nil {
+func init() { file_proto_admissionpb_admission_proto_init() }
+func file_proto_admissionpb_admission_proto_init() {
+	if File_proto_admissionpb_admission_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_admission_proto_rawDesc), len(file_admission_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_admissionpb_admission_proto_rawDesc), len(file_proto_admissionpb_admission_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   29,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_admission_proto_goTypes,
-		DependencyIndexes: file_admission_proto_depIdxs,
-		MessageInfos:      file_admission_proto_msgTypes,
+		GoTypes:           file_proto_admissionpb_admission_proto_goTypes,
+		DependencyIndexes: file_proto_admissionpb_admission_proto_depIdxs,
+		MessageInfos:      file_proto_admissionpb_admission_proto_msgTypes,
 	}.Build()
-	File_admission_proto = out.File
-	file_admission_proto_goTypes = nil
-	file_admission_proto_depIdxs = nil
+	File_proto_admissionpb_admission_proto = out.File
+	file_proto_admissionpb_admission_proto_goTypes = nil
+	file_proto_admissionpb_admission_proto_depIdxs = nil
 }

@@ -1,8 +1,7 @@
 "use client";
 
 import miscData from '../../../data/miscData.json';
-/* eslint-disable react/jsx-props-no-spreading */
-/* eslint-disable security/detect-object-injection */
+ 
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
@@ -188,6 +187,7 @@ export default function SetupOverlay({ profile }) {
       }
       return a.h.localeCompare(b.h);
     });
+   
   }, [userLocation]);
 
   const states = useMemo(() =>
@@ -207,6 +207,7 @@ export default function SetupOverlay({ profile }) {
       }
     }
     return [];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.location_country, formData.location_state]);
 
   useEffect(() => {

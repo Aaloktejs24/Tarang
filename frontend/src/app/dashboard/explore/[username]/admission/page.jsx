@@ -30,24 +30,7 @@ import { useBreadcrumbs } from "../../../../../contexts/BreadcrumbContext";
 import { applyForProgram } from '../../../../../features/admission/admissionService';
 import Loader from '../../../../../components/common/Loader';
 
-const CustomTooltip = styled(({ className, ...props }) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(() => ({
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: 'rgba(30, 79, 163, 0.65)',
-    backdropFilter: 'blur(12px)',
-    WebkitBackdropFilter: 'blur(12px)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    color: '#ffffff',
-    boxShadow: '0px 8px 32px rgba(0, 0, 0, 0.2)',
-    fontSize: '0.8rem',
-    borderRadius: '12px',
-    padding: '8px 12px',
-  },
-  [`& .${tooltipClasses.arrow}`]: {
-    color: 'rgba(30, 79, 163, 0.65)',
-  },
-}));
+import { CustomTooltip } from '../../../../../components/common/CustomTooltip';
 
 export default function AdmissionPage() {
   const router = useRouter();
@@ -68,6 +51,7 @@ export default function AdmissionPage() {
   const [selectedProgram, setSelectedProgram] = useState(null);
   const [activeStep, setActiveStep] = useState(0);
   const [applyingTo, setApplyingTo] = useState(null);
+  const [userApplications, setUserApplications] = useState([]);
 
   // Auto-manage breadcrumbs lifecycle for this page
   const rawInstituteName = instituteProfile?.full_name || instituteProfile?.institution_name || instituteProfile?.username || username;
@@ -142,6 +126,20 @@ export default function AdmissionPage() {
     }
   }, [username]);
 
+  React.useEffect(() => {
+    const fetchUserApplications = async () => {
+      try {
+        const res = await apiClient.get(`/admissions/users/${profile.id}/applications`);
+        setUserApplications(Array.isArray(res.data) ? res.data : (res.data?.applications || []));
+      } catch (err) {
+        console.error("[Admission Page] Failed to fetch user applications", err);
+      }
+    };
+    if (profile?.id) {
+      fetchUserApplications();
+    }
+  }, [profile?.id]);
+
   const handleApply = async (prog) => {
     if (!profile?.id) {
       // Typically shouldn't happen if user is logged in
@@ -153,7 +151,7 @@ export default function AdmissionPage() {
         source: 'explore_page'
       });
       console.log('Application started:', response);
-      
+
       const appId = response.application?.id;
       if (appId) {
         router.push(`/dashboard/explore/${username}/admission/${prog.id}?appId=${appId}`);
@@ -184,7 +182,7 @@ export default function AdmissionPage() {
       <Container ref={cardsRef} maxWidth="xl" sx={{
         position: "relative",
         zIndex: 1,
-        px: { xs: 2, md: 4 },
+        px: { xs: 3, md: 6, lg: 8 },
         pb: showEmptyState ? 0 : 10,
         ...(showEmptyState && {
           height: "calc(100vh - 72px)",
@@ -427,15 +425,36 @@ export default function AdmissionPage() {
                           Manage in Dashboard
                         </Button>
                       ) : (
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          disabled={applyingTo === prog.id}
-                          onClick={() => handleApply(prog)}
-                          sx={{ borderRadius: '8px', textTransform: 'none', fontWeight: 700, height: 32, fontSize: '0.8rem', position: 'relative' }}
-                        >
-                          {applyingTo === prog.id ? <Loader size={16} /> : (language === 'en' ? 'Apply Now' : 'आवेदन करें')}
-                        </Button>
+                        (() => {
+                          // Ignore withdrawn applications so they can apply again
+                          const appForProg = userApplications.find(app => app.program_id === prog.id && app.status !== 'withdrawn');
+                          const isApplied = !!appForProg;
+                          const isIncomplete = isApplied && (appForProg.status === 'pending' || appForProg.status === 'in_progress');
+
+                          return (
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              disabled={applyingTo === prog.id}
+                              onClick={() => {
+                                if (isApplied) {
+                                  router.push(`/dashboard/explore/${username}/admission/${prog.id}`);
+                                } else {
+                                  handleApply(prog);
+                                }
+                              }}
+                              sx={{ borderRadius: '8px', textTransform: 'none', fontWeight: 700, height: 32, fontSize: '0.8rem', position: 'relative' }}
+                            >
+                              {applyingTo === prog.id ? <Loader size={16} /> : (
+                                isApplied
+                                  ? (isIncomplete
+                                    ? (language === 'en' ? 'Complete Application' : 'आवेदन पूरा करें')
+                                    : (language === 'en' ? 'View Application' : 'आवेदन देखें'))
+                                  : (language === 'en' ? 'Apply Now' : 'आवेदन करें')
+                              )}
+                            </Button>
+                          );
+                        })()
                       )}
                     </Box>
                   </Box>

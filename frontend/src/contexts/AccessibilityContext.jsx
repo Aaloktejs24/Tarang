@@ -199,6 +199,7 @@ export const AccessibilityProvider = ({ children }) => {
         setFontFamily(scriptFontList[0].value);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language, mounted]);
 
   // Inject Google Font dynamically
@@ -221,6 +222,11 @@ export const AccessibilityProvider = ({ children }) => {
 
   // Create a dynamic MUI theme based on the selected font
   const theme = createTheme({
+    palette: {
+      warning: {
+        main: '#ffc107',
+      },
+    },
     typography: {
       fontFamily: fontFamily,
       button: {

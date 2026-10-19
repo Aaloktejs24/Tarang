@@ -422,17 +422,21 @@ func (r *repository) ApplyForProgram(ctx context.Context, app *admissionpb.Appli
 	}
 	defer tx.Rollback()
 
-	// 1. Create the Application
+	// 1. Create a fresh Application with a sequence-generated ID
+	// Due to the partial unique index, this will fail if the user already has an active application.
 	appQuery := `
 		INSERT INTO admission_applications (id, user_id, institute_id, program_id, current_stage_index, status)
-		VALUES ($1, $2, $3, $4, $5, $6)`
+		VALUES ('APP-' || nextval('application_number_seq')::text, $1, $2, $3, $4, $5)
+		RETURNING id`
 	
-	_, err = tx.ExecContext(ctx, appQuery, 
-		app.Id, app.UserId, app.InstituteId, app.ProgramId, app.CurrentStageIndex, app.Status,
-	)
+	err = tx.QueryRowContext(ctx, appQuery, 
+		app.UserId, app.InstituteId, app.ProgramId, app.CurrentStageIndex, app.Status,
+	).Scan(&app.Id)
 	if err != nil {
-		return fmt.Errorf("failed to insert application: %v", err)
+		return fmt.Errorf("failed to insert/update application: %v", err)
 	}
+
+	firstTx.ApplicationId = app.Id
 
 	// 2. Insert the First Transaction Log (The ACID ledger entry)
 	txQuery := `
@@ -467,7 +471,27 @@ func (r *repository) UpdateApplicationProgress(ctx context.Context, appID string
 		return fmt.Errorf("failed to update application state: %v", err)
 	}
 
-	// 2. Insert the Transaction Log
+	// 2. Insert or Update the Transaction Log
+	if txRecord.ActionType == "AUTO_SAVE" {
+		updateQuery := `
+			UPDATE admission_transactions
+			SET metadata = $1, created_at = CURRENT_TIMESTAMP
+			WHERE id = (
+				SELECT id FROM admission_transactions
+				WHERE application_id = $2 AND action_type = 'AUTO_SAVE'
+				ORDER BY created_at DESC LIMIT 1
+			)`
+		res, err := tx.ExecContext(ctx, updateQuery, txRecord.Metadata, txRecord.ApplicationId)
+		if err != nil {
+			return fmt.Errorf("failed to update auto-save transaction: %v", err)
+		}
+		rowsAffected, _ := res.RowsAffected()
+		if rowsAffected > 0 {
+			// Successfully updated existing AUTO_SAVE, skip insert
+			return tx.Commit()
+		}
+	}
+
 	txQuery := `
 		INSERT INTO admission_transactions (id, application_id, actor_id, action_type, metadata)
 		VALUES ($1, $2, $3, $4, $5)`
@@ -537,8 +561,9 @@ func (r *repository) GetApplicationHistory(ctx context.Context, applicationID st
 
 func (r *repository) GetUserApplications(ctx context.Context, userID string) ([]*admissionpb.Application, error) {
 	query := `
-		SELECT id, user_id, institute_id, program_id, current_stage_index, status, created_at, updated_at 
-		FROM admission_applications WHERE user_id = $1 ORDER BY updated_at DESC`
+		SELECT a.id, a.user_id, a.institute_id, a.program_id, a.current_stage_index, a.status, a.created_at, a.updated_at,
+		(SELECT metadata FROM admission_transactions t WHERE t.application_id = a.id AND t.actor_id = a.user_id ORDER BY t.created_at DESC LIMIT 1) as submitted_data
+		FROM admission_applications a WHERE a.user_id = $1 ORDER BY a.updated_at DESC`
 	
 	rows, err := r.db.QueryContext(ctx, query, userID)
 	if err != nil {
@@ -549,12 +574,13 @@ func (r *repository) GetUserApplications(ctx context.Context, userID string) ([]
 	var apps []*admissionpb.Application
 	for rows.Next() {
 		app := &admissionpb.Application{}
-		var ca, ua sql.NullString
-		if err := rows.Scan(&app.Id, &app.UserId, &app.InstituteId, &app.ProgramId, &app.CurrentStageIndex, &app.Status, &ca, &ua); err != nil {
+		var ca, ua, subData sql.NullString
+		if err := rows.Scan(&app.Id, &app.UserId, &app.InstituteId, &app.ProgramId, &app.CurrentStageIndex, &app.Status, &ca, &ua, &subData); err != nil {
 			return nil, err
 		}
 		if ca.Valid { app.CreatedAt = ca.String }
 		if ua.Valid { app.UpdatedAt = ua.String }
+		if subData.Valid { app.SubmittedData = subData.String }
 		
 		prog, _ := r.GetProgramByID(ctx, app.ProgramId)
 		app.Program = prog
@@ -566,8 +592,9 @@ func (r *repository) GetUserApplications(ctx context.Context, userID string) ([]
 
 func (r *repository) GetInstituteApplications(ctx context.Context, instituteID string) ([]*admissionpb.Application, error) {
 	query := `
-		SELECT id, user_id, institute_id, program_id, current_stage_index, status, created_at, updated_at 
-		FROM admission_applications WHERE institute_id = $1 ORDER BY updated_at DESC`
+		SELECT a.id, a.user_id, a.institute_id, a.program_id, a.current_stage_index, a.status, a.created_at, a.updated_at,
+		(SELECT metadata FROM admission_transactions t WHERE t.application_id = a.id AND t.actor_id = a.user_id ORDER BY t.created_at DESC LIMIT 1) as submitted_data
+		FROM admission_applications a WHERE a.institute_id = $1 ORDER BY a.updated_at DESC`
 	
 	rows, err := r.db.QueryContext(ctx, query, instituteID)
 	if err != nil {
@@ -578,12 +605,13 @@ func (r *repository) GetInstituteApplications(ctx context.Context, instituteID s
 	var apps []*admissionpb.Application
 	for rows.Next() {
 		app := &admissionpb.Application{}
-		var ca, ua sql.NullString
-		if err := rows.Scan(&app.Id, &app.UserId, &app.InstituteId, &app.ProgramId, &app.CurrentStageIndex, &app.Status, &ca, &ua); err != nil {
+		var ca, ua, subData sql.NullString
+		if err := rows.Scan(&app.Id, &app.UserId, &app.InstituteId, &app.ProgramId, &app.CurrentStageIndex, &app.Status, &ca, &ua, &subData); err != nil {
 			return nil, err
 		}
 		if ca.Valid { app.CreatedAt = ca.String }
 		if ua.Valid { app.UpdatedAt = ua.String }
+		if subData.Valid { app.SubmittedData = subData.String }
 		
 		prog, _ := r.GetProgramByID(ctx, app.ProgramId)
 		app.Program = prog

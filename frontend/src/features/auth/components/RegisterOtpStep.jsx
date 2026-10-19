@@ -1,6 +1,6 @@
 import { Box, Typography, Button } from "@mui/material";
 import OtpInput from "./OtpInput";
-// eslint-disable-next-line no-unused-vars
+ 
 import { motion, AnimatePresence } from "framer-motion";
 import Loader from "../../../components/common/Loader";
 import { useEffect } from "react";

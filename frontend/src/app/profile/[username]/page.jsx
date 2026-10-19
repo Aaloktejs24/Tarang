@@ -5,7 +5,7 @@ import {
   Box, Typography, Paper, Avatar, Chip, 
   Container, Divider, IconButton, Button, Skeleton 
 } from "@mui/material";
-// eslint-disable-next-line no-unused-vars
+ 
 import { motion } from "framer-motion";
 import { apiClient } from "../../../lib/apiClient";
 import Loader from "../../../components/common/Loader";
@@ -196,8 +196,8 @@ export default function PublicProfile() {
                 icon={<ShieldOutlinedIcon sx={{ fontSize: 18 }} />}
                 label={profile.kyc_status === "verified" ? "ID Verified" : "Verification Pending"} 
                 sx={{ 
-                  bgcolor: profile.kyc_status === "verified" ? "rgba(16, 185, 129, 0.1)" : "rgba(245, 158, 11, 0.1)",
-                  color: profile.kyc_status === "verified" ? "#28a745" : "#f59e0b",
+                  bgcolor: profile.kyc_status === "verified" ? "rgba(16, 185, 129, 0.1)" : "rgba(255, 193, 7, 0.1)",
+                  color: profile.kyc_status === "verified" ? "#28a745" : "#ffc107",
                   fontWeight: 700, p: 2
                 }}
               />

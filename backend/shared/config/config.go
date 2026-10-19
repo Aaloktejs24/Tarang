@@ -34,7 +34,8 @@ type Config struct {
 	AWSAccessKeyID     string
 	AWSSecretAccessKey string
 
-	UserServiceAddr string
+	UserServiceAddr    string
+	SuperAdminPassword string
 }
 
 func Load() *Config {
@@ -77,7 +78,8 @@ func Load() *Config {
 		AWSAccessKeyID:     os.Getenv("AWS_ACCESS_KEY_ID"),
 		AWSSecretAccessKey: os.Getenv("AWS_SECRET_ACCESS_KEY"),
 
-		UserServiceAddr: getEnv("USER_SERVICE_ADDR", "user-service:50051"),
+		UserServiceAddr:    getEnv("USER_SERVICE_ADDR", "user-service:50051"),
+		SuperAdminPassword: os.Getenv("SUPER_ADMIN_PASSWORD"),
 	}
 }
 

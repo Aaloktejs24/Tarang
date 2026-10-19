@@ -14,6 +14,7 @@ export default function BiometricStep({ role, identifier, onFinish, isRegisterin
       hasTriggered.current = true;
       handleBiometric();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleBiometric = async () => {

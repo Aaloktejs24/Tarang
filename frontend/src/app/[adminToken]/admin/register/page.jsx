@@ -243,7 +243,7 @@ export default function AdminRegister() {
               {flowState === 'otp' && (
                 <form onSubmit={handleVerifyOtp}>
                   <Typography variant="body2" sx={{ mb: 3, color: '#64748b' }}>
-                    We've sent a 6-digit OTP to {email}. Enter it below to verify your email.
+                    We&apos;ve sent a 6-digit OTP to {email}. Enter it below to verify your email.
                   </Typography>
                   <Box sx={{ mb: 4 }}>
                     <TextField

@@ -4,19 +4,29 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	if err := godotenv.Load("../../.env"); err != nil {
+		fmt.Println("Warning: No .env file found in backend root, relying on system env vars")
+	}
+
 	bucket := "tarang-user-service"
-	region := "ap-south-1"
-	accessKey := "AKIAX3DNHUKBQDF3BUVU"
-	secretKey := "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"
+	region := os.Getenv("AWS_REGION")
+	accessKey := os.Getenv("AWS_ACCESS_KEY_ID")
+	secretKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
+
+	if region == "" || accessKey == "" || secretKey == "" {
+		log.Fatal("AWS_REGION, AWS_ACCESS_KEY_ID, and AWS_SECRET_ACCESS_KEY must be set")
+	}
 
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithRegion(region),

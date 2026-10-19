@@ -76,3 +76,23 @@ export const formatBreadcrumbName = (str) => {
   }
   return getAcronym(str);
 };
+
+export const getNoNamePlaceholder = (langCode) => {
+  const translations = {
+    en: "No Name",
+    hi: "कोई नाम नहीं",
+    bn: "কোন নাম নেই",
+    te: "పేరు లేదు",
+    mr: "नाव नाही",
+    ta: "பெயர் இல்லை",
+    ur: "کوئی نام نہیں",
+    gu: "કોઈ નામ નથી",
+    kn: "ಹೆಸರಿಲ್ಲ",
+    or: "କୌଣସି ନାମ ନାହିଁ",
+    ml: "പേരില്ല",
+    es: "Sin Nombre",
+    fr: "Sans Nom",
+    ar: "بلا اسم",
+  };
+  return translations[langCode] || "No Name";
+};

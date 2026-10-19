@@ -26,7 +26,11 @@ func main() {
 	ctx := context.Background()
 
 	// 1. Hash the password
-	password := "tarang_super_123" // Change this to a secure password later
+	password := os.Getenv("SUPER_ADMIN_PASSWORD")
+	if password == "" {
+		log.Fatal("SUPER_ADMIN_PASSWORD must be set in .env")
+	}
+
 	hash, err := argon2id.CreateHash(password, argon2id.DefaultParams)
 	if err != nil {
 		log.Fatalf("Failed to hash password: %v", err)

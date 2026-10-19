@@ -1,10 +1,46 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
+import { FieldContext } from '../../contexts/FieldContext';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { FieldCommentTooltip } from './FieldCommentTooltip';
+
 import gazeteer from '../../data/formated/gazeteer.json';
 import { useAccessibility } from '../../contexts/AccessibilityContext';
 import { sortLocationsByDistance } from '../../lib/geoNormalize';
 
-export const CustomFloatingInput = React.forwardRef(({ label, value, onChange, onClick, type = 'text', disabled = false, error = false, helperText = '', multiline = false, rows = 1, InputProps, inputProps, inputRef, ownerState, sx, className, ...rest }, ref) => {
+
+const withFieldState = (WrappedComponent) => React.forwardRef(function WithFieldState(props, ref) {
+  const fieldContext = React.useContext(FieldContext);
+  let finalDisabled = props.disabled;
+  let comment = null;
+
+  if (fieldContext && fieldContext.isRejected && fieldContext.enabledLabels) {
+    finalDisabled = !fieldContext.enabledLabels.includes(props.label);
+    if (!finalDisabled && fieldContext.commentsByLabel) {
+      comment = fieldContext.commentsByLabel[props.label];
+    }
+  }
+
+  const content = <WrappedComponent {...props} disabled={finalDisabled} updateRequested={!!comment} ref={ref} />;
+
+  if (!comment) return content;
+
+  return (
+    <Box
+      sx={{
+        position: 'relative',
+        width: '100%',
+        '& .comment-icon': { opacity: 0, transition: 'opacity 0.2s', pointerEvents: 'none' },
+        '&:hover .comment-icon': { opacity: 1, pointerEvents: 'auto' }
+      }}
+    >
+      {content}
+      <FieldCommentTooltip comment={comment} />
+    </Box>
+  );
+});
+
+const BaseCustomFloatingInput = React.forwardRef(({ label, value, onChange, onClick, type = 'text', disabled = false, error = false, updateRequested = false, helperText = '', multiline = false, rows = 1, InputProps, inputProps, inputRef, ownerState, sx, className, ...rest }, ref) => {
   const [focused, setFocused] = React.useState(false);
   const [hovered, setHovered] = React.useState(false);
   const [legendWidth, setLegendWidth] = React.useState(0);
@@ -23,6 +59,7 @@ export const CustomFloatingInput = React.forwardRef(({ label, value, onChange, o
 
   let borderColor = '#cbd5e1'; // Slate 300 — theme border token
   if (error) borderColor = '#d32f2f';
+  else if (updateRequested) borderColor = '#ffc107';
   else if (focused) borderColor = '#0056b3';
   else if (hovered) borderColor = '#94a3b8';
 
@@ -50,7 +87,7 @@ export const CustomFloatingInput = React.forwardRef(({ label, value, onChange, o
         {/* White fill with clip-path notch at exactly label width */}
         <Box sx={{
           position: 'absolute', top: 0, left: '1px', right: '1px', bottom: '1px',
-          backgroundColor: disabled ? '#f1f5f9' : '#ffffff',
+          backgroundColor: disabled ? '#f1f5f9' : 'var(--floating-bg, #ffffff)',
           borderRadius: '7px', zIndex: 0,
           clipPath: clipPath,
           transition: 'clip-path 0.05s ease-in-out',
@@ -119,7 +156,7 @@ export const CustomFloatingInput = React.forwardRef(({ label, value, onChange, o
       <label
         style={{
           position: 'absolute', left: '12px',
-          top: isFloating ? '-7px' : (multiline ? '12px' : '50%'),
+          top: isFloating ? '-7px' : (multiline ? '12px' : '22.5px'),
           transform: isFloating ? 'translateY(0)' : (multiline ? 'translateY(0)' : 'translateY(-50%)'),
           fontSize: isFloating ? '12px' : '15px',
           color: error ? '#d32f2f' : focused ? '#0056b3' : disabled ? '#94a3b8' : '#64748b',
@@ -140,7 +177,7 @@ export const CustomFloatingInput = React.forwardRef(({ label, value, onChange, o
   );
 });
 
-export const CustomFloatingPhoneInput = ({ label, countryCode, onCountryCodeChange, value, onChange, error = false, disabled = false, helperText = '', endAdornment }) => {
+const BaseCustomFloatingPhoneInput = ({ label, countryCode, onCountryCodeChange, value, onChange, error = false, disabled = false, updateRequested = false, helperText = '', endAdornment }) => {
   const [focused, setFocused] = React.useState(false);
   const [hovered, setHovered] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
@@ -180,6 +217,7 @@ export const CustomFloatingPhoneInput = ({ label, countryCode, onCountryCodeChan
 
   let borderColor = '#cbd5e1'; // Slate 300 — theme border token
   if (error) borderColor = '#d32f2f';
+  else if (updateRequested) borderColor = '#ffc107';
   else if (focused || isOpen) borderColor = '#0056b3';
   else if (hovered) borderColor = '#94a3b8';
 
@@ -208,7 +246,7 @@ export const CustomFloatingPhoneInput = ({ label, countryCode, onCountryCodeChan
       <Box sx={{ position: 'relative', width: '100%' }}>
         <Box sx={{
           position: 'absolute', top: 0, left: '1px', right: '1px', bottom: '1px',
-          backgroundColor: disabled ? '#f1f5f9' : '#ffffff',
+          backgroundColor: disabled ? '#f1f5f9' : 'var(--floating-bg, #ffffff)',
           borderRadius: '7px', zIndex: 0,
           clipPath: clipPath,
           transition: 'clip-path 0.05s ease-in-out',
@@ -300,7 +338,7 @@ export const CustomFloatingPhoneInput = ({ label, countryCode, onCountryCodeChan
       <label
         style={{
           position: 'absolute', left: isFloating ? '12px' : '110px',
-          top: isFloating ? '-7px' : '50%',
+          top: isFloating ? '-7px' : '22.5px',
           transform: isFloating ? 'translateY(0)' : 'translateY(-50%)',
           fontSize: isFloating ? '12px' : '15px',
           color: error ? '#d32f2f' : (focused || isOpen) ? '#0056b3' : disabled ? '#94a3b8' : '#64748b',
@@ -398,7 +436,7 @@ export const CustomFloatingPhoneInput = ({ label, countryCode, onCountryCodeChan
   );
 };
 
-export const CustomFloatingSelect = ({ label, value, onChange, options = [], error = false, disabled = false, searchable = undefined }) => {
+const BaseCustomFloatingSelect = ({ label, value, onChange, options = [], error = false, disabled = false, updateRequested = false, searchable = undefined, sx }) => {
   const [focused, setFocused] = React.useState(false);
   const [hovered, setHovered] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
@@ -432,6 +470,7 @@ export const CustomFloatingSelect = ({ label, value, onChange, options = [], err
 
   let borderColor = '#cbd5e1'; // Slate 300 — theme border token
   if (error) borderColor = '#d32f2f';
+  else if (updateRequested) borderColor = '#ffc107';
   else if (focused || isOpen) borderColor = '#0056b3';
   else if (hovered) borderColor = '#94a3b8';
 
@@ -456,7 +495,7 @@ export const CustomFloatingSelect = ({ label, value, onChange, options = [], err
   return (
     <Box
       ref={containerRef}
-      sx={{ position: 'relative', width: '100%' }}
+      sx={{ position: 'relative', width: '100%', ...sx }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -472,7 +511,7 @@ export const CustomFloatingSelect = ({ label, value, onChange, options = [], err
         {/* White fill with clip-path notch at exactly label width */}
         <Box sx={{
           position: 'absolute', top: 0, left: '1px', right: '1px', bottom: '1px',
-          backgroundColor: disabled ? '#f1f5f9' : '#ffffff',
+          backgroundColor: disabled ? '#f1f5f9' : 'var(--floating-bg, #ffffff)',
           borderRadius: '7px', zIndex: 0,
           clipPath: clipPath,
           transition: 'clip-path 0.05s ease-in-out',
@@ -523,7 +562,7 @@ export const CustomFloatingSelect = ({ label, value, onChange, options = [], err
       <label
         style={{
           position: 'absolute', left: '12px',
-          top: isFloating ? '-7px' : '50%',
+          top: isFloating ? '-7px' : '22.5px',
           transform: isFloating ? 'translateY(0)' : 'translateY(-50%)',
           fontSize: isFloating ? '12px' : '15px',
           color: error ? '#d32f2f' : (focused || isOpen) ? '#0056b3' : disabled ? '#94a3b8' : '#64748b',
@@ -633,7 +672,7 @@ export const CustomFloatingSelect = ({ label, value, onChange, options = [], err
   );
 };
 
-export const CustomFloatingDatePicker = ({ label, value, onChange, error, helperText, disabled, disableFuture = false }) => {
+const BaseCustomFloatingDatePicker = ({ label, value, onChange, error, helperText, disabled, updateRequested = false, disableFuture = false }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [showMonthSelect, setShowMonthSelect] = React.useState(false);
   const [showYearSelect, setShowYearSelect] = React.useState(false);
@@ -695,17 +734,18 @@ export const CustomFloatingDatePicker = ({ label, value, onChange, error, helper
 
   const currentYearNum = new Date().getFullYear();
   const maxYearNum = disableFuture ? currentYearNum : currentYearNum + 19;
-  const yearsArray = Array.from({length: maxYearNum - (currentYearNum - 100) + 1}, (_, i) => (currentYearNum - 100) + i).reverse();
+  const yearsArray = Array.from({ length: maxYearNum - (currentYearNum - 100) + 1 }, (_, i) => (currentYearNum - 100) + i).reverse();
 
   return (
     <Box ref={containerRef} sx={{ position: 'relative', width: '100%' }}>
-      <CustomFloatingInput
+      <BaseCustomFloatingInput
         label={label}
         value={displayValue}
         onClick={() => !disabled && setIsOpen(!isOpen)}
         error={error}
         helperText={helperText}
         disabled={disabled}
+        updateRequested={updateRequested}
         inputProps={{ readOnly: true, style: { cursor: disabled ? 'default' : 'pointer' } }}
         InputProps={{
           endAdornment: (
@@ -728,13 +768,13 @@ export const CustomFloatingDatePicker = ({ label, value, onChange, error, helper
         }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, position: 'relative' }}>
-              <Box 
+              <Box
                 onClick={(e) => { e.stopPropagation(); setShowMonthSelect(!showMonthSelect); setShowYearSelect(false); }}
                 sx={{ cursor: 'pointer', p: 0.5, borderRadius: 1, '&:hover': { bgcolor: '#f1f5f9' }, fontSize: '16px', fontWeight: 600, color: '#0f172a' }}
               >
                 {monthNames[month]}
               </Box>
-              <Box 
+              <Box
                 onClick={(e) => { e.stopPropagation(); setShowYearSelect(!showYearSelect); setShowMonthSelect(false); }}
                 sx={{ cursor: 'pointer', p: 0.5, borderRadius: 1, '&:hover': { bgcolor: '#f1f5f9' }, fontSize: '16px', fontWeight: 600, color: '#0f172a' }}
               >
@@ -757,15 +797,15 @@ export const CustomFloatingDatePicker = ({ label, value, onChange, error, helper
                     const isDisabledMonth = disableFuture && year === currentYearNum && i > new Date().getMonth();
                     const isSelected = month === i;
                     return (
-                      <Box 
-                        key={i} 
-                        onClick={(e) => { 
-                          e.stopPropagation(); 
+                      <Box
+                        key={i}
+                        onClick={(e) => {
+                          e.stopPropagation();
                           if (isDisabledMonth) return;
-                          setCurrentMonth(new Date(year, i, 1)); 
-                          setShowMonthSelect(false); 
+                          setCurrentMonth(new Date(year, i, 1));
+                          setShowMonthSelect(false);
                         }}
-                        sx={{ 
+                        sx={{
                           boxSizing: 'border-box',
                           borderRadius: '8px',
                           margin: '2px 6px',
@@ -774,17 +814,17 @@ export const CustomFloatingDatePicker = ({ label, value, onChange, error, helper
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          cursor: isDisabledMonth ? 'not-allowed' : 'pointer', 
+                          cursor: isDisabledMonth ? 'not-allowed' : 'pointer',
                           opacity: isDisabledMonth ? 0.4 : 1,
                           bgcolor: isSelected ? '#eff6ff' : 'transparent',
-                          color: isSelected ? '#0056b3' : '#334155', 
-                          fontWeight: isSelected ? 600 : 400, 
+                          color: isSelected ? '#0056b3' : '#334155',
+                          fontWeight: isSelected ? 600 : 400,
                           fontSize: '14px',
                           transition: 'all 0.15s ease',
-                          '&:hover': { 
-                            bgcolor: isDisabledMonth ? 'transparent' : '#f8fafc', 
-                            color: isDisabledMonth ? 'inherit' : '#0f172a' 
-                          }, 
+                          '&:hover': {
+                            bgcolor: isDisabledMonth ? 'transparent' : '#f8fafc',
+                            color: isDisabledMonth ? 'inherit' : '#0f172a'
+                          },
                         }}
                       >
                         {m}
@@ -806,15 +846,15 @@ export const CustomFloatingDatePicker = ({ label, value, onChange, error, helper
                   {yearsArray.map(y => {
                     const isSelected = year === y;
                     return (
-                      <Box 
-                        key={y} 
-                        onClick={(e) => { 
-                          e.stopPropagation(); 
+                      <Box
+                        key={y}
+                        onClick={(e) => {
+                          e.stopPropagation();
                           const newMonth = (disableFuture && y === currentYearNum && month > new Date().getMonth()) ? new Date().getMonth() : month;
-                          setCurrentMonth(new Date(y, newMonth, 1)); 
-                          setShowYearSelect(false); 
+                          setCurrentMonth(new Date(y, newMonth, 1));
+                          setShowYearSelect(false);
                         }}
-                        sx={{ 
+                        sx={{
                           boxSizing: 'border-box',
                           borderRadius: '8px',
                           margin: '2px 6px',
@@ -825,14 +865,14 @@ export const CustomFloatingDatePicker = ({ label, value, onChange, error, helper
                           justifyContent: 'center',
                           cursor: 'pointer',
                           bgcolor: isSelected ? '#eff6ff' : 'transparent',
-                          color: isSelected ? '#0056b3' : '#334155', 
-                          fontWeight: isSelected ? 600 : 400, 
+                          color: isSelected ? '#0056b3' : '#334155',
+                          fontWeight: isSelected ? 600 : 400,
                           fontSize: '14px',
                           transition: 'all 0.15s ease',
-                          '&:hover': { 
-                            bgcolor: '#f8fafc', 
-                            color: '#0f172a' 
-                          }, 
+                          '&:hover': {
+                            bgcolor: '#f8fafc',
+                            color: '#0f172a'
+                          },
                         }}
                       >
                         {y}
@@ -895,7 +935,7 @@ export const CustomFloatingDatePicker = ({ label, value, onChange, error, helper
   );
 };
 
-export const CustomFloatingCountrySelect = ({ label, value, onChange, error, helperText, disabled }) => {
+const BaseCustomFloatingCountrySelect = ({ label, value, onChange, error, helperText, disabled, updateRequested = false }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [focused, setFocused] = React.useState(false);
   const [hovered, setHovered] = React.useState(false);
@@ -934,6 +974,7 @@ export const CustomFloatingCountrySelect = ({ label, value, onChange, error, hel
 
   let borderColor = '#cbd5e1'; // Slate 300 — theme border token
   if (error) borderColor = '#d32f2f';
+  else if (updateRequested) borderColor = '#ffc107';
   else if (focused || isOpen) borderColor = '#0056b3';
   else if (hovered) borderColor = '#94a3b8';
 
@@ -969,7 +1010,7 @@ export const CustomFloatingCountrySelect = ({ label, value, onChange, error, hel
       <Box sx={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center' }}>
         <Box sx={{
           position: 'absolute', top: 0, left: '1px', right: '1px', bottom: '1px',
-          backgroundColor: disabled ? '#f1f5f9' : '#ffffff',
+          backgroundColor: disabled ? '#f1f5f9' : 'var(--floating-bg, #ffffff)',
           borderRadius: '7px', zIndex: 0,
           clipPath: clipPath,
           transition: 'clip-path 0.05s ease-in-out',
@@ -1016,7 +1057,7 @@ export const CustomFloatingCountrySelect = ({ label, value, onChange, error, hel
         <label
           style={{
             position: 'absolute', left: '12px',
-            top: isFloating ? '-7px' : '50%',
+            top: isFloating ? '-7px' : '22.5px',
             transform: isFloating ? 'translateY(0)' : 'translateY(-50%)',
             fontSize: isFloating ? '12px' : '15px',
             color: error ? '#d32f2f' : (focused || isOpen) ? '#0056b3' : disabled ? '#94a3b8' : '#64748b',
@@ -1118,7 +1159,7 @@ export const CustomFloatingCountrySelect = ({ label, value, onChange, error, hel
   );
 };
 
-export const CustomFloatingFileInput = React.forwardRef(({ label, error = false, helperText = '', disabled = false, onChange, ...rest }, ref) => {
+const BaseCustomFloatingFileInput = React.forwardRef(({ label, error = false, helperText = '', disabled = false, updateRequested = false, onChange, ...rest }, ref) => {
   const [focused, setFocused] = React.useState(false);
   const [hovered, setHovered] = React.useState(false);
   const [legendWidth, setLegendWidth] = React.useState(0);
@@ -1136,6 +1177,7 @@ export const CustomFloatingFileInput = React.forwardRef(({ label, error = false,
 
   let borderColor = '#cbd5e1'; // Slate 300 — theme border token
   if (error) borderColor = '#d32f2f';
+  else if (updateRequested) borderColor = '#ffc107';
   else if (focused) borderColor = '#0056b3';
   else if (hovered) borderColor = '#94a3b8';
 
@@ -1156,7 +1198,7 @@ export const CustomFloatingFileInput = React.forwardRef(({ label, error = false,
       <Box sx={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center' }}>
         <Box sx={{
           position: 'absolute', top: 0, left: '1px', right: '1px', bottom: '1px',
-          backgroundColor: disabled ? '#f1f5f9' : '#ffffff',
+          backgroundColor: disabled ? '#f1f5f9' : 'var(--floating-bg, #ffffff)',
           borderRadius: '7px', zIndex: 0,
           clipPath: clipPath,
         }} />
@@ -1231,7 +1273,7 @@ export const CustomFloatingFileInput = React.forwardRef(({ label, error = false,
       <label
         style={{
           position: 'absolute', left: '12px',
-          top: isFloating ? '-7px' : '50%',
+          top: isFloating ? '-7px' : '22.5px',
           transform: isFloating ? 'translateY(0)' : 'translateY(-50%)',
           fontSize: isFloating ? '12px' : '15px',
           color: error ? '#d32f2f' : focused ? '#0056b3' : disabled ? '#94a3b8' : '#64748b',
@@ -1318,7 +1360,7 @@ export const CustomFloatingSearchableSelect = ({ label, value, onChange, options
       <Box sx={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center' }}>
         <Box sx={{
           position: 'absolute', top: 0, left: '1px', right: '1px', bottom: '1px',
-          backgroundColor: disabled ? '#f1f5f9' : '#ffffff',
+          backgroundColor: disabled ? '#f1f5f9' : 'var(--floating-bg, #ffffff)',
           borderRadius: '7px', zIndex: 0,
           clipPath: clipPath,
           transition: 'clip-path 0.05s ease-in-out',
@@ -1367,7 +1409,7 @@ export const CustomFloatingSearchableSelect = ({ label, value, onChange, options
         <label
           style={{
             position: 'absolute', left: '12px',
-            top: isFloating ? '-7px' : '50%',
+            top: isFloating ? '-7px' : '22.5px',
             transform: isFloating ? 'translateY(0)' : 'translateY(-50%)',
             fontSize: isFloating ? '12px' : '15px',
             color: error ? '#d32f2f' : (focused || isOpen) ? '#0056b3' : disabled ? '#94a3b8' : '#64748b',
@@ -1468,3 +1510,23 @@ export const CustomFloatingSearchableSelect = ({ label, value, onChange, options
     </Box>
   );
 };
+
+const WrappedCustomFloatingInput = withFieldState(BaseCustomFloatingInput);
+const WrappedCustomFloatingSelect = withFieldState(BaseCustomFloatingSelect);
+const WrappedCustomFloatingPhoneInput = withFieldState(BaseCustomFloatingPhoneInput);
+const WrappedCustomFloatingDatePicker = withFieldState(BaseCustomFloatingDatePicker);
+const WrappedCustomFloatingCountrySelect = withFieldState(BaseCustomFloatingCountrySelect);
+const WrappedCustomFloatingFileInput = withFieldState(BaseCustomFloatingFileInput);
+
+WrappedCustomFloatingInput.displayName = "CustomFloatingInput";
+WrappedCustomFloatingFileInput.displayName = "CustomFloatingFileInput";
+
+BaseCustomFloatingInput.displayName = "BaseCustomFloatingInput";
+BaseCustomFloatingFileInput.displayName = "BaseCustomFloatingFileInput";
+
+export { WrappedCustomFloatingInput as CustomFloatingInput };
+export { WrappedCustomFloatingSelect as CustomFloatingSelect };
+export { WrappedCustomFloatingPhoneInput as CustomFloatingPhoneInput };
+export { WrappedCustomFloatingDatePicker as CustomFloatingDatePicker };
+export { WrappedCustomFloatingCountrySelect as CustomFloatingCountrySelect };
+export { WrappedCustomFloatingFileInput as CustomFloatingFileInput };

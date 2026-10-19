@@ -23,7 +23,6 @@ WORKDIR /app
 COPY --from=builder /app/auth-service .
 
 # Copy config
-COPY .env .env
 
 EXPOSE 8080
 

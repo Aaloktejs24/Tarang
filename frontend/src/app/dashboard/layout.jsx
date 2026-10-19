@@ -54,7 +54,7 @@ export default function DashboardLayout({ children }) {
           </Box>
           <Grid container spacing={3}>
             {[1, 2, 3].map(i => (
-              <Grid item xs={12} md={4} key={i}>
+              <Grid key={i} size={{xs: 12, md: 4}}>
                 <Skeleton variant="rounded" height={150} sx={{ borderRadius: "16px" }} />
               </Grid>
             ))}

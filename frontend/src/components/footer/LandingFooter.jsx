@@ -116,7 +116,7 @@ export default function LandingFooter() {
                   {t("landing.footer.followUs")}
                 </Typography>
                 <Box sx={{ display: "flex", gap: 1 }}>
-                  {[<FacebookIcon/>, <TwitterIcon/>, <LinkedInIcon/>, <InstagramIcon/>].map((icon, i) => (
+                  {[<FacebookIcon key="fb"/>, <TwitterIcon key="tw"/>, <LinkedInIcon key="li"/>, <InstagramIcon key="ig"/>].map((icon, i) => (
                     <Box key={i} sx={{ width: 32, height: 32, bgcolor: "#fff", color: "#0056b3", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px", cursor: "pointer", "&:hover": { bgcolor: "#28a745", color: "#fff" }, transition: "all 0.2s" }}>
                       {React.cloneElement(icon, { sx: { fontSize: 18 } })}
                     </Box>

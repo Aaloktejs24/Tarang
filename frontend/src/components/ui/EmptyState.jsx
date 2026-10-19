@@ -64,7 +64,7 @@ export default function EmptyState({
             {/* Background Ambient Glow */}
             <circle cx="130" cy="80" r="65" fill="rgba(37, 99, 235, 0.05)" style={{ animation: 'pulseGlow 4s ease-in-out infinite' }} />
             {/* Floating decorative elements */}
-            <path d="M 40 35 Q 40 45 30 45 Q 40 45 40 55 Q 40 45 50 45 Q 40 45 40 35" fill="#f59e0b" opacity="0.9" style={{ animation: 'floatSlow 4s ease-in-out infinite', transformOrigin: '40px 45px' }} />
+            <path d="M 40 35 Q 40 45 30 45 Q 40 45 40 55 Q 40 45 50 45 Q 40 45 40 35" fill="#ffc107" opacity="0.9" style={{ animation: 'floatSlow 4s ease-in-out infinite', transformOrigin: '40px 45px' }} />
             <rect x="220" y="30" width="12" height="12" rx="3" fill="#10b981" opacity="0.8" style={{ animation: 'float 5s ease-in-out infinite', transformOrigin: '226px 36px' }} transform="rotate(15 226 36)" />
             <path d="M 210 120 L 222 128 L 210 136 Z" fill="#3b82f6" opacity="0.7" style={{ animation: 'floatSlow 6s ease-in-out infinite' }} />
             
@@ -72,7 +72,7 @@ export default function EmptyState({
             <rect x="105" y="55" width="50" height="70" rx="12" fill="#475569" />
             <path d="M 100 85 Q 130 75 160 85 L 150 140 L 110 140 Z" fill="#0056b3" />
             <polygon points="120,83 140,83 130,105" fill="#f1f5f9" />
-            <polygon points="128,95 132,95 130,120" fill="#f59e0b" />
+            <polygon points="128,95 132,95 130,120" fill="#ffc107" />
             <rect x="126" y="66" width="8" height="18" fill="#fad6ca" />
             <circle cx="130" cy="55" r="16" fill="#fad6ca" />
             <path d="M 112 55 Q 112 33 130 33 Q 148 33 148 55 Q 140 40 130 42 Q 120 40 112 55 Z" fill="#0f172a" />
@@ -97,7 +97,7 @@ export default function EmptyState({
             <circle cx="130" cy="100" r="4" fill="#e2e8f0" opacity="0.6" />
             <path d="M 105 116 L 155 116 L 160 120 L 100 120 Z" fill="#64748b" />
             <rect x="160" y="115" width="25" height="15" rx="1" fill="#f8fafc" transform="rotate(-15 160 115)" />
-            <rect x="162" y="113" width="22" height="15" rx="1" fill="#f59e0b" opacity="0.8" transform="rotate(-5 162 113)" />
+            <rect x="162" y="113" width="22" height="15" rx="1" fill="#ffc107" opacity="0.8" transform="rotate(-5 162 113)" />
             <line x1="165" y1="118" x2="178" y2="118" stroke="#cbd5e1" strokeWidth="2" strokeLinecap="round" transform="rotate(-5 162 113)" />
             <rect x="75" y="105" width="10" height="14" rx="2" fill="#ef4444" />
             <path d="M 72 108 Q 68 112 72 116" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" fill="none" />

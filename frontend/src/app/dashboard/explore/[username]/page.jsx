@@ -119,7 +119,7 @@ export default function InstituteDetails() {
         fadeAnchorRef={cardsRef}
       />
 
-      <Container maxWidth="xl" sx={{ position: "relative", zIndex: 1, pb: 10, px: { xs: 2, md: 4 } }}>
+      <Container maxWidth="xl" sx={{ position: "relative", zIndex: 1, pb: 10, px: { xs: 3, md: 6, lg: 8 } }}>
         {/* ─── MODULE GRID ─── */}
         <Box
           ref={cardsRef}

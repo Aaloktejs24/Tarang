@@ -178,6 +178,7 @@ message Application {
   string created_at = 7;
   string updated_at = 8;
   Program program = 9; // Optional nested program details
+  string submitted_data = 10; // Applicant's submitted data
 }
 
 // Transactions (Progress Log)

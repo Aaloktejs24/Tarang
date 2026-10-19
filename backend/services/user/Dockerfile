@@ -24,7 +24,6 @@ COPY --from=builder /app/user-service .
 
 # Copy migrations and config
 COPY ./services/user/migrations ./migrations
-COPY .env .env
 
 EXPOSE 50051
 

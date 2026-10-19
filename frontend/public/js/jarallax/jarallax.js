@@ -407,7 +407,7 @@ var Jarallax = function () {
         var deprecatedDataAttribute = self.$item.getAttribute('data-jarallax');
         var oldDataOptions = JSON.parse(deprecatedDataAttribute || '{}');
         if (deprecatedDataAttribute) {
-            // eslint-disable-next-line no-console
+             
             console.warn('Detected usage of deprecated data-jarallax JSON options, you should use pure data-attribute options. See info here - https://github.com/nk-o/jarallax/issues/53');
         }
 
@@ -438,7 +438,7 @@ var Jarallax = function () {
 
         // deprecated noAndroid and noIos options
         if (self.options.noAndroid || self.options.noIos) {
-            // eslint-disable-next-line no-console
+             
             console.warn('Detected usage of deprecated noAndroid or noIos options, you should use disableParallax option. See info here - https://github.com/nk-o/jarallax/#disable-on-mobile-devices');
 
             // prepare fallback if disableParallax option is not used
@@ -1051,7 +1051,7 @@ var plugin = function plugin(items) {
                 items[k].jarallax = new Jarallax(items[k], options);
             }
         } else if (items[k].jarallax) {
-            // eslint-disable-next-line prefer-spread
+             
             ret = items[k].jarallax[options].apply(items[k].jarallax, args);
         }
         if (typeof ret !== 'undefined') {

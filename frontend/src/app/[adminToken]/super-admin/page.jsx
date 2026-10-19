@@ -175,6 +175,7 @@ export default function SuperAdminPage() {
         }
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const handleSendEmail = async (e) => {

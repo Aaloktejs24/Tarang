@@ -212,7 +212,7 @@ export default function BlogDetailPage() {
                 </Box>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Typography sx={{ color: "#0f172a", fontWeight: 700, fontSize: "0.95rem", mr: 1 }}>{t("landing.blogPage.share.title")}</Typography>
-                  {[<FacebookIcon/>, <TwitterIcon/>, <InstagramIcon/>, <LinkedInIcon/>].map((icon, i) => (
+                  {[<FacebookIcon key="fb"/>, <TwitterIcon key="tw"/>, <InstagramIcon key="ig"/>, <LinkedInIcon key="li"/>].map((icon, i) => (
                     <Box key={i} sx={{ color: "#0056b3", cursor: "pointer", "&:hover": { color: "#28a745" }, transition: "color 0.2s" }}>
                       {React.cloneElement(icon, { sx: { fontSize: 20 } })}
                     </Box>

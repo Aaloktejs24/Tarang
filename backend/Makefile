@@ -1,7 +1,11 @@
-# Database URLs (Sirf wahi jo zaroori hain)
-USER_DB = postgresql://tarang:password@localhost:5432/user_db?sslmode=disable
-AUTH_DB = postgresql://tarang:password@localhost:5432/auth_db?sslmode=disable
-ADMISSION_DB = postgresql://tarang:password@localhost:5432/admission_db?sslmode=disable
+# Include environment variables from .env file
+include .env
+export $(shell sed 's/=.*//' .env)
+
+# Database URLs (Constructed from .env replacing postgres container hostname with localhost for local migrations)
+USER_DB = $(subst @postgres:,@localhost:,$(USER_DATABASE_URL))
+AUTH_DB = $(subst @postgres:,@localhost:,$(AUTH_DATABASE_URL))
+ADMISSION_DB = $(subst @postgres:,@localhost:,$(ADMISSION_DATABASE_URL))
 
 # Migration Paths
 USER_PATH = ./services/user/migrations

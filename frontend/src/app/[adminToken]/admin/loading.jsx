@@ -19,7 +19,7 @@ export default function AdminLoading() {
       {/* Stat Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {[1, 2, 3, 4].map((item) => (
-          <Grid item xs={12} sm={6} md={3} key={item}>
+          <Grid key={item} size={{xs: 12, sm: 6, md: 3}}>
             <Box sx={{ p: 3, bgcolor: '#fff', borderRadius: 2, border: '1px solid #e2e8f0' }}>
               <Skeleton variant="circular" width={48} height={48} sx={{ mb: 2 }} />
               <Skeleton variant="text" width="60%" height={24} />

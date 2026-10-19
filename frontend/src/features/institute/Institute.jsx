@@ -1,4 +1,4 @@
-/* eslint-disable */
+ 
 "use client";
 import React from "react";
 import { Box, Typography, Grid, Card, CardContent, Avatar, Button, Container, alpha, Breadcrumbs, Link, Skeleton, CircularProgress } from "@mui/material";
@@ -31,10 +31,13 @@ import { useProfile } from "../../hooks/useProfile";
 import { useAccessibility } from "../../contexts/AccessibilityContext";
 import { useTranslation } from "../../hooks/useTranslation";
 import UniversalHero from '../../components/hero/UniversalHero';
-import { capitalizeFirstLetter, getAcronym, formatBreadcrumbName } from "../../utils/stringUtils";
+import { capitalizeFirstLetter, getAcronym, formatBreadcrumbName, getNoNamePlaceholder } from "../../utils/stringUtils";
 import { getHeroPropsFromProfile } from '../../utils/heroUtils';
 import { useBreadcrumbs } from "../../contexts/BreadcrumbContext";
-
+import { getUserApplications } from "../admission/admissionService";
+import { apiClient } from "../../lib/apiClient";
+import Chip from '@mui/material/Chip';
+import gazeteer from "../../data/formated/gazeteer.json";
 const instituteModules = [
   {
     id: "academic", title: "शैक्षणिक / Academic", subTitle: "Classes & Curriculum", icon: <SchoolOutlinedIcon />, color: "#0056b3",
@@ -161,20 +164,86 @@ export default function InstitutePage() {
   };
 
   const isManagement = profile?.role === 'institute' || profile?.role === 'organisation';
-  const hasJoinedInstitute = !!profile?.institution_name;
+  
+  const [userApplications, setUserApplications] = React.useState([]);
+  const [loadingApps, setLoadingApps] = React.useState(false);
+  const [dynamicInstitute, setDynamicInstitute] = React.useState(null);
+
+  React.useEffect(() => {
+    const approvedApp = userApplications?.find(app => app.status === 'approved' || app.status === 'enrolled');
+    if (approvedApp && !profile?.institution_name) {
+      apiClient.get(`/public/institutes`).then(res => {
+         const institutes = res.data?.institutes || res.data || [];
+         const matchedInstitute = institutes.find(inst => inst.id === (approvedApp.institute_id || approvedApp.instituteId)) || institutes[0];
+         if (matchedInstitute) setDynamicInstitute(matchedInstitute);
+      }).catch(err => console.error(err));
+    }
+  }, [userApplications, profile?.institution_name]);
+
+  // Check if any application is approved or enrolled
+  const hasApprovedApp = userApplications?.some(app => app.status === 'approved' || app.status === 'enrolled');
+  const hasJoinedInstitute = !!profile?.institution_name || hasApprovedApp;
+  
   const showEmptyState = !profileLoading && !isManagement && !hasJoinedInstitute;
+
+  React.useEffect(() => {
+    if (profile?.id && !isManagement) {
+      setLoadingApps(true);
+      getUserApplications(profile.id)
+        .then(data => {
+          if (data && data.applications) {
+            setUserApplications(data.applications);
+          } else if (Array.isArray(data)) {
+            setUserApplications(data);
+          }
+        })
+        .catch(err => console.error("Failed to load applications:", err))
+        .finally(() => setLoadingApps(false));
+    }
+  }, [profile?.id, isManagement]);
 
   const modulesToShow = isManagement
     ? (activeCategory ? managementSubModules[activeCategory] : managementModules)
     : instituteModules;
 
-  const displayTitle = showEmptyState
-    ? (profile?.full_name || profile?.username || "Student Portal")
-    : (profile?.full_name || profile?.institution_name || profile?.username || "Institute");
+  let displayTitle = "";
+  let displaySubtitle = "";
 
-  const displaySubtitle = showEmptyState
-    ? (language === 'en' ? "Welcome to Tarang Portal" : "तरंग पोर्टल में आपका स्वागत है")
-    : "";
+  if (showEmptyState) {
+    displayTitle = profile?.full_name || profile?.username || "Student Portal";
+    displaySubtitle = language === 'en' ? "Welcome to Tarang Portal" : "तरंग पोर्टल में आपका स्वागत है";
+  } else {
+    const rawName = profile?.institution_name || dynamicInstitute?.institution_name || dynamicInstitute?.full_name || dynamicInstitute?.name || dynamicInstitute?.username || "";
+    const parts = rawName ? rawName.split(' / ') : [];
+    
+    const locationParts = profile?.location ? profile.location.split(', ') : [];
+    const country = locationParts.length > 1 ? locationParts[locationParts.length - 1] : "भारत";
+    const countryData = gazeteer.Countries.find(c => c.name.toLowerCase() === country.toLowerCase() || (country === "भारत" && c.code === "IN"));
+    const nationalLang = countryData ? countryData.officialLang : "hi";
+    
+    const stateLang = language || 'en';
+    
+    const defaultLang1 = getNoNamePlaceholder(stateLang);
+    const defaultLang2 = stateLang === nationalLang ? "" : getNoNamePlaceholder(nationalLang);
+
+    if (parts.length >= 2) {
+      displayTitle = parts[0].trim();
+      displaySubtitle = parts[1].trim();
+    } else if (parts.length === 1 && parts[0].trim() !== "") {
+      const nameStr = parts[0].trim();
+      const isEnglish = /^[A-Za-z0-9\s.,&'()\-]+$/.test(nameStr);
+      if (isEnglish && stateLang !== 'en' && nationalLang === 'en') {
+        displayTitle = defaultLang1;
+        displaySubtitle = nameStr;
+      } else {
+        displayTitle = nameStr;
+        displaySubtitle = defaultLang2;
+      }
+    } else {
+      displayTitle = defaultLang1;
+      displaySubtitle = defaultLang2;
+    }
+  }
 
   const getTranslatedText = (text) => {
     if (!text) return "";
@@ -207,44 +276,113 @@ export default function InstitutePage() {
 
   useBreadcrumbs(dynamicBreadcrumbs);
 
+  const isTrulyEmpty = showEmptyState && userApplications.length === 0;
+
   return (
-    <Box sx={{ position: "relative", minHeight: "calc(100vh - 72px)", overflow: "hidden", bgcolor: "transparent", mt: "-1px" }}>
-      {/* HERO SECTION */}
+    <Box sx={{ position: "relative", minHeight: "calc(100vh - 72px)", overflowX: "hidden", overflowY: "auto", bgcolor: "transparent", mt: "-1px" }}>
       <UniversalHero
         {...getHeroPropsFromProfile(profile, language)}
+        title={displayTitle}
+        subtitle={displaySubtitle}
+        bannerUrl={!showEmptyState && dynamicInstitute?.banner_url ? dynamicInstitute.banner_url : undefined}
+        avatarUrl={!showEmptyState && dynamicInstitute?.profile_pic_url ? dynamicInstitute.profile_pic_url : undefined}
         loading={profileLoading}
-        hideAvatar={showEmptyState}
-        hideContent={showEmptyState}
+        hideAvatar={isTrulyEmpty}
+        hideContent={isTrulyEmpty}
         fadeAnchorRef={cardsRef}
-        showSpacer={!showEmptyState}
+        showSpacer={!isTrulyEmpty}
       />
 
       <Container maxWidth="xl" sx={{
         position: "relative",
         zIndex: 1,
-        pb: showEmptyState ? 0 : 10,
-        px: { xs: 2, md: 4 },
-        ...(showEmptyState && {
-          height: "calc(100vh - 72px)",
+        pb: isTrulyEmpty ? 0 : 10,
+        px: { xs: 3, md: 6, lg: 8 },
+        ...(isTrulyEmpty && {
+          minHeight: "calc(100vh - 72px)",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
+          py: 6
         })
       }}>
         {/* ─── MODULE GRID ─── */}
         {showEmptyState ? (
-          <Box ref={cardsRef}>
-            <EmptyState
-              title={language === 'en' ? "No Institute Joined" : "कोई संस्थान नहीं जुड़ा"}
-              subtitle={language === 'en'
-                ? "You haven't joined any institute yet. Connect with your educational institution to access your dashboard, courses, and resources."
-                : "आप अभी तक किसी भी संस्थान से नहीं जुड़े हैं। अपने डैशबोर्ड, पाठ्यक्रम और संसाधनों तक पहुंचने के लिए अपने शैक्षणिक संस्थान से जुड़ें।"}
-              actionLabel={language === 'en' ? "Explore Institutes" : "संस्थान खोजें"}
-              actionIcon={
-                <ExploreIcon sx={{ fontSize: 20 }} />
-              }
-              onAction={() => router.push('/dashboard/explore')}
-            />
+          <Box ref={cardsRef} sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
+            {userApplications.length === 0 ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                <EmptyState
+                  title={language === 'en' ? "No Institute Joined" : "कोई संस्थान नहीं जुड़ा"}
+                  subtitle={language === 'en'
+                    ? "You haven't joined any institute yet. Connect with your educational institution to access your dashboard, courses, and resources."
+                    : "आप अभी तक किसी भी संस्थान से नहीं जुड़े हैं। अपने डैशबोर्ड, पाठ्यक्रम और संसाधनों तक पहुंचने के लिए अपने शैक्षणिक संस्थान से जुड़ें।"}
+                  actionLabel={language === 'en' ? "Explore Institutes" : "संस्थान खोजें"}
+                  actionIcon={
+                    <ExploreIcon sx={{ fontSize: 20 }} />
+                  }
+                  onAction={() => router.push('/dashboard/explore')}
+                />
+              </Box>
+            ) : (
+              <Box sx={{ width: '100%' }}>
+                <Grid container spacing={3}>
+                  {userApplications.map((app) => (
+                    <Grid item xs={12} sm={6} md={4} key={app.id}>
+                      <Card
+                        onClick={() => {
+                          const url = `/dashboard/explore/${app.institute_username || 'institute'}/admission/${app.program_id}?appId=${app.id}`;
+                          router.push(url);
+                        }}
+                        sx={{
+                          borderRadius: "16px",
+                          background: "rgba(255, 255, 255, 0.7)",
+                          backdropFilter: "blur(30px)",
+                          border: "1px solid rgba(30, 79, 163, 0.2)",
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+                          cursor: "pointer",
+                          transition: "all 0.3s ease",
+                          "&:hover": {
+                            transform: 'translateY(-4px)',
+                            boxShadow: "0 12px 24px rgba(0,0,0,0.1)",
+                          }
+                        }}
+                      >
+                        <CardContent sx={{ p: 3, "&:last-child": { pb: 3 } }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2.5 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                              <Avatar sx={{ bgcolor: 'rgba(0, 86, 179, 0.1)', color: '#0056b3', width: 48, height: 48 }}>
+                                <AssignmentTurnedInOutlinedIcon />
+                              </Avatar>
+                              <Box>
+                                <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#0f172a', lineHeight: 1.2, mb: 0.5 }}>
+                                  Application #{app.id ? (parseInt(app.id.substring(0, 8), 16) % 90000 + 10000) : '00000'}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600 }}>
+                                  {new Date(app.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                </Typography>
+                              </Box>
+                            </Box>
+                            <Chip 
+                              label={app.status?.replace(/_/g, ' ')} 
+                              size="small"
+                              sx={{ 
+                                fontWeight: 700, 
+                                textTransform: 'capitalize',
+                                bgcolor: app.status === 'approved' ? '#dcfce7' : app.status === 'rejected' ? '#fee2e2' : '#fef3c7',
+                                color: app.status === 'approved' ? '#166534' : app.status === 'rejected' ? '#991b1b' : '#92400e',
+                                px: 1,
+                                height: 26
+                              }}
+                            />
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+            )}
           </Box>
         ) : (
           <Box

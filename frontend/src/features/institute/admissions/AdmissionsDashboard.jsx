@@ -184,7 +184,7 @@ export default function AdmissionsDashboard() {
           position: "relative",
           zIndex: 1,
           pb: showEmptyState ? 0 : 10,
-          px: { xs: 2, md: 4 },
+          px: { xs: 3, md: 6, lg: 8 },
           ...(showEmptyState && {
             height: "calc(100vh - 72px)",
             display: "flex",
@@ -244,7 +244,7 @@ export default function AdmissionsDashboard() {
                           <Box sx={{ position: 'absolute', top: 38, right: 32, display: 'flex', alignItems: 'center' }}>
                             <Box sx={{
                               width: 10, height: 10, borderRadius: '50%',
-                              bgcolor: admission.status === 'Active' ? '#10b981' : (admission.status === 'Draft' ? '#f59e0b' : '#0f172a')
+                              bgcolor: admission.status === 'Active' ? '#10b981' : (admission.status === 'Draft' ? '#ffc107' : '#0f172a')
                             }} title={admission.status} />
                           </Box>
                           <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a', mb: 1, lineHeight: 1.3, pr: 4 }}>
@@ -312,6 +312,7 @@ export default function AdmissionsDashboard() {
                               {!admission.isDraft && (
                                 <Button
                                   variant="contained"
+                                  disableElevation
                                   size="small"
                                   onClick={(e) => {
                                     e.stopPropagation();

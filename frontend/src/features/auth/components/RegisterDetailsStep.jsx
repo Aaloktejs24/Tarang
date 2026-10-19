@@ -45,7 +45,7 @@ function getStrength(password) {
   const passed = RULES.filter((r) => r.test(password)).length;
   if (passed === 0) return { score: 0, label: "", color: "#e2e8f0" };
   if (passed <= 2)  return { score: passed, label: "कमज़ोर",   color: "#ef4444" };
-  if (passed <= 3)  return { score: passed, label: "ठीक है",   color: "#f59e0b" };
+  if (passed <= 3)  return { score: passed, label: "ठीक है",   color: "#ffc107" };
   if (passed === 4) return { score: passed, label: "अच्छा",   color: "#0056b3" };
   return { score: 5, label: "मज़बूत", color: "#28a745" };
 }

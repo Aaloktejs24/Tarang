@@ -297,7 +297,7 @@ export default function Profile() {
               <Skeleton variant="text" width="30%" height={28} sx={{ mb: 2 }} />
               <Grid container spacing={3}>
                 {[1, 2, 3, 4].map((item) => (
-                  <Grid item xs={12} sm={6} md={3} key={item}>
+                  <Grid key={item} size={{xs: 12, sm: 6, md: 3}}>
                     <Skeleton variant="rounded" height={100} sx={{ borderRadius: "20px" }} />
                   </Grid>
                 ))}
@@ -481,7 +481,7 @@ export default function Profile() {
 
             <Grid container spacing={4}>
               {/* Main Content Area */}
-              <Grid item xs={12}>
+              <Grid size={{xs: 12}}>
 
                 {activeTab === "overview" && (
                   <Box>
