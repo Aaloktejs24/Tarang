@@ -1,25 +1,33 @@
-run:
-  timeout: 5m
-
+version: "2"
 linters:
-  enable:
-    - errcheck
-    - gosimple
-    - govet
-    - ineffassign
-    - staticcheck
-    - unused
-
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - errcheck
-    # Unchecked error writes in standard HTTP handlers and defer rollbacks
-    - linters:
-        - errcheck
-      text: "Error return value of `.*\\.(Write|Encode|Rollback|Ack|Nack|UpdateStatus|UpdateJobStatus|UpdateCourse)` is not checked"
-    # Ignore RealIP deprecation notice in server entrypoint
-    - linters:
-        - staticcheck
-      text: "SA1019: middleware\\.RealIP is deprecated"
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - errcheck
+        path: _test\.go
+      - linters:
+          - errcheck
+        text: 'Error return value of `.*\.(Write|Encode|Rollback|Ack|Nack|[uU]pdateStatus|UpdateJobStatus|UpdateCourse)` is not checked'
+      - linters:
+          - staticcheck
+        text: '.*middleware\.RealIP is deprecated.*'
+      - linters:
+          - staticcheck
+        text: 'ST1005: error strings should not be capitalized'
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
